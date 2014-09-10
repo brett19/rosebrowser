@@ -102,9 +102,8 @@ ZMSLoader.load = function(path, callback) {
 
     rh.skip(8);
     var format = rh.readUint32();
-    var bbMinX = rh.readVector3();
-    var bbMaxX = rh.readVector3();
-
+    rh.readVector3();
+    rh.readVector3();
 
     var boneCount = rh.readUint16();
     var boneTable = [];
@@ -115,20 +114,11 @@ ZMSLoader.load = function(path, callback) {
     var vertexCount = rh.readUint16();
     var vertexUvs = [[], [], [], []];
 
-    var bbMin = new THREE.Vector3(+100000, +100000, +100000);
-    var bbMax = new THREE.Vector3(-100000, -100000, -100000);
-
     for (var i = 0; i < vertexCount; ++i) {
       var v = rh.readVector3();
-      if (v.x < bbMin.x) bbMin.x = v.x;
-      if (v.y < bbMin.y) bbMin.y = v.y;
-      if (v.z < bbMin.z) bbMin.z = v.z;
-      if (v.x > bbMax.x) bbMax.x = v.x;
-      if (v.y > bbMax.y) bbMax.y = v.y;
-      if (v.z > bbMax.z) bbMax.z = v.z;
       geometry.vertices.push(v);
     }
-    console.log(bbMin, bbMax);
+
     if (format & ZMSFORMAT.Normal) {
       rh.skip(vertexCount * 3*4)
     }
@@ -181,8 +171,11 @@ ZMSLoader.load = function(path, callback) {
       var v3 = rh.readUint16();
       geometry.faces.push(new THREE.Face3( v1, v2, v3 ));
 
-      var uv = [vertexUvs[0][v1], vertexUvs[0][v2], vertexUvs[0][v3]];
-      geometry.faceVertexUvs[0].push(uv);
+      for (var j = 0; j < 4; ++j) {
+        if (vertexUvs[j].length > 0) {
+          geometry.faceVertexUvs[j].push([vertexUvs[j][v1], vertexUvs[j][v2], vertexUvs[j][v3]]);
+        }
+      }
     }
 
     geometry.computeBoundingSphere();
