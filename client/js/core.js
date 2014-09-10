@@ -225,6 +225,74 @@ ZSCLoader.load = function(path, callback) {
 
 
 
+var CHRLoader = {};
+CHRLoader.load = function(path, callback) {
+  ROSELoader.load(path, function (b) {
+    var data = {};
+
+    data.skeletons = [];
+    var skeletonCount = b.readUint16();
+    for (var i = 0; i < skeletonCount; ++i) {
+      data.skeletons.push(b.readStr());
+    }
+
+    data.motions = [];
+    var motionCount = b.readUint16();
+    for (var i = 0; i < motionCount; ++i) {
+      data.motions.push(b.readStr());
+    }
+
+    data.effects = [];
+    var effectCount = b.readUint16();
+    for (var i = 0; i < effectCount; ++i) {
+      data.effects.push(b.readStr());
+    }
+
+    data.characters = [];
+    var characterCount = b.readUint16();
+    for (var i = 0; i < characterCount; ++i) {
+      var char = {};
+
+      var charEnabled = b.readUint8() != 0;
+      if (charEnabled) {
+        char.skeletonIdx = b.readUint16();
+        char.name = b.readStr();
+
+        char.objects = [];
+        var objectCount = b.readUint16();
+        for (var j = 0; j < objectCount; ++j) {
+          char.objects.push(b.readUint16());
+        }
+
+        char.animations = {};
+        var animationCount = b.readUint16();
+        for (var j = 0; j < animationCount; ++j) {
+          var animType = b.readUint16();
+          char.animations[animType] = b.readUint16();
+        }
+
+        char.effects = [];
+        var effectCount = b.readUint16();
+        for (var j = 0; j < effectCount; ++j) {
+          var effect = {};
+          effect.boneIdx = b.readUint16();
+          effect.effectIdx = b.readUint16();
+          char.effects.push(effect);
+        }
+
+      } else {
+        char = null;
+      }
+
+      data.characters.push(char);
+    }
+
+    callback(data);
+  });
+};
+
+
+
 var ZMSFORMAT = {
   None: 1 << 0,
   Position: 1 << 1,
@@ -561,7 +629,7 @@ material1.skinning = true;
 
 var rootObj = new THREE.Object3D();
 
-ZSCLoader.load('3DDATA/NPC/PART_NPC.ZSC', function(data) {
+CHRLoader.load('3DDATA/NPC/LIST_NPC.CHR', function(data) {
   console.log(data);
 });
 
