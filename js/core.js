@@ -1,5 +1,29 @@
 'use strict';
 
+
+
+THREE.AnimationHandler.parse = function ( root ) {
+  var parseRecurseHierarchy = function ( root, hierarchy ) {
+    if (root instanceof THREE.Bone) {
+      hierarchy.push(root);
+    }
+    for ( var c = 0; c < root.children.length; c ++ )
+      parseRecurseHierarchy( root.children[ c ], hierarchy );
+  };
+  // setup hierarchy
+  var hierarchy = [];
+  if ( root instanceof THREE.SkinnedMesh ) {
+    for ( var b = 0; b < root.skeleton.bones.length; b ++ ) {
+      hierarchy.push( root.skeleton.bones[ b ] );
+    }
+  } else {
+    parseRecurseHierarchy( root, hierarchy );
+  }
+  return hierarchy;
+};
+
+
+
 function BinaryReader(arrayBuffer) {
   this.buffer = new Uint8Array(arrayBuffer);
   this.view = new DataView(arrayBuffer);
@@ -66,15 +90,21 @@ BinaryReader.prototype.readBadQuat = function() {
 };
 
 THREE.XHRLoader.prototype.crossOrigin = 'anonymous';
+THREE.ImageUtils.crossOrigin = 'anonymous';
 
 var cube = null;
 var skhp = null;
+var fnhp = null;
+var vnhp = null;
 
 var ddsLoader = new THREE.DDSLoader();
+//var map1 = ddsLoader.load( "http://home.br19.com:82/rosedata/3DDATA/NPC/PLANT/JELLYBEAN1/BODY02.DDS" );
 
-var map1 = ddsLoader.load( "http://home.br19.com:82/rosedata/3DDATA/NPC/PLANT/JELLYBEAN1/BODY02.DDS" );
+var map1 = THREE.ImageUtils.loadTexture( "http://home.br19.com:82/rosedata/3DDATA/NPC/PLANT/JELLYBEAN1/BODY02.png" );
+map1.flipY = false;
 map1.minFilter = map1.magFilter = THREE.LinearFilter;
-//map1.anisotropy = 4;
+map1.anisotropy = 4;
+
 //var material1 = new THREE.MeshBasicMaterial( { color: 0xFFFFFF, map: map1 } );
 var material1 = new THREE.MeshBasicMaterial({color: 0xdddddd, map: map1});
 material1.skinning = true;
@@ -113,12 +143,11 @@ var render = function () {
   var delta = clock.getDelta();
   THREE.AnimationHandler.update( delta );
 
-  if (cube) {
-
-  }
-
   if (skhp) {
     skhp.update();
+  }
+  if (vnhp) {
+    vnhp.update();
   }
 
   renderer.render(scene, camera);
@@ -141,196 +170,261 @@ var ZMSFORMAT = {
   UV4: 1 << 10
 };
 
-var loader = new THREE.XHRLoader();
-loader.setResponseType('arraybuffer');
-loader.load("http://home.br19.com:82/rosedata/3DDATA/NPC/PLANT/JELLYBEAN1/BODY02.ZMS", function (buffer) {
-  var rh = new BinaryReader(buffer);
+var ROSE_DATA_BASE = 'http://home.br19.com:82/rosedata/';
 
-  var geometry = new THREE.Geometry();
+var ROSELoader = {};
+ROSELoader.load = function(path, callback) {
+  var loader = new THREE.XHRLoader();
+  loader.setResponseType('arraybuffer');
+  loader.load(ROSE_DATA_BASE + path, function (buffer) {
+    callback(new BinaryReader(buffer));
+  });
+};
 
-  rh.skip(8);
-  var format = rh.readUint32();
-  var bbMinX = rh.readVector3();
-  var bbMaxX = rh.readVector3();
+function ZMSLoader() {
+}
+ZMSLoader.prototype.load = function(path, callback) {
+  ROSELoader.load(path, function(rh) {
+    var geometry = new THREE.Geometry();
+
+    rh.skip(8);
+    var format = rh.readUint32();
+    var bbMinX = rh.readVector3();
+    var bbMaxX = rh.readVector3();
 
 
-  var boneCount = rh.readUint16();
-  var boneTable = [];
-  for (var i = 0; i < boneCount; ++i) {
-    boneTable[i] = rh.readUint16();
-  }
-
-  var vertexCount = rh.readUint16();
-  var vertexUvs = [[], [], [], []];
-
-  var bbMin = new THREE.Vector3(+100000, +100000, +100000);
-  var bbMax = new THREE.Vector3(-100000, -100000, -100000);
-
-  for (var i = 0; i < vertexCount; ++i) {
-    var v = rh.readVector3();
-    if (v.x < bbMin.x) bbMin.x = v.x;
-    if (v.y < bbMin.y) bbMin.y = v.y;
-    if (v.z < bbMin.z) bbMin.z = v.z;
-    if (v.x > bbMax.x) bbMax.x = v.x;
-    if (v.y > bbMax.y) bbMax.y = v.y;
-    if (v.z > bbMax.z) bbMax.z = v.z;
-    geometry.vertices.push(v);
-  }
-  console.log(bbMin, bbMax);
-  if (format & ZMSFORMAT.Normal) {
-    rh.skip(vertexCount * 3*4)
-  }
-  if (format & ZMSFORMAT.Color) {
-    rh.skip(vertexCount * 4*4)
-  }
-  if (format & (ZMSFORMAT.BlendIndex|ZMSFORMAT.BlendWeight)) {
-    for (var i = 0; i < vertexCount; ++i) {
-      var boneWeight1 = rh.readFloat();
-      var boneWeight2 = rh.readFloat();
-      var boneWeight3 = rh.readFloat();
-      var boneWeight4 = rh.readFloat();
-      var boneIndex1 = boneTable[rh.readUint16()];
-      var boneIndex2 = boneTable[rh.readUint16()];
-      var boneIndex3 = boneTable[rh.readUint16()];
-      var boneIndex4 = boneTable[rh.readUint16()];
-
-      geometry.skinWeights.push(new THREE.Vector4(boneWeight1, boneWeight2, boneWeight3, boneWeight4));
-      geometry.skinIndices.push(new THREE.Vector4(boneIndex1, boneIndex2, boneIndex3, boneIndex4));
-    }
-  }
-  if (format & ZMSFORMAT.Tangent) {
-    rh.skip(vertexCount * 3*4)
-  }
-  if (format & ZMSFORMAT.UV1) {
-    for (var i = 0; i < vertexCount; ++i) {
-      vertexUvs[0].push(rh.readVector2());
-    }
-  }
-  if (format & ZMSFORMAT.UV2) {
-    for (var i = 0; i < vertexCount; ++i) {
-      vertexUvs[1].push(rh.readVector2());
-    }
-  }
-  if (format & ZMSFORMAT.UV3) {
-    for (var i = 0; i < vertexCount; ++i) {
-      vertexUvs[2].push(rh.readVector2());
-    }
-  }
-  if (format & ZMSFORMAT.UV4) {
-    for (var i = 0; i < vertexCount; ++i) {
-      vertexUvs[3].push(rh.readVector2());
-    }
-  }
-
-  var faceCount = rh.readUint16();
-  for (var i = 0; i < faceCount; ++i) {
-    var v1 = rh.readUint16();
-    var v2 = rh.readUint16();
-    var v3 = rh.readUint16();
-    geometry.faces.push(new THREE.Face3( v1, v2, v3 ));
-
-    var uv = [vertexUvs[0][v1], vertexUvs[0][v2], vertexUvs[0][v3]];
-    geometry.faceVertexUvs[0].push(uv);
-  }
-
-  var loaderx = new THREE.XHRLoader();
-  loaderx.setResponseType('arraybuffer');
-  loaderx.load("http://home.br19.com:82/rosedata/3DDATA/NPC/PLANT/JELLYBEAN1/JELLYBEAN2_BONE.ZMD", function (bufferx) {
-    var rhx = new BinaryReader(bufferx);
-
-    rhx.skip(7);
-
-    var bones = [];
-    var boneCount = rhx.readUint32();
+    var boneCount = rh.readUint16();
+    var boneTable = [];
     for (var i = 0; i < boneCount; ++i) {
-      var bone = {};
-      bone.parent = rhx.readUint32();
-      bone.name = rhx.readStr();
-      var bonePos = rhx.readVector3().divideScalar(100);
-      bone.pos = [bonePos.x, bonePos.y, bonePos.z];
-      var boneRot = rhx.readBadQuat();
-      bone.rotq = [boneRot.x, boneRot.y, boneRot.z, boneRot.w];
-
-      if (i == 0) {
-        bone.parent = -1;
-      }
-      bones.push(bone);
+      boneTable[i] = rh.readUint16();
     }
-    geometry.bones = bones;
+
+    var vertexCount = rh.readUint16();
+    var vertexUvs = [[], [], [], []];
+
+    var bbMin = new THREE.Vector3(+100000, +100000, +100000);
+    var bbMax = new THREE.Vector3(-100000, -100000, -100000);
+
+    for (var i = 0; i < vertexCount; ++i) {
+      var v = rh.readVector3();
+      if (v.x < bbMin.x) bbMin.x = v.x;
+      if (v.y < bbMin.y) bbMin.y = v.y;
+      if (v.z < bbMin.z) bbMin.z = v.z;
+      if (v.x > bbMax.x) bbMax.x = v.x;
+      if (v.y > bbMax.y) bbMax.y = v.y;
+      if (v.z > bbMax.z) bbMax.z = v.z;
+      geometry.vertices.push(v);
+    }
+    console.log(bbMin, bbMax);
+    if (format & ZMSFORMAT.Normal) {
+      rh.skip(vertexCount * 3*4)
+    }
+    if (format & ZMSFORMAT.Color) {
+      rh.skip(vertexCount * 4*4)
+    }
+    if (format & (ZMSFORMAT.BlendIndex|ZMSFORMAT.BlendWeight)) {
+      for (var i = 0; i < vertexCount; ++i) {
+        var boneWeight1 = rh.readFloat();
+        var boneWeight2 = rh.readFloat();
+        var boneWeight3 = rh.readFloat();
+        var boneWeight4 = rh.readFloat();
+        var boneIndex1 = boneTable[rh.readUint16()];
+        var boneIndex2 = boneTable[rh.readUint16()];
+        var boneIndex3 = boneTable[rh.readUint16()];
+        var boneIndex4 = boneTable[rh.readUint16()];
+
+        geometry.skinWeights.push(new THREE.Vector4(boneWeight1, boneWeight2, boneWeight3, boneWeight4));
+        geometry.skinIndices.push(new THREE.Vector4(boneIndex1, boneIndex2, boneIndex3, boneIndex4));
+      }
+    }
+    if (format & ZMSFORMAT.Tangent) {
+      rh.skip(vertexCount * 3*4)
+    }
+    if (format & ZMSFORMAT.UV1) {
+      for (var i = 0; i < vertexCount; ++i) {
+        vertexUvs[0].push(rh.readVector2());
+      }
+    }
+    if (format & ZMSFORMAT.UV2) {
+      for (var i = 0; i < vertexCount; ++i) {
+        vertexUvs[1].push(rh.readVector2());
+      }
+    }
+    if (format & ZMSFORMAT.UV3) {
+      for (var i = 0; i < vertexCount; ++i) {
+        vertexUvs[2].push(rh.readVector2());
+      }
+    }
+    if (format & ZMSFORMAT.UV4) {
+      for (var i = 0; i < vertexCount; ++i) {
+        vertexUvs[3].push(rh.readVector2());
+      }
+    }
+
+    var faceCount = rh.readUint16();
+    for (var i = 0; i < faceCount; ++i) {
+      var v1 = rh.readUint16();
+      var v2 = rh.readUint16();
+      var v3 = rh.readUint16();
+      geometry.faces.push(new THREE.Face3( v1, v2, v3 ));
+
+      var uv = [vertexUvs[0][v1], vertexUvs[0][v2], vertexUvs[0][v3]];
+      geometry.faceVertexUvs[0].push(uv);
+    }
 
     geometry.computeBoundingSphere();
     geometry.computeFaceNormals();
     geometry.computeVertexNormals();
-    geometry.computeTangents();
 
-    cube = new THREE.SkinnedMesh(geometry, material1, false);
-    scene.add(cube);
+    callback(geometry);
+  });
+};
 
-    var ZMOCTYPE = {
-      None: 1 << 0,
-      Position: 1 << 1,
-      Rotation: 1 << 2
-    };
+var loader = new ZMSLoader();
+loader.load('3DDATA/NPC/PLANT/JELLYBEAN1/BODY02.ZMS', function (geometry) {
 
-    var loadery = new THREE.XHRLoader();
-    loadery.setResponseType('arraybuffer');
-    loadery.load("http://home.br19.com:82/rosedata/3DDATA/MOTION/NPC/JELLYBEAN1/JELLYBEAN1_WALK.ZMO", function (buffery) {
-      var rhy = new BinaryReader(buffery);
+  var loader2 = new ZMSLoader();
+  loader2.load('3DDATA/NPC/PLANT/JELLYBEAN1/BODY01.ZMS', function (geometry2) {
 
-      rhy.skip(8);
+    var rootObj = new THREE.Object3D();
 
-      var framesPerSecond = rhy.readUint32();
-      var frameCount = rhy.readUint32();
-      var channelCount = rhy.readUint32();
+    var loaderx = new THREE.XHRLoader();
+    loaderx.setResponseType('arraybuffer');
+    loaderx.load("http://home.br19.com:82/rosedata/3DDATA/NPC/PLANT/JELLYBEAN1/JELLYBEAN2_BONE.ZMD", function (bufferx) {
+      var rhx = new BinaryReader(bufferx);
 
-      var animD = {
-        name: 'test',
-        fps: framesPerSecond,
-        length: frameCount / framesPerSecond,
-        hierarchy: []
-      };
+      rhx.skip(7);
+
+      var bones = [];
+      var bonesA = [];
+      var boneCount = rhx.readUint32();
       for (var i = 0; i < boneCount; ++i) {
-        var animT = {
-          parent: i,
-          keys: []
-        };
-        for (var j = 0; j < frameCount; ++j) {
-          animT.keys.push({time: j/framesPerSecond, pos: bones[i].pos, rot: bones[i].rotq, scl: [1, 1, 1]});
+        var boneParent = rhx.readUint32();
+        var boneName = rhx.readStr();
+        var bonePos = rhx.readVector3().divideScalar(100);
+        var boneRot = rhx.readBadQuat();
+
+        var bone = {};
+        bone.parent = boneParent;
+        bone.name = boneName;
+        bone.pos = [bonePos.x, bonePos.y, bonePos.z];
+        bone.rotq = [boneRot.x, boneRot.y, boneRot.z, boneRot.w];
+        if (i == 0) {
+          bone.parent = -1;
         }
-        animD.hierarchy.push(animT);
+        bonesA.push(bone);
+
+
+        var boneX = new THREE.Bone(rootObj);
+        boneX.name = bone.name;
+        boneX.position.set(bonePos.x, bonePos.y, bonePos.z);
+        boneX.quaternion.set(boneRot.x, boneRot.y, boneRot.z, boneRot.w);
+        boneX.scale.set(1, 1, 1);
+
+        if (bone.parent == -1) {
+          rootObj.add(boneX);
+        } else {
+          bones[bone.parent].add(boneX);
+        }
+
+        bones.push(boneX);
       }
 
-      var channelData = [];
-      for (var i = 0; i < channelCount; ++i) {
-        var channelType = rhy.readUint32();
-        var channelIndex = rhy.readUint32();
-        channelData.push({type: channelType, index: channelIndex});
-      }
+      rootObj.updateMatrixWorld();
 
-      for (var i = 0; i < frameCount; ++i) {
-        for (var j = 0; j < channelCount; ++j) {
-          var thisKey = animD.hierarchy[channelData[j].index].keys[i];
-          if (channelData[j].type == ZMOCTYPE.Position) {
-            var newPos = rhy.readVector3().divideScalar(100);
-            thisKey.pos = [newPos.x, newPos.y, newPos.z];
-          } else if (channelData[j].type == ZMOCTYPE.Rotation) {
-            var newRot = rhy.readBadQuat();
-            thisKey.rot = [newRot.x, newRot.y, newRot.z, newRot.w];
+      var skel = new THREE.Skeleton(bones);
+      skel.calculateInverses();
+
+      cube = new THREE.SkinnedMesh(geometry, material1);
+      cube.bind(skel);
+
+      var cube2 = new THREE.SkinnedMesh(geometry2, material1);
+      cube2.bind(skel);
+
+      var ZMOCTYPE = {
+        None: 1 << 0,
+        Position: 1 << 1,
+        Rotation: 1 << 2
+      };
+
+      var loadery = new THREE.XHRLoader();
+      loadery.setResponseType('arraybuffer');
+      loadery.load("http://home.br19.com:82/rosedata/3DDATA/MOTION/NPC/JELLYBEAN1/JELLYBEAN1_WALK.ZMO", function (buffery) {
+        var rhy = new BinaryReader(buffery);
+
+        rhy.skip(8);
+
+        var framesPerSecond = rhy.readUint32();
+        var frameCount = rhy.readUint32();
+        var channelCount = rhy.readUint32();
+
+        var animD = {
+          name: 'test',
+          fps: framesPerSecond,
+          length: frameCount / framesPerSecond,
+          hierarchy: []
+        };
+        for (var i = 0; i < boneCount; ++i) {
+          var animT = {
+            parent: i,
+            keys: []
+          };
+          for (var j = 0; j < frameCount; ++j) {
+            if (j == 0) {
+              animT.keys.push({
+                time: j / framesPerSecond,
+                pos: [bones[i].position.x, bones[i].position.y, bones[i].position.z],
+                rot: [bones[i].rotation.x, bones[i].rotation.y, bones[i].rotation.z, bones[i].rotation.w],
+                scl: [1, 1, 1]
+              });
+            } else {
+              animT.keys.push({
+                time: j / framesPerSecond
+              });
+            }
+          }
+          animD.hierarchy.push(animT);
+        }
+
+        var channelData = [];
+        for (var i = 0; i < channelCount; ++i) {
+          var channelType = rhy.readUint32();
+          var channelIndex = rhy.readUint32();
+          channelData.push({type: channelType, index: channelIndex});
+        }
+
+        for (var i = 0; i < frameCount; ++i) {
+          for (var j = 0; j < channelCount; ++j) {
+            var thisKey = animD.hierarchy[channelData[j].index].keys[i];
+            if (channelData[j].type == ZMOCTYPE.Position) {
+              var newPos = rhy.readVector3().divideScalar(100);
+              thisKey.pos = [newPos.x, newPos.y, newPos.z];
+            } else if (channelData[j].type == ZMOCTYPE.Rotation) {
+              var newRot = rhy.readBadQuat();
+              thisKey.rot = [newRot.x, newRot.y, newRot.z, newRot.w];
+            }
           }
         }
-      }
 
-      var anim = new THREE.Animation(cube, animD);
-      anim.play();
+        var anim = new THREE.Animation(rootObj, animD);
+        anim.play();
 
 
-      skhp = new THREE.SkeletonHelper(cube);
-      skhp.update();
-      scene.add(skhp);
+        //skhp = new THREE.SkeletonHelper(rootObj);
+        //skhp.update();
+        //scene.add(skhp);
 
-      //cube.add( new THREE.FaceNormalsHelper( cube, 0.06 ) );
-      //scene.add( new THREE.VertexNormalsHelper( cube, 0.06 ) );
+
+        scene.add(cube);
+        scene.add(cube2);
+
+        scene.add(rootObj);
+
+        //fnhp = new THREE.FaceNormalsHelper( cube, 0.06 );
+        //cube.add( fnhp );
+        //vnhp = new THREE.VertexNormalsHelper( cube, 0.06 );
+        //scene.add( vnhp );
+      });
     });
   });
-
 });
