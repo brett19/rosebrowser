@@ -1,29 +1,6 @@
 'use strict';
 
 
-
-THREE.AnimationHandler.parse = function ( root ) {
-  var parseRecurseHierarchy = function ( root, hierarchy ) {
-    if (root instanceof THREE.Bone) {
-      hierarchy.push(root);
-    }
-    for ( var c = 0; c < root.children.length; c ++ )
-      parseRecurseHierarchy( root.children[ c ], hierarchy );
-  };
-  // setup hierarchy
-  var hierarchy = [];
-  if ( root instanceof THREE.SkinnedMesh ) {
-    for ( var b = 0; b < root.skeleton.bones.length; b ++ ) {
-      hierarchy.push( root.skeleton.bones[ b ] );
-    }
-  } else {
-    parseRecurseHierarchy( root, hierarchy );
-  }
-  return hierarchy;
-};
-
-
-
 function BinaryReader(arrayBuffer) {
   this.buffer = new Uint8Array(arrayBuffer);
   this.view = new DataView(arrayBuffer);
@@ -89,72 +66,21 @@ BinaryReader.prototype.readBadQuat = function() {
   return new THREE.Quaternion(x, y, z, w);
 };
 
-THREE.XHRLoader.prototype.crossOrigin = 'anonymous';
-THREE.ImageUtils.crossOrigin = 'anonymous';
-
-var cube = null;
-var skhp = null;
-var fnhp = null;
-var vnhp = null;
-
-var ddsLoader = new THREE.DDSLoader();
-//var map1 = ddsLoader.load( "http://home.br19.com:82/rosedata/3DDATA/NPC/PLANT/JELLYBEAN1/BODY02.DDS" );
-
-var map1 = THREE.ImageUtils.loadTexture( "http://home.br19.com:82/rosedata/3DDATA/NPC/PLANT/JELLYBEAN1/BODY02.png" );
-map1.flipY = false;
-map1.minFilter = map1.magFilter = THREE.LinearFilter;
-map1.anisotropy = 4;
-
-//var material1 = new THREE.MeshBasicMaterial( { color: 0xFFFFFF, map: map1 } );
-var material1 = new THREE.MeshBasicMaterial({color: 0xdddddd, map: map1});
-material1.skinning = true;
-
-var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-
-var renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-
-renderer.setClearColor( 0x888888, 1 );
 
 
-camera.position.x = 1.5;
-camera.position.y = -6;
-camera.position.z = 4;
-camera.up = new THREE.Vector3(0, 0, 1);
-camera.lookAt(new THREE.Vector3(0, 0, 0));
+var ROSE_DATA_BASE = 'http://home.br19.com:82/rosedata/';
 
-var Stats=function(){var l=Date.now(),m=l,g=0,n=Infinity,o=0,h=0,p=Infinity,q=0,r=0,s=0,f=document.createElement("div");f.id="stats";f.addEventListener("mousedown",function(b){b.preventDefault();t(++s%2)},!1);f.style.cssText="width:80px;opacity:0.9;cursor:pointer";var a=document.createElement("div");a.id="fps";a.style.cssText="padding:0 0 3px 3px;text-align:left;background-color:#002";f.appendChild(a);var i=document.createElement("div");i.id="fpsText";i.style.cssText="color:#0ff;font-family:Helvetica,Arial,sans-serif;font-size:9px;font-weight:bold;line-height:15px";
-  i.innerHTML="FPS";a.appendChild(i);var c=document.createElement("div");c.id="fpsGraph";c.style.cssText="position:relative;width:74px;height:30px;background-color:#0ff";for(a.appendChild(c);74>c.children.length;){var j=document.createElement("span");j.style.cssText="width:1px;height:30px;float:left;background-color:#113";c.appendChild(j)}var d=document.createElement("div");d.id="ms";d.style.cssText="padding:0 0 3px 3px;text-align:left;background-color:#020;display:none";f.appendChild(d);var k=document.createElement("div");
-  k.id="msText";k.style.cssText="color:#0f0;font-family:Helvetica,Arial,sans-serif;font-size:9px;font-weight:bold;line-height:15px";k.innerHTML="MS";d.appendChild(k);var e=document.createElement("div");e.id="msGraph";e.style.cssText="position:relative;width:74px;height:30px;background-color:#0f0";for(d.appendChild(e);74>e.children.length;)j=document.createElement("span"),j.style.cssText="width:1px;height:30px;float:left;background-color:#131",e.appendChild(j);var t=function(b){s=b;switch(s){case 0:a.style.display=
-      "block";d.style.display="none";break;case 1:a.style.display="none",d.style.display="block"}};return{REVISION:11,domElement:f,setMode:t,begin:function(){l=Date.now()},end:function(){var b=Date.now();g=b-l;n=Math.min(n,g);o=Math.max(o,g);k.textContent=g+" MS ("+n+"-"+o+")";var a=Math.min(30,30-30*(g/200));e.appendChild(e.firstChild).style.height=a+"px";r++;b>m+1E3&&(h=Math.round(1E3*r/(b-m)),p=Math.min(p,h),q=Math.max(q,h),i.textContent=h+" FPS ("+p+"-"+q+")",a=Math.min(30,30-30*(h/100)),c.appendChild(c.firstChild).style.height=
-      a+"px",m=b,r=0);return b},update:function(){l=this.end()}}};
-
-var stats = new Stats();
-stats.domElement.style.position = 'absolute';
-stats.domElement.style.top = '0px';
-document.body.appendChild( stats.domElement );
-
-var clock = new THREE.Clock();
-var render = function () {
-  requestAnimationFrame(render);
-
-  var delta = clock.getDelta();
-  THREE.AnimationHandler.update( delta );
-
-  if (skhp) {
-    skhp.update();
-  }
-  if (vnhp) {
-    vnhp.update();
-  }
-
-  renderer.render(scene, camera);
-  stats.update();
+var ROSELoader = {};
+ROSELoader.load = function(path, callback) {
+  var loader = new THREE.XHRLoader();
+  loader.setResponseType('arraybuffer');
+  loader.load(ROSE_DATA_BASE + path, function (buffer) {
+    callback(new BinaryReader(buffer));
+  });
 };
 
-render();
+
+
 
 var ZMSFORMAT = {
   None: 1 << 0,
@@ -169,21 +95,8 @@ var ZMSFORMAT = {
   UV3: 1 << 9,
   UV4: 1 << 10
 };
-
-var ROSE_DATA_BASE = 'http://home.br19.com:82/rosedata/';
-
-var ROSELoader = {};
-ROSELoader.load = function(path, callback) {
-  var loader = new THREE.XHRLoader();
-  loader.setResponseType('arraybuffer');
-  loader.load(ROSE_DATA_BASE + path, function (buffer) {
-    callback(new BinaryReader(buffer));
-  });
-};
-
-function ZMSLoader() {
-}
-ZMSLoader.prototype.load = function(path, callback) {
+var ZMSLoader = {};
+ZMSLoader.load = function(path, callback) {
   ROSELoader.load(path, function(rh) {
     var geometry = new THREE.Geometry();
 
@@ -280,150 +193,257 @@ ZMSLoader.prototype.load = function(path, callback) {
   });
 };
 
-var loader = new ZMSLoader();
-loader.load('3DDATA/NPC/PLANT/JELLYBEAN1/BODY02.ZMS', function (geometry) {
 
-  var loader2 = new ZMSLoader();
-  loader2.load('3DDATA/NPC/PLANT/JELLYBEAN1/BODY01.ZMS', function (geometry2) {
-
-    var rootObj = new THREE.Object3D();
-
-    var loaderx = new THREE.XHRLoader();
-    loaderx.setResponseType('arraybuffer');
-    loaderx.load("http://home.br19.com:82/rosedata/3DDATA/NPC/PLANT/JELLYBEAN1/JELLYBEAN2_BONE.ZMD", function (bufferx) {
-      var rhx = new BinaryReader(bufferx);
-
-      rhx.skip(7);
-
-      var bones = [];
-      var bonesA = [];
-      var boneCount = rhx.readUint32();
-      for (var i = 0; i < boneCount; ++i) {
-        var boneParent = rhx.readUint32();
-        var boneName = rhx.readStr();
-        var bonePos = rhx.readVector3().divideScalar(100);
-        var boneRot = rhx.readBadQuat();
-
-        var bone = {};
-        bone.parent = boneParent;
-        bone.name = boneName;
-        bone.pos = [bonePos.x, bonePos.y, bonePos.z];
-        bone.rotq = [boneRot.x, boneRot.y, boneRot.z, boneRot.w];
-        if (i == 0) {
-          bone.parent = -1;
-        }
-        bonesA.push(bone);
+/**
+ * @note Returns texture immediately, but doesn't load till later.
+ */
+var ROSETexLoader = {};
+ROSETexLoader.load = function(path, callback) {
+  var ddsLoader = new THREE.DDSLoader();
+  var tex = ddsLoader.load( ROSE_DATA_BASE + path, function() {
+    if (callback) {
+      callback();
+    }
+  });
+  tex.minFilter = tex.magFilter = THREE.LinearFilter;
+  return tex;
+};
 
 
-        var boneX = new THREE.Bone(rootObj);
-        boneX.name = bone.name;
-        boneX.position.set(bonePos.x, bonePos.y, bonePos.z);
-        boneX.quaternion.set(boneRot.x, boneRot.y, boneRot.z, boneRot.w);
-        boneX.scale.set(1, 1, 1);
 
-        if (bone.parent == -1) {
-          rootObj.add(boneX);
-        } else {
-          bones[bone.parent].add(boneX);
-        }
+function ZMDSkeleton() {
+  this.bones = [];
+  this.dummies = [];
+}
+/**
+ * Creates a skeleton object from this skeleton data.
+ */
+ZMDSkeleton.prototype.create = function(rootObj) {
+  var bones = [];
 
-        bones.push(boneX);
+  for (var i = 0; i < this.bones.length; ++i) {
+    var b = this.bones[i];
+
+    var boneX = new THREE.Bone(rootObj);
+    boneX.name = b.name;
+    boneX.position.set(b.position.x, b.position.y, b.position.z);
+    boneX.quaternion.set(b.rotation.x, b.rotation.y, b.rotation.z, b.rotation.w);
+    boneX.scale.set(1, 1, 1);
+
+    if (b.parent == -1) {
+      rootObj.add(boneX);
+    } else {
+      bones[b.parent].add(boneX);
+    }
+
+    bones.push(boneX);
+  }
+
+  var skel = new THREE.Skeleton(bones);
+
+  // The root object has to be fully updated!
+  rootObj.updateMatrixWorld();
+
+  // Generate the inverse matrices for skinning
+  skel.calculateInverses();
+
+  return skel;
+};
+var ZMDLoader = {};
+ZMDLoader.load = function(path, callback) {
+  ROSELoader.load(path, function(rh) {
+    var skel = new ZMDSkeleton();
+
+    rh.skip(7);
+
+    var boneCount = rh.readUint32();
+    for (var i = 0; i < boneCount; ++i) {
+      var bone = {};
+      bone.parent = rh.readUint32();
+      bone.name = rh.readStr();
+      bone.position = rh.readVector3().divideScalar(100);
+      bone.rotation = rh.readBadQuat();
+
+      if (i == 0) {
+        bone.parent = -1;
       }
 
-      rootObj.updateMatrixWorld();
+      skel.bones.push(bone);
+    }
 
-      var skel = new THREE.Skeleton(bones);
-      skel.calculateInverses();
+    //var dummyCount = rh.readUint32();
 
-      cube = new THREE.SkinnedMesh(geometry, material1);
-      cube.bind(skel);
+    callback(skel);
+  });
+};
 
-      var cube2 = new THREE.SkinnedMesh(geometry2, material1);
-      cube2.bind(skel);
 
-      var ZMOCTYPE = {
-        None: 1 << 0,
-        Position: 1 << 1,
-        Rotation: 1 << 2
-      };
 
-      var loadery = new THREE.XHRLoader();
-      loadery.setResponseType('arraybuffer');
-      loadery.load("http://home.br19.com:82/rosedata/3DDATA/MOTION/NPC/JELLYBEAN1/JELLYBEAN1_WALK.ZMO", function (buffery) {
-        var rhy = new BinaryReader(buffery);
 
-        rhy.skip(8);
+var ZMOCTYPE = {
+  None: 1 << 0,
+  Position: 1 << 1,
+  Rotation: 1 << 2
+};
+function ZMOAnimation() {
+  this.fps = 0;
+  this.frameCount = 0;
+  this.channels = [];
+}
+ZMOAnimation.prototype.createForSkeleton = function(name, rootObj, skel) {
+  var animD = {
+    name: name,
+    fps: this.fps,
+    length: this.frameCount / this.fps,
+    hierarchy: []
+  };
 
-        var framesPerSecond = rhy.readUint32();
-        var frameCount = rhy.readUint32();
-        var channelCount = rhy.readUint32();
+  // Set up all the base bone animations
+  for (var i = 0; i < skel.bones.length; ++i) {
+    var b = skel.bones[i];
 
-        var animD = {
-          name: 'test',
-          fps: framesPerSecond,
-          length: frameCount / framesPerSecond,
-          hierarchy: []
-        };
-        for (var i = 0; i < boneCount; ++i) {
-          var animT = {
-            parent: i,
-            keys: []
-          };
-          for (var j = 0; j < frameCount; ++j) {
-            if (j == 0) {
-              animT.keys.push({
-                time: j / framesPerSecond,
-                pos: [bones[i].position.x, bones[i].position.y, bones[i].position.z],
-                rot: [bones[i].rotation.x, bones[i].rotation.y, bones[i].rotation.z, bones[i].rotation.w],
-                scl: [1, 1, 1]
-              });
-            } else {
-              animT.keys.push({
-                time: j / framesPerSecond
-              });
-            }
-          }
-          animD.hierarchy.push(animT);
+    var animT = {
+      parent: i,
+      keys: []
+    };
+    for (var j = 0; j < this.frameCount; ++j) {
+      animT.keys.push({
+        time: j / this.fps,
+        pos: [b.position.x, b.position.y, b.position.z],
+        rot: [b.rotation.x, b.rotation.y, b.rotation.z, b.rotation.w],
+        scl: [1, 1, 1]
+      });
+    }
+    animD.hierarchy.push(animT);
+  }
+
+  // Apply the channel transformations
+  for (var j = 0; j < this.channels.length; ++j) {
+    var c = this.channels[j];
+    for (var i = 0; i < this.frameCount; ++i) {
+      var thisKey = animD.hierarchy[c.index].keys[i];
+      if (c.type == ZMOCTYPE.Position) {
+        thisKey.pos = [c.frames[i].x, c.frames[i].y, c.frames[i].z];
+      } else if (c.type == ZMOCTYPE.Rotation) {
+        thisKey.rot = [c.frames[i].x, c.frames[i].y, c.frames[i].z, c.frames[i].w];
+      }
+    }
+  }
+
+  // Create the actual animation
+  var anim = new THREE.Animation(rootObj, animD);
+  anim.hierarchy = skel.bones;
+  return anim;
+};
+var ZMOLoader = {};
+ZMOLoader.load = function(path, callback) {
+  ROSELoader.load(path, function(rh) {
+    var anim = new ZMOAnimation();
+
+    rh.skip(8);
+
+    anim.fps = rh.readUint32();
+    anim.frameCount = rh.readUint32();
+    var channelCount = rh.readUint32();
+
+    var channelData = [];
+    for (var i = 0; i < channelCount; ++i) {
+      var channelType = rh.readUint32();
+      var channelIndex = rh.readUint32();
+      channelData.push({type: channelType, index: channelIndex, frames: []});
+    }
+
+    for (var i = 0; i < anim.frameCount; ++i) {
+      for (var j = 0; j < channelCount; ++j) {
+        if (channelData[j].type == ZMOCTYPE.Position) {
+          channelData[j].frames.push(rh.readVector3().divideScalar(100));
+        } else if (channelData[j].type == ZMOCTYPE.Rotation) {
+          channelData[j].frames.push(rh.readBadQuat());
         }
+      }
+    }
+    anim.channels = channelData;
 
-        var channelData = [];
-        for (var i = 0; i < channelCount; ++i) {
-          var channelType = rhy.readUint32();
-          var channelIndex = rhy.readUint32();
-          channelData.push({type: channelType, index: channelIndex});
-        }
+    callback(anim);
+  });
+};
 
-        for (var i = 0; i < frameCount; ++i) {
-          for (var j = 0; j < channelCount; ++j) {
-            var thisKey = animD.hierarchy[channelData[j].index].keys[i];
-            if (channelData[j].type == ZMOCTYPE.Position) {
-              var newPos = rhy.readVector3().divideScalar(100);
-              thisKey.pos = [newPos.x, newPos.y, newPos.z];
-            } else if (channelData[j].type == ZMOCTYPE.Rotation) {
-              var newRot = rhy.readBadQuat();
-              thisKey.rot = [newRot.x, newRot.y, newRot.z, newRot.w];
-            }
-          }
-        }
 
-        var anim = new THREE.Animation(rootObj, animD);
+
+
+THREE.XHRLoader.prototype.crossOrigin = 'anonymous';
+THREE.ImageUtils.crossOrigin = 'anonymous';
+
+
+
+
+
+
+var cube = null;
+var skhp = null;
+var fnhp = null;
+var vnhp = null;
+
+
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+
+var renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+renderer.setClearColor( 0x888888, 1 );
+
+
+camera.position.x = 1.5;
+camera.position.y = -6;
+camera.position.z = 4;
+camera.up = new THREE.Vector3(0, 0, 1);
+camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+
+
+
+var clock = new THREE.Clock();
+var render = function () {
+  requestAnimationFrame(render);
+
+  var delta = clock.getDelta();
+  THREE.AnimationHandler.update( delta );
+
+  renderer.render(scene, camera);
+};
+
+render();
+
+
+var map1 = ROSETexLoader.load('3DDATA/NPC/PLANT/JELLYBEAN1/BODY02.DDS');
+var material1 = new THREE.MeshBasicMaterial({color: 0xdddddd, map: map1});
+material1.skinning = true;
+
+
+
+var rootObj = new THREE.Object3D();
+
+ZMSLoader.load('3DDATA/NPC/PLANT/JELLYBEAN1/BODY02.ZMS', function (geometry) {
+  ZMSLoader.load('3DDATA/NPC/PLANT/JELLYBEAN1/BODY01.ZMS', function (geometry2) {
+    ZMDLoader.load('3DDATA/NPC/PLANT/JELLYBEAN1/JELLYBEAN2_BONE.ZMD', function(zmdData) {
+      ZMOLoader.load('3DDATA/MOTION/NPC/JELLYBEAN1/JELLYBEAN1_WALK.ZMO', function(zmoData) {
+        var skel = zmdData.create(rootObj);
+
+        cube = new THREE.SkinnedMesh(geometry, material1);
+        cube.bind(skel);
+
+        var cube2 = new THREE.SkinnedMesh(geometry2, material1);
+        cube2.bind(skel);
+
+        var anim = zmoData.createForSkeleton('test', rootObj, skel);
         anim.play();
 
-
-        //skhp = new THREE.SkeletonHelper(rootObj);
-        //skhp.update();
-        //scene.add(skhp);
-
-
-        scene.add(cube);
-        scene.add(cube2);
-
+        rootObj.add(cube);
+        rootObj.add(cube2);
         scene.add(rootObj);
 
-        //fnhp = new THREE.FaceNormalsHelper( cube, 0.06 );
-        //cube.add( fnhp );
-        //vnhp = new THREE.VertexNormalsHelper( cube, 0.06 );
-        //scene.add( vnhp );
       });
     });
   });
