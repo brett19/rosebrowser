@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "dependencies": {
     "bufferedstream": "~2.8.0",
-    "express": "~4.9.0"
+    "express": "~4.9.0",
+    "mkdirp": "~0.5.0"
   }
 }

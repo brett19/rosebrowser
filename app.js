@@ -4,9 +4,9 @@ var http = require('http');
 var path = require('path');
 var stream = require('stream');
 var fs = require('fs');
+var mkdirp = require('mkdirp')
 var BufferedStream = require('bufferedstream');
 var express = require('express');
-var app = express();
 
 // Helper to read a whole stream into a Buffer object.
 function streamToBuffer(sourceStream, callback) {
@@ -18,24 +18,51 @@ function streamToBuffer(sourceStream, callback) {
 }
 
 
+function BinaryReader(buffer) {
+  this.buffer = buffer;
+  this.pos = 0;
+}
+BinaryReader.prototype.readFloat = function() {
+  var res = this.buffer.readFloatLE(this.pos);
+  this.pos += 4;
+  return res;
+}
+BinaryReader.prototype.readUint8 = function() {
+  return this.buffer.readUInt8(this.pos++);
+};
+BinaryReader.prototype.readUint16 = function() {
+  var res = this.buffer.readUInt16LE(this.pos);
+  this.pos += 2;
+  return res;
+};
+BinaryReader.prototype.readUint32 = function() {
+  var res = this.buffer.readUInt32LE(this.pos);
+  this.pos += 4;
+  return res;
+};
+BinaryReader.prototype.readStr = function() {
+  var startPos = this.pos;
+  while (this.buffer[this.pos++]);
+  var strArray = this.buffer.slice(startPos, this.pos-1);
+  return strArray.toString('utf8');
+};
+BinaryReader.prototype.readStrLen = function(len) {
+  var strArray = this.buffer.slice(this.pos, this.pos+len);
+  this.pos += len;
+  return strArray.toString('utf8');
+};
+BinaryReader.prototype.skip = function(num) {
+  this.pos += num;
+};
+
 
 var SOURCE_LOCATION = 'http://home.br19.com:82/rosedata/';
 
-// Static Client Data
-app.use(express.static(__dirname + '/client'));
-
 // Data Stuffs
-function Cacher(preProc) {
+function Cacher() {
   this.path = __dirname + '/cache/';
-  this.preProc = preProc;
 }
 Cacher.prototype.getSourceStream = function(filePath, callback) {
-  if (this.preProc) {
-    var preStream = this.preProc.call(this, filePath);
-    if (preStream) {
-      return callback(null, preStream);
-    }
-  }
   http.request(SOURCE_LOCATION + filePath, function(lRes) {
     callback(null, lRes);
   }).end();
@@ -51,7 +78,7 @@ Cacher.prototype.getStream = function(filePath, callback) {
       var rs = fs.createReadStream(cacheFile);
       callback(null, rs)
     } else {
-      fs.mkdir(cacheDir, function() {
+      mkdirp(cacheDir, function() {
         var ws = fs.createWriteStream(cacheFile);
         self.getSourceStream(filePath, function(err, stream) {
           stream.pipe(ws, {end: true});
@@ -64,27 +91,13 @@ Cacher.prototype.getStream = function(filePath, callback) {
 
 
 
-function zscToJson(buffer) {
-  return {lol: 'we fucking win'};
-}
-function processFile(path) {
-  function processByFunc(toJsonFun, path) {
-    var fileStream = new BufferedStream();
-    this.getSourceStream(path, function(err, sourceStream) {
-      streamToBuffer(sourceStream, function(buffer) {
-        fileStream.write(JSON.stringify(toJsonFun(buffer)));
-        fileStream.end();
-      });
-    });
-    return fileStream;
-  }
 
-  if (path.substr(path.length-9).toLowerCase() === '.zsc.json') {
-    return processByFunc.call(this, zscToJson, path.substr(0, path.length-5));
-  }
-  return null;
-}
-var cache = new Cacher(processFile);
+var app = express();
+
+// Static Client Data
+app.use(express.static(__dirname + '/client'));
+
+var cache = new Cacher();
 
 app.use('/data/*', function(req, res) {
   cache.getStream(req.baseUrl.substr(6), function(err, sourceStream) {
