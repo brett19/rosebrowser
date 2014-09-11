@@ -1012,60 +1012,95 @@ if (window.location.hash.length > 1) {
   charIdx = window.location.hash.substr(1);
 }
 
-CHRLoader.load('3DDATA/NPC/LIST_NPC.CHR', function(chrData) {
-  ZSCLoader.load('3DDATA/NPC/PART_NPC.ZSC', function(zscData) {
-    var char = chrData.characters[charIdx];
-    if (char == null) {
-      return;
+function GroupLoader() {
+  this.sources = [];
+}
+GroupLoader.prototype.add = function(name, loader, path) {
+  this.sources.push([name, loader, path]);
+};
+GroupLoader.prototype.load = function(callback) {
+  var self = this;
+  var loadedObjs = {};
+  var loadedCount = 0;
+  function maybeDone() {
+    if (loadedCount === self.sources.length) {
+      callback(loadedObjs);
+    }
+  }
+  for (var i = 0; i < self.sources.length; ++i) {
+    (function(source) {
+      var name = source[0];
+      var loader = source[1];
+      var path = source[2];
+      loader.load(path, function(res) {
+        loadedObjs[name] = res;
+        loadedCount++;
+        maybeDone();
+      });
+    })(self.sources[i]);
+  }
+};
+
+
+var coreGrp = new GroupLoader();
+coreGrp.add('list_npc_chr', CHRLoader, '3DDATA/NPC/LIST_NPC.CHR');
+coreGrp.add('part_npc_zsc', ZSCLoader, '3DDATA/NPC/PART_NPC.ZSC');
+coreGrp.load(function(loadedObjs) {
+  var chrData = loadedObjs['list_npc_chr'];
+  var zscData = loadedObjs['part_npc_zsc'];
+
+  var char = chrData.characters[charIdx];
+  if (char == null) {
+    return;
+  }
+
+  var charObj = new THREE.Object3D();
+  charObj.position.set(5200, 5200, 40);
+  charObj.scale.set(10, 10, 10);
+  scene.add(charObj);
+  moveObj = charObj;
+
+  var skelPath = chrData.skeletons[char.skeletonIdx];
+  ZMDLoader.load(skelPath, function(zmdData) {
+    var charSkel = zmdData.create(charObj);
+
+    var charModels = char.models;
+    for (var i = 0; i < charModels.length; ++i) {
+      var model = zscData.objects[charModels[i]];
+
+      for (var j = 0; j < model.parts.length; ++j) {
+        (function(part) {
+          var material = makeZscMaterial(zscData.materials[part.materialIdx]);
+
+          var meshPath = zscData.meshes[part.meshIdx];
+          ZMSLoader.load(meshPath, function (geometry) {
+            var charPartMesh = new THREE.SkinnedMesh(geometry, material);
+            charPartMesh.bind(charSkel);
+            charObj.add(charPartMesh);
+          });
+        })(model.parts[j]);
+      }
     }
 
-    var charObj = new THREE.Object3D();
-    charObj.position.set(5200, 5200, 40);
-    charObj.scale.set(10, 10, 10);
-    scene.add(charObj);
-    moveObj = charObj;
-
-    var skelPath = chrData.skeletons[char.skeletonIdx];
-    ZMDLoader.load(skelPath, function(zmdData) {
-      var charSkel = zmdData.create(charObj);
-
-      var charModels = char.models;
-      for (var i = 0; i < charModels.length; ++i) {
-        var model = zscData.objects[charModels[i]];
-
-        for (var j = 0; j < model.parts.length; ++j) {
-          (function(part) {
-            var material = makeZscMaterial(zscData.materials[part.materialIdx]);
-
-            var meshPath = zscData.meshes[part.meshIdx];
-            ZMSLoader.load(meshPath, function (geometry) {
-              var charPartMesh = new THREE.SkinnedMesh(geometry, material);
-              charPartMesh.bind(charSkel);
-              charObj.add(charPartMesh);
-            });
-          })(model.parts[j]);
-        }
-      }
-
-      var animPath = chrData.animations[char.animations[0]];
-      ZMOLoader.load(animPath, function(zmoData) {
-        var anim = zmoData.createForSkeleton('test', charObj, charSkel);
-        anim.play();
-      });
+    var animPath = chrData.animations[char.animations[0]];
+    ZMOLoader.load(animPath, function(zmoData) {
+      var anim = zmoData.createForSkeleton('test', charObj, charSkel);
+      anim.play();
     });
-
-    setTimeout(function() {
-      var ray = new THREE.Raycaster(new THREE.Vector3(5200, 5200, 200), new THREE.Vector3(0, 0, -1));
-      var octreeObjects = worldTree.search( ray.ray.origin, ray.ray.far, true, ray.ray.direction );
-      var inters = ray.intersectOctreeObjects( octreeObjects );
-      if (inters.length > 0) {
-        var p = inters[0].point;
-        charObj.position.set(p.x, p.y, p.z);
-      }
-    }, 2000);
-
   });
+
+  setTimeout(function() {
+    var ray = new THREE.Raycaster(new THREE.Vector3(5200, 5200, 200), new THREE.Vector3(0, 0, -1));
+    var octreeObjects = worldTree.search( ray.ray.origin, ray.ray.far, true, ray.ray.direction );
+    var inters = ray.intersectOctreeObjects( octreeObjects );
+    if (inters.length > 0) {
+      var p = inters[0].point;
+      charObj.position.set(p.x, p.y, p.z);
+    }
+  }, 2000);
+
 });
+
 //*/
 
 /*
