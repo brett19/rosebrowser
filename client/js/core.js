@@ -36,6 +36,20 @@ BinaryReader.prototype.readStr = function() {
   var strArray = this.buffer.subarray(startPos, this.pos-1);
   return String.fromCharCode.apply(null, strArray);
 };
+BinaryReader.prototype.readStrLen = function(len) {
+  var strArray = this.buffer.subarray(this.pos, this.pos + len);
+  this.pos += len;
+  return String.fromCharCode.apply(null, strArray);
+};
+BinaryReader.prototype.readByteStr = function() {
+  return this.readStrLen(this.readUint8());
+};
+BinaryReader.prototype.tell = function() {
+  return this.pos;
+};
+BinaryReader.prototype.seek = function(pos) {
+  this.pos = pos;
+};
 BinaryReader.prototype.skip = function(num) {
   this.pos += num;
 };
@@ -100,10 +114,10 @@ ZSCLoader.load = function(path, callback) {
   ROSELoader.load(path, function(b) {
     var data = {};
 
-    data.models = [];
-    var modelCount = b.readUint16();
-    for (var i = 0; i < modelCount; ++i) {
-      data.models.push(b.readStr());
+    data.meshes = [];
+    var meshCount = b.readUint16();
+    for (var i = 0; i < meshCount; ++i) {
+      data.meshes.push(b.readStr());
     }
 
     data.materials = [];
@@ -146,7 +160,7 @@ ZSCLoader.load = function(path, callback) {
         for (var j = 0; j < partCount; ++j) {
           var part = {};
 
-          part.modelIdx = b.readUint16();
+          part.meshIdx = b.readUint16();
           part.materialIdx = b.readUint16();
 
           var propertyType = 0;
@@ -154,13 +168,13 @@ ZSCLoader.load = function(path, callback) {
             var propertySize = b.readUint8();
 
             if (propertyType == ZSCPROPTYPE.Position) {
-              part.position = [b.readFloat(), b.readFloat(), b.readFloat()];
+              part.position = b.readVector3().divideScalar(100).toArray();
             } else if (propertyType == ZSCPROPTYPE.Rotation) {
-              part.rotation = [b.readFloat(), b.readFloat(), b.readFloat(), b.readFloat()];
+              part.rotation = b.readBadQuat().toArray();
             } else if (propertyType == ZSCPROPTYPE.Scale) {
-              part.scale = [b.readFloat(), b.readFloat(), b.readFloat()];
+              part.scale = b.readVector3().toArray();
             } else if (propertyType == ZSCPROPTYPE.AxisRotation) {
-              /*part.axisRotation =*/ [b.readFloat(), b.readFloat(), b.readFloat(), b.readFloat()];
+              /*part.axisRotation =*/ b.readBadQuat();
             } else if (propertyType == ZSCPROPTYPE.Parent) {
               part.parent = b.readUint16();
             } else if (propertyType == ZSCPROPTYPE.Collision) {
@@ -236,10 +250,10 @@ CHRLoader.load = function(path, callback) {
       data.skeletons.push(b.readStr());
     }
 
-    data.motions = [];
-    var motionCount = b.readUint16();
-    for (var i = 0; i < motionCount; ++i) {
-      data.motions.push(b.readStr());
+    data.animations = [];
+    var animationCount = b.readUint16();
+    for (var i = 0; i < animationCount; ++i) {
+      data.animations.push(b.readStr());
     }
 
     data.effects = [];
@@ -258,10 +272,10 @@ CHRLoader.load = function(path, callback) {
         char.skeletonIdx = b.readUint16();
         char.name = b.readStr();
 
-        char.objects = [];
-        var objectCount = b.readUint16();
-        for (var j = 0; j < objectCount; ++j) {
-          char.objects.push(b.readUint16());
+        char.models = [];
+        var modelCount = b.readUint16();
+        for (var j = 0; j < modelCount; ++j) {
+          char.models.push(b.readUint16());
         }
 
         char.animations = {};
@@ -375,6 +389,12 @@ ZMSLoader.load = function(path, callback) {
       }
     }
 
+    for (var j = 0; j < 4; ++j) {
+      if (vertexUvs[j].length > 0) {
+        geometry.faceVertexUvs[j] = [];
+      }
+    }
+
     var faceCount = rh.readUint16();
     for (var i = 0; i < faceCount; ++i) {
       var v1 = rh.readUint16();
@@ -484,6 +504,8 @@ ZMDLoader.load = function(path, callback) {
 
 
 
+
+
 var ZMOCTYPE = {
   None: 1 << 0,
   Position: 1 << 1,
@@ -574,6 +596,95 @@ ZMOLoader.load = function(path, callback) {
 
 
 
+function HIMData() {
+  this.width = 0;
+  this.height = 0;
+  this.map = [];
+}
+var HIMLoader = {};
+HIMLoader.load = function(path, callback) {
+  ROSELoader.load(path, function(b) {
+    var data = new HIMData();
+    data.width = b.readUint32();
+    data.height = b.readUint32();
+    /*patchGridCount*/ b.readUint32();
+    /*patchSize*/ b.readFloat();
+    for (var i = 0; i < data.width*data.height; ++i) {
+      data.map.push(b.readFloat());
+    }
+    callback(data);
+  });
+};
+
+
+var IFOBLOCKTYPE = {
+  MapInformation: 0,
+  Object: 1,
+  NPC: 2,
+  Building: 3,
+  Sound: 4,
+  Effect: 5,
+  Animation: 6,
+  WaterPatch: 7,
+  MonsterSpawn: 8,
+  WaterPlane: 9,
+  WarpPoint: 10,
+  CollisionObject: 11,
+  EventObject: 12
+};
+function IFOData() {
+  this.buildings = [];
+  this.objects = [];
+}
+var IFOLoader = {};
+IFOLoader.load = function(path, callback) {
+  ROSELoader.load(path, function(b) {
+    var data = new IFOData();
+
+    var blockCount = b.readUint32();
+    function readMapObject() {
+      var obj = {};
+      obj.name = b.readByteStr();
+      obj.warpId = b.readUint16();
+      obj.eventId = b.readUint16();
+      obj.objectType = b.readUint32();
+      obj.objectId = b.readUint32();
+      /*obj.mapPosition*/ b.skip(2*4);
+      obj.rotation = b.readQuat();
+      obj.position = b.readVector3().divideScalar(100);
+      obj.scale = b.readVector3();
+      return obj;
+    }
+    function readBlock(blockType) {
+      if (blockType === IFOBLOCKTYPE.Building) {
+        var entryCount = b.readUint32();
+        for (var i = 0; i < entryCount; ++i) {
+          var obj = readMapObject();
+          data.buildings.push(obj);
+        }
+      } else if (blockType === IFOBLOCKTYPE.Object) {
+        var entryCount = b.readUint32();
+        for (var i = 0; i < entryCount; ++i) {
+          var obj = readMapObject();
+          data.objects.push(obj);
+        }
+      }
+    }
+    for (var i = 0; i < blockCount; ++i) {
+      var blockType = b.readUint32();
+      var blockOffset = b.readUint32();
+      var nextBlockPos = b.tell();
+      b.seek(blockOffset);
+      readBlock(blockType);
+      b.seek(nextBlockPos);
+    }
+
+    callback(data);
+  });
+};
+
+
+
 
 THREE.XHRLoader.prototype.crossOrigin = 'anonymous';
 THREE.ImageUtils.crossOrigin = 'anonymous';
@@ -581,57 +692,256 @@ THREE.ImageUtils.crossOrigin = 'anonymous';
 
 
 
-
-
-var cube = null;
-var skhp = null;
-var fnhp = null;
-var vnhp = null;
-
-
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 
+var rendererEl = document.body;
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+rendererEl.appendChild(renderer.domElement);
 
 renderer.setClearColor( 0x888888, 1 );
 
 
-camera.position.x = 1.5;
-camera.position.y = -6;
-camera.position.z = 4;
+camera.position.x = -100;
+camera.position.y = 100;
+camera.position.z = 100;
 camera.up = new THREE.Vector3(0, 0, 1);
 camera.lookAt(new THREE.Vector3(0, 0, 0));
 
+
+var controls = new THREE.FlyControls( camera );
+
+controls.movementSpeed = 160;
+controls.domElement = rendererEl;
+controls.rollSpeed = Math.PI / 4;
+controls.autoForward = false;
+controls.dragToLook = true;
+
+
+var axisHelper = new THREE.AxisHelper( 10 );
+axisHelper.position.z = 50;
+scene.add( axisHelper );
+
+
+var defaultMat = new THREE.MeshPhongMaterial({ambient: 0x030303, color: 0xdddddd, specular: 0x009900, shininess: 30, shading: THREE.FlatShading});
+
+
+
+var directionalLight = new THREE.DirectionalLight( 0xffffff, 1.475 );
+directionalLight.position.set( 100, 100, -100 );
+scene.add( directionalLight );
+
+
+var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 1.25 );
+hemiLight.color.setHSL( 0.6, 1, 0.75 );
+hemiLight.groundColor.setHSL( 0.1, 0.8, 0.7 );
+hemiLight.position.y = 500;
+scene.add( hemiLight );
 
 
 
 var clock = new THREE.Clock();
 var render = function () {
-  requestAnimationFrame(render);
-
+  requestAnimationFrame(render, rendererEl);
   var delta = clock.getDelta();
   THREE.AnimationHandler.update( delta );
-
+  controls.update( delta );
   renderer.render(scene, camera);
 };
-
 render();
 
 
-var map1 = ROSETexLoader.load('3DDATA/NPC/PLANT/JELLYBEAN1/BODY02.DDS');
-var material1 = new THREE.MeshBasicMaterial({color: 0xdddddd, map: map1});
-material1.skinning = true;
 
 
+function makeZscMaterial(zscMat) {
+  var texture = ROSETexLoader.load(zscMat.texturePath);
+  //texture.anisotropy = 4;
+  var material = new THREE.MeshBasicMaterial({color: 0xffffff, map: texture});
+  material.skinning = zscMat.forSkinning;
+  if (zscMat.twoSided) {
+    material.side = THREE.DoubleSide;
+  }
+  if (zscMat.alphaEnabled) {
+    material.transparent = true;
+  }
+  if (zscMat.alphaTestEnabled) {
+    material.alphaTest = zscMat.alphaRef / 255;
+  } else {
+    material.alphaTest = 0;
+  }
+  material.opacity = zscMat.alpha;
+  material.depthTest = zscMat.depthTestEnabled;
+  material.depthWrite = zscMat.depthWriteEnabled;
+  return material;
+}
 
-var rootObj = new THREE.Object3D();
+function createZscObject(zscData, modelIdx) {
+  var model = zscData.objects[modelIdx];
 
-CHRLoader.load('3DDATA/NPC/LIST_NPC.CHR', function(data) {
-  console.log(data);
+  var modelObj = new THREE.Object3D();
+  modelObj.visible = false;
+
+  var loadWarn = setTimeout(function() {
+    console.log('Model took a long time to load...');
+  }, 5000);
+
+  var partMeshs = [];
+  function completeLoad() {
+    clearTimeout(loadWarn);
+    for (var i = 0; i < partMeshs.length; ++i) {
+      var part = model.parts[i];
+
+      if (i == 0) {
+        modelObj.add(partMeshs[i]);
+      } else {
+        partMeshs[part.parent-1].add(partMeshs[i]);
+      }
+
+    }
+    modelObj.visible = true;
+  }
+  var loadedCount = 0;
+
+  for (var i = 0; i < model.parts.length; ++i) {
+    (function(partIdx, part) {
+      var meshPath = zscData.meshes[part.meshIdx];
+
+      var material = makeZscMaterial(zscData.materials[part.materialIdx]);
+
+      ZMSLoader.load(meshPath, function (geometry) {
+        var partMesh = new THREE.Mesh(geometry, material);
+        partMesh.position.set(part.position[0], part.position[1], part.position[2]);
+        partMesh.quaternion.set(part.rotation[0], part.rotation[1], part.rotation[2], part.rotation[3]);
+        partMesh.scale.set(part.scale[0], part.scale[1], part.scale[2]);
+        partMeshs[partIdx] = partMesh;
+        loadedCount++;
+        if (loadedCount == model.parts.length) {
+          completeLoad();
+        }
+      });
+    })(i, model.parts[i]);
+  }
+
+  return modelObj;
+}
+
+ZSCLoader.load('3DDATA/JUNON/LIST_CNST_JDT.ZSC', function(cnstData) {
+  ZSCLoader.load('3DDATA/JUNON/LIST_DECO_JDT.ZSC', function (decoData) {
+    for (var iy = 30; iy <= 33; ++iy) {
+      for (var ix = 31; ix <= 34; ++ix) {
+        (function (cx, cy) {
+          var himPath = '3DDATA/MAPS/JUNON/JDT01/' + cx + '_' + cy + '.HIM';
+          HIMLoader.load(himPath, function (himData) {
+            var geom = new THREE.Geometry();
+
+            for (var vy = 0; vy < 65; ++vy) {
+              for (var vx = 0; vx < 65; ++vx) {
+                geom.vertices.push(new THREE.Vector3(
+                    vx * 2.5, vy * 2.5, himData.map[(64 - vy) * 65 + (vx)] / 100
+                ));
+              }
+            }
+
+            for (var fy = 0; fy < 64; ++fy) {
+              for (var fx = 0; fx < 64; ++fx) {
+                var v1 = (fy + 0) * 65 + (fx + 0);
+                var v2 = (fy + 0) * 65 + (fx + 1);
+                var v3 = (fy + 1) * 65 + (fx + 0);
+                var v4 = (fy + 1) * 65 + (fx + 1);
+                geom.faces.push(new THREE.Face3(v1, v2, v3));
+                geom.faces.push(new THREE.Face3(v4, v3, v2));
+              }
+            }
+
+            geom.computeBoundingSphere();
+            geom.computeFaceNormals();
+            geom.computeVertexNormals();
+
+            var chunkMesh = new THREE.Mesh(geom, defaultMat);
+            chunkMesh.position.x = (cx - 32) * 160 - 80;
+            chunkMesh.position.y = (32 - cy) * 160 - 80;
+            scene.add(chunkMesh);
+
+            var ifoPath = '3DDATA/MAPS/JUNON/JDT01/' + cx + '_' + cy + '.IFO';
+            IFOLoader.load(ifoPath, function(ifoData) {
+              for (var i = 0; i < ifoData.objects.length; ++i) {
+                var objData = ifoData.objects[i];
+                var obj = createZscObject(decoData, objData.objectId);
+                obj.position.set(objData.position.x, objData.position.y, objData.position.z);
+                obj.quaternion.set(objData.rotation.x, objData.rotation.y, objData.rotation.z, objData.rotation.w);
+                obj.scale.set(objData.scale.x, objData.scale.y, objData.scale.z);
+                scene.add(obj);
+              }
+
+              for (var i = 0; i < ifoData.buildings.length; ++i) {
+                var objData = ifoData.buildings[i];
+                var obj = createZscObject(cnstData, objData.objectId);
+                obj.position.set(objData.position.x, objData.position.y, objData.position.z);
+                obj.quaternion.set(objData.rotation.x, objData.rotation.y, objData.rotation.z, objData.rotation.w);
+                obj.scale.set(objData.scale.x, objData.scale.y, objData.scale.z);
+                scene.add(obj);
+              }
+            });
+          });
+        })(ix, iy);
+      }
+    }
+  });
 });
+
+/*
+var charIdx = 13;
+if (window.location.hash.length > 1) {
+  charIdx = window.location.hash.substr(1);
+}
+
+CHRLoader.load('3DDATA/NPC/LIST_NPC.CHR', function(chrData) {
+  ZSCLoader.load('3DDATA/NPC/PART_NPC.ZSC', function(zscData) {
+    var char = chrData.characters[charIdx];
+    if (char == null) {
+      return;
+    }
+
+    var charObj = new THREE.Object3D();
+    scene.add(charObj);
+
+    var skelPath = chrData.skeletons[char.skeletonIdx];
+    ZMDLoader.load(skelPath, function(zmdData) {
+      var charSkel = zmdData.create(charObj);
+
+      var charModels = char.models;
+      for (var i = 0; i < charModels.length; ++i) {
+        var model = zscData.objects[charModels[i]];
+
+        for (var j = 0; j < model.parts.length; ++j) {
+          (function(part) {
+            var material = makeZscMaterial(zscData.materials[part.materialIdx]);
+
+            var meshPath = zscData.meshes[part.meshIdx];
+            ZMSLoader.load(meshPath, function (geometry) {
+              var charPartMesh = new THREE.SkinnedMesh(geometry, material);
+              charPartMesh.bind(charSkel);
+              charObj.add(charPartMesh);
+            });
+          })(model.parts[j]);
+        }
+      }
+
+      var animPath = chrData.animations[char.animations[0]];
+      ZMOLoader.load(animPath, function(zmoData) {
+        var anim = zmoData.createForSkeleton('test', charObj, charSkel);
+        anim.play();
+      });
+    });
+
+  });
+});
+//*/
+
+/*
+var rootObj = new THREE.Object3D();
+scene.add(rootObj);
 
 ZMSLoader.load('3DDATA/NPC/PLANT/JELLYBEAN1/BODY02.ZMS', function (geometry) {
   ZMSLoader.load('3DDATA/NPC/PLANT/JELLYBEAN1/BODY01.ZMS', function (geometry2) {
@@ -650,9 +960,10 @@ ZMSLoader.load('3DDATA/NPC/PLANT/JELLYBEAN1/BODY02.ZMS', function (geometry) {
 
         rootObj.add(cube);
         rootObj.add(cube2);
-        scene.add(rootObj);
+
 
       });
     });
   });
 });
+//*/
