@@ -445,6 +445,8 @@ function ZMDSkeleton() {
 ZMDSkeleton.prototype.create = function(rootObj) {
   var bones = [];
 
+  var fakeRoot = new THREE.Object3D();
+
   for (var i = 0; i < this.bones.length; ++i) {
     var b = this.bones[i];
 
@@ -455,7 +457,7 @@ ZMDSkeleton.prototype.create = function(rootObj) {
     boneX.scale.set(1, 1, 1);
 
     if (b.parent == -1) {
-      rootObj.add(boneX);
+      fakeRoot.add(boneX);
     } else {
       bones[b.parent].add(boneX);
     }
@@ -466,10 +468,13 @@ ZMDSkeleton.prototype.create = function(rootObj) {
   var skel = new THREE.Skeleton(bones);
 
   // The root object has to be fully updated!
-  rootObj.updateMatrixWorld();
+  fakeRoot.updateMatrixWorld();
 
   // Generate the inverse matrices for skinning
   skel.calculateInverses();
+
+  fakeRoot.remove(bones[0]);
+  rootObj.add(bones[0]);
 
   return skel;
 };
@@ -559,6 +564,52 @@ ZMOAnimation.prototype.createForSkeleton = function(name, rootObj, skel) {
   // Create the actual animation
   var anim = new THREE.Animation(rootObj, animD);
   anim.hierarchy = skel.bones;
+  return anim;
+};
+ZMOAnimation.prototype.createForStatic = function(name, rootObj) {
+  var animD = {
+    name: name,
+    fps: this.fps,
+    length: this.frameCount / this.fps,
+    hierarchy: []
+  };
+
+  var animT = {
+    parent: i,
+    keys: []
+  };
+  var b = rootObj;
+  for (var j = 0; j < this.frameCount; ++j) {
+    animT.keys.push({
+      time: j / this.fps,
+      pos: [b.position.x, b.position.y, b.position.z],
+      rot: [b.rotation.x, b.rotation.y, b.rotation.z, b.rotation.w],
+      scl: [b.scale.x, b.scale.y, b.scale.z]
+    });
+  }
+  animD.hierarchy.push(animT);
+
+  // Apply the channel transformations
+  for (var j = 0; j < this.channels.length; ++j) {
+    var c = this.channels[j];
+    for (var i = 0; i < this.frameCount; ++i) {
+      if (c.index != 0) {
+        console.log('bad index');
+      }
+      var thisKey = animD.hierarchy[c.index].keys[i];
+      if (c.type == ZMOCTYPE.Position) {
+        thisKey.pos = [c.frames[i].x, c.frames[i].y, c.frames[i].z];
+      } else if (c.type == ZMOCTYPE.Rotation) {
+        thisKey.rot = [c.frames[i].x, c.frames[i].y, c.frames[i].z, c.frames[i].w];
+      } else if (c.type == ZMOCTYPE.Scale) {
+        thisKey.scl = [c.frames[i].x, c.frames[i].y, c.frames[i].z];
+      }
+    }
+  }
+
+  // Create the actual animation
+  var anim = new THREE.Animation(rootObj, animD);
+  anim.hierarchy = [rootObj];
   return anim;
 };
 var ZMOLoader = {};
@@ -702,30 +753,48 @@ rendererEl.appendChild(renderer.domElement);
 
 renderer.setClearColor( 0x888888, 1 );
 
-
-camera.position.x = -100;
-camera.position.y = 100;
-camera.position.z = 100;
 camera.up = new THREE.Vector3(0, 0, 1);
-camera.lookAt(new THREE.Vector3(0, 0, 0));
+camera.position.x = 5200+-100;
+camera.position.y = 5200+100;
+camera.position.z = 100;
+camera.lookAt(new THREE.Vector3(5200+0, 5200+0, 0));
 
+var controls = null;
 
-var controls = new THREE.FlyControls( camera );
-
+//*
+controls = new THREE.FlyControls( camera );
 controls.movementSpeed = 160;
 controls.domElement = rendererEl;
 controls.rollSpeed = Math.PI / 4;
 controls.autoForward = false;
 controls.dragToLook = true;
-
+//*/
 
 var axisHelper = new THREE.AxisHelper( 10 );
-axisHelper.position.z = 50;
+axisHelper.position.x = 5201;
+axisHelper.position.y = 5201;
+axisHelper.position.z = 40;
 scene.add( axisHelper );
 
 
 var defaultMat = new THREE.MeshPhongMaterial({ambient: 0x030303, color: 0xdddddd, specular: 0x009900, shininess: 30, shading: THREE.FlatShading});
 
+
+var worldTree = new THREE.Octree( {
+  // uncomment below to see the octree (may kill the fps)
+  //scene: scene,
+  // when undeferred = true, objects are inserted immediately
+  // instead of being deferred until next octree.update() call
+  // this may decrease performance as it forces a matrix update
+  undeferred: false,
+  // set the max depth of tree
+  depthMax: Infinity,
+  // max number of objects before nodes split or merge
+  objectsThreshold: 8,
+  // percent between 0 and 1 that nodes will overlap each other
+  // helps insert objects that lie over more than one node
+  overlapPct: 0.15
+} );
 
 
 var directionalLight = new THREE.DirectionalLight( 0xffffff, 1.475 );
@@ -746,8 +815,13 @@ var render = function () {
   requestAnimationFrame(render, rendererEl);
   var delta = clock.getDelta();
   THREE.AnimationHandler.update( delta );
-  controls.update( delta );
+  if (controls) {
+    controls.update(delta);
+  }
+
   renderer.render(scene, camera);
+
+  worldTree.update();
 };
 render();
 
@@ -757,7 +831,7 @@ render();
 function makeZscMaterial(zscMat) {
   var texture = ROSETexLoader.load(zscMat.texturePath);
   //texture.anisotropy = 4;
-  var material = new THREE.MeshBasicMaterial({color: 0xffffff, map: texture});
+  var material = new THREE.MeshPhongMaterial({color: 0xffffff, map: texture});
   material.skinning = zscMat.forSkinning;
   if (zscMat.twoSided) {
     material.side = THREE.DoubleSide;
@@ -765,10 +839,14 @@ function makeZscMaterial(zscMat) {
   if (zscMat.alphaEnabled) {
     material.transparent = true;
   }
-  if (zscMat.alphaTestEnabled) {
-    material.alphaTest = zscMat.alphaRef / 255;
-  } else {
-    material.alphaTest = 0;
+
+  // TODO: temporary hack!
+  if (!zscMat.forSkinning) {
+    if (zscMat.alphaTestEnabled) {
+      material.alphaTest = zscMat.alphaRef / 255;
+    } else {
+      material.alphaTest = 0;
+    }
   }
   material.opacity = zscMat.alpha;
   material.depthTest = zscMat.depthTestEnabled;
@@ -815,6 +893,14 @@ function createZscObject(zscData, modelIdx) {
         partMesh.quaternion.set(part.rotation[0], part.rotation[1], part.rotation[2], part.rotation[3]);
         partMesh.scale.set(part.scale[0], part.scale[1], part.scale[2]);
         partMeshs[partIdx] = partMesh;
+
+        if (part.animPath) {
+          ZMOLoader.load(part.animPath, function(zmoData) {
+            var anim = zmoData.createForStatic(part.animPath, partMeshs[partIdx]);
+            anim.play();
+          });
+        }
+
         loadedCount++;
         if (loadedCount == model.parts.length) {
           completeLoad();
@@ -826,6 +912,9 @@ function createZscObject(zscData, modelIdx) {
   return modelObj;
 }
 
+var worldList = [];
+
+//*
 ZSCLoader.load('3DDATA/JUNON/LIST_CNST_JDT.ZSC', function(cnstData) {
   ZSCLoader.load('3DDATA/JUNON/LIST_DECO_JDT.ZSC', function (decoData) {
     for (var iy = 30; iy <= 33; ++iy) {
@@ -855,20 +944,25 @@ ZSCLoader.load('3DDATA/JUNON/LIST_CNST_JDT.ZSC', function(cnstData) {
             }
 
             geom.computeBoundingSphere();
+            geom.computeBoundingBox();
             geom.computeFaceNormals();
             geom.computeVertexNormals();
 
             var chunkMesh = new THREE.Mesh(geom, defaultMat);
-            chunkMesh.position.x = (cx - 32) * 160 - 80;
-            chunkMesh.position.y = (32 - cy) * 160 - 80;
+            chunkMesh.position.x = (cx - 32) * 160 - 80 + 5200;
+            chunkMesh.position.y = (32 - cy) * 160 - 80 + 5200;
             scene.add(chunkMesh);
 
+            worldTree.add(chunkMesh);
+            worldList.push(chunkMesh);
+
+            /*
             var ifoPath = '3DDATA/MAPS/JUNON/JDT01/' + cx + '_' + cy + '.IFO';
             IFOLoader.load(ifoPath, function(ifoData) {
               for (var i = 0; i < ifoData.objects.length; ++i) {
                 var objData = ifoData.objects[i];
                 var obj = createZscObject(decoData, objData.objectId);
-                obj.position.set(objData.position.x, objData.position.y, objData.position.z);
+                obj.position.set(5200+objData.position.x, 5200+objData.position.y, objData.position.z);
                 obj.quaternion.set(objData.rotation.x, objData.rotation.y, objData.rotation.z, objData.rotation.w);
                 obj.scale.set(objData.scale.x, objData.scale.y, objData.scale.z);
                 scene.add(obj);
@@ -877,12 +971,13 @@ ZSCLoader.load('3DDATA/JUNON/LIST_CNST_JDT.ZSC', function(cnstData) {
               for (var i = 0; i < ifoData.buildings.length; ++i) {
                 var objData = ifoData.buildings[i];
                 var obj = createZscObject(cnstData, objData.objectId);
-                obj.position.set(objData.position.x, objData.position.y, objData.position.z);
+                obj.position.set(5200+objData.position.x, 5200+objData.position.y, objData.position.z);
                 obj.quaternion.set(objData.rotation.x, objData.rotation.y, objData.rotation.z, objData.rotation.w);
                 obj.scale.set(objData.scale.x, objData.scale.y, objData.scale.z);
                 scene.add(obj);
               }
             });
+            */
           });
         })(ix, iy);
       }
@@ -890,8 +985,12 @@ ZSCLoader.load('3DDATA/JUNON/LIST_CNST_JDT.ZSC', function(cnstData) {
   });
 });
 
-/*
-var charIdx = 13;
+var moveObj = null;
+
+//*/
+
+//*
+var charIdx = 2;
 if (window.location.hash.length > 1) {
   charIdx = window.location.hash.substr(1);
 }
@@ -904,7 +1003,10 @@ CHRLoader.load('3DDATA/NPC/LIST_NPC.CHR', function(chrData) {
     }
 
     var charObj = new THREE.Object3D();
+    charObj.position.set(5200, 5200, 40);
+    charObj.scale.set(10, 10, 10);
     scene.add(charObj);
+    moveObj = charObj;
 
     var skelPath = chrData.skeletons[char.skeletonIdx];
     ZMDLoader.load(skelPath, function(zmdData) {
@@ -934,6 +1036,16 @@ CHRLoader.load('3DDATA/NPC/LIST_NPC.CHR', function(chrData) {
         anim.play();
       });
     });
+
+    setTimeout(function() {
+      var ray = new THREE.Raycaster(new THREE.Vector3(5200, 5200, 200), new THREE.Vector3(0, 0, -1));
+      var octreeObjects = worldTree.search( ray.ray.origin, ray.ray.far, true, ray.ray.direction );
+      var inters = ray.intersectOctreeObjects( octreeObjects );
+      if (inters.length > 0) {
+        var p = inters[0].point;
+        charObj.position.set(p.x, p.y, p.z);
+      }
+    }, 2000);
 
   });
 });
