@@ -779,6 +779,10 @@ scene.add( axisHelper );
 
 var defaultMat = new THREE.MeshPhongMaterial({ambient: 0x030303, color: 0xdddddd, specular: 0x009900, shininess: 30, shading: THREE.FlatShading});
 
+var terrainTex = ROSETexLoader.load('3DDATA/TERRAIN/TILES/JUNON/JD/T021_04.DDS');
+terrainTex.wrapS = THREE.RepeatWrapping;
+terrainTex.wrapT = THREE.RepeatWrapping;
+var terrainMat = new THREE.MeshPhongMaterial({color: 0xffffff, map: terrainTex});
 
 var worldTree = new THREE.Octree( {
   // uncomment below to see the octree (may kill the fps)
@@ -938,8 +942,14 @@ ZSCLoader.load('3DDATA/JUNON/LIST_CNST_JDT.ZSC', function(cnstData) {
                 var v2 = (fy + 0) * 65 + (fx + 1);
                 var v3 = (fy + 1) * 65 + (fx + 0);
                 var v4 = (fy + 1) * 65 + (fx + 1);
+                var uv1 = new THREE.Vector2((fx+0)/4,(fy+0)/4);
+                var uv2 = new THREE.Vector2((fx+1)/4,(fy+0)/4);
+                var uv3 = new THREE.Vector2((fx+0)/4,(fy+1)/4);
+                var uv4 = new THREE.Vector2((fx+1)/4,(fy+1)/4);
                 geom.faces.push(new THREE.Face3(v1, v2, v3));
                 geom.faces.push(new THREE.Face3(v4, v3, v2));
+                geom.faceVertexUvs[0].push([uv1, uv2, uv3]);
+                geom.faceVertexUvs[0].push([uv4, uv3, uv2]);
               }
             }
 
@@ -948,7 +958,7 @@ ZSCLoader.load('3DDATA/JUNON/LIST_CNST_JDT.ZSC', function(cnstData) {
             geom.computeFaceNormals();
             geom.computeVertexNormals();
 
-            var chunkMesh = new THREE.Mesh(geom, defaultMat);
+            var chunkMesh = new THREE.Mesh(geom, terrainMat);
             chunkMesh.position.x = (cx - 32) * 160 - 80 + 5200;
             chunkMesh.position.y = (32 - cy) * 160 - 80 + 5200;
             scene.add(chunkMesh);
@@ -988,6 +998,13 @@ ZSCLoader.load('3DDATA/JUNON/LIST_CNST_JDT.ZSC', function(cnstData) {
 var moveObj = null;
 
 //*/
+
+
+var socket = io();
+socket.emit('ping');
+socket.on('pong', function (data) {
+  console.log('pong');
+});
 
 //*
 var charIdx = 2;

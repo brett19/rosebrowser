@@ -7,6 +7,7 @@ var fs = require('fs');
 var mkdirp = require('mkdirp')
 var BufferedStream = require('bufferedstream');
 var express = require('express');
+var socketio = require('socket.io');
 
 // Helper to read a whole stream into a Buffer object.
 function streamToBuffer(sourceStream, callback) {
@@ -98,13 +99,22 @@ var app = express();
 app.use(express.static(__dirname + '/client'));
 
 var cache = new Cacher();
-
 app.use('/data/*', function(req, res) {
   cache.getStream(req.baseUrl.substr(6), function(err, sourceStream) {
     sourceStream.pipe(res, {end:true});
   });
 });
 
+
 var server = app.listen(4040, function() {
   console.log('Listening on port %d', server.address().port);
+});
+
+var io = socketio(server);
+io.on('connection', function(socket){
+  console.log('got socket');
+  socket.on('ping', function(v){
+    console.log('got message');
+    socket.emit('pong');
+  });
 });
