@@ -199,6 +199,26 @@ THREE.DDSLoader.prototype = {
 			return byteArray;
 		}
 
+    function loadRGBMip( buffer, dataOffset, width, height ) {
+      var dataLength = width*height*3;
+      var outDataLength = width*height*3;
+      var srcBuffer = new Uint8Array( buffer, dataOffset, dataLength );
+      var byteArray = new Uint8Array( outDataLength );
+      var dst = 0;
+      var src = 0;
+      for ( var y = 0; y < height; y++ ) {
+        for ( var x = 0; x < width; x++ ) {
+          var b = srcBuffer[src]; src++;
+          var g = srcBuffer[src]; src++;
+          var r = srcBuffer[src]; src++;
+          byteArray[dst] = r; dst++;	//r
+          byteArray[dst] = g; dst++;	//g
+          byteArray[dst] = b; dst++;	//b
+        }
+      }
+      return byteArray;
+    }
+
 		var FOURCC_DXT1 = fourCCToInt32("DXT1");
 		var FOURCC_DXT3 = fourCCToInt32("DXT3");
 		var FOURCC_DXT5 = fourCCToInt32("DXT5");
@@ -252,6 +272,7 @@ THREE.DDSLoader.prototype = {
 		var fourCC = header[ off_pfFourCC ];
 
 		var isRGBAUncompressed = false;
+    var isRGBUncompressed = false;
 
 		switch ( fourCC ) {
 
@@ -280,9 +301,14 @@ THREE.DDSLoader.prototype = {
 					&& header[off_GBitMask]&0xff00 
 					&& header[off_BBitMask]&0xff
 					&& header[off_ABitMask]&0xff000000  ) {
-					isRGBAUncompressed = true;
-					blockBytes = 64;
-					dds.format = THREE.RGBAFormat;
+          isRGBAUncompressed = true;
+          dds.format = THREE.RGBAFormat;
+        } else if( header[off_RGBBitCount] == 24
+          && header[off_RBitMask]&0xff0000
+          && header[off_GBitMask]&0xff00
+          && header[off_BBitMask]&0xff) {
+          isRGBUncompressed = true;
+          dds.format = THREE.RGBFormat;
 				} else {
 					console.error( 'THREE.DDSLoader.parse: Unsupported FourCC code ', int32ToFourCC( fourCC ) );
 					return dds;
@@ -318,8 +344,11 @@ THREE.DDSLoader.prototype = {
 			for ( var i = 0; i < dds.mipmapCount; i ++ ) {
 
 				if( isRGBAUncompressed ) {
-					var byteArray = loadARGBMip( buffer, dataOffset, width, height );
-					var dataLength = byteArray.length;
+          var byteArray = loadARGBMip(buffer, dataOffset, width, height);
+          var dataLength = byteArray.length;
+        } else if ( isRGBUncompressed ) {
+          var byteArray = loadRGBMip(buffer, dataOffset, width, height);
+          var dataLength = byteArray.length;
 				} else {
 					var dataLength = Math.max( 4, width ) / 4 * Math.max( 4, height ) / 4 * blockBytes;
 					var byteArray = new Uint8Array( buffer, dataOffset, dataLength );
