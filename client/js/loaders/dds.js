@@ -1,6 +1,5 @@
-// TODO: More efficient RGB and RGBA loading!
-// TODO: Luminance and LuminanceAlpha
-// TODO: Test RGB, RBA, Alpha
+// TODO: More efficient uncompressed loading
+// TODO: Test RGB, RBA, Alpha, Luminance, LuminanceAlpha
 // TODO: Test Cubemap
 
 var DDS = {};
@@ -160,6 +159,14 @@ DDS.Loader.load = function(path, callback) {
           format = THREE.RGBFormat;
         }
       }
+    } else if (header.pixelFormat.flags & DDS.PIXEL_FORMAT.FLAGS.LUMINANCE) {
+      if (header.pixelFormat.flags & DDS.PIXEL_FORMAT.FLAGS.ALPHA_PIXELS) {
+        if (header.pixelFormat.bitCount == 16) {
+          format = THREE.LuminanceAlphaFormat;
+        }
+      } else if (header.pixelFormat.bitCount == 8) {
+        format = THREE.LuminanceFormat;
+      }
     } else if (header.pixelFormat.flags & DDS.PIXEL_FORMAT.FLAGS.ALPHA) {
       if (header.pixelFormat.bitCount == 8) {
         format = THREE.AlphaFormat;
@@ -247,7 +254,24 @@ DDS.Loader.load = function(path, callback) {
             }
           }
           break;
+        case THREE.LuminanceAlphaFormat:
+          var length = width * height * (header.pixelFormat.bitCount / 8);
+          var idx = 0;
+
+          mipmap.data = new Uint8Array(length);
+
+          for (var y = 0; y < height; ++y) {
+            for (var x = 0; x < width; ++x) {
+              var colour = rh.readUint16();
+              var r = (colour & maskR) >> shiftR;
+              var a = (colour & maskA) >> shiftA;
+              mipmap.data[idx++] = r;
+              mipmap.data[idx++] = a;
+            }
+          }
+          break;
         case THREE.AlphaFormat:
+        case THREE.LuminanceFormat:
           var length = width * height * (header.pixelFormat.bitCount / 8);
           mipmap.data = rh.readBytes(length);
           break;
