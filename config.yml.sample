@@ -1,0 +1,4 @@
+default:
+  data:
+    local: 'D:/rosedata/'
+    #remote: 'http://mywebsite.com:88/rosedata/'

@@ -8,63 +8,21 @@ var mkdirp = require('mkdirp')
 var BufferedStream = require('bufferedstream');
 var express = require('express');
 var socketio = require('socket.io');
+var yaml_config = require('node-yaml-config');
 
-// Helper to read a whole stream into a Buffer object.
-function streamToBuffer(sourceStream, callback) {
-  var bufs = [];
-  sourceStream.on('data', function(d){ bufs.push(d); });
-  sourceStream.on('end', function() {
-    callback(null, Buffer.concat(bufs));
-  });
+var config = yaml_config.load(__dirname + '/config.yml');
+
+if (!config.data || !(config.data.local || config.data.remote)) {
+  console.log('You need a proper config!');
+  process.exit(0);
 }
 
-
-function BinaryReader(buffer) {
-  this.buffer = buffer;
-  this.pos = 0;
-}
-BinaryReader.prototype.readFloat = function() {
-  var res = this.buffer.readFloatLE(this.pos);
-  this.pos += 4;
-  return res;
-}
-BinaryReader.prototype.readUint8 = function() {
-  return this.buffer.readUInt8(this.pos++);
-};
-BinaryReader.prototype.readUint16 = function() {
-  var res = this.buffer.readUInt16LE(this.pos);
-  this.pos += 2;
-  return res;
-};
-BinaryReader.prototype.readUint32 = function() {
-  var res = this.buffer.readUInt32LE(this.pos);
-  this.pos += 4;
-  return res;
-};
-BinaryReader.prototype.readStr = function() {
-  var startPos = this.pos;
-  while (this.buffer[this.pos++]);
-  var strArray = this.buffer.slice(startPos, this.pos-1);
-  return strArray.toString('utf8');
-};
-BinaryReader.prototype.readStrLen = function(len) {
-  var strArray = this.buffer.slice(this.pos, this.pos+len);
-  this.pos += len;
-  return strArray.toString('utf8');
-};
-BinaryReader.prototype.skip = function(num) {
-  this.pos += num;
-};
-
-
-var SOURCE_LOCATION = 'http://home.br19.com:82/rosedata/';
-
-// Data Stuffs
-function Cacher() {
+function Cacher(source) {
+  this.source = source;
   this.path = __dirname + '/cache/';
 }
 Cacher.prototype.getSourceStream = function(filePath, callback) {
-  http.request(SOURCE_LOCATION + filePath, function(lRes) {
+  http.request(this.source + filePath, function(lRes) {
     callback(null, lRes);
   }).end();
 };
@@ -98,12 +56,18 @@ var app = express();
 // Static Client Data
 app.use(express.static(__dirname + '/client'));
 
-var cache = new Cacher();
-app.use('/data/*', function(req, res) {
-  cache.getStream(req.baseUrl.substr(6), function(err, sourceStream) {
-    sourceStream.pipe(res, {end:true});
+if (config.data.local) {
+  console.log('Serving data from local source:', config.data.local);
+  app.use('/data', express.static(config.data.local));
+} else {
+  console.log('Serving data from remote source:', config.data.remote);
+  var cache = new Cacher(config.data.remote);
+  app.use('/data/*', function (req, res) {
+    cache.getStream(req.baseUrl.substr(6), function (err, sourceStream) {
+      sourceStream.pipe(res, {end: true});
+    });
   });
-});
+}
 
 
 var server = app.listen(4040, function() {
