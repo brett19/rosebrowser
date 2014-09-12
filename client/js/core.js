@@ -470,7 +470,7 @@ avatarGrp.load(function(loadedObjs) {
 
 /*
 var coreGrp = new GroupLoader();
-coreGrp.add('list_npc_chr', CHRLoader, '3DDATA/NPC/LIST_NPC.CHR');
+coreGrp.add('list_npc_chr', CharacterList, '3DDATA/NPC/LIST_NPC.CHR');
 coreGrp.add('part_npc_zsc', ZSCLoader, '3DDATA/NPC/PART_NPC.ZSC');
 coreGrp.load(function(loadedObjs) {
   var chrData = loadedObjs['list_npc_chr'];
@@ -478,7 +478,7 @@ coreGrp.load(function(loadedObjs) {
 
   var char = chrData.characters[charIdx];
   if (char == null) {
-    return;
+    return;d 
   }
 
   var charObj = new THREE.Object3D();

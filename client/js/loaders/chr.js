@@ -2,10 +2,10 @@
 
 /**
  * @constructor
- * @param {String[]}                   skeletons
- * @param {String[]}                   animations
- * @param {String[]}                   effects
- * @param {CharacterList.Character []} characters
+ * @param {String[]}                  skeletons
+ * @param {String[]}                  animations
+ * @param {String[]}                  effects
+ * @param {CharacterList.Character[]} characters
  */
 var CharacterList = function() {
   this.skeletons  = [];
@@ -46,12 +46,7 @@ CharacterList.Character.Effect = function() {
 CharacterList.load = function(path, callback) {
   ROSELoader.load(path, function (/** BinaryReader */rh) {
     var i, j, models;
-    var data = {
-      skeletons:  [],
-      animations: [],
-      effects:    [],
-      characters: []
-    };
+    var data = new CharacterList();
 
     var skeletons = rh.readUint16();
     for (i = 0; i < skeletons; ++i) {
