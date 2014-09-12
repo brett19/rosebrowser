@@ -2,12 +2,14 @@
 
 var http = require('http');
 var path = require('path');
+var net = require('net');
 var stream = require('stream');
 var fs = require('fs');
 var mkdirp = require('mkdirp')
 var express = require('express');
 var socketio = require('socket.io');
 var yaml_config = require('node-yaml-config');
+var SshTunnel = require('./sshtunnel');
 
 var config = yaml_config.load(__dirname + '/config.yml');
 
@@ -74,10 +76,57 @@ var server = app.listen(4040, function() {
 });
 
 var io = socketio(server);
-io.on('connection', function(socket){
-  console.log('got socket');
-  socket.on('ping', function(v){
-    console.log('got message');
-    socket.emit('pong');
+io.on('connection', function(socket) {
+  var sockets = [];
+  socket.on('disconnect', function() {
+    console.log('td');
+    for (var i = 0; i < sockets.length; ++i) {
+      sockets[i].end();
+    }
+  });
+  socket.on('tc', function(sockIdx, host, port) {
+    console.log('tc', sockIdx, host, port);
+
+    function doRealConnect(tHost, tPort) {
+      var outSock = net.connect(tPort, tHost);
+      sockets[sockIdx] = outSock;
+
+      outSock.on('connect', function() {
+        socket.emit('tc', sockIdx);
+      });
+      outSock.on('error', function(e) {
+        socket.emit('te', sockIdx, e);
+      });
+      outSock.on('end', function(e) {
+        tunnel.close();
+      });
+      outSock.on('data', function(data) {
+        socket.emit('tp', sockIdx, data);
+      });
+    }
+
+    if (!config.sshtunnel) {
+      doRealConnect(host, port);
+    } else {
+      var myRandomPort = 10000 + Math.floor(Math.random() * 5000);
+      var tunnelConfig = {
+        remoteHost: host,
+        remotePort: port,
+        localPort: myRandomPort,
+        sshConfig: config.sshtunnel
+      };
+      console.log('Opening SSH Tunnel', host, port, myRandomPort);
+      var tunnel = new SshTunnel(tunnelConfig);
+      tunnel.connect(function () {
+        console.log('New SSH Tunnel Active');
+        doRealConnect('localhost', myRandomPort);
+      });
+    }
+  });
+  socket.on('tp', function(sockIdx, data) {
+    var outSock = sockets[sockIdx];
+    if (outSock) {
+      outSock.write(data);
+    }
   });
 });

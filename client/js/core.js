@@ -66,10 +66,9 @@ THREE.ImageUtils.crossOrigin = 'anonymous';
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 
-var rendererEl = document.body;
 var renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
-rendererEl.appendChild(renderer.domElement);
+document.body.appendChild(renderer.domElement);
 
 renderer.setClearColor( 0x888888, 1 );
 
@@ -96,7 +95,7 @@ gui.add(guiCtl, 'doSomething');
 var controls = null;
 
 //*
-controls = new THREE.OrbitControls( camera );
+controls = new THREE.OrbitControls( camera, renderer.domElement );
 controls.damping = 0.2;
 //*/
 
@@ -156,7 +155,7 @@ scene.add( hemiLight );
 
 var clock = new THREE.Clock();
 var render = function () {
-  requestAnimationFrame(render, rendererEl);
+  requestAnimationFrame(render, renderer.domElement);
   var delta = clock.getDelta();
   THREE.AnimationHandler.update( delta );
   if (controls) {
@@ -365,12 +364,28 @@ var moveObj = null;
 
 //*/
 
+function viewToString(view) {
+  return String.fromCharCode.apply(null, new Uint8Array(view));
+}
 
-var socket = io();
-socket.emit('ping');
-socket.on('pong', function (data) {
-  console.log('pong');
+
+
+function RosePacket() {
+  this.cmd = 0;
+  this.data = [];
+}
+
+
+var sock = new RSocket();
+//sock.connect('156.34.48.64', 9494);
+sock.on('connect', function() {
+  console.log('sock.on:connect');
+  sock.send(new Uint8Array([1, 2, 3]).buffer);
 });
+sock.on('data', function(data) {
+  console.log('sock.on:data', viewToString(data));
+});
+
 
 //*
 var charIdx = 2;
@@ -532,7 +547,7 @@ coreGrp.load(function(loadedObjs) {
 var moveTowards = new THREE.Vector2(5200, 5200);
 
 //*
-rendererEl.addEventListener('mousemove', function(e) {
+renderer.domElement.addEventListener('mousemove', function(e) {
   e.preventDefault();
 
   var mouse = new THREE.Vector3(0, 0, 0.5);
