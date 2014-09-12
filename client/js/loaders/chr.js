@@ -36,7 +36,7 @@ CharacterList.Character.Effect = function() {
 
 /**
  * @callback CharacterList~onLoad
- * @param {CharacterList}
+ * @param {CharacterList} characterList
  */
 
 /**
