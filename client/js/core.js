@@ -434,7 +434,7 @@ ZMSLoader.load = function(path, callback) {
       }
     }
 
-    geometry.mergeVertices();
+    //geometry.mergeVertices();
     geometry.computeBoundingSphere();
     geometry.computeFaceNormals();
     geometry.computeVertexNormals();
@@ -822,15 +822,15 @@ cameraBase.position.set(5200, 5200, 0);
 scene.add(cameraBase);
 
 camera.up = new THREE.Vector3(0, 0, 1);
-camera.position.x = -100;
-camera.position.y = 100;
-camera.position.z = 100;
+camera.position.x = -5;
+camera.position.y = 5;
+camera.position.z = 5;
 camera.lookAt(new THREE.Vector3(0, 0, 0));
 cameraBase.add(camera);
 
 var controls = null;
 
-/*
+//*
 controls = new THREE.OrbitControls( camera );
 controls.damping = 0.2;
 //*/
@@ -847,10 +847,12 @@ axisHelper2.position.y = 0;
 axisHelper2.position.z = 0;
 scene.add( axisHelper2 );
 
+/*
 var animPath = '3DDATA/TITLEIROSE/CAMERA01_INSELECT01.ZMO';
 ZMOLoader.load(animPath, function(zmoData) {
   cameraAnimator = new CameraAnimationHandler(camera, zmoData);
 });
+//*/
 
 var defaultMat = new THREE.MeshPhongMaterial({ambient: 0x030303, color: 0xdddddd, specular: 0x009900, shininess: 30, shading: THREE.FlatShading});
 
@@ -899,9 +901,10 @@ var render = function () {
   if (moveObj) {
     var origin = moveTowards.clone();
     origin.sub(new THREE.Vector2(moveObj.position.x, moveObj.position.y));
-    origin.normalize();
-    origin.multiplyScalar(0.07);
-    //console.log(origin);
+    if (origin.lengthSq() > 0.07*0.07) {
+      origin.normalize();
+      origin.multiplyScalar(0.07);
+    }
     moveObj.position.add(new THREE.Vector3(origin.x, origin.y, 0));
 
     var ray = new THREE.Raycaster(new THREE.Vector3(moveObj.position.x, moveObj.position.y, 200), new THREE.Vector3(0, 0, -1));
@@ -1062,7 +1065,7 @@ ZSCLoader.load('3DDATA/JUNON/LIST_CNST_JPT.ZSC', function(cnstData) {
             worldTree.add(chunkMesh);
             worldList.push(chunkMesh);
 
-            //*
+            /*
             var ifoPath = '3DDATA/MAPS/JUNON/TITLE_JPT/' + cx + '_' + cy + '.IFO';
             IFOLoader.load(ifoPath, function(ifoData) {
               for (var i = 0; i < ifoData.objects.length; ++i) {
