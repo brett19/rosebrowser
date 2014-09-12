@@ -291,13 +291,13 @@ ZSCLoader.load('3DDATA/JUNON/LIST_CNST_JPT.ZSC', function(cnstData) {
       for (var ix = 32; ix <= 32; ++ix) {
         (function (cx, cy) {
           var himPath = '3DDATA/MAPS/JUNON/TITLE_JPT/' + cx + '_' + cy + '.HIM';
-          HIMLoader.load(himPath, function (himData) {
+          Heightmap.load(himPath, function (heightmap) {
             var geom = new THREE.Geometry();
 
             for (var vy = 0; vy < 65; ++vy) {
               for (var vx = 0; vx < 65; ++vx) {
                 geom.vertices.push(new THREE.Vector3(
-                    vx * 2.5, vy * 2.5, himData.map[(64 - vy) * 65 + (vx)] * ZZ_SCALE_IN
+                    vx * 2.5, vy * 2.5, heightmap.map[(64 - vy) * 65 + (vx)] * ZZ_SCALE_IN
                 ));
               }
             }

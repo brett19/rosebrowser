@@ -1,20 +1,36 @@
-
-function HIMData() {
-  this.width = 0;
-  this.height = 0;
+/**
+ * @constructor
+ * @property {Number}   width
+ * @property {Number}   height
+ * @property {Number[]} map
+ */
+var Heightmap = function() {
   this.map = [];
-}
-var HIMLoader = {};
-HIMLoader.load = function(path, callback) {
-  ROSELoader.load(path, function(b) {
-    var data = new HIMData();
-    data.width = b.readUint32();
-    data.height = b.readUint32();
-    /*patchGridCount*/ b.readUint32();
-    /*patchSize*/ b.readFloat();
-    for (var i = 0; i < data.width*data.height; ++i) {
-      data.map.push(b.readFloat());
+};
+
+/**
+ * @callback Heightmap~onLoad
+ * @param {Heightmap} heightmap
+ */
+
+/**
+ * @param {String} path
+ * @param {Heightmap~onLoad} callback
+ */
+Heightmap.load = function(path, callback) {
+  ROSELoader.load(path, function(rh) {
+    var i, data;
+
+    data = new Heightmap();
+    data.width     = rh.readUint32();
+    data.height    = rh.readUint32();
+    data.gridCount = rh.readUint32();
+    data.patchSize = rh.readFloat();
+
+    for (i = 0; i < data.width * data.height; ++i) {
+      data.map.push(rh.readFloat());
     }
+
     callback(data);
   });
 };
