@@ -46,6 +46,9 @@ BinaryReader.prototype.readStrLen = function(len) {
 BinaryReader.prototype.readByteStr = function() {
   return this.readStrLen(this.readUint8());
 };
+BinaryReader.prototype.readUint32Str = function() {
+  return this.readStrLen(this.readUint32());
+};
 BinaryReader.prototype.tell = function() {
   return this.pos;
 };
@@ -66,6 +69,13 @@ BinaryReader.prototype.readVector3 = function() {
   var y = this.readFloat();
   var z = this.readFloat();
   return new THREE.Vector3(x, y, z);
+};
+BinaryReader.prototype.readColourRGBA = function() {
+  var r = this.readFloat();
+  var g = this.readFloat();
+  var b = this.readFloat();
+  var a = this.readFloat();
+  return { r: r, g: g, b: b, a: a };
 };
 BinaryReader.prototype.readQuat = function() {
   var x = this.readFloat();
