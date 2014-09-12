@@ -5,7 +5,6 @@ var path = require('path');
 var stream = require('stream');
 var fs = require('fs');
 var mkdirp = require('mkdirp')
-var BufferedStream = require('bufferedstream');
 var express = require('express');
 var socketio = require('socket.io');
 var yaml_config = require('node-yaml-config');
