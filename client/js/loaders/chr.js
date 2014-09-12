@@ -1,64 +1,103 @@
+'use strict';
 
-var CHRLoader = {};
-CHRLoader.load = function(path, callback) {
-  ROSELoader.load(path, function (b) {
-    var data = {};
+/**
+ * @constructor
+ * @param {String[]}                   skeletons
+ * @param {String[]}                   animations
+ * @param {String[]}                   effects
+ * @param {CharacterList.Character []} characters
+ */
+var CharacterList = function() {
+  this.skeletons  = [];
+  this.animations = [];
+  this.effects    = [];
+  this.characters = [];
+};
 
-    data.skeletons = [];
-    var skeletonCount = b.readUint16();
-    for (var i = 0; i < skeletonCount; ++i) {
-      data.skeletons.push(b.readStr());
+/**
+ * @constructor
+ * @property {Number[]}                         models
+ * @property {Object}                           animations
+ * @property {CharacterList.Character.Effect[]} effects
+ */
+CharacterList.Character = function() {
+  this.models     = [];
+  this.animations = {};
+  this.effects    = [];
+};
+
+/**
+ * @constructor
+ * @property {Number} boneIdx
+ * @property {Number} effectIdx
+ */
+CharacterList.Character.Effect = function() {
+};
+
+/**
+ * @callback CharacterList~onLoad
+ * @param {CharacterList}
+ */
+
+/**
+ * @param {String} path
+ * @param {CharacterList~onLoad} callback
+ */
+CharacterList.load = function(path, callback) {
+  ROSELoader.load(path, function (/** BinaryReader */rh) {
+    var i, j, models;
+    var data = {
+      skeletons:  [],
+      animations: [],
+      effects:    [],
+      characters: []
+    };
+
+    var skeletons = rh.readUint16();
+    for (i = 0; i < skeletons; ++i) {
+      data.skeletons.push(rh.readStr());
     }
 
-    data.animations = [];
-    var animationCount = b.readUint16();
-    for (var i = 0; i < animationCount; ++i) {
-      data.animations.push(b.readStr());
+    var animations = rh.readUint16();
+    for (i = 0; i < animations; ++i) {
+      data.animations.push(rh.readStr());
     }
 
-    data.effects = [];
-    var effectCount = b.readUint16();
-    for (var i = 0; i < effectCount; ++i) {
-      data.effects.push(b.readStr());
+    var effects = rh.readUint16();
+    for (i = 0; i < effects; ++i) {
+      data.effects.push(rh.readStr());
     }
 
-    data.characters = [];
-    var characterCount = b.readUint16();
-    for (var i = 0; i < characterCount; ++i) {
-      var char = {};
+    var characters = rh.readUint16();
+    for (i = 0; i < characters; ++i) {
+      var character = null;
 
-      var charEnabled = b.readUint8() != 0;
-      if (charEnabled) {
-        char.skeletonIdx = b.readUint16();
-        char.name = b.readStr();
+      if (!!rh.readUint8()) {
+        character = new CharacterList.Character();
+        character.skeletonIdx = rh.readUint16();
+        character.name = rh.readStr();
 
-        char.models = [];
-        var modelCount = b.readUint16();
-        for (var j = 0; j < modelCount; ++j) {
-          char.models.push(b.readUint16());
+        models = rh.readUint16();
+        for (j = 0; j < models; ++j) {
+          character.models.push(rh.readUint16());
         }
 
-        char.animations = {};
-        var animationCount = b.readUint16();
-        for (var j = 0; j < animationCount; ++j) {
-          var animType = b.readUint16();
-          char.animations[animType] = b.readUint16();
+        animations = rh.readUint16();
+        for (j = 0; j < animations; ++j) {
+          var type = rh.readUint16();
+          character.animations[type] = rh.readUint16();
         }
 
-        char.effects = [];
-        var effectCount = b.readUint16();
-        for (var j = 0; j < effectCount; ++j) {
-          var effect = {};
-          effect.boneIdx = b.readUint16();
-          effect.effectIdx = b.readUint16();
-          char.effects.push(effect);
+        effects = rh.readUint16();
+        for (j = 0; j < effects; ++j) {
+          var effect = new CharacterList.Character.Effect();
+          effect.boneIdx = rh.readUint16();
+          effect.effectIdx = rh.readUint16();
+          character.effects.push(effect);
         }
-
-      } else {
-        char = null;
       }
 
-      data.characters.push(char);
+      data.characters.push(character);
     }
 
     callback(data);
