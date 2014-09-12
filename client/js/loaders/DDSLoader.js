@@ -334,8 +334,8 @@ THREE.DDSLoader.prototype = {
 
 		// Extract mipmaps buffers
 
-		var width = dds.width;
-		var height = dds.height;
+    var width = Math.max(4, dds.width);
+    var height = Math.max(4, dds.height);
 
 		var faces = dds.isCubemap ? 6 : 1;
 
@@ -353,7 +353,8 @@ THREE.DDSLoader.prototype = {
 					var dataLength = Math.max( 4, width ) / 4 * Math.max( 4, height ) / 4 * blockBytes;
 					var byteArray = new Uint8Array( buffer, dataOffset, dataLength );
 				}
-				
+
+
 				var mipmap = { "data": byteArray, "width": width, "height": height };
 				dds.mipmaps.push( mipmap );
 

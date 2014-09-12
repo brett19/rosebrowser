@@ -24899,9 +24899,7 @@ THREE.WebGLRenderer = function ( parameters ) {
 
         mipmap = mipmaps[ i ];
         if ( texture.format !== THREE.RGBAFormat && texture.format !== THREE.RGBFormat ) {
-          if (mipmap.width > 2 && mipmap.height > 2) {
             _gl.compressedTexImage2D(_gl.TEXTURE_2D, i, glFormat, mipmap.width, mipmap.height, 0, mipmap.data);
-          }
         } else {
           _gl.texImage2D( _gl.TEXTURE_2D, i, glFormat, mipmap.width, mipmap.height, 0, glFormat, glType, mipmap.data );
         }
