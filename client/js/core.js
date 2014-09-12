@@ -1,5 +1,7 @@
 'use strict';
 
+var ZZ_SCALE_IN = 0.01;
+var ZZ_SCALE_OUT = 100;
 
 function BinaryReader(arrayBuffer) {
   this.buffer = new Uint8Array(arrayBuffer);
@@ -168,7 +170,7 @@ ZSCLoader.load = function(path, callback) {
             var propertySize = b.readUint8();
 
             if (propertyType == ZSCPROPTYPE.Position) {
-              part.position = b.readVector3().divideScalar(100).toArray();
+              part.position = b.readVector3().multiplyScalar(ZZ_SCALE_IN).toArray();
             } else if (propertyType == ZSCPROPTYPE.Rotation) {
               part.rotation = b.readBadQuat().toArray();
             } else if (propertyType == ZSCPROPTYPE.Scale) {
@@ -491,7 +493,7 @@ ZMDLoader.load = function(path, callback) {
       var bone = {};
       bone.parent = rh.readUint32();
       bone.name = rh.readStr();
-      bone.position = rh.readVector3().divideScalar(100);
+      bone.position = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
       bone.rotation = rh.readBadQuat();
 
       if (i == 0) {
@@ -632,7 +634,7 @@ ZMOLoader.load = function(path, callback) {
     for (var i = 0; i < anim.frameCount; ++i) {
       for (var j = 0; j < channelCount; ++j) {
         if (channelData[j].type == ZMOCTYPE.Position) {
-          channelData[j].frames.push(rh.readVector3().divideScalar(100));
+          channelData[j].frames.push(rh.readVector3().multiplyScalar(ZZ_SCALE_IN));
         } else if (channelData[j].type == ZMOCTYPE.Rotation) {
           channelData[j].frames.push(rh.readBadQuat());
         }
@@ -677,7 +679,7 @@ CameraAnimationHandler.prototype.update = function(delta) {
   var targetPos = interpFrame(this.data.channels[1].frames, frameNum, blendWeight);
   var upPos = interpFrame(this.data.channels[2].frames, frameNum, blendWeight);
 
-  this.camera.up.set(upPos.x*100, upPos.y*100, upPos.z*100);
+  this.camera.up.set(upPos.x*ZZ_SCALE_OUT, upPos.y*ZZ_SCALE_OUT, upPos.z*ZZ_SCALE_OUT);
   this.camera.position.set(eyePos.x, eyePos.y, eyePos.z);
   this.camera.lookAt(new THREE.Vector3(targetPos.x, targetPos.y, targetPos.z));
 };
@@ -739,7 +741,7 @@ IFOLoader.load = function(path, callback) {
       obj.objectId = b.readUint32();
       /*obj.mapPosition*/ b.skip(2*4);
       obj.rotation = b.readQuat();
-      obj.position = b.readVector3().divideScalar(100);
+      obj.position = b.readVector3().multiplyScalar(ZZ_SCALE_IN);
       obj.scale = b.readVector3();
       return obj;
     }
@@ -1003,7 +1005,7 @@ ZSCLoader.load('3DDATA/JUNON/LIST_CNST_JPT.ZSC', function(cnstData) {
             for (var vy = 0; vy < 65; ++vy) {
               for (var vx = 0; vx < 65; ++vx) {
                 geom.vertices.push(new THREE.Vector3(
-                    vx * 2.5, vy * 2.5, himData.map[(64 - vy) * 65 + (vx)] / 100
+                    vx * 2.5, vy * 2.5, himData.map[(64 - vy) * 65 + (vx)] * ZZ_SCALE_IN;
                 ));
               }
             }
