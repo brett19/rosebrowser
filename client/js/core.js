@@ -84,6 +84,15 @@ camera.position.z = 5;
 camera.lookAt(new THREE.Vector3(0, 0, 0));
 cameraBase.add(camera);
 
+
+var guiCtl = {
+  doSomething: function() {
+    console.log('Yup...');
+  }
+};
+var gui = new dat.GUI();
+gui.add(guiCtl, 'doSomething');
+
 var controls = null;
 
 //*
