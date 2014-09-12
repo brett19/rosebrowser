@@ -409,6 +409,7 @@ ZMSLoader.load = function(path, callback) {
       }
     }
 
+    geometry.mergeVertices();
     geometry.computeBoundingSphere();
     geometry.computeFaceNormals();
     geometry.computeVertexNormals();
@@ -505,8 +506,6 @@ ZMDLoader.load = function(path, callback) {
     callback(skel);
   });
 };
-
-
 
 
 
@@ -645,6 +644,44 @@ ZMOLoader.load = function(path, callback) {
   });
 };
 
+var cameraAnimator = null;
+function CameraAnimationHandler(camera, zmoData) {
+  this.time = 0;
+  this.camera = camera;
+  this.data = zmoData;
+  this.length = this.data.frameCount / this.data.fps;
+  if (this.data.channels.length != 4) {
+    throw new Error('Camera ZMO has wrong number of channels');
+  }
+}
+function interpFrame(frames, frameBase, weight) {
+  var frame0 = frameBase;
+  var frame1 = frameBase + 1;
+  if (frame1 >= frames.length) {
+    frame1 -= frames.length;
+  }
+  return frames[frame0].lerp(frames[frame1], weight);
+}
+CameraAnimationHandler.prototype.update = function(delta) {
+  this.time += delta;
+  if (this.time > this.length) {
+    this.time -= this.length;
+  } else if (this.time < 0) {
+    this.time += this.length;
+  }
+
+  var frameNum = Math.floor(this.time * this.data.fps);
+  var blendWeight = this.time - (frameNum / this.data.fps);
+
+  var eyePos = interpFrame(this.data.channels[0].frames, frameNum, blendWeight);
+  var targetPos = interpFrame(this.data.channels[1].frames, frameNum, blendWeight);
+  var upPos = interpFrame(this.data.channels[2].frames, frameNum, blendWeight);
+
+  this.camera.up.set(upPos.x*100, upPos.y*100, upPos.z*100);
+  this.camera.position.set(eyePos.x, eyePos.y, eyePos.z);
+  this.camera.lookAt(new THREE.Vector3(targetPos.x, targetPos.y, targetPos.z));
+};
+
 
 
 function HIMData() {
@@ -737,6 +774,9 @@ IFOLoader.load = function(path, callback) {
 
 
 
+
+
+
 THREE.XHRLoader.prototype.crossOrigin = 'anonymous';
 THREE.ImageUtils.crossOrigin = 'anonymous';
 
@@ -747,42 +787,53 @@ var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 
 var rendererEl = document.body;
-var renderer = new THREE.WebGLRenderer();
+var renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 rendererEl.appendChild(renderer.domElement);
 
 renderer.setClearColor( 0x888888, 1 );
 
+var cameraBase = new THREE.Object3D();
+cameraBase.position.set(5200, 5200, 0);
+scene.add(cameraBase);
+
 camera.up = new THREE.Vector3(0, 0, 1);
-camera.position.x = 5200+-100;
-camera.position.y = 5200+100;
+camera.position.x = -100;
+camera.position.y = 100;
 camera.position.z = 100;
-camera.lookAt(new THREE.Vector3(5200+0, 5200+0, 0));
+camera.lookAt(new THREE.Vector3(0, 0, 0));
+cameraBase.add(camera);
 
 var controls = null;
 
-//*
-controls = new THREE.FlyControls( camera );
-controls.movementSpeed = 160;
-controls.domElement = rendererEl;
-controls.rollSpeed = Math.PI / 4;
-controls.autoForward = false;
-controls.dragToLook = true;
+/*
+controls = new THREE.OrbitControls( camera );
+controls.damping = 0.2;
 //*/
 
-var axisHelper = new THREE.AxisHelper( 10 );
+var axisHelper = new THREE.AxisHelper( 5 );
 axisHelper.position.x = 5201;
 axisHelper.position.y = 5201;
 axisHelper.position.z = 40;
 scene.add( axisHelper );
 
+var axisHelper2 = new THREE.AxisHelper( 20 );
+axisHelper2.position.x = 0;
+axisHelper2.position.y = 0;
+axisHelper2.position.z = 0;
+scene.add( axisHelper2 );
+
+var animPath = '3DDATA/TITLEIROSE/CAMERA01_INSELECT01.ZMO';
+ZMOLoader.load(animPath, function(zmoData) {
+  cameraAnimator = new CameraAnimationHandler(camera, zmoData);
+});
 
 var defaultMat = new THREE.MeshPhongMaterial({ambient: 0x030303, color: 0xdddddd, specular: 0x009900, shininess: 30, shading: THREE.FlatShading});
 
 var terrainTex = ROSETexLoader.load('3DDATA/TERRAIN/TILES/JUNON/JD/T021_04.DDS');
 terrainTex.wrapS = THREE.RepeatWrapping;
 terrainTex.wrapT = THREE.RepeatWrapping;
-var terrainMat = new THREE.MeshPhongMaterial({color: 0xffffff, map: terrainTex});
+var terrainMat = new THREE.MeshLambertMaterial({map: terrainTex});
 
 var worldTree = new THREE.Octree( {
   // uncomment below to see the octree (may kill the fps)
@@ -801,17 +852,15 @@ var worldTree = new THREE.Octree( {
 } );
 
 
-var directionalLight = new THREE.DirectionalLight( 0xffffff, 1.475 );
-directionalLight.position.set( 100, 100, -100 );
-scene.add( directionalLight );
+var directionalLight = new THREE.DirectionalLight( 0xffffff, 1.1 );
+directionalLight.position.set( 100, 100, 100 );
+scene.add( directionalLight );1
 
-
-var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 1.25 );
+var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.3 );
 hemiLight.color.setHSL( 0.6, 1, 0.75 );
 hemiLight.groundColor.setHSL( 0.1, 0.8, 0.7 );
-hemiLight.position.y = 500;
+hemiLight.position.z = 500;
 scene.add( hemiLight );
-
 
 
 var clock = new THREE.Clock();
@@ -821,6 +870,27 @@ var render = function () {
   THREE.AnimationHandler.update( delta );
   if (controls) {
     controls.update(delta);
+  }
+
+  if (moveObj) {
+    var origin = moveTowards.clone();
+    origin.sub(new THREE.Vector2(moveObj.position.x, moveObj.position.y));
+    origin.normalize();
+    origin.multiplyScalar(0.07);
+    //console.log(origin);
+    moveObj.position.add(new THREE.Vector3(origin.x, origin.y, 0));
+
+    var ray = new THREE.Raycaster(new THREE.Vector3(moveObj.position.x, moveObj.position.y, 200), new THREE.Vector3(0, 0, -1));
+    var octreeObjects = worldTree.search( ray.ray.origin, ray.ray.far, true, ray.ray.direction );
+    var inters = ray.intersectOctreeObjects( octreeObjects );
+    if (inters.length > 0) {
+      var p = inters[0].point;
+      moveObj.position.set(p.x, p.y, p.z);
+    }
+  }
+
+  if (cameraAnimator) {
+    cameraAnimator.update(delta);
   }
 
   renderer.render(scene, camera);
@@ -835,7 +905,7 @@ render();
 function makeZscMaterial(zscMat) {
   var texture = ROSETexLoader.load(zscMat.texturePath);
   //texture.anisotropy = 4;
-  var material = new THREE.MeshPhongMaterial({color: 0xffffff, map: texture});
+  var material = new THREE.MeshLambertMaterial({color: 0xffffff, map: texture});
   material.skinning = zscMat.forSkinning;
   if (zscMat.twoSided) {
     material.side = THREE.DoubleSide;
@@ -916,15 +986,17 @@ function createZscObject(zscData, modelIdx) {
   return modelObj;
 }
 
+var projector = new THREE.Projector();
+
 var worldList = [];
 
 //*
-ZSCLoader.load('3DDATA/JUNON/LIST_CNST_JDT.ZSC', function(cnstData) {
-  ZSCLoader.load('3DDATA/JUNON/LIST_DECO_JDT.ZSC', function (decoData) {
-    for (var iy = 30; iy <= 33; ++iy) {
-      for (var ix = 31; ix <= 34; ++ix) {
+ZSCLoader.load('3DDATA/JUNON/LIST_CNST_JPT.ZSC', function(cnstData) {
+  ZSCLoader.load('3DDATA/JUNON/LIST_DECO_JPT.ZSC', function (decoData) {
+    for (var iy = 31; iy <= 32; ++iy) {
+      for (var ix = 32; ix <= 32; ++ix) {
         (function (cx, cy) {
-          var himPath = '3DDATA/MAPS/JUNON/JDT01/' + cx + '_' + cy + '.HIM';
+          var himPath = '3DDATA/MAPS/JUNON/TITLE_JPT/' + cx + '_' + cy + '.HIM';
           HIMLoader.load(himPath, function (himData) {
             var geom = new THREE.Geometry();
 
@@ -966,8 +1038,8 @@ ZSCLoader.load('3DDATA/JUNON/LIST_CNST_JDT.ZSC', function(cnstData) {
             worldTree.add(chunkMesh);
             worldList.push(chunkMesh);
 
-            /*
-            var ifoPath = '3DDATA/MAPS/JUNON/JDT01/' + cx + '_' + cy + '.IFO';
+            //*
+            var ifoPath = '3DDATA/MAPS/JUNON/TITLE_JPT/' + cx + '_' + cy + '.IFO';
             IFOLoader.load(ifoPath, function(ifoData) {
               for (var i = 0; i < ifoData.objects.length; ++i) {
                 var objData = ifoData.objects[i];
@@ -987,7 +1059,7 @@ ZSCLoader.load('3DDATA/JUNON/LIST_CNST_JDT.ZSC', function(cnstData) {
                 scene.add(obj);
               }
             });
-            */
+            //*/
           });
         })(ix, iy);
       }
@@ -1041,7 +1113,68 @@ GroupLoader.prototype.load = function(callback) {
   }
 };
 
+var avatarGrp = new GroupLoader();
+avatarGrp.add('male_skel', ZMDLoader, '3DDATA/AVATAR/MALE.ZMD');
+avatarGrp.add('female_skel', ZMDLoader, '3DDATA/AVATAR/FEMALE.ZMD');
+avatarGrp.add('male_face', ZSCLoader, '3DDATA/AVATAR/LIST_MFACE.ZSC');
+avatarGrp.add('male_hair', ZSCLoader, '3DDATA/AVATAR/LIST_MHAIR.ZSC');
+avatarGrp.add('male_body', ZSCLoader, '3DDATA/AVATAR/LIST_MBODY.ZSC');
+avatarGrp.add('male_foot', ZSCLoader, '3DDATA/AVATAR/LIST_MFOOT.ZSC');
+avatarGrp.add('male_arms', ZSCLoader, '3DDATA/AVATAR/LIST_MARMS.ZSC');
+avatarGrp.load(function(loadedObjs) {
+  var mskel = loadedObjs['male_skel'];
+  var fskel = loadedObjs['female_skel'];
+  var mface = loadedObjs['male_face'];
+  var mhair = loadedObjs['male_hair'];
+  var mbody = loadedObjs['male_body'];
+  var mfoot = loadedObjs['male_foot'];
+  var marms = loadedObjs['male_arms'];
 
+  var charObj = new THREE.Object3D();
+  charObj.position.set(5200, 5200, 40);
+  charObj.rotation.z += Math.PI;
+  charObj.scale.set(1.2,1.2,1.2);
+  scene.add(charObj);
+  moveObj = charObj;
+
+  var charSkel = mskel.create(charObj);
+  function addPart(zscData, modelIdx, bindBone) {
+    var model = zscData.objects[modelIdx];
+
+    for (var j = 0; j < model.parts.length; ++j) {
+      (function(part) {
+        var material = makeZscMaterial(zscData.materials[part.materialIdx]);
+
+        var meshPath = zscData.meshes[part.meshIdx];
+        ZMSLoader.load(meshPath, function (geometry) {
+          if (bindBone === undefined) {
+            var charPartMesh = new THREE.SkinnedMesh(geometry, material);
+            charPartMesh.bind(charSkel);
+            charObj.add(charPartMesh);
+          } else {
+            var charPartMesh = new THREE.Mesh(geometry, material);
+            charSkel.bones[bindBone].add(charPartMesh);
+          }
+        });
+      })(model.parts[j]);
+    }
+  }
+  addPart(mhair, 1, 4);
+  addPart(mface, 2, 4);
+  addPart(mbody, 1);
+  addPart(mfoot, 1);
+  addPart(marms, 1);
+
+  var animPath = '3DDATA/MOTION/AVATAR/EMPTY_RUN_M1.ZMO';
+  ZMOLoader.load(animPath, function(zmoData) {
+    var anim = zmoData.createForSkeleton('test', charObj, charSkel);
+    anim.play();
+  });
+
+  //charObj.add(camera);
+});
+
+/*
 var coreGrp = new GroupLoader();
 coreGrp.add('list_npc_chr', CHRLoader, '3DDATA/NPC/LIST_NPC.CHR');
 coreGrp.add('part_npc_zsc', ZSCLoader, '3DDATA/NPC/PART_NPC.ZSC');
@@ -1090,16 +1223,40 @@ coreGrp.load(function(loadedObjs) {
   });
 
   setTimeout(function() {
-    var ray = new THREE.Raycaster(new THREE.Vector3(5200, 5200, 200), new THREE.Vector3(0, 0, -1));
-    var octreeObjects = worldTree.search( ray.ray.origin, ray.ray.far, true, ray.ray.direction );
-    var inters = ray.intersectOctreeObjects( octreeObjects );
-    if (inters.length > 0) {
-      var p = inters[0].point;
-      charObj.position.set(p.x, p.y, p.z);
-    }
+ var ray = new THREE.Raycaster(new THREE.Vector3(5200, 5200, 200), new THREE.Vector3(0, 0, -1));
+ var octreeObjects = worldTree.search( ray.ray.origin, ray.ray.far, true, ray.ray.direction );
+ var inters = ray.intersectOctreeObjects( octreeObjects );
+ if (inters.length > 0) {
+ var p = inters[0].point;
+ charObj.position.set(p.x, p.y, p.z);
+ }
   }, 2000);
 
 });
+//*/
+
+var moveTowards = new THREE.Vector2(5200, 5200);
+
+//*
+rendererEl.addEventListener('mousemove', function(e) {
+  e.preventDefault();
+
+  var mouse = new THREE.Vector3(0, 0, 0.5);
+  mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
+  mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
+  projector.unprojectVector( mouse, camera );
+
+  var cameraPos = camera.localToWorld(new THREE.Vector3(0,0,0));
+  var ray = new THREE.Raycaster(cameraPos, mouse.sub( cameraPos ).normalize());
+  var octreeObjects = worldTree.search( ray.ray.origin, ray.ray.far, true, ray.ray.direction );
+  var inters = ray.intersectOctreeObjects( octreeObjects );
+
+  if (inters.length > 0) {
+    var p = inters[0].point;
+    moveTowards.set(p.x, p.y);
+    //moveObj.position.set(p.x, p.y, p.z);
+  }
+}, false );
 
 //*/
 
