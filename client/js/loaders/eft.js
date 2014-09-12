@@ -1,29 +1,48 @@
-var EFT = {};
-
-EFT.Effect = function() {
-  this.particles = [];
+/**
+ * @constructor
+ * @property {Effect.Particle[]} particles
+ * @property {Effect.Animation[]} animations
+ */
+var Effect = function() {
+  this.particles  = [];
   this.animations = [];
 };
 
-EFT.Particle = function() {
+/**
+ * @constructor
+ */
+Effect.Particle = function() {
   this.animation = {};
 };
 
-EFT.Animation = function() {
+/**
+ * @constructor
+ */
+Effect.Animation = function() {
   this.animation = {};
 };
 
-EFT.Loader = {};
-EFT.Loader.load = function(path, callback) {
+/**
+ * @callback Effect~onLoad
+ * @param {Effect} effect
+ */
+
+/**
+ * @param {String} path
+ * @param {Effect~onLoad} callback
+ */
+Effect.load = function(path, callback) {
   ROSELoader.load(path, function(rh) {
-    var effect = new EFT.Effect();
-    effect.name         = rh.readUint32Str();
-    effect.soundPath    = rh.readUint32Str();
-    effect.loopCount    = rh.readUint32();
+    var animations, data, i, particles;
 
-    var particles = rh.readUint32();
-    for (var i = 0; i < particles; ++i) {
-      var particle = new EFT.Particle();
+    data = new Effect();
+    data.name      = rh.readUint32Str();
+    data.soundPath = rh.readUint32Str();
+    data.loopCount = rh.readUint32();
+
+    particles = rh.readUint32();
+    for (i = 0; i < particles; ++i) {
+      var particle = new Effect.Particle();
       particle.name                 = rh.readUint32Str();
       particle.uid                  = rh.readUint32Str();
       particle.stbIndex             = rh.readUint32();
@@ -32,16 +51,17 @@ EFT.Loader.load = function(path, callback) {
       particle.animation.name       = rh.readUint32Str();
       particle.animation.loopCount  = rh.readUint32();
       particle.animation.index      = rh.readUint32();
-      particle.position             = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
+      particle.position             = rh.readVector3();
       particle.rotation             = rh.readQuat();
       particle.delay                = rh.readUint32();
       particle.linkRoot             = !!rh.readUint32();
-      effect.particles.push(particle);
+      particle.position.multiplyScalar(ZZ_SCALE_IN);
+      data.particles.push(particle);
     }
 
-    var animations = rh.readUint32();
-    for (var j = 0; j < animations; ++j) {
-      var animation = new EFT.Animation();
+    animations = rh.readUint32();
+    for (i = 0; i < animations; ++i) {
+      var animation = new Effect.Animation();
       animation.name                = rh.readUint32Str();
       animation.uid                 = rh.readUint32Str();
       animation.stbIndex            = rh.readUint32();
@@ -60,12 +80,15 @@ EFT.Loader.load = function(path, callback) {
       animation.animation.name      = rh.readUint32Str();
       animation.animation.loopCount = rh.readUint32Str();
       animation.animation.index     = rh.readUint32();
-      animation.position            = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
+      animation.position            = rh.readVector3();
       animation.rotation            = rh.readQuat();
       animation.delay               = rh.readUint32();
       animation.loopCount           = rh.readUint32();
       animation.linkRoot            = !!rh.readUint32();
-      effect.animations.push(animation);
+      animation.position.multiplyScalar(ZZ_SCALE_IN);
+      data.animations.push(animation);
     }
+
+    callback(data);
   });
 };
