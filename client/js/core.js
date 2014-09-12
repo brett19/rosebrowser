@@ -23,6 +23,14 @@ BinaryReader.prototype.readUint16 = function() {
   this.pos += 2;
   return res;
 };
+BinaryReader.prototype.readUint24 = function() {
+  var res =
+      this.buffer[this.pos+2] << 16 |
+      this.buffer[this.pos+1] << 8 |
+      this.buffer[this.pos+0];
+  this.pos += 3;
+  return res;
+};
 BinaryReader.prototype.readUint32 = function() {
   var res =
       this.buffer[this.pos+3] << 24 |
@@ -42,6 +50,11 @@ BinaryReader.prototype.readStrLen = function(len) {
   var strArray = this.buffer.subarray(this.pos, this.pos + len);
   this.pos += len;
   return String.fromCharCode.apply(null, strArray);
+};
+BinaryReader.prototype.readBytes = function(len) {
+  var array = this.buffer.subarray(this.pos, this.pos + len);
+  this.pos += len;
+  return array;
 };
 BinaryReader.prototype.readByteStr = function() {
   return this.readStrLen(this.readUint8());
@@ -436,8 +449,7 @@ ZMSLoader.load = function(path, callback) {
  */
 var ROSETexLoader = {};
 ROSETexLoader.load = function(path, callback) {
-  var ddsLoader = new THREE.DDSLoader();
-  var tex = ddsLoader.load( ROSE_DATA_BASE + path, function() {
+  var tex = DDS.Loader.load(path, function() {
     if (callback) {
       callback();
     }
