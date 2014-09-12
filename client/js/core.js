@@ -3,17 +3,6 @@
 var ZZ_SCALE_IN = 0.01;
 var ZZ_SCALE_OUT = 100;
 
-var ROSE_DATA_BASE = 'http://home.br19.com:82/rosedata/';
-
-var ROSELoader = {};
-ROSELoader.load = function(path, callback) {
-  var loader = new THREE.XHRLoader();
-  loader.setResponseType('arraybuffer');
-  loader.load(ROSE_DATA_BASE + path, function (buffer) {
-    callback(new BinaryReader(buffer));
-  });
-};
-
 var CHRLoader = {};
 CHRLoader.load = function(path, callback) {
   ROSELoader.load(path, function (b) {
