@@ -664,7 +664,7 @@ function interpFrame(frames, frameBase, weight) {
 }
 CameraAnimationHandler.prototype.update = function(delta) {
   this.time += delta;
-  if (this.time > this.length) {
+  if (this.time >= this.length) {
     this.time -= this.length;
   } else if (this.time < 0) {
     this.time += this.length;
