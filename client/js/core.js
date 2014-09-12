@@ -316,6 +316,7 @@ var render = function () {
   }
 
   if (moveObj) {
+    /*
     var origin = moveTowards.clone();
     origin.sub(new THREE.Vector2(moveObj.position.x, moveObj.position.y));
     if (origin.lengthSq() > 0.07*0.07) {
@@ -323,7 +324,8 @@ var render = function () {
       origin.multiplyScalar(0.07);
     }
     moveObj.position.add(new THREE.Vector3(origin.x, origin.y, 0));
-
+    //*/
+    
     var ray = new THREE.Raycaster(new THREE.Vector3(moveObj.position.x, moveObj.position.y, 200), new THREE.Vector3(0, 0, -1));
     var octreeObjects = worldTree.search( ray.ray.origin, ray.ray.far, true, ray.ray.direction );
     var inters = ray.intersectOctreeObjects( octreeObjects );
