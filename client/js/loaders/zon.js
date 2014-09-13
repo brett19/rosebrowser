@@ -1,18 +1,55 @@
-var ZON = {};
-
-ZON.Zone = function() {
+/**
+ * @constructor
+ * @property {String} name
+ * @property {Number} type
+ * @property {Number} width
+ * @property {Number} height
+ * @property {Number} gridCount
+ * @property {Number} gridSize
+ * @property {Number} startX
+ * @property {Number} startY
+ * @property {Boolean} underground
+ * @property {String} backgroundMusicPath
+ * @property {String} skyPath
+ * @property {Zone.SpawnPoint[]} spawns
+ * @property {Zone.Tile[]} tiles
+ * @property {String[]} textures
+ */
+var Zone = function() {
   this.spawns = [];
-  this.textures = [];
   this.tiles = [];
+  this.textures = [];
 };
 
-ZON.SpawnPoint = function() {
+
+/**
+ * @constructor
+ * @property {THREE.Vector3} position
+ * @property {String} name
+ */
+Zone.SpawnPoint = function() {
 };
 
-ZON.Tile = function() {
+
+/**
+ * @constructor
+ * @property {Number} layer1
+ * @property {Number} layer2
+ * @property {Number} offset1
+ * @property {Number} offset2
+ * @property {Boolean} blend
+ * @property {Zone.TILE_ROTATION} rotation
+ * @property {Number} type
+ */
+Zone.Tile = function() {
 };
 
-ZON.BLOCK = {
+
+/**
+ * @enum {Number}
+ * @readonly
+ */
+Zone.BLOCK = {
   INFO:         0,
   SPAWN_POINTS: 1,
   TEXTURES:     2,
@@ -20,7 +57,12 @@ ZON.BLOCK = {
   ECONOMY:      4
 };
 
-ZON.TILE_ROTATION = {
+
+/**
+ * @enum {Number}
+ * @readonly
+ */
+Zone.TILE_ROTATION = {
   NONE:                 0,
   FLIP_HORIZONTAL:      2,
   FLIP_VERTICAL:        3,
@@ -29,67 +71,77 @@ ZON.TILE_ROTATION = {
   COUNTER_CLOCKWISE_90: 6
 };
 
-ZON.Loader = {};
-ZON.Loader.load = function(path, callback) {
-  ROSELoader.load(path, function(rh) {
-    var zone = new ZON.Zone();
 
-    var blocks = rh.readUint32();
-    for (var i = 0; i < blocks; ++i) {
-      var type   = rh.readUint32();
-      var offset = rh.readUint32();
-      var pos    = rh.tell();
+/**
+ * @callback Zone~onLoad
+ * @param {Zone} zone
+ */
 
+/**
+ * @param {String} path
+ * @param {Zone~onLoad} callback
+ */
+Zone.load = function(path, callback) {
+  ROSELoader.load(path, function(/** BinaryReader */rh) {
+    var blocks, i, j, data;
+    data = new Zone();
+
+    blocks = rh.readUint32();
+    for (i = 0; i < blocks; ++i) {
+      var type, offset, pos, count;
+      type   = rh.readUint32();
+      offset = rh.readUint32();
+      pos    = rh.tell();
+
+      rh.seek(offset);
       switch(type) {
-      case ZON.BLOCK.INFO:
-        zone.type = rh.readUint32();
-        zone.width = rh.readUint32();
-        zone.height = rh.readUint32();
-        zone.gridCount = rh.readUint32();
-        zone.gridSize = rh.readFloat();
-        zone.startX = rh.readUint32();
-        zone.startY = rh.readUint32();
-        // We don't care about the following position data
+      case Zone.BLOCK.INFO:
+        data.type      = rh.readUint32();
+        data.width     = rh.readUint32();
+        data.height    = rh.readUint32();
+        data.gridCount = rh.readUint32();
+        data.gridSize  = rh.readFloat();
+        data.startX    = rh.readUint32();
+        data.startY    = rh.readUint32();
         break;
-      case ZON.BLOCK.SPAWN_POINTS:
-        var spawns = rh.readUint32();
-        for (var j = 0; j < spawns; ++j) {
-          var spawn = new ZON.SpawnPoint();
+      case Zone.BLOCK.SPAWN_POINTS:
+        count = rh.readUint32();
+        for (j = 0; j < count; ++j) {
+          var spawn = new Zone.SpawnPoint();
           spawn.position = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
-          spawn.name = rh.readByteStr();
-          zone.spawns.push(spawn);
+          spawn.name     = rh.readByteStr();
+          data.spawns.push(spawn);
         }
         break;
-      case ZON.BLOCK.TEXTURES:
-        var textures = rh.readUint32();
-        for (var j = 0; j < textures; ++j) {
-          zone.textures.push(rh.readByteStr());
+      case Zone.BLOCK.TEXTURES:
+        count = rh.readUint32();
+        for (j = 0; j < count; ++j) {
+          data.textures.push(rh.readByteStr());
         }
         break;
-      case ZON.BLOCK.TILES:
-        var tiles = rh.readUint32();
-        for (var j = 0; j < tiles; ++j) {
-          var tile = new ZON.Tile();
-          tile.layer1  = rh.readUint32();
-          tile.layer2  = rh.readUint32();
-          tile.offset1 = rh.readUint32();
-          tile.offset2 = rh.readUint32();
-          tile.blend   = !!rh.readUint32();
+      case Zone.BLOCK.TILES:
+        count = rh.readUint32();
+        for (j = 0; j < count; ++j) {
+          var tile = new Zone.Tile();
+          tile.layer1   = rh.readUint32();
+          tile.layer2   = rh.readUint32();
+          tile.offset1  = rh.readUint32();
+          tile.offset2  = rh.readUint32();
+          tile.blend    = rh.readUint32() !== 0;
           tile.rotation = rh.readUint32();
-          tile.type = rh.readUint32();
-          zone.tiles.push(tile);
+          tile.type     = rh.readUint32();
+          data.tiles.push(tile);
         }
         break;
-      case ZON.BLOCK.ECONOMY:
-        zone.name                  = rh.readByteStr();
-        zone.underground           = !!rh.readUint32();
-        zone.backgroundMusicPath   = rh.readByteStr();
-        zone.skyPath               = rh.readByteStr();
-        // We don't care about the following economy data
+      case Zone.BLOCK.ECONOMY:
+        data.name                = rh.readByteStr();
+        data.underground         = rh.readUint32() !== 0;
+        data.backgroundMusicPath = rh.readByteStr();
+        data.skyPath             = rh.readByteStr();
         break;
       }
       rh.seek(pos);
     }
-    callback(zone);
+    callback(data);
   });
 };
