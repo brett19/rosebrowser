@@ -14,6 +14,9 @@ RSocket.prototype.connect = function(host, port) {
 RSocket.prototype.send = function(data) {
   iop.emit('tp', this.index, data);
 };
+RSocket.prototype.end = function() {
+  iop.emit('tx', this.index);
+};
 RSocket.prototype._emit = function(event) {
   if (!this.eventHandlers[event]) {
     return;
@@ -26,6 +29,7 @@ RSocket.prototype._emit = function(event) {
     this.eventHandlers[event][j].apply(this, argsOut);
   }
 };
+RSocket.prototype.emit = RSocket.prototype._emit;
 RSocket.prototype.addEventListener = function(event, handler) {
   if (!this.eventHandlers[event]) {
     this.eventHandlers[event] = [];
@@ -48,5 +52,8 @@ iop.on('tc', function(sockIdx) {
   socketList[sockIdx]._emit('connect');
 });
 iop.on('tp', function(sockIdx, data) {
-  socketList[sockIdx]._emit('data', data);
+  socketList[sockIdx]._emit('data', new Uint8Array(data));
+});
+iop.on('tx', function(sockIdx) {
+  socketList[sockIdx]._emit('end');
 });

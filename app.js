@@ -81,7 +81,9 @@ io.on('connection', function(socket) {
   socket.on('disconnect', function() {
     console.log('td');
     for (var i = 0; i < sockets.length; ++i) {
-      sockets[i].end();
+      if (sockets[i]) {
+        sockets[i].end();
+      }
     }
   });
   socket.on('tc', function(sockIdx, host, port) {
@@ -92,17 +94,24 @@ io.on('connection', function(socket) {
       sockets[sockIdx] = outSock;
 
       outSock.on('connect', function() {
+        console.log('Got connection for', sockIdx);
         socket.emit('tc', sockIdx);
       });
       outSock.on('error', function(e) {
+        console.log('Got error from', sockIdx);
         socket.emit('te', sockIdx, e);
       });
-      outSock.on('end', function(e) {
-        tunnel.close();
+      outSock.on('end', function() {
+        console.log('Got end from', sockIdx);
+        socket.emit('tx', sockIdx);
+        sockets[sockIdx] = null;
       });
       outSock.on('data', function(data) {
+        console.log('Got data from', sockIdx, data);
         socket.emit('tp', sockIdx, data);
       });
+
+      return outSock;
     }
 
     if (!config.sshtunnel) {
@@ -119,14 +128,28 @@ io.on('connection', function(socket) {
       var tunnel = new SshTunnel(tunnelConfig);
       tunnel.connect(function () {
         console.log('New SSH Tunnel Active');
-        doRealConnect('localhost', myRandomPort);
+        var sock = doRealConnect('localhost', myRandomPort);
+        sock.on('end', function() {
+          tunnel.close();
+        });
       });
+    }
+  });
+  socket.on('tx', function(sockIdx) {
+    var outSock = sockets[sockIdx];
+    if (outSock) {
+      outSock.end();
     }
   });
   socket.on('tp', function(sockIdx, data) {
     var outSock = sockets[sockIdx];
+    if (!Buffer.isBuffer(data)) {
+      throw new Error('data was not a buffer!');
+    }
+    console.log('Sending to', sockIdx, data);
     if (outSock) {
       outSock.write(data);
+      console.log('written...');
     }
   });
 });

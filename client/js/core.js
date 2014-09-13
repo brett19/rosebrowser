@@ -66,11 +66,21 @@ THREE.ImageUtils.crossOrigin = 'anonymous';
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 
-var renderer = new THREE.WebGLRenderer({ antialias: true });
+var renderer = null;
+//*
+renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
-
 renderer.setClearColor( 0x888888, 1 );
+//*/
+
+var controls = null;
+//*
+if (renderer) {
+  controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.damping = 0.2;
+}
+//*/
 
 var cameraBase = new THREE.Object3D();
 cameraBase.position.set(5200, 5200, 0);
@@ -91,13 +101,6 @@ var guiCtl = {
 };
 var gui = new dat.GUI();
 gui.add(guiCtl, 'doSomething');
-
-var controls = null;
-
-//*
-controls = new THREE.OrbitControls( camera, renderer.domElement );
-controls.damping = 0.2;
-//*/
 
 var axisHelper = new THREE.AxisHelper( 5 );
 axisHelper.position.x = 5201;
@@ -190,7 +193,9 @@ var render = function () {
 
   worldTree.update();
 };
-render();
+if (renderer) {
+  render();
+}
 
 
 
@@ -269,7 +274,7 @@ function createZscObject(zscData, modelIdx) {
         }
 
         loadedCount++;
-        if (loadedCount == model.parts.length) {
+        if (loadedCount === model.parts.length) {
           completeLoad();
         }
       });
@@ -364,28 +369,24 @@ var moveObj = null;
 
 //*/
 
-function viewToString(view) {
-  return String.fromCharCode.apply(null, new Uint8Array(view));
-}
 
+/*
+var loginClient = new LoginClient();
+loginClient.connect('128.241.92.36', 29000, function(err) {
+  console.log('login connected');
 
+  loginClient.login('*******', '********', function(data) {
+    console.log('login result', data);
 
-function RosePacket() {
-  this.cmd = 0;
-  this.data = [];
-}
+    for (var i = 0; i < data.servers.length; ++i) {
+      loginClient.channelList(data.servers[i].id, function(data) {
+        console.log('got channel reply', data);
 
-
-var sock = new RSocket();
-//sock.connect('156.34.48.64', 9494);
-sock.on('connect', function() {
-  console.log('sock.on:connect');
-  sock.send(new Uint8Array([1, 2, 3]).buffer);
+      });
+    }
+  });
 });
-sock.on('data', function(data) {
-  console.log('sock.on:data', viewToString(data));
-});
-
+//*/
 
 //*
 var charIdx = 2;
@@ -545,28 +546,28 @@ coreGrp.load(function(loadedObjs) {
 //*/
 
 var moveTowards = new THREE.Vector2(5200, 5200);
-
 //*
-renderer.domElement.addEventListener('mousemove', function(e) {
-  e.preventDefault();
+if (renderer) {
+  renderer.domElement.addEventListener('mousemove', function (e) {
+    e.preventDefault();
 
-  var mouse = new THREE.Vector3(0, 0, 0.5);
-  mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
-  mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
-  projector.unprojectVector( mouse, camera );
+    var mouse = new THREE.Vector3(0, 0, 0.5);
+    mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
+    mouse.y = -( e.clientY / window.innerHeight ) * 2 + 1;
+    projector.unprojectVector(mouse, camera);
 
-  var cameraPos = camera.localToWorld(new THREE.Vector3(0,0,0));
-  var ray = new THREE.Raycaster(cameraPos, mouse.sub( cameraPos ).normalize());
-  var octreeObjects = worldTree.search( ray.ray.origin, ray.ray.far, true, ray.ray.direction );
-  var inters = ray.intersectOctreeObjects( octreeObjects );
+    var cameraPos = camera.localToWorld(new THREE.Vector3(0, 0, 0));
+    var ray = new THREE.Raycaster(cameraPos, mouse.sub(cameraPos).normalize());
+    var octreeObjects = worldTree.search(ray.ray.origin, ray.ray.far, true, ray.ray.direction);
+    var inters = ray.intersectOctreeObjects(octreeObjects);
 
-  if (inters.length > 0) {
-    var p = inters[0].point;
-    moveTowards.set(p.x, p.y);
-    //moveObj.position.set(p.x, p.y, p.z);
-  }
-}, false );
-
+    if (inters.length > 0) {
+      var p = inters[0].point;
+      moveTowards.set(p.x, p.y);
+      //moveObj.position.set(p.x, p.y, p.z);
+    }
+  }, false);
+}
 //*/
 
 /*

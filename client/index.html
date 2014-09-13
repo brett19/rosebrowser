@@ -13,6 +13,9 @@
     </style>
 </head>
 <body>
+<!-- Various needed utilities -->
+<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/md5.js"></script>
+
 <!-- Bootstrap for UI -->
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
@@ -22,6 +25,9 @@
 <!-- Networking -->
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/net/socket.js"></script>
+<script src="/js/net/rosepacket.js"></script>
+<script src="/js/net/rosesocket.js"></script>
+<script src="/js/net/loginclient.js"></script>
 
 <!-- Dat.GUI for Debug GUI -->
 <script src="js/dat.gui.js"></script>
@@ -51,7 +57,7 @@
     }
 </style>
 
-<div id="dlgLogin" class="gdialog well" style="left:55%;top:40%;width:300px;height:200px;">
+<div id="dlgLogin" class="gdialog well" style="left:55%;top:40%;width:300px;">
     <form class="form-horizontal" role="form">
         <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Username</label>
