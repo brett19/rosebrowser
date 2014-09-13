@@ -2,6 +2,8 @@
  * @constructor
  * @property {Number}   width
  * @property {Number}   height
+ * @property {Number}   gridCount
+ * @property {Number}   patchSize
  * @property {Number[]} map
  */
 var Heightmap = function() {
