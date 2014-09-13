@@ -43,7 +43,7 @@ Avatar.prototype.setGender = function(genderIdx, callback) {
   if (!skelName) {
     throw new Error('Invalid gender specified');
   }
-  DM.get(skelName, function(skelData) {
+  GDM.get(skelName, function(skelData) {
     self._setSkeleton(skelData);
     if (callback) {
       callback();
@@ -61,7 +61,7 @@ var AVTPARTTYPES = [
 Avatar.prototype.setModelPart = function(partIdx, modelIdx, callback) {
   var self = this;
   var partType = AVTPARTTYPES[partIdx];
-  DM.get(partType.dataName, function(partModelList) {
+  GDM.get(partType.dataName, function(partModelList) {
     self._setModelPart(partModelList, partIdx, modelIdx, partType.boneIdx);
     if (callback) {
       callback();

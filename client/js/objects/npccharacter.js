@@ -49,7 +49,7 @@ NpcCharacter.prototype._setModel = function(charData, modelMgr, charIdx) {
 
 NpcCharacter.prototype.setModel = function(charIdx, callback) {
   var self = this;
-  DM.get('npc_chars', 'npc_models', function(charList, modelList) {
+  GDM.get('npc_chars', 'npc_models', function(charList, modelList) {
     self._setModel(charList, modelList, charIdx);
     if (callback) {
       callback();

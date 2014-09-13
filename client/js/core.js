@@ -90,17 +90,17 @@ if (launchGameState) {
 
 
 
-DM.register('npc_chars', CharacterList, '3DDATA/NPC/LIST_NPC.CHR');
-DM.register('npc_models', ModelListManager, '3DDATA/NPC/PART_NPC.ZSC');
+GDM.register('npc_chars', CharacterList, '3DDATA/NPC/LIST_NPC.CHR');
+GDM.register('npc_models', ModelListManager, '3DDATA/NPC/PART_NPC.ZSC');
 
-DM.register('male_skel', Skeleton, '3DDATA/AVATAR/MALE.ZMD');
-DM.register('female_skel', Skeleton, '3DDATA/AVATAR/FEMALE.ZMD');
+GDM.register('male_skel', Skeleton, '3DDATA/AVATAR/MALE.ZMD');
+GDM.register('female_skel', Skeleton, '3DDATA/AVATAR/FEMALE.ZMD');
 
-DM.register('male_face', ModelListManager, '3DDATA/AVATAR/LIST_MFACE.ZSC');
-DM.register('male_hair', ModelListManager, '3DDATA/AVATAR/LIST_MHAIR.ZSC');
-DM.register('male_body', ModelListManager, '3DDATA/AVATAR/LIST_MBODY.ZSC');
-DM.register('male_foot', ModelListManager, '3DDATA/AVATAR/LIST_MFOOT.ZSC');
-DM.register('male_arms', ModelListManager, '3DDATA/AVATAR/LIST_MARMS.ZSC');
+GDM.register('male_face', ModelListManager, '3DDATA/AVATAR/LIST_MFACE.ZSC');
+GDM.register('male_hair', ModelListManager, '3DDATA/AVATAR/LIST_MHAIR.ZSC');
+GDM.register('male_body', ModelListManager, '3DDATA/AVATAR/LIST_MBODY.ZSC');
+GDM.register('male_foot', ModelListManager, '3DDATA/AVATAR/LIST_MFOOT.ZSC');
+GDM.register('male_arms', ModelListManager, '3DDATA/AVATAR/LIST_MARMS.ZSC');
 
 
 
