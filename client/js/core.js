@@ -147,13 +147,13 @@ GroupLoader.prototype.load = function(callback) {
 };
 
 var avatarGrp = new GroupLoader();
-avatarGrp.add('male_skel', ZMDLoader, '3DDATA/AVATAR/MALE.ZMD');
-avatarGrp.add('female_skel', ZMDLoader, '3DDATA/AVATAR/FEMALE.ZMD');
-avatarGrp.add('male_face', ZSCLoader, '3DDATA/AVATAR/LIST_MFACE.ZSC');
-avatarGrp.add('male_hair', ZSCLoader, '3DDATA/AVATAR/LIST_MHAIR.ZSC');
-avatarGrp.add('male_body', ZSCLoader, '3DDATA/AVATAR/LIST_MBODY.ZSC');
-avatarGrp.add('male_foot', ZSCLoader, '3DDATA/AVATAR/LIST_MFOOT.ZSC');
-avatarGrp.add('male_arms', ZSCLoader, '3DDATA/AVATAR/LIST_MARMS.ZSC');
+avatarGrp.add('male_skel', Skeleton, '3DDATA/AVATAR/MALE.ZMD');
+avatarGrp.add('female_skel', Skeleton, '3DDATA/AVATAR/FEMALE.ZMD');
+avatarGrp.add('male_face', ModelList, '3DDATA/AVATAR/LIST_MFACE.ZSC');
+avatarGrp.add('male_hair', ModelList, '3DDATA/AVATAR/LIST_MHAIR.ZSC');
+avatarGrp.add('male_body', ModelList, '3DDATA/AVATAR/LIST_MBODY.ZSC');
+avatarGrp.add('male_foot', ModelList, '3DDATA/AVATAR/LIST_MFOOT.ZSC');
+avatarGrp.add('male_arms', ModelList, '3DDATA/AVATAR/LIST_MARMS.ZSC');
 avatarGrp.load(function(loadedObjs) {
   var mskel = loadedObjs['male_skel'];
   var fskel = loadedObjs['female_skel'];
@@ -172,14 +172,14 @@ avatarGrp.load(function(loadedObjs) {
 
   var charSkel = mskel.create(charObj);
   function addPart(zscData, modelIdx, bindBone) {
-    var model = zscData.objects[modelIdx];
+    var model = zscData.models[modelIdx];
 
     for (var j = 0; j < model.parts.length; ++j) {
       (function(part) {
         var material = makeZscMaterial(zscData.materials[part.materialIdx]);
 
         var meshPath = zscData.meshes[part.meshIdx];
-        ZMSLoader.load(meshPath, function (geometry) {
+        Mesh.load(meshPath, function (geometry) {
           if (bindBone === undefined) {
             var charPartMesh = new THREE.SkinnedMesh(geometry, material);
             charPartMesh.bind(charSkel);
@@ -199,7 +199,7 @@ avatarGrp.load(function(loadedObjs) {
   addPart(marms, 1);
 
   var animPath = '3DDATA/MOTION/AVATAR/EMPTY_RUN_M1.ZMO';
-  ZMOLoader.load(animPath, function(zmoData) {
+  Animation.load(animPath, function(zmoData) {
     var anim = zmoData.createForSkeleton('test', charObj, charSkel);
     anim.play();
   });
@@ -227,19 +227,19 @@ coreGrp.load(function(loadedObjs) {
   moveObj = charObj;
 
   var skelPath = chrData.skeletons[char.skeletonIdx];
-  ZMDLoader.load(skelPath, function(zmdData) {
+ Skeleton.load(skelPath, function(zmdData) {
     var charSkel = zmdData.create(charObj);
 
     var charModels = char.models;
     for (var i = 0; i < charModels.length; ++i) {
-      var model = zscData.objects[charModels[i]];
+      var model = zscData.models[charModels[i]];
 
       for (var j = 0; j < model.parts.length; ++j) {
         (function(part) {
           var material = makeZscMaterial(zscData.materials[part.materialIdx]);
 
           var meshPath = zscData.meshes[part.meshIdx];
-          ZMSLoader.load(meshPath, function (geometry) {
+          Mesh.load(meshPath, function (geometry) {
             var charPartMesh = new THREE.SkinnedMesh(geometry, material);
             charPartMesh.bind(charSkel);
             charObj.add(charPartMesh);
@@ -249,7 +249,7 @@ coreGrp.load(function(loadedObjs) {
     }
 
     var animPath = chrData.animations[char.animations[0]];
-    ZMOLoader.load(animPath, function(zmoData) {
+    Animation.load(animPath, function(zmoData) {
       var anim = zmoData.createForSkeleton('test', charObj, charSkel);
       anim.play();
     });
@@ -297,9 +297,9 @@ if (renderer) {
 var rootObj = new THREE.Object3D();
 scene.add(rootObj);
 
-ZMSLoader.load('3DDATA/NPC/PLANT/JELLYBEAN1/BODY02.ZMS', function (geometry) {
-  ZMSLoader.load('3DDATA/NPC/PLANT/JELLYBEAN1/BODY01.ZMS', function (geometry2) {
-    ZMDLoader.load('3DDATA/NPC/PLANT/JELLYBEAN1/JELLYBEAN2_BONE.ZMD', function(zmdData) {
+Mesh.load('3DDATA/NPC/PLANT/JELLYBEAN1/BODY02.ZMS', function (geometry) {
+  Mesh.load('3DDATA/NPC/PLANT/JELLYBEAN1/BODY01.ZMS', function (geometry2) {
+    Skeleton.load('3DDATA/NPC/PLANT/JELLYBEAN1/JELLYBEAN2_BONE.ZMD', function(zmdData) {
       ZMOLoader.load('3DDATA/MOTION/NPC/JELLYBEAN1/JELLYBEAN1_WALK.ZMO', function(zmoData) {
         var skel = zmdData.create(rootObj);
 

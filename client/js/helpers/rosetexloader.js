@@ -5,7 +5,7 @@
  */
 var ROSETexLoader = {};
 ROSETexLoader.load = function(path, callback) {
-  var tex = DDS.Loader.load(path, function() {
+  var tex = DDS.load(path, function() {
     if (callback) {
       callback();
     }

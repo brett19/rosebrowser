@@ -9,7 +9,7 @@ _RoseTextureManager.prototype.normalizePath = function(path) {
 };
 
 _RoseTextureManager.prototype._load = function(path, callback) {
-  var tex = DDS.Loader.load(path, function() {
+  var tex = DDS.load(path, function() {
     if (callback) {
       callback();
     }

@@ -1,5 +1,8 @@
 'use strict';
 
+// TODO: readUint32 is actually signed
+// TODO: readIntX using this.buffer
+
 var BinaryReader = function(arrayBuffer) {
   this.buffer = new Uint8Array(arrayBuffer);
   this.view = new DataView(arrayBuffer);
@@ -36,6 +39,24 @@ BinaryReader.prototype.readUint32 = function() {
             this.buffer[this.pos+2] << 16 |
             this.buffer[this.pos+1] << 8 |
             this.buffer[this.pos+0];
+  this.pos += 4;
+  return res;
+};
+
+BinaryReader.prototype.readInt8 = function() {
+  var res = this.view.getInt8(this.pos);
+  this.pos += 1;
+  return res;
+};
+
+BinaryReader.prototype.readInt16 = function() {
+  var res = this.view.getInt16(this.pos, true);
+  this.pos += 2;
+  return res;
+};
+
+BinaryReader.prototype.readInt32 = function() {
+  var res = this.view.getInt32(this.pos, true);
   this.pos += 4;
   return res;
 };
@@ -79,6 +100,12 @@ BinaryReader.prototype.skip = function(num) {
   this.pos += num;
 };
 
+BinaryReader.prototype.readIntVector2 = function() {
+  var x = this.readInt32();
+  var y = this.readInt32();
+  return new THREE.Vector2(x, y);
+};
+
 BinaryReader.prototype.readVector2 = function() {
   var x = this.readFloat();
   var y = this.readFloat();
@@ -92,12 +119,19 @@ BinaryReader.prototype.readVector3 = function() {
   return new THREE.Vector3(x, y, z);
 };
 
-BinaryReader.prototype.readColourRGBA = function() {
+BinaryReader.prototype.readColour = function() {
+  var r = this.readFloat();
+  var g = this.readFloat();
+  var b = this.readFloat();
+  return new THREE.Color(r, g, b);
+};
+
+BinaryReader.prototype.readColour4 = function() {
   var r = this.readFloat();
   var g = this.readFloat();
   var b = this.readFloat();
   var a = this.readFloat();
-  return { r: r, g: g, b: b, a: a };
+  return new Colour4(r, g, b, a);
 };
 
 BinaryReader.prototype.readQuat = function() {

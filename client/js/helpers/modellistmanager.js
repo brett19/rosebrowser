@@ -41,7 +41,7 @@ ModelListManager.prototype._createMaterial = function(materialIdx) {
 };
 
 ModelListManager.prototype.createForStatic = function(modelIdx) {
-  var model = this.data.objects[modelIdx];
+  var model = this.data.models[modelIdx];
 
   var modelObj = new THREE.Object3D();
   modelObj.visible = false;
@@ -74,11 +74,11 @@ ModelListManager.prototype.createForStatic = function(modelIdx) {
 
       var material = self._createMaterial(part.materialIdx);
 
-      ZMSLoader.load(meshPath, function (geometry) {
+      Mesh.load(meshPath, function (geometry) {
         var partMesh = new THREE.Mesh(geometry, material);
-        partMesh.position.set(part.position[0], part.position[1], part.position[2]);
-        partMesh.quaternion.set(part.rotation[0], part.rotation[1], part.rotation[2], part.rotation[3]);
-        partMesh.scale.set(part.scale[0], part.scale[1], part.scale[2]);
+        partMesh.position.copy(part.position);
+        partMesh.quaternion.copy(part.rotation);
+        partMesh.scale.copy(part.scale);
         partMeshs[partIdx] = partMesh;
 
         if (part.animPath) {

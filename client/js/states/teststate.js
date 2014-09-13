@@ -17,9 +17,8 @@ TestState.prototype.enter = function() {
 
   debugGui.add(this, 'test');
 
-  ZSCLoader.load('3DDATA/JUNON/LIST_CNST_JPT.ZSC', function(cnstData) {
-    ZSCLoader.load('3DDATA/JUNON/LIST_DECO_JPT.ZSC', function (decoData) {
-
+  ModelList.load('3DDATA/JUNON/LIST_CNST_JPT.ZSC', function(cnstData) {
+    ModelList.load('3DDATA/JUNON/LIST_DECO_JPT.ZSC', function (decoData) {
       var cnstMgr = new ModelListManager(cnstData);
       var decoMgr = new ModelListManager(decoData);
 
@@ -67,7 +66,7 @@ TestState.prototype.enter = function() {
 
               if (true) {
                 var ifoPath = '3DDATA/MAPS/JUNON/TITLE_JPT/' + cx + '_' + cy + '.IFO';
-                IFOLoader.load(ifoPath, function(ifoData) {
+                MapInfo.load(ifoPath, function(ifoData) {
                   for (var i = 0; i < ifoData.objects.length; ++i) {
                     var objData = ifoData.objects[i];
                     var obj = decoMgr.createForStatic(objData.objectId);
@@ -96,9 +95,9 @@ TestState.prototype.enter = function() {
   });
 
   var animPath = '3DDATA/TITLEIROSE/CAMERA01_INSELECT01.ZMO';
-  ZMOLoader.load(animPath, function(zmoData) {
+  Animation.load(animPath, function(zmoData) {
     self.cameraAnimator = new ZMOCameraAnimator(camera, zmoData, new THREE.Vector3(5200, 5200, 0));
-    self.cameraAnimator.play(1);
+    self.cameraAnimator.play(-1);
   });
 };
 
