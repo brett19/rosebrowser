@@ -1,29 +1,49 @@
-var TIL = {};
-
-TIL.Tile = function() {
+/**
+ * @constructor
+ * @property {Number} width
+ * @property {Number} height
+ * @property {Tilemap.Tile[]} tiles
+ */
+var Tilemap = function() {
+  this.tiles = [];
 };
 
-TIL.TileMap = function() {
-  this.map = [];
+
+/**
+ * @constructor
+ * @property {Number} brush
+ * @property {Number} index
+ * @property {Number} set
+ * @property {Number} number
+ */
+Tilemap.Tile = function() {
 };
 
-TIL.Loader = {};
-TIL.Loader.load = function(path, callback) {
-  ROSELoader.load(path, function(rh) {
-    var tilemap = new TIL.TileMap();
 
-    tilemap.width  = rh.readUint32();
-    tilemap.height = rh.readUint32();
+/**
+ * @callback Tilemap~onLoad
+ * @param {Tilemap} tilemap
+ */
 
-    for (var i = 0; i < tilemap.width * tilemap.height; ++i) {
-      var tile = new TIL.Tile();
+/**
+ * @param {String} path
+ * @param {Tilemap~onLoad} callback
+ */
+Tilemap.load = function(path, callback) {
+  ROSELoader.load(path, function(/** BinaryReader */rh) {
+    var data = new Tilemap();
+    data.width  = rh.readUint32();
+    data.height = rh.readUint32();
+
+    for (var i = 0; i < data.width * data.height; ++i) {
+      var tile = new Tilemap.Tile();
       tile.brush  = rh.readUint8();
       tile.index  = rh.readUint8();
       tile.set    = rh.readUint8();
       tile.number = rh.readUint32();
-      tilemap.map.push(tile);
+      data.tiles.push(tile);
     }
 
-    callback(tilemap);
+    callback(data);
   });
 };
