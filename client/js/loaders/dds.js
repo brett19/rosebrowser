@@ -2,21 +2,89 @@
 // TODO: Test RGB, RBA, Alpha, Luminance, LuminanceAlpha
 // TODO: Test Cubemap
 
-var DDS = {};
-
-DDS.Header = function() {
-  this.pixelFormat = {};
+/**
+ * @constructor
+ * @property {DDS.Header} header
+ */
+var DDS = function() {
 };
 
+
+/**
+ * @constructor
+ * @property {Number} magic
+ * @property {Number} size
+ * @property {Number} flags
+ * @property {Number} height
+ * @property {Number} width
+ * @property {Number} pitch
+ * @property {Number} depth
+ * @property {Number} mipmaps
+ * @property {DDS.Header.PixelFormat} pixelFormat
+ * @property {Number} caps1
+ * @property {Number} caps2
+ * @property {Number} caps3
+ * @property {Number} caps4
+ */
+DDS.Header = function() {
+  this.pixelFormat = new DDS.Header.PixelFormat();
+};
+
+
+/**
+ * @constructor
+ * @property {Number} size
+ * @property {Number} flags
+ * @property {Number} fourCC
+ * @property {Number} bitCount
+ * @property {Number} maskR
+ * @property {Number} maskG
+ * @property {Number} maskB
+ * @property {Number} maskA
+ */
+DDS.Header.PixelFormat = function() {
+};
+
+
+/**
+ * @constructor
+ * @param {Number} width
+ * @param {Number} height
+ * @property {Uint8Array} data
+ * @property {Number} width
+ * @property {Number} height
+ */
+DDS.Mipmap = function(width, height) {
+  this.width  = width;
+  this.height = height;
+  this.data   = null;
+};
+
+
+/**
+ * Make a Uint32 FOURCC from a String
+ * @param   {String} string
+ * @returns {Number} fourcc
+ */
 DDS.makeFourCC = function(string) {
   return string.charCodeAt(0) +
-        (string.charCodeAt(1) << 8) +
-        (string.charCodeAt(2) << 16) +
-        (string.charCodeAt(3) << 24);
+  (string.charCodeAt(1) << 8) +
+  (string.charCodeAt(2) << 16) +
+  (string.charCodeAt(3) << 24);
 };
 
+
+/**
+ * @type {number}
+ * @readonly
+ */
 DDS.MAGIC = 0x20534444;
 
+
+/**
+ * @enum {Number}
+ * @readonly
+ */
 DDS.FLAGS = {
   CAPS:         0x1,
   HEIGHT:       0x2,
@@ -28,12 +96,22 @@ DDS.FLAGS = {
   DEPTH:        0x800000
 };
 
+
+/**
+ * @enum {Number}
+ * @readonly
+ */
 DDS.CAPS = {
   COMPLEX: 0x8,
   MIPMAP:  0x400000,
   TEXTURE: 0x1000
 };
 
+
+/**
+ * @enum {Number}
+ * @readonly
+ */
 DDS.CAPS2 = {
   CUBEMAP:            0x200,
   CUBEMAP_POSITIVEX:  0x400,
@@ -45,15 +123,23 @@ DDS.CAPS2 = {
   VOLUME:             0x200000
 };
 
-DDS.PIXEL_FORMAT = {};
 
-DDS.PIXEL_FORMAT.FOURCC = {
-  DXT1: DDS.makeFourCC("DXT1"),
-  DXT3: DDS.makeFourCC("DXT3"),
-  DXT5: DDS.makeFourCC("DXT5")
+/**
+ * @enum {Number}
+ * @readonly
+ */
+DDS.PIXEL_FORMAT_FOURCC = {
+  DXT1: DDS.makeFourCC('DXT1'),
+  DXT3: DDS.makeFourCC('DXT3'),
+  DXT5: DDS.makeFourCC('DXT5')
 };
 
-DDS.PIXEL_FORMAT.FLAGS = {
+
+/**
+ * @enum {Number}
+ * @readonly
+ */
+DDS.PIXEL_FORMAT_FLAGS = {
   ALPHA_PIXELS: 0x1,
   ALPHA:        0x2,
   FOURCC:       0x4,
@@ -62,8 +148,11 @@ DDS.PIXEL_FORMAT.FLAGS = {
   LUMINANCE:    0x20000
 };
 
-DDS.Loader = {};
-DDS.Loader.loadHeader = function(rh) {
+/**
+ * @param {BinaryReader} rh
+ * @returns {DDS.Header} header
+ */
+DDS.loadHeader = function(rh) {
   var header = new DDS.Header();
   header.magic  = rh.readUint32();
   header.size   = rh.readUint32();
@@ -91,12 +180,15 @@ DDS.Loader.loadHeader = function(rh) {
   header.caps4 = rh.readUint32();
 
   rh.skip(4); // DWORD dwReserved2
-
   return header;
 };
 
-// Patent pending method to calculate shift for colour mask
-DDS.Loader.getMaskShift = function(mask) {
+
+/**
+ * @param {Number} mask
+ * @returns {Number} shift
+ */
+DDS.getMaskShift = function(mask) {
   if (mask & 0xff) {
     return 0;
   } else if (mask & 0xff00) {
@@ -106,25 +198,36 @@ DDS.Loader.getMaskShift = function(mask) {
   } else if (mask & 0xff000000) {
     return 24;
   } else {
-    console.error('DDS.Loader.getMaskShift: Invalid colour mask ' + mask);
+    console.error('DDS.Loader.getMaskShift: Invalid channel mask ' + mask);
     return 0;
   }
 };
 
-DDS.Loader.load = function(path, callback) {
+
+/**
+ * @callback DDS~onLoad
+ * @param {THREE.CompressedTexture} dds
+ */
+
+/**
+ * @param {String} path
+ * @param {DDS~onLoad} callback
+ * @return {THREE.CompressedTexture} dds
+ */
+DDS.load = function(path, callback) {
   var texture = new THREE.CompressedTexture();
   texture.image = [];
   texture.flipY = false;
   texture.generateMipmaps = false;
 
-  ROSELoader.load(path, function(rh) {
+  ROSELoader.load(path, function(/** BinaryReader */rh) {
     var maskR, maskG, maskB, maskA;
     var shiftR, shiftG, shiftB, shiftA;
     var header, format, dxtBlockSize;
     var faces, cubemap;
     var mipmaps = [];
 
-    header = DDS.Loader.loadHeader(rh);
+    header = DDS.loadHeader(rh);
 
     if (header.magic !== DDS.MAGIC) {
       console.error('DDS.Loader.load: Invalid magic number in DDS header.');
@@ -134,49 +237,47 @@ DDS.Loader.load = function(path, callback) {
     cubemap = !!(header.caps1 & DDS.CAPS2.CUBEMAP);
     faces   = cubemap ? 6 : 1;
 
-    if (header.pixelFormat.flags & DDS.PIXEL_FORMAT.FLAGS.FOURCC) {
+    if (header.pixelFormat.flags & DDS.PIXEL_FORMAT_FLAGS.FOURCC) {
       switch (header.pixelFormat.fourCC) {
-      case DDS.PIXEL_FORMAT.FOURCC.DXT1:
+      case DDS.PIXEL_FORMAT_FOURCC.DXT1:
         dxtBlockSize = 8;
         format = THREE.RGB_S3TC_DXT1_Format;
         break;
-      case DDS.PIXEL_FORMAT.FOURCC.DXT3:
+      case DDS.PIXEL_FORMAT_FOURCC.DXT3:
         dxtBlockSize = 16;
         format = THREE.RGBA_S3TC_DXT3_Format;
         break;
-      case DDS.PIXEL_FORMAT.FOURCC.DXT5:
+      case DDS.PIXEL_FORMAT_FOURCC.DXT5:
         dxtBlockSize = 16;
         format = THREE.RGBA_S3TC_DXT5_Format;
         break;
       }
-    } else if (header.pixelFormat.flags & DDS.PIXEL_FORMAT.FLAGS.RGB) {
+    } else if (header.pixelFormat.flags & DDS.PIXEL_FORMAT_FLAGS.RGB) {
       if (header.pixelFormat.bitCount == 32) {
-        if (header.pixelFormat.flags & DDS.PIXEL_FORMAT.FLAGS.ALPHA_PIXELS) {
+        if (header.pixelFormat.flags & DDS.PIXEL_FORMAT_FLAGS.ALPHA_PIXELS) {
           format = THREE.RGBAFormat;
         }
       } else if (header.pixelFormat.bitCount == 24) {
-        if (!(header.pixelFormat.flags & DDS.PIXEL_FORMAT.FLAGS.ALPHA_PIXELS)) {
+        if (!(header.pixelFormat.flags & DDS.PIXEL_FORMAT_FLAGS.ALPHA_PIXELS)) {
           format = THREE.RGBFormat;
         }
       }
-    } else if (header.pixelFormat.flags & DDS.PIXEL_FORMAT.FLAGS.LUMINANCE) {
-      if (header.pixelFormat.flags & DDS.PIXEL_FORMAT.FLAGS.ALPHA_PIXELS) {
+    } else if (header.pixelFormat.flags & DDS.PIXEL_FORMAT_FLAGS.LUMINANCE) {
+      if (header.pixelFormat.flags & DDS.PIXEL_FORMAT_FLAGS.ALPHA_PIXELS) {
         if (header.pixelFormat.bitCount == 16) {
           format = THREE.LuminanceAlphaFormat;
         }
       } else if (header.pixelFormat.bitCount == 8) {
         format = THREE.LuminanceFormat;
       }
-    } else if (header.pixelFormat.flags & DDS.PIXEL_FORMAT.FLAGS.ALPHA) {
+    } else if (header.pixelFormat.flags & DDS.PIXEL_FORMAT_FLAGS.ALPHA) {
       if (header.pixelFormat.bitCount == 8) {
         format = THREE.AlphaFormat;
       }
     }
 
     if (format === undefined) {
-      console.error('DDS.Loader.load: Unsupported pixel format');
-      console.error(header);
-      return null;
+      throw 'Error loading dds, unsupported pixel format';
     }
 
     if (!(header.flags & DDS.FLAGS.MIPMAP_COUNT)) {
@@ -185,15 +286,21 @@ DDS.Loader.load = function(path, callback) {
 
     rh.seek(header.size + 4);
 
-    if (!(header.pixelFormat.flags & DDS.PIXEL_FORMAT.FLAGS.FOURCC)) {
-      maskR = header.pixelFormat.maskR;
-      maskG = header.pixelFormat.maskG;
-      maskB = header.pixelFormat.maskB;
-      maskA = 0xFFFFFFFF & ~maskR & ~maskG & ~maskB;
-      shiftR = DDS.Loader.getMaskShift(maskR);
-      shiftG = DDS.Loader.getMaskShift(maskG);
-      shiftB = DDS.Loader.getMaskShift(maskB);
-      shiftA = DDS.Loader.getMaskShift(maskA);
+    // If we are not a compressed texture, we need to calculate our mask & shift
+    if (!(header.pixelFormat.flags & DDS.PIXEL_FORMAT_FLAGS.FOURCC)) {
+      if (header.pixelFormat.flags & DDS.PIXEL_FORMAT_FLAGS.RGB) {
+        maskR = header.pixelFormat.maskR;
+        maskG = header.pixelFormat.maskG;
+        maskB = header.pixelFormat.maskB;
+        shiftR = DDS.getMaskShift(maskR);
+        shiftG = DDS.getMaskShift(maskG);
+        shiftB = DDS.getMaskShift(maskB);
+      }
+
+      if (header.pixelFormat.flags & DDS.PIXEL_FORMAT_FLAGS.ALPHA_PIXELS) {
+        maskA = header.pixelFormat.maskA;
+        shiftA = DDS.getMaskShift(maskA);
+      }
     }
 
     for (var i = 0; i < faces; ++i) {
@@ -201,11 +308,7 @@ DDS.Loader.load = function(path, callback) {
       var height = header.height;
 
       for (var j = 0; j < header.mipmaps; ++j) {
-        var mipmap = {
-          data: null,
-          width: width,
-          height: height
-        };
+        var mipmap = new DDS.Mipmap(width, height);
 
         switch (format) {
         case THREE.RGB_S3TC_DXT1_Format:
