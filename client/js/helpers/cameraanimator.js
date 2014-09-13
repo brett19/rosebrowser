@@ -5,7 +5,7 @@ var CAMANIMPLAYSTATE = {
   Playing: 1
 };
 
-function ZMOCameraAnimator(camera, zmoData, rootPos) {
+function CameraAnimator(camera, zmoData, rootPos) {
   this.time = 0;
   this.state = CAMANIMPLAYSTATE.Stopped;
   this.camera = camera;
@@ -18,9 +18,19 @@ function ZMOCameraAnimator(camera, zmoData, rootPos) {
   }
 }
 
-ZMOCameraAnimator.prototype.play = function(loopCount) {
+CameraAnimator.prototype.resetBlendWeights = function() {
+  // Pointless but neccessary for this version of ThreeJS
+};
+
+CameraAnimator.prototype.play = function(loopCount) {
   this.loopCount = loopCount !== undefined ? loopCount : -1;
   this.state = CAMANIMPLAYSTATE.Playing;
+
+  THREE.AnimationHandler.play( this );
+};
+
+CameraAnimator.prototype.stop = function() {
+  THREE.AnimationHandler.stop( this );
 };
 
 // TODO: There is a bug here related to calculating the current frame.
@@ -37,7 +47,7 @@ function _interpFrame(frames, frameBase, weight) {
   }
   return frames[frame0].clone().lerp(frames[frame1], weight);
 }
-ZMOCameraAnimator.prototype.update = function(delta) {
+CameraAnimator.prototype.update = function(delta) {
   if (this.state !== CAMANIMPLAYSTATE.Playing) {
     return;
   }

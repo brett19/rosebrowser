@@ -52,7 +52,7 @@ var renderFrame = function () {
   requestAnimationFrame(renderFrame, renderer.domElement);
 
   var delta = clock.getDelta();
-  //THREE.AnimationHandler.update( delta );
+  THREE.AnimationHandler.update( delta );
 
   if (activeGameState) {
     activeGameState.update(delta);

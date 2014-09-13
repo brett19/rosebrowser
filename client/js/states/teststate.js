@@ -96,8 +96,8 @@ TestState.prototype.enter = function() {
 
   var animPath = '3DDATA/TITLEIROSE/CAMERA01_INSELECT01.ZMO';
   Animation.load(animPath, function(zmoData) {
-    self.cameraAnimator = new ZMOCameraAnimator(camera, zmoData, new THREE.Vector3(5200, 5200, 0));
-    self.cameraAnimator.play(-1);
+    var camAnim = new CameraAnimator(camera, zmoData, new THREE.Vector3(5200, 5200, 0));
+    camAnim.play(-1);
   });
 };
 
@@ -106,7 +106,4 @@ TestState.prototype.leave = function() {
 };
 
 TestState.prototype.update = function(delta) {
-  if (this.cameraAnimator) {
-    this.cameraAnimator.update(delta);
-  }
 };
