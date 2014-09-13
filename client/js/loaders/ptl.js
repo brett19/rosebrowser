@@ -1,17 +1,145 @@
-var PTL = {};
-
-PTL.Particle = function() {
+/**
+ * @constructor
+ * @property {Particle.Emitter[]} emitters
+ */
+var Particle = function() {
   this.emitters = [];
 };
 
-PTL.Emitter = function() {
-  this.events = [];
+
+/**
+ * Because THREE.Color is RGB only.
+ *
+ * @constructor
+ * @param {Number} r
+ * @param {Number} g
+ * @param {Number} b
+ * @param {Number} a
+ * @property {Number} r
+ * @property {Number} g
+ * @property {Number} b
+ * @property {Number} a
+ */
+var Colour4 = function(r, g, b, a) {
+  this.r = r;
+  this.g = g;
+  this.b = b;
+  this.a = a;
 };
 
-PTL.Event = function() {
+
+/**
+ * @constructor
+ * @param {Number} [min]
+ * @param {Number} [max]
+ * @property {Number} min
+ * @property {Number} max
+ */
+var RangeFloat = function(min, max) {
+  this.min = min || 0;
+  this.max = max || 0;
 };
 
-PTL.EVENT_TYPE = {
+
+/**
+ * @constructor
+ * @param {THREE.Vector2} [min]
+ * @param {THREE.Vector2} [max]
+ * @property {THREE.Vector2} min
+ * @property {THREE.Vector2} max
+ */
+var RangeVector2 = function(min, max) {
+  this.min = min || new THREE.Vector2(0, 0);
+  this.max = max || new THREE.Vector2(0, 0);
+};
+
+
+/**
+ * @constructor
+ * @param {THREE.Vector3} [min]
+ * @param {THREE.Vector3} [max]
+ * @property {THREE.Vector3} min
+ * @property {THREE.Vector3} max
+ */
+var RangeVector3 = function(min, max) {
+  this.min = min || new THREE.Vector3(0, 0, 0);
+  this.max = max || new THREE.Vector3(0, 0, 0);
+};
+
+
+/**
+ * @constructor
+ * @param {THREE.Vector3} [min]
+ * @param {THREE.Vector3} [max]
+ * @property {THREE.Vector3} min
+ * @property {THREE.Vector3} max
+ */
+var RangeColour4 = function(min, max) {
+  this.min = min || new Colour4(0, 0, 0);
+  this.max = max || new Colour4(0, 0, 0);
+};
+
+
+/**
+ * @constructor
+ * @property {String} name
+ * @property {RangeFloat} lifeTime
+ * @property {RangeFloat} emitRate
+ * @property {Number} loopCount
+ * @property {RangeVector3} spawnDirection
+ * @property {RangeVector3} emitRadius
+ * @property {RangeVector3} gravity
+ * @property {String} texturePath
+ * @property {Number} particleCount
+ * @property {Number} alignment
+ * @property {Number} updateCoordinate
+ * @property {Number} textureWidth
+ * @property {Number} textureHeight
+ * @property {Number} drawType
+ * @property {Number} blendDst
+ * @property {Number} blendSrc
+ * @property {Number} blendOp
+ */
+Particle.Emitter = function() {
+  this.events         = [];
+  this.lifeTime       = new RangeFloat();
+  this.emitRate       = new RangeFloat();
+  this.spawnDirection = new RangeVector3();
+  this.emitRadius     = new RangeVector3();
+  this.gravity        = new RangeVector3();
+};
+
+
+/**
+ * @constructor
+ * @param {Particle.EVENT_TYPE} type
+ * @property {Particle.EVENT_TYPE} type
+ * @property {RangeFloat} time
+ * @property {Boolean} blended
+ * @property {RangeVector2} size
+ * @property {RangeFloat} timer
+ * @property {RangeFloat} red
+ * @property {RangeFloat} green
+ * @property {RangeFloat} blue
+ * @property {RangeFloat} alpha
+ * @property {RangeColour} colour
+ * @property {RangeFloat} velocityX
+ * @property {RangeFloat} velocityY
+ * @property {RangeFloat} velocityZ
+ * @property {RangeVector3} velocity
+ * @property {RangeFloat} textureIndex
+ * @property {RangeFloat} rotation
+ */
+Particle.Event = function(type) {
+  this.type = type;
+};
+
+
+/**
+ * @enum {Number}
+ * @readonly
+ */
+Particle.EVENT_TYPE = {
   NONE:       0,
   SIZE:       1,
   TIMER:      2,
@@ -28,160 +156,261 @@ PTL.EVENT_TYPE = {
   ROTATION:   13
 };
 
-PTL.DRAW_TYPE = {
+
+/**
+ * @enum {Number}
+ * @readonly
+ */
+Particle.DRAW_TYPE = {
   POINT_SPRITE: 0,
   BILLBOARD: 1
 };
 
-PTL.COORD_TYPE = {
+
+/**
+ * @enum {Number}
+ * @readonly
+ */
+Particle.COORD_TYPE = {
   WORLD: 0,
   LOCAL_WORLD: 1,
   LOCAL: 2
 };
 
-PTL.ALIGN_TYPE = {
+
+/**
+ * @enum {Number}
+ * @readonly
+ */
+Particle.ALIGN_TYPE = {
   BILLBOARD: 0,
   WORLD_MESH: 1,
   AXIS_ALIGNED: 2
 };
 
-PTL.Loader = {};
-PTL.Loader.loadSizeEvent = function(rh) {
-  var size = {};
-  size.min = rh.readVector2().multiplyScalar(ZZ_SCALE_IN);
-  size.max = rh.readVector2().multiplyScalar(ZZ_SCALE_IN);
-  return size;
+
+/**
+ * @param {BinaryReader} rh
+ * @param {Particle.Event} evt
+ * @returns {Particle.Event}
+ */
+Particle.loadSizeEvent = function(rh, evt) {
+  var min = rh.readVector2().multiplyScalar(ZZ_SCALE_IN);
+  var max = rh.readVector2().multiplyScalar(ZZ_SCALE_IN);
+  evt.size = new RangeVector2(min, max);
+  return evt;
 };
 
-PTL.Loader.loadTimerEvent = function(rh) {
-  var timer = {};
-  timer.min = rh.readFloat();
-  timer.max = rh.readFloat();
-  return timer;
+
+/**
+ * @param {BinaryReader} rh
+ * @param {Particle.Event} evt
+ * @returns {Particle.Event}
+ */
+Particle.loadTimerEvent = function(rh, evt) {
+  var min = rh.readFloat();
+  var max = rh.readFloat();
+  evt.timer = new RangeFloat(min, max);
+  return evt;
 };
 
-PTL.Loader.loadRedEvent = function(rh) {
-  var red = {};
-  red.min = rh.readFloat();
-  red.max = rh.readFloat();
-  return red;
+
+/**
+ * @param {BinaryReader} rh
+ * @param {Particle.Event} evt
+ * @returns {Particle.Event}
+ */
+Particle.loadRedEvent = function(rh, evt) {
+  var min = rh.readFloat();
+  var max = rh.readFloat();
+  evt.red = new RangeFloat(min, max);
+  return evt;
 };
 
-PTL.Loader.loadGreenEvent = function(rh) {
-  var green = {};
-  green.min = rh.readFloat();
-  green.max = rh.readFloat();
-  return green;
+
+/**
+ * @param {BinaryReader} rh
+ * @param {Particle.Event} evt
+ * @returns {Particle.Event}
+ */
+Particle.loadGreenEvent = function(rh, evt) {
+  var min = rh.readFloat();
+  var max = rh.readFloat();
+  evt.green = new RangeFloat(min, max);
+  return evt;
 };
 
-PTL.Loader.loadBlueEvent = function(rh) {
-  var blue = {};
-  blue.min = rh.readFloat();
-  blue.max = rh.readFloat();
-  return blue;
+
+/**
+ * @param {BinaryReader} rh
+ * @param {Particle.Event} evt
+ * @returns {Particle.Event}
+ */
+Particle.loadBlueEvent = function(rh, evt) {
+  var min = rh.readFloat();
+  var max = rh.readFloat();
+  evt.blue = new RangeFloat(min, max);
+  return evt;
 };
 
-PTL.Loader.loadAlphaEvent = function(rh) {
-  var alpha = {};
-  alpha.min = rh.readFloat();
-  alpha.max = rh.readFloat();
-  return alpha;
+
+/**
+ * @param {BinaryReader} rh
+ * @param {Particle.Event} evt
+ * @returns {Particle.Event}
+ */
+Particle.loadAlphaEvent = function(rh, evt) {
+  var min = rh.readFloat();
+  var max = rh.readFloat();
+  evt.alpha = new RangeFloat(min, max);
+  return evt;
 };
 
-PTL.Loader.loadColourEvent = function(rh) {
-  var colour = {};
-  colour.min = rh.readColourRGBA();
-  colour.max = rh.readColourRGBA();
-  return colour;
+
+/**
+ * @param {BinaryReader} rh
+ * @param {Particle.Event} evt
+ * @returns {Particle.Event}
+ */
+Particle.loadColourEvent = function(rh, evt) {
+  var min = rh.readColour4();
+  var max = rh.readColour4();
+  evt.colour = new RangeColour4(min, max);
+  return evt;
 };
 
-PTL.Loader.loadVelocityXEvent = function(rh) {
-  var velocityX = {};
-  velocityX.min = rh.readFloat() * ZZ_SCALE_IN;
-  velocityX.max = rh.readFloat() * ZZ_SCALE_IN;
-  return velocityX;
+
+/**
+ * @param {BinaryReader} rh
+ * @param {Particle.Event} evt
+ * @returns {Particle.Event}
+ */
+Particle.loadVelocityXEvent = function(rh, evt) {
+  var min = rh.readFloat() * ZZ_SCALE_IN;
+  var max = rh.readFloat() * ZZ_SCALE_IN;
+  evt.velocityX = new RangeFloat(min, max);
+  return evt;
 };
 
-PTL.Loader.loadVelocityYEvent = function(rh) {
-  var velocityY = {};
-  velocityY.min = rh.readFloat() * ZZ_SCALE_IN;
-  velocityY.max = rh.readFloat() * ZZ_SCALE_IN;
-  return velocityY;
+
+/**
+ * @param {BinaryReader} rh
+ * @param {Particle.Event} evt
+ * @returns {Particle.Event}
+ */
+Particle.loadVelocityYEvent = function(rh, evt) {
+  var min = rh.readFloat() * ZZ_SCALE_IN;
+  var max = rh.readFloat() * ZZ_SCALE_IN;
+  evt.velocityY = new RangeFloat(min, max);
+  return evt;
 };
 
-PTL.Loader.loadVelocityZEvent = function(rh) {
-  var velocityZ = {};
-  velocityZ.min = rh.readFloat() * ZZ_SCALE_IN;
-  velocityZ.max = rh.readFloat() * ZZ_SCALE_IN;
-  return velocityZ;
+
+/**
+ * @param {BinaryReader} rh
+ * @param {Particle.Event} evt
+ * @returns {Particle.Event}
+ */
+Particle.loadVelocityZEvent = function(rh, evt) {
+  var min = rh.readFloat() * ZZ_SCALE_IN;
+  var max = rh.readFloat() * ZZ_SCALE_IN;
+  evt.velocityZ = new RangeFloat(min, max);
+  return evt;
 };
 
-PTL.Loader.loadVelocityEvent = function(rh) {
-  var velocity = {};
-  velocity.min = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
-  velocity.max = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
-  return velocity;
+
+/**
+ * @param {BinaryReader} rh
+ * @param {Particle.Event} evt
+ * @returns {Particle.Event}
+ */
+Particle.loadVelocityEvent = function(rh, evt) {
+  var min = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
+  var max = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
+  evt.velocity = new RangeVector3(min, max);
+  return evt;
 };
 
-PTL.Loader.loadTextureEvent = function(rh) {
-  var textureIndex = {};
-  textureIndex.min = rh.readFloat();
-  textureIndex.max = rh.readFloat();
-  return textureIndex;
+
+/**
+ * @param {BinaryReader} rh
+ * @param {Particle.Event} evt
+ * @returns {Particle.Event}
+ */
+Particle.loadTextureEvent = function(rh, evt) {
+  var min = rh.readFloat();
+  var max = rh.readFloat();
+  evt.textureIndex = new RangeFloat(min, max);
+  return evt;
 };
 
-PTL.Loader.loadRotationEvent = function(rh) {
-  var rotation = {};
-  rotation.min = rh.readFloat();
-  rotation.max = rh.readFloat();
-  return rotation;
+
+/**
+ * @param {BinaryReader} rh
+ * @param {Particle.Event} evt
+ * @returns {Particle.Event}
+ */
+Particle.loadRotationEvent = function(rh, evt) {
+  var min = rh.readFloat();
+  var max = rh.readFloat();
+  evt.rotation = new RangeFloat(min, max);
+  return evt;
 };
 
-PTL.Loader.loadEvent = function(type, rh) {
-  var evt = new PTL.Event(type);
-  evt.time.min = rh.readFloat();
-  evt.time.max = rh.readFloat();
-  evt.blended  = !!rh.readUint8();
+
+/**
+ * @param {BinaryReader} rh
+ * @param {Particle.EVENT_TYPE} type
+ * @returns {Particle.Event}
+ */
+Particle.loadEvent = function(rh, type) {
+  var timeMin = rh.readFloat();
+  var timeMax = rh.readFloat();
+  var blended = !!rh.readUint8();
+
+  var evt      = new Particle.Event(type);
+  evt.time     = new RangeFloat(timeMin, timeMax);
+  evt.blended  = blended;
 
   switch (type) {
-  case PTL.EVENT_TYPE.SIZE:
-    evt = PTL.Loader.loadScaleEvent(evt, rh);
+  case Particle.EVENT_TYPE.SIZE:
+    evt = Particle.loadSizeEvent(rh, evt);
     break;
-  case PTL.EVENT_TYPE.TIMER:
-    evt = PTL.Loader.loadTimerEvent(evt, rh);
+  case Particle.EVENT_TYPE.TIMER:
+    evt = Particle.loadTimerEvent(rh, evt);
     break;
-  case PTL.EVENT_TYPE.RED:
-    evt = PTL.Loader.loadRedEvent(evt, rh);
+  case Particle.EVENT_TYPE.RED:
+    evt = Particle.loadRedEvent(rh, evt);
     break;
-  case PTL.EVENT_TYPE.GREEN:
-    evt = PTL.Loader.loadGreenEvent(evt, rh);
+  case Particle.EVENT_TYPE.GREEN:
+    evt = Particle.loadGreenEvent(rh, evt);
     break;
-  case PTL.EVENT_TYPE.BLUE:
-    evt = PTL.Loader.loadBlueEvent(evt, rh);
+  case Particle.EVENT_TYPE.BLUE:
+    evt = Particle.loadBlueEvent(rh, evt);
     break;
-  case PTL.EVENT_TYPE.ALPHA:
-    evt = PTL.Loader.loadAlphaEvent(evt, rh);
+  case Particle.EVENT_TYPE.ALPHA:
+    evt = Particle.loadAlphaEvent(rh, evt);
     break;
-  case PTL.EVENT_TYPE.COLOUR:
-    evt = PTL.Loader.loadColourEvent(evt, rh);
+  case Particle.EVENT_TYPE.COLOUR:
+    evt = Particle.loadColourEvent(rh, evt);
     break;
-  case PTL.EVENT_TYPE.VELOCITY_X:
-    evt = PTL.Loader.loadVelocityXEvent(evt, rh);
+  case Particle.EVENT_TYPE.VELOCITY_X:
+    evt = Particle.loadVelocityXEvent(rh, evt);
     break;
-  case PTL.EVENT_TYPE.VELOCITY_Y:
-    evt = PTL.Loader.loadVelocityYEvent(evt, rh);
+  case Particle.EVENT_TYPE.VELOCITY_Y:
+    evt = Particle.loadVelocityYEvent(rh, evt);
     break;
-  case PTL.EVENT_TYPE.VELOCITY_Z:
-    evt = PTL.Loader.loadVelocityZEvent(evt, rh);
+  case Particle.EVENT_TYPE.VELOCITY_Z:
+    evt = Particle.loadVelocityZEvent(rh, evt);
     break;
-  case PTL.EVENT_TYPE.VELOCITY:
-    evt = PTL.Loader.loadVelocityEvent(evt, rh);
+  case Particle.EVENT_TYPE.VELOCITY:
+    evt = Particle.loadVelocityEvent(rh, evt);
     break;
-  case PTL.EVENT_TYPE.TEXTURE:
-    evt = PTL.Loader.loadTextureEvent(evt, rh);
+  case Particle.EVENT_TYPE.TEXTURE:
+    evt = Particle.loadTextureEvent(rh, evt);
     break;
-  case PTL.EVENT_TYPE.ROTATION:
-    evt = PTL.Loader.loadRotationEvent(evt, rh);
+  case Particle.EVENT_TYPE.ROTATION:
+    evt = Particle.loadRotationEvent(rh, evt);
     break;
   default:
     evt = null;
@@ -190,13 +419,24 @@ PTL.Loader.loadEvent = function(type, rh) {
   return evt;
 };
 
-PTL.Loader.load = function(path, callback) {
-  ROSELoader.load(path, function(rh) {
-    var ptl = new PTL.Particle();
 
-    var emitters = rh.readUint32();
-    for (var i = 0; i < emitters; ++i) {
-      var emitter = new PTL.Emitter();
+/**
+ * @callback Particle~onLoad
+ * @param {Particle} particle
+ */
+
+/**
+ * @param {String} path
+ * @param {Particle~onLoad} callback
+ */
+Particle.load = function(path, callback) {
+  ROSELoader.load(path, function(/** BinaryReader */rh) {
+    var i, j, events, emitters, evt, type;
+    var data = new Particle();
+
+    emitters = rh.readUint32();
+    for (i = 0; i < emitters; ++i) {
+      var emitter = new Particle.Emitter();
       emitter.name                = rh.readUint32Str();
       emitter.lifeTime.min        = rh.readFloat();
       emitter.lifeTime.max        = rh.readFloat();
@@ -220,10 +460,10 @@ PTL.Loader.load = function(path, callback) {
       emitter.blendSrc            = rh.readUint32();
       emitter.blendOp             = rh.readUint32();
 
-      var events = rh.readUint32();
-      for (var j = 0; j < events; ++j) {
-        var type = rh.readUint32();
-        var evt = this.loadEvent(type, rh);
+      events = rh.readUint32();
+      for (j = 0; j < events; ++j) {
+        type = rh.readUint32();
+        evt  = Particle.loadEvent(rh, type);
 
         if (evt) {
           emitter.events.push(evt);
@@ -232,9 +472,9 @@ PTL.Loader.load = function(path, callback) {
         }
       }
 
-      ptl.emitters.push(emitter);
+      data.emitters.push(emitter);
     }
 
-    callback(ptl);
+    callback(data);
   });
 };
