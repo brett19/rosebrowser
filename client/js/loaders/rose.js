@@ -1,5 +1,8 @@
 var ROSE_DATA_PATH = '/data/';
 
+var ZZ_SCALE_IN = 0.01;
+var ZZ_SCALE_OUT = 100;
+
 var ROSELoader = {};
 
 ROSELoader.load = function(path, callback) {
