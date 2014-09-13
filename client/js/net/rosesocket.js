@@ -22,7 +22,7 @@ function RoseSocket() {
 
           if (dataLen === 0) {
             console.log('got a packet!', ppPak(pakBuf));
-            this._emit('packet', pakBuf);
+            this.emit('packet', pakBuf);
             headerLen = 0;
             dataLen = 0;
             pakBuf = null;
@@ -33,7 +33,7 @@ function RoseSocket() {
 
         if (pakBuf.dataLength === dataLen) {
           console.log('got a packet!', ppPak(pakBuf));
-          this._emit('packet', pakBuf);
+          this.emit('packet', pakBuf);
           headerLen = 0;
           dataLen = 0;
           pakBuf = null;

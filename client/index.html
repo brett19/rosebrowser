@@ -22,13 +22,6 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
-<!-- Networking -->
-<script src="/socket.io/socket.io.js"></script>
-<script src="/js/net/socket.js"></script>
-<script src="/js/net/rosepacket.js"></script>
-<script src="/js/net/rosesocket.js"></script>
-<script src="/js/net/loginclient.js"></script>
-
 <!-- Dat.GUI for Debug GUI -->
 <script src="js/dat.gui.js"></script>
 
@@ -40,7 +33,14 @@
 <script src="js/util/binaryreader.js"></script>
 <script src="js/util/eventemitter.js"></script>
 
-<script src="js/controls/orbit.js"></script>
+<!-- Game Networking -->
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/net/socket.js"></script>
+<script src="/js/net/rosepacket.js"></script>
+<script src="/js/net/rosesocket.js"></script>
+<script src="/js/net/loginclient.js"></script>
+
+<!-- Game Loaders -->
 <script src="js/loaders/chr.js"></script>
 <script src="js/loaders/dds.js"></script>
 <script src="js/loaders/him.js"></script>
@@ -51,6 +51,8 @@
 <script src="js/loaders/zms.js"></script>
 <script src="js/loaders/zsc.js"></script>
 
+<!-- Game Helpers -->
+<script src="js/controls/orbit.js"></script>
 <script src="js/helpers/temporary.js"></script>
 <script src="js/helpers/rosetexloader.js"></script>
 <script src="js/helpers/rosetexmanager.js"></script>
@@ -58,11 +60,15 @@
 <script src="js/helpers/modellistmanager.js"></script>
 <script src="js/helpers/roseworldmanager.js"></script>
 
+<!-- Game Dialogs -->
 <script src="js/dialogs/login.js"></script>
 
+<!-- Game States -->
 <script src="js/states/teststate.js"></script>
 <script src="js/states/loginstate.js"></script>
 <script src="js/states/gamestate.js"></script>
+
+<!-- Game Core -->
 <script src="js/core.js"></script>
 
 <style type="text/css">
