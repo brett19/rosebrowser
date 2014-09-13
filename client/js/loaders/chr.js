@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @constructor
  * @param {String[]}                  skeletons
@@ -14,6 +12,7 @@ var CharacterList = function() {
   this.characters = [];
 };
 
+
 /**
  * @constructor
  * @property {Number[]}                         models
@@ -26,6 +25,7 @@ CharacterList.Character = function() {
   this.effects    = [];
 };
 
+
 /**
  * @constructor
  * @property {Number} boneIdx
@@ -33,6 +33,7 @@ CharacterList.Character = function() {
  */
 CharacterList.Character.Effect = function() {
 };
+
 
 /**
  * @callback CharacterList~onLoad
@@ -45,25 +46,25 @@ CharacterList.Character.Effect = function() {
  */
 CharacterList.load = function(path, callback) {
   ROSELoader.load(path, function (/** BinaryReader */rh) {
-    var i, j, models;
+    var characters, count, i, j;
     var data = new CharacterList();
 
-    var skeletons = rh.readUint16();
-    for (i = 0; i < skeletons; ++i) {
+    count = rh.readUint16();
+    for (i = 0; i < count; ++i) {
       data.skeletons.push(rh.readStr());
     }
 
-    var animations = rh.readUint16();
-    for (i = 0; i < animations; ++i) {
+    count = rh.readUint16();
+    for (i = 0; i < count; ++i) {
       data.animations.push(rh.readStr());
     }
 
-    var effects = rh.readUint16();
-    for (i = 0; i < effects; ++i) {
+    count = rh.readUint16();
+    for (i = 0; i < count; ++i) {
       data.effects.push(rh.readStr());
     }
 
-    var characters = rh.readUint16();
+    characters = rh.readUint16();
     for (i = 0; i < characters; ++i) {
       var character = null;
 
@@ -72,21 +73,21 @@ CharacterList.load = function(path, callback) {
         character.skeletonIdx = rh.readUint16();
         character.name = rh.readStr();
 
-        models = rh.readUint16();
-        for (j = 0; j < models; ++j) {
+        count = rh.readUint16();
+        for (j = 0; j < count; ++j) {
           character.models.push(rh.readUint16());
         }
 
-        animations = rh.readUint16();
-        for (j = 0; j < animations; ++j) {
+        count = rh.readUint16();
+        for (j = 0; j < count; ++j) {
           var type = rh.readUint16();
           character.animations[type] = rh.readUint16();
         }
 
-        effects = rh.readUint16();
-        for (j = 0; j < effects; ++j) {
+        count = rh.readUint16();
+        for (j = 0; j < count; ++j) {
           var effect = new CharacterList.Character.Effect();
-          effect.boneIdx = rh.readUint16();
+          effect.boneIdx   = rh.readUint16();
           effect.effectIdx = rh.readUint16();
           character.effects.push(effect);
         }
