@@ -1,7 +1,6 @@
 'use strict';
 
 function LoginState() {
-
 }
 
 LoginState.prototype.prepare = function(callback) {
@@ -9,7 +8,12 @@ LoginState.prototype.prepare = function(callback) {
 };
 
 LoginState.prototype.enter = function() {
-  $('#dlgLogin').show();
+  LoginDialog.show();
+  LoginDialog.setUsername('test');
+  LoginDialog.setPassword('test');
+  LoginDialog.on('loginClicked', function() {
+    console.log('LOGIN CLICKED!', LoginDialog.getUsername(), LoginDialog.getPassword());
+  });
 };
 
 LoginState.prototype.leave = function() {

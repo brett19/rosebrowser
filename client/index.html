@@ -37,8 +37,10 @@
 <script src="js/threeoctree.js"></script>
 
 <!-- GameCode for Game! -->
-<script src="js/controls/orbit.js"></script>
 <script src="js/util/binaryreader.js"></script>
+<script src="js/util/eventemitter.js"></script>
+
+<script src="js/controls/orbit.js"></script>
 <script src="js/loaders/chr.js"></script>
 <script src="js/loaders/dds.js"></script>
 <script src="js/loaders/him.js"></script>
@@ -56,6 +58,8 @@
 <script src="js/helpers/modellistmanager.js"></script>
 <script src="js/helpers/roseworldmanager.js"></script>
 
+<script src="js/dialogs/login.js"></script>
+
 <script src="js/states/teststate.js"></script>
 <script src="js/states/loginstate.js"></script>
 <script src="js/states/gamestate.js"></script>
@@ -68,26 +72,29 @@
     }
 </style>
 
-<div id="dlgLogin" class="gdialog well" style="left:55%;top:40%;width:300px;display:none;">
-    <form class="form-horizontal" role="form">
-        <div class="form-group">
-            <label for="inputEmail3" class="col-sm-4 control-label">Username</label>
-            <div class="col-sm-8">
-                <input type="email" class="form-control" id="inputEmail3" placeholder="Username">
+<div id="dlgLogin" class="gdialog panel panel-default" style="left:55%;top:40%;width:300px;display:none;">
+    <div class="panel-heading">Login</div>
+    <div class="panel-body">
+        <form class="form-horizontal" role="form">
+            <div class="form-group">
+                <label for="username" class="col-sm-4 control-label">Username</label>
+                <div class="col-sm-8">
+                    <input type="username" class="form-control" id="username" placeholder="Username">
+                </div>
             </div>
-        </div>
-        <div class="form-group">
-            <label for="inputPassword3" class="col-sm-4 control-label">Password</label>
-            <div class="col-sm-8">
-                <input type="password" class="form-control" id="inputPassword3" placeholder="Password">
+            <div class="form-group">
+                <label for="password" class="col-sm-4 control-label">Password</label>
+                <div class="col-sm-8">
+                    <input type="password" class="form-control" id="password" placeholder="Password">
+                </div>
             </div>
-        </div>
-        <div class="form-group">
-            <div class="col-sm-offset-2 col-sm-5">
-                <button type="submit" class="btn btn-default">Login!</button>
+            <div class="form-group">
+                <div class="col-sm-offset-4 col-sm-8">
+                    <button type="submit" id="loginSubmit" class="btn btn-default">Login!</button>
+                </div>
             </div>
-        </div>
-    </form>
+        </form>
+    </div>
 </div>
 
 </body>
