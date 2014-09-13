@@ -1,139 +1,242 @@
-
-var ZSCPROPTYPE = {
-  Position: 1,
-  Rotation: 2,
-  Scale: 3,
-  AxisRotation: 4,
-  BoneIndex: 5,
-  DummyIndex: 6,
-  Parent: 7,
-  Animation: 8,
-  Collision: 29,
-  ConstantAnimation: 30,
-  VisibleRangeSet: 31,
-  UseLightmap: 32
+/**
+ * @constructor
+ * @property {String[]} meshes
+ * @property {ModelList.Material[]} materials
+ * @property {String[]} effects
+ * @property {ModelList.Model[]} models
+ */
+var ModelList = function() {
+  this.meshes = [];
+  this.materials = [];
+  this.effects = [];
+  this.models = [];
 };
-var ZSCLoader = {};
-ZSCLoader.load = function(path, callback) {
-  ROSELoader.load(path, function(b) {
-    var data = {};
 
-    data.meshes = [];
-    var meshCount = b.readUint16();
-    for (var i = 0; i < meshCount; ++i) {
-      data.meshes.push(b.readStr());
+
+/**
+ * @constructor
+ * @property {String} texturePath
+ * @property {Boolean} forSkinning
+ * @property {Boolean} alphaEnabled
+ * @property {Boolean} twoSided
+ * @property {Boolean} alphaTestEnabled
+ * @property {Number} alphaRef
+ * @property {Boolean} depthTestEnabled
+ * @property {Boolean} depthWriteEnabled
+ * @property {Number} blendType
+ * @property {Boolean} useSpecular
+ * @property {Number} alpha
+ * @property {Number} glowType
+ * @property {THREE.Colour} glowColour
+ */
+ModelList.Material = function() {
+};
+
+
+/**
+ * @constructor
+ * @property {ModelList.Model.Part[]} parts
+ * @property {ModelList.Model.Effect[]} effects
+ */
+ModelList.Model = function() {
+  this.parts = [];
+  this.effects = [];
+};
+
+
+/**
+ * @constructor
+ * @property {Number} type
+ * @property {Number} meshIdx
+ * @property {Number} materialIdx
+ * @property {THREE.Vector3} position
+ * @property {THREE.Quaternion} rotation
+ * @property {THREE.Vector3} scale
+ * @property {Number} parent
+ * @property {THREE.Quaternion} axisRotation
+ * @property {Number} collisionMode
+ * @property {String} animPath
+ * @property {Number} visibleRangeSet
+ * @property {Boolean} useLightmap
+ * @property {Number} boneIndex
+ * @property {Number} dummyIndex
+ */
+ModelList.Model.Part = function() {
+};
+
+
+/**
+ * @constructor
+ * @property {Number} type
+ * @property {Number} effectIdx
+ * @property {THREE.Vector3} position
+ * @property {THREE.Quaternion} rotation
+ * @property {THREE.Vector3} scale
+ * @property {Number} parent
+ */
+ModelList.Model.Effect = function() {
+};
+
+
+/**
+ * @enum {Number}
+ * @readonly
+ */
+ModelList.PROPERTY_TYPE = {
+  POSITION:           1,
+  ROTATION:           2,
+  SCALE:              3,
+  AXIS_ROTATION:      4,
+  BONE_INDEX:         5,
+  DUMMY_INDEX:        6,
+  PARENT:             7,
+  ANIMATION:          8,
+  COLLISION:          29,
+  CONSTANT_ANIMATION: 30,
+  VISIBLE_RANGE_SET:  31,
+  USE_LIGHTMAP:       32
+};
+
+
+/**
+ * @callback ModelList~onLoad
+ * @param {ModelList} modelList
+ */
+
+/**
+ * @param {String} path
+ * @param {ModelList~onLoad} callback
+ */
+ModelList.load = function(path, callback) {
+  ROSELoader.load(path, function(/** BinaryReader */rh) {
+    var i, j, meshes, materials, effects, models;
+    var data = new ModelList();
+
+    meshes = rh.readUint16();
+    for (i = 0; i < meshes; ++i) {
+      data.meshes.push(rh.readStr());
     }
 
-    data.materials = [];
-    var materialCount = b.readUint16();
-    for (var i = 0; i < materialCount; ++i) {
-      var material = {};
-      material.texturePath = b.readStr();
-      material.forSkinning = b.readUint16() != 0;
-      material.alphaEnabled = b.readUint16() != 0;
-      material.twoSided = b.readUint16() != 0;
-      material.alphaTestEnabled = b.readUint16() != 0;
-      material.alphaRef = b.readUint16();
-      material.depthTestEnabled = b.readUint16() != 0;
-      material.depthWriteEnabled = b.readUint16() != 0;
-      material.blendType = b.readUint16();
-      material.useSpecular = b.readUint16() != 0;
-      material.alpha = b.readFloat();
-      material.glowType = b.readUint16();
-      material.glowColour = [b.readFloat(), b.readFloat(), b.readFloat()];
+    materials = rh.readUint16();
+    for (i = 0; i < materials; ++i) {
+      var material = new ModelList.Material();
+      material.texturePath       = rh.readStr();
+      material.forSkinning       = rh.readUint16() !== 0;
+      material.alphaEnabled      = rh.readUint16() !== 0;
+      material.twoSided          = rh.readUint16() !== 0;
+      material.alphaTestEnabled  = rh.readUint16() !== 0;
+      material.alphaRef          = rh.readUint16();
+      material.depthTestEnabled  = rh.readUint16() !== 0;
+      material.depthWriteEnabled = rh.readUint16() !== 0;
+      material.blendType         = rh.readUint16();
+      material.useSpecular       = rh.readUint16() !== 0;
+      material.alpha             = rh.readFloat();
+      material.glowType          = rh.readUint16();
+      material.glowColour        = rh.readColour();
       data.materials.push(material);
     }
 
-    data.effects = [];
-    var effectCount = b.readUint16();
-    for (var i = 0; i < effectCount; ++i) {
-      data.effects.push(b.readStr());
+    effects = rh.readUint16();
+    for (i = 0; i < effects; ++i) {
+      data.effects.push(rh.readStr());
     }
 
-    data.objects = [];
-    var objectCount = b.readUint16();
-    for (var i = 0; i < objectCount; ++i) {
-      var obj = {};
+    models = rh.readUint16();
+    for (i = 0; i < models; ++i) {
+      var model, parts, effects, type, size;
 
-      /*bounding cylinder*/ b.skip(3*4);
+      rh.skip(3*4); // Bounding cylinder
+      parts = rh.readUint16();
 
-      obj.parts = [];
-      obj.effects = [];
-      var partCount = b.readUint16();
-      if (partCount > 0) {
-        for (var j = 0; j < partCount; ++j) {
-          var part = {};
+      if (parts > 0) {
+        model = new ModelList.Model();
 
-          part.meshIdx = b.readUint16();
-          part.materialIdx = b.readUint16();
+        for (j = 0; j < parts; ++j) {
+          var part = new ModelList.Model.Part();
+          part.meshIdx = rh.readUint16();
+          part.materialIdx = rh.readUint16();
 
-          var propertyType = 0;
-          while ((propertyType = b.readUint8()) != 0) {
-            var propertySize = b.readUint8();
+          while ((type = rh.readUint8()) != 0) {
+            size = rh.readUint8();
 
-            if (propertyType == ZSCPROPTYPE.Position) {
-              part.position = b.readVector3().multiplyScalar(ZZ_SCALE_IN).toArray();
-            } else if (propertyType == ZSCPROPTYPE.Rotation) {
-              part.rotation = b.readBadQuat().toArray();
-            } else if (propertyType == ZSCPROPTYPE.Scale) {
-              part.scale = b.readVector3().toArray();
-            } else if (propertyType == ZSCPROPTYPE.AxisRotation) {
-              /*part.axisRotation =*/ b.readBadQuat();
-            } else if (propertyType == ZSCPROPTYPE.Parent) {
-              part.parent = b.readUint16();
-            } else if (propertyType == ZSCPROPTYPE.Collision) {
-              part.collisionMode = b.readUint16();
-            } else if (propertyType == ZSCPROPTYPE.ConstantAnimation) {
-              part.animPath = b.readStrLen(propertySize);
-            } else if (propertyType == ZSCPROPTYPE.VisibleRangeSet) {
-              /*part.visibleRangeSet =*/ b.readUint16();
-            } else if (propertyType == ZSCPROPTYPE.UseLightmap) {
-              part.useLightmap = b.readUint16() != 0;
-            } else if (propertyType == ZSCPROPTYPE.BoneIndex) {
-              part.boneIndex = b.readUint16();
-            } else if (propertyType == ZSCPROPTYPE.DummyIndex) {
-              part.dummyIndex = b.readUint16();
-            } else {
-              b.skip(propertySize);
+            switch (type) {
+            case ModelList.PROPERTY_TYPE.POSITION:
+              part.position = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
+              break;
+            case ModelList.PROPERTY_TYPE.ROTATION:
+              part.rotation = rh.readBadQuat();
+              break;
+            case ModelList.PROPERTY_TYPE.SCALE:
+              part.scale = rh.readVector3();
+              break;
+            case ModelList.PROPERTY_TYPE.PARENT:
+              part.parent = rh.readUint16();
+              break;
+            case ModelList.PROPERTY_TYPE.AXIS_ROTATION:
+              part.axisRotation = rh.readBadQuat();
+              break;
+            case ModelList.PROPERTY_TYPE.COLLISION:
+              part.collisionMode = rh.readUint16();
+              break;
+            case ModelList.PROPERTY_TYPE.CONSTANT_ANIMATION:
+              part.animPath = rh.readStrLen(size);
+              break;
+            case ModelList.PROPERTY_TYPE.VISIBLE_RANGE_SET:
+              part.visibleRangeSet = rh.readUint16();
+              break;
+            case ModelList.PROPERTY_TYPE.USE_LIGHTMAP:
+              part.useLightmap = !!rh.readUint16();
+              break;
+            case ModelList.PROPERTY_TYPE.BONE_INDEX:
+              part.boneIndex = rh.readUint16();
+              break;
+            case ModelList.PROPERTY_TYPE.DUMMY_INDEX:
+              part.dummyIndex = rh.readUint16();
+              break;
+            default:
+              console.log('Skipping unknown ZSC model part property type ' + type);
+              rh.skip(size);
             }
           }
 
-          obj.parts.push(part);
+          model.parts.push(part);
         }
 
-        var effectCount = b.readUint16();
-        for (var j = 0; j < effectCount; ++j) {
-          var effect = {};
+        effects = rh.readUint16();
+        for (j = 0; j < effects; ++j) {
+          var effect = new ModelList.Model.Effect();
+          effect.type = rh.readUint16();
+          effect.effectIdx = rh.readUint16();
 
-          effect.type = b.readUint16();
-          effect.effectIdx = b.readUint16();
+          while ((type = rh.readUint8()) != 0) {
+            size = rh.readUint8();
 
-          var propertyType = 0;
-          while ((propertyType = b.readUint8()) != 0) {
-            var propertySize = b.readUint8();
-
-            if (propertyType == ZSCPROPTYPE.Position) {
-              effect.position = [b.readFloat(), b.readFloat(), b.readFloat()];
-            } else if (propertyType == ZSCPROPTYPE.Rotation) {
-              effect.rotation = [b.readFloat(), b.readFloat(), b.readFloat(), b.readFloat()];
-            } else if (propertyType == ZSCPROPTYPE.Scale) {
-              effect.scale = [b.readFloat(), b.readFloat(), b.readFloat()];
-            } else if (propertyType == ZSCPROPTYPE.Parent) {
-              effect.parent = b.readUint16();
-            } else {
-              b.skip(propertySize);
+            switch (type) {
+            case ModelList.PROPERTY_TYPE.POSITION:
+              effect.position = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
+              break;
+            case ModelList.PROPERTY_TYPE.ROTATION:
+              effect.rotation = rh.readBadQuat();
+              break;
+            case ModelList.PROPERTY_TYPE.SCALE:
+              effect.scale = rh.readVector3();
+              break;
+            case ModelList.PROPERTY_TYPE.PARENT:
+              effect.parent = rh.readUint16();
+              break;
+            default:
+              console.log('Skipping unknown ZSC model effect property type ' + type);
+              rh.skip(size);
             }
           }
 
-          obj.effects.push(effect);
+          model.effects.push(effect);
         }
 
-        /*bounding box*/ b.skip(2*3*4);
-      } else {
-        obj = null;
+        rh.skip(2 * 3 * 4); // Bounding box
       }
 
-      data.objects.push(obj);
+      data.models.push(model);
     }
 
     callback(data);
