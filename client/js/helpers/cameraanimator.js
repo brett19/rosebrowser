@@ -53,16 +53,18 @@ CameraAnimator.prototype.update = function(delta) {
   }
 
   this.time += delta;
-  if (this.time >= this.length) {
-    if (this.loopCount !== -1) {
-      this.loopCount--;
 
-      if (this.loopCount === 0) {
-        this.state = CAMANIMPLAYSTATE.Stopped;
-      }
+  if (this.loopCount === 1) {
+    var lastFrameTime = this.length - (1 / this.data.fps);
+    if (this.time >= lastFrameTime) {
+      this.time = lastFrameTime;
+      this.state = CAMANIMPLAYSTATE.Stopped;
     }
-
-    if (this.loopCount !== 0) {
+  } else {
+    if (this.time >= this.length) {
+      if (this.loopCount !== -1) {
+        this.loopCount--;
+      }
       this.time -= this.length;
     }
   }
@@ -70,14 +72,10 @@ CameraAnimator.prototype.update = function(delta) {
   var frameNum = Math.floor(this.time * this.data.fps);
   var blendWeight = (this.time - (frameNum / this.data.fps)) * this.data.fps;
 
-  if (this.loopCount === 0) {
-    frameNum = this.data.frameCount - 1;
-    blendWeight = 0;
-  }
-
-  var eyePos = _interpFrame(this.data.channels[0].frames, frameNum, blendWeight);
-  var targetPos = _interpFrame(this.data.channels[1].frames, frameNum, blendWeight);
-  var upPos = _interpFrame(this.data.channels[2].frames, frameNum, blendWeight);
+  var channels = this.data.channels;
+  var eyePos = _interpFrame(channels[0].frames, frameNum, blendWeight);
+  var targetPos = _interpFrame(channels[1].frames, frameNum, blendWeight);
+  var upPos = _interpFrame(channels[2].frames, frameNum, blendWeight);
 
   // Re-scale up position back to default
   upPos.multiplyScalar(ZZ_SCALE_OUT);

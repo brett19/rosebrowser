@@ -5,6 +5,17 @@ function ModelListManager(data) {
   this.materials = {};
 }
 
+/**
+ * This is a helper to allow a ModelListManager to be used by the DataManager.
+ * @param path
+ * @param callback
+ */
+ModelListManager.load = function(path, callback) {
+  ModelList.load(path, function(data) {
+    callback(new ModelListManager(data));
+  });
+};
+
 ModelListManager.prototype._createMaterial = function(materialIdx) {
   var foundMaterial = this.materials[materialIdx];
   if (foundMaterial) {

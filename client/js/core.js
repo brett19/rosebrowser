@@ -30,7 +30,7 @@ scene.add( hemiLight );
 
 
 // Set a global camera to work with
-var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+var camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
 camera.up.copy(new THREE.Vector3(0, 0, 1));
 camera.position.copy(new THREE.Vector3(-15, 15, 15));
 camera.lookAt(new THREE.Vector3(0, 0, 0));
@@ -90,6 +90,17 @@ if (launchGameState) {
 
 
 
+DM.register('npc_chars', CharacterList, '3DDATA/NPC/LIST_NPC.CHR');
+DM.register('npc_models', ModelListManager, '3DDATA/NPC/PART_NPC.ZSC');
+
+DM.register('male_skel', Skeleton, '3DDATA/AVATAR/MALE.ZMD');
+DM.register('female_skel', Skeleton, '3DDATA/AVATAR/FEMALE.ZMD');
+
+DM.register('male_face', ModelListManager, '3DDATA/AVATAR/LIST_MFACE.ZSC');
+DM.register('male_hair', ModelListManager, '3DDATA/AVATAR/LIST_MHAIR.ZSC');
+DM.register('male_body', ModelListManager, '3DDATA/AVATAR/LIST_MBODY.ZSC');
+DM.register('male_foot', ModelListManager, '3DDATA/AVATAR/LIST_MFOOT.ZSC');
+DM.register('male_arms', ModelListManager, '3DDATA/AVATAR/LIST_MARMS.ZSC');
 
 
 
