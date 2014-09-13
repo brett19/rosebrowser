@@ -1,13 +1,29 @@
-var ZMDLoader = {};
-
-function ZMDSkeleton() {
+/**
+ * @constructor
+ * @property {Skeleton.Bone[]} bones
+ * @property {Skeleton.Bone[]} dummies
+ */
+var Skeleton = function() {
   this.bones = [];
   this.dummies = [];
-}
+};
+
+
+/**
+ * @constructor
+ * @property {Number} parent
+ * @property {String} name
+ * @property {THREE.Vector3} position
+ * @property {THREE.Quaternion} rotation
+ */
+Skeleton.Bone = function() {
+};
+
+
 /**
  * Creates a skeleton object from this skeleton data.
  */
-ZMDSkeleton.prototype.create = function(rootObj) {
+Skeleton.prototype.create = function(rootObj) {
   var bones = [];
 
   var fakeRoot = new THREE.Object3D();
@@ -44,17 +60,35 @@ ZMDSkeleton.prototype.create = function(rootObj) {
   return skel;
 };
 
-ZMDLoader.load = function(path, callback) {
-  ROSELoader.load(path, function(rh) {
-    var skel = new ZMDSkeleton();
 
-    rh.skip(7);
+/**
+ * @callback Skeleton~onLoad
+ * @param {Skeleton} skeleton
+ */
 
-    var boneCount = rh.readUint32();
-    for (var i = 0; i < boneCount; ++i) {
-      var bone = {};
-      bone.parent = rh.readUint32();
-      bone.name = rh.readStr();
+/**
+ * @param {String} path
+ * @param {Skeleton~onLoad} callback
+ */
+Skeleton.load = function(path, callback) {
+  ROSELoader.load(path, function(/** BinaryReader */rh) {
+    var bones, dummies, i, magic, version;
+    var data = new Skeleton();
+
+    magic = rh.readStrLen(7);
+    if (magic === 'ZMD0002') {
+      version = 2;
+    } else if (magic === 'ZMD0003') {
+      version = 3;
+    } else {
+      throw 'Unexpected ZMD magic header ' + magic + ' in ' + path;
+    }
+
+    bones = rh.readUint32();
+    for (var i = 0; i < bones; ++i) {
+      var bone = new Skeleton.Bone();
+      bone.parent   = rh.readUint32();
+      bone.name     = rh.readStr();
       bone.position = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
       bone.rotation = rh.readBadQuat();
 
@@ -62,11 +96,23 @@ ZMDLoader.load = function(path, callback) {
         bone.parent = -1;
       }
 
-      skel.bones.push(bone);
+      data.bones.push(bone);
     }
 
-    //var dummyCount = rh.readUint32();
+    dummies = rh.readUint32();
+    for (i = 0; i < dummies; ++i) {
+      var dummy = new Skeleton.Bone();
+      dummy.name     = rh.readStr();
+      dummy.parent   = rh.readUint32();
+      dummy.position = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
 
-    callback(skel);
+      if (version === 3) {
+        dummy.rotation = rh.readBadQuat();
+      }
+
+      data.dummies.push(dummy);
+    }
+
+    callback(data);
   });
 };
