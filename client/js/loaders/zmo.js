@@ -1,15 +1,43 @@
-
-var ZMOCTYPE = {
-  None: 1 << 0,
-  Position: 1 << 1,
-  Rotation: 1 << 2
-};
-function ZMOAnimation() {
+/**
+ * @constructor
+ * @property {Number} fps
+ * @property {Number} frameCount
+ * @property {Animation.Channel[]} channels
+ */
+var Animation = function() {
   this.fps = 0;
   this.frameCount = 0;
   this.channels = [];
 }
-ZMOAnimation.prototype.createForSkeleton = function(name, rootObj, skel) {
+
+
+/**
+ * @constructor
+ * @param {Number} type
+ * @param {Number} index
+ * @property {Number} type
+ * @property {Number} index
+ * @property {Object[]} frames
+ */
+Animation.Channel = function(type, index) {
+  this.type = type;
+  this.index = index;
+  this.frames = [];
+};
+
+
+/**
+ * @enum {Number}
+ * @readonly
+ */
+Animation.CHANNEL_TYPE = {
+  None: 1 << 0,
+  Position: 1 << 1,
+  Rotation: 1 << 2
+};
+
+
+Animation.prototype.createForSkeleton = function(name, rootObj, skel) {
   var animD = {
     name: name,
     fps: this.fps,
@@ -41,9 +69,9 @@ ZMOAnimation.prototype.createForSkeleton = function(name, rootObj, skel) {
     var c = this.channels[j];
     for (var i = 0; i < this.frameCount; ++i) {
       var thisKey = animD.hierarchy[c.index].keys[i];
-      if (c.type == ZMOCTYPE.Position) {
+      if (c.type == Animation.CHANNEL_TYPE.Position) {
         thisKey.pos = [c.frames[i].x, c.frames[i].y, c.frames[i].z];
-      } else if (c.type == ZMOCTYPE.Rotation) {
+      } else if (c.type == Animation.CHANNEL_TYPE.Rotation) {
         thisKey.rot = [c.frames[i].x, c.frames[i].y, c.frames[i].z, c.frames[i].w];
       }
     }
@@ -54,7 +82,8 @@ ZMOAnimation.prototype.createForSkeleton = function(name, rootObj, skel) {
   anim.hierarchy = skel.bones;
   return anim;
 };
-ZMOAnimation.prototype.createForStatic = function(name, rootObj) {
+
+Animation.prototype.createForStatic = function(name, rootObj) {
   var animD = {
     name: name,
     fps: this.fps,
@@ -85,11 +114,11 @@ ZMOAnimation.prototype.createForStatic = function(name, rootObj) {
         console.log('bad index');
       }
       var thisKey = animD.hierarchy[c.index].keys[i];
-      if (c.type == ZMOCTYPE.Position) {
+      if (c.type == Animation.CHANNEL_TYPE.Position) {
         thisKey.pos = [c.frames[i].x, c.frames[i].y, c.frames[i].z];
-      } else if (c.type == ZMOCTYPE.Rotation) {
+      } else if (c.type == Animation.CHANNEL_TYPE.Rotation) {
         thisKey.rot = [c.frames[i].x, c.frames[i].y, c.frames[i].z, c.frames[i].w];
-      } else if (c.type == ZMOCTYPE.Scale) {
+      } else if (c.type == Animation.CHANNEL_TYPE.Scale) {
         thisKey.scl = [c.frames[i].x, c.frames[i].y, c.frames[i].z];
       }
     }
@@ -101,35 +130,57 @@ ZMOAnimation.prototype.createForStatic = function(name, rootObj) {
   return anim;
 };
 
-var ZMOLoader = {};
-ZMOLoader.load = function(path, callback) {
-  ROSELoader.load(path, function(rh) {
-    var anim = new ZMOAnimation();
 
-    rh.skip(8);
+/**
+ * @callback Animation~onLoad
+ * @param {Animation} animation
+ */
 
-    anim.fps = rh.readUint32();
-    anim.frameCount = rh.readUint32();
-    var channelCount = rh.readUint32();
+/**
+ * @param {String} path
+ * @param {Animation~onLoad} callback
+ */
+Animation.load = function(path, callback) {
+  ROSELoader.load(path, function(/** BinaryReader */rh) {
+    var channels, i, j, magic;
+    var data = new Animation();
 
-    var channelData = [];
-    for (var i = 0; i < channelCount; ++i) {
-      var channelType = rh.readUint32();
-      var channelIndex = rh.readUint32();
-      channelData.push({type: channelType, index: channelIndex, frames: []});
+    magic = rh.readStrLen(7);
+    rh.skip(1);
+
+    if (magic !== 'ZMO0002') {
+      throw 'Unexpected ZMO magic header ' + magic + ' in ' + path;
     }
 
-    for (var i = 0; i < anim.frameCount; ++i) {
-      for (var j = 0; j < channelCount; ++j) {
-        if (channelData[j].type == ZMOCTYPE.Position) {
-          channelData[j].frames.push(rh.readVector3().multiplyScalar(ZZ_SCALE_IN));
-        } else if (channelData[j].type == ZMOCTYPE.Rotation) {
-          channelData[j].frames.push(rh.readBadQuat());
+    data.fps = rh.readUint32();
+    data.frameCount = rh.readUint32();
+
+    channels = rh.readUint32();
+    for (i = 0; i < channels; ++i) {
+      var type  = rh.readUint32();
+      var index = rh.readUint32();
+      data.channels.push(new Animation.Channel(type, index));
+    }
+
+    for (i = 0; i < data.frameCount; ++i) {
+      for (j = 0; j < channels; ++j) {
+        var frame;
+
+        switch (data.channels[j].type) {
+        case Animation.CHANNEL_TYPE.Position:
+          frame = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
+          break;
+        case Animation.CHANNEL_TYPE.Rotation:
+          frame = rh.readBadQuat();
+          break;
+        default:
+          throw 'Unexpected ZMO channel type ' + data.channels[j].type + ' in ' + path;
         }
+
+        data.channels[j].frames.push(frame);
       }
     }
-    anim.channels = channelData;
 
-    callback(anim);
+    callback(data);
   });
 };
