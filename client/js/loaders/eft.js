@@ -1,5 +1,8 @@
 /**
  * @constructor
+ * @property {String} name
+ * @property {String} soundPath
+ * @property {Number} loopCount
  * @property {Effect.Particle[]} particles
  * @property {Effect.Animation[]} animations
  */
@@ -8,19 +11,62 @@ var Effect = function() {
   this.animations = [];
 };
 
+
 /**
  * @constructor
+ * @property {Boolean} enabled
+ * @property {String} name
+ * @property {Number} loopCount
+ * @property {Number} index
+ */
+Effect.AnimationData = function() {
+};
+
+
+/**
+ * @constructor
+ * @property {String} name
+ * @property {String} uid
+ * @property {Number} stbIndex
+ * @property {String} particlePath
+ * @property {Effect.AnimationData} animation
+ * @property {THREE.Vector3} position
+ * @property {THREE.Quaternion} rotation
+ * @property {Number} delay
+ * @property {Boolean} linkRoot
  */
 Effect.Particle = function() {
   this.animation = {};
 };
 
+
 /**
  * @constructor
+ * @property {String} name
+ * @property {String} uid
+ * @property {Number} stbIndex
+ * @property {String} meshPath
+ * @property {String} animationPath
+ * @property {String} texturePath
+ * @property {Boolean} alphaEnabled
+ * @property {Boolean} twoSideEnabled
+ * @property {Boolean} alphaTestEnabled
+ * @property {Boolean} depthTestEnabled
+ * @property {Boolean} depthWriteEnabled
+ * @property {Number} blendSrc
+ * @property {Number} blendDst
+ * @property {Number} blendOp
+ * @property {Effect.AnimationData} animation
+ * @property {THREE.Vector3} position
+ * @property {THREE.Quaternion} rotation
+ * @property {Number} delay
+ * @property {Number} loopCount
+ * @property {Boolean} linkRoot
  */
 Effect.Animation = function() {
-  this.animation = {};
+  this.animation = new Effect.AnimationData();
 };
+
 
 /**
  * @callback Effect~onLoad
@@ -46,15 +92,15 @@ Effect.load = function(path, callback) {
       particle.name                 = rh.readUint32Str();
       particle.uid                  = rh.readUint32Str();
       particle.stbIndex             = rh.readUint32();
-      particle.filePath             = rh.readUint32Str();
-      particle.animation.enabled    = !!rh.readUint32();
+      particle.particlePath         = rh.readUint32Str();
+      particle.animation.enabled    = rh.readUint32() !== 0;
       particle.animation.name       = rh.readUint32Str();
       particle.animation.loopCount  = rh.readUint32();
       particle.animation.index      = rh.readUint32();
       particle.position             = rh.readVector3();
       particle.rotation             = rh.readQuat();
       particle.delay                = rh.readUint32();
-      particle.linkRoot             = !!rh.readUint32();
+      particle.linkRoot             = rh.readUint32() !== 0;
       particle.position.multiplyScalar(ZZ_SCALE_IN);
       data.particles.push(particle);
     }
@@ -68,15 +114,15 @@ Effect.load = function(path, callback) {
       animation.meshPath            = rh.readUint32Str();
       animation.animationPath       = rh.readUint32Str();
       animation.texturePath         = rh.readUint32Str();
-      animation.alphaEnabled        = !!rh.readUint32();
-      animation.twoSideEnabled      = !!rh.readUint32();
-      animation.alphaTestEnabled    = !!rh.readUint32();
-      animation.depthTestEnabled    = !!rh.readUint32();
-      animation.depthWriteEnabled   = !!rh.readUint32();
+      animation.alphaEnabled        = rh.readUint32() !== 0;
+      animation.twoSideEnabled      = rh.readUint32() !== 0;
+      animation.alphaTestEnabled    = rh.readUint32() !== 0;
+      animation.depthTestEnabled    = rh.readUint32() !== 0;
+      animation.depthWriteEnabled   = rh.readUint32() !== 0;
       animation.blendSrc            = rh.readUint32();
       animation.blendDst            = rh.readUint32();
       animation.blendOp             = rh.readUint32();
-      animation.animation.enabled   = !!rh.readUint32();
+      animation.animation.enabled   = rh.readUint32() !== 0;
       animation.animation.name      = rh.readUint32Str();
       animation.animation.loopCount = rh.readUint32Str();
       animation.animation.index     = rh.readUint32();
@@ -84,7 +130,7 @@ Effect.load = function(path, callback) {
       animation.rotation            = rh.readQuat();
       animation.delay               = rh.readUint32();
       animation.loopCount           = rh.readUint32();
-      animation.linkRoot            = !!rh.readUint32();
+      animation.linkRoot            = rh.readUint32() !== 0;
       animation.position.multiplyScalar(ZZ_SCALE_IN);
       data.animations.push(animation);
     }
