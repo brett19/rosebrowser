@@ -6,17 +6,21 @@ var CAMANIMPLAYSTATE = {
 };
 
 function CameraAnimator(camera, zmoData, rootPos) {
+  EventEmitter.call(this);
+
   this.time = 0;
   this.state = CAMANIMPLAYSTATE.Stopped;
   this.camera = camera;
   this.data = zmoData;
   this.loopCount = 0;
+  this.timeScale = 1;
   this.rootPos = rootPos ? rootPos : new THREE.Vector3(0, 0, 0);
   this.length = this.data.frameCount / this.data.fps;
   if (this.data.channels.length !== 4) {
     throw new Error('Camera ZMO has wrong number of channels');
   }
 }
+CameraAnimator.prototype = new EventEmitter();
 
 CameraAnimator.prototype.resetBlendWeights = function() {
   // Pointless but neccessary for this version of ThreeJS
@@ -27,10 +31,16 @@ CameraAnimator.prototype.play = function(loopCount) {
   this.state = CAMANIMPLAYSTATE.Playing;
 
   THREE.AnimationHandler.play( this );
+
+  this.emit('played');
 };
 
 CameraAnimator.prototype.stop = function() {
+  this.state = CAMANIMPLAYSTATE.Stopped;
+
   THREE.AnimationHandler.stop( this );
+
+  this.emit('stopped');
 };
 
 // TODO: There is a bug here related to calculating the current frame.
@@ -38,7 +48,7 @@ CameraAnimator.prototype.stop = function() {
 //   However it should be that this.length means exactly the final frame.
 function _interpFrame(frames, frameBase, weight) {
   if (weight < 0.0001) {
-    return frames[frameBase];
+    return frames[frameBase].clone();
   }
   var frame0 = frameBase;
   var frame1 = frameBase + 1;
@@ -52,7 +62,7 @@ CameraAnimator.prototype.update = function(delta) {
     return;
   }
 
-  this.time += delta;
+  this.time += delta * this.timeScale;
 
   if (this.loopCount === 1) {
     var lastFrameTime = this.length - (1 / this.data.fps);
@@ -88,4 +98,8 @@ CameraAnimator.prototype.update = function(delta) {
   this.camera.up.copy(upPos);
   this.camera.position.copy(eyePos);
   this.camera.lookAt(targetPos);
+
+  if (this.state === CAMANIMPLAYSTATE.Stopped) {
+    this.emit('complete');
+  }
 };

@@ -1,7 +1,15 @@
 'use strict';
 
+function logPacket(text, pak) {
+  console.groupCollapsed(text + ' <Packet ' + pak.cmd.toString(16) + '>');
+  console.log(_ppBuffer(pak.data, pak.dataLength));
+  console.groupEnd();
+}
+
 function RoseSocket() {
   RSocket.call(this);
+
+  this.name = '';
 
   var headerBuf = new Uint8Array(6);
   var headerView = new DataView(headerBuf.buffer);
@@ -21,7 +29,7 @@ function RoseSocket() {
           pakBuf.cmd = headerView.getUint16(2, true);
 
           if (dataLen === 0) {
-            console.log('got a packet!', ppPak(pakBuf));
+            logPacket('net:recv', pakBuf);
             this.emit('packet', pakBuf);
             headerLen = 0;
             dataLen = 0;
@@ -32,7 +40,7 @@ function RoseSocket() {
         pakBuf.data[pakBuf.dataLength++] = data[i];
 
         if (pakBuf.dataLength === dataLen) {
-          console.log('got a packet!', ppPak(pakBuf));
+          logPacket('net:recv<'+this.name+'>', pakBuf);
           this.emit('packet', pakBuf);
           headerLen = 0;
           dataLen = 0;
@@ -44,7 +52,7 @@ function RoseSocket() {
 }
 RoseSocket.prototype = new RSocket();
 RoseSocket.prototype.sendPacket = function(pak) {
-  console.log('sending packet!', ppPak(pak));
+  logPacket('net:send<'+this.name+'>', pak);
   var buf = pak.toBuffer();
   buf[2] ^= 0x61;
   buf[3] ^= 0x61;

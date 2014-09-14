@@ -24,7 +24,9 @@ Skeleton.Bone = function() {
  * Creates a skeleton object from this skeleton data.
  */
 Skeleton.prototype.create = function(rootObj) {
+  var parts = [];
   var bones = [];
+  var dummies = [];
 
   var fakeRoot = new THREE.Object3D();
 
@@ -33,8 +35,8 @@ Skeleton.prototype.create = function(rootObj) {
 
     var boneX = new THREE.Bone(rootObj);
     boneX.name = b.name;
-    boneX.position.set(b.position.x, b.position.y, b.position.z);
-    boneX.quaternion.set(b.rotation.x, b.rotation.y, b.rotation.z, b.rotation.w);
+    boneX.position.copy(b.position);
+    boneX.quaternion.copy(b.rotation);
     boneX.scale.set(1, 1, 1);
 
     if (b.parent == -1) {
@@ -44,9 +46,26 @@ Skeleton.prototype.create = function(rootObj) {
     }
 
     bones.push(boneX);
+    parts.push(boneX);
+  }
+
+  for (var j = 0; j < this.dummies.length; ++j) {
+    var d = this.dummies[j];
+
+    var dummyX = new THREE.Object3D(rootObj);
+    dummyX.name = d.name;
+    dummyX.position.copy(d.position);
+    dummyX.quaternion.copy(d.rotation);
+    dummyX.scale.set(1,1,1);
+
+    parts[d.parent].add(dummyX);
+
+    dummies.push(dummyX);
+    parts.push(dummyX);
   }
 
   var skel = new THREE.Skeleton(bones);
+  skel.dummies = dummies;
 
   // The root object has to be fully updated!
   fakeRoot.updateMatrixWorld();
@@ -108,6 +127,8 @@ Skeleton.load = function(path, callback) {
 
       if (version === 3) {
         dummy.rotation = rh.readBadQuat();
+      } else {
+        dummy.rotation = new THREE.Quaternion(0,0,0,1);
       }
 
       data.dummies.push(dummy);

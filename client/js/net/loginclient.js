@@ -1,7 +1,23 @@
 'use strict';
 
+var NETLOGINREPLY = {
+  OK: 0,
+  Failed: 1,
+  InvalidUsername: 2,
+  InvalidPassword: 3,
+  AlreadyLoggedIn: 4,
+  RefusedAccount: 5,
+  NeedCharge: 6,
+  NoRights: 7,
+  Overloaded: 8,
+  NoRealName: 9,
+  BadVersion: 10,
+  OutOfIp: 11
+};
+
 function LoginClient() {
   this.socket = new RoseSocket();
+  this.socket.name = 'ls';
   this.socket.on('connect', function() {
     console.log('LoginClient connected');
   });
@@ -33,6 +49,9 @@ LoginClient.prototype.connect = function(host, port, callback) {
       callback();
     });
   });
+};
+LoginClient.prototype.end = function() {
+  this.socket.end();
 };
 
 LoginClient.prototype.login = function(username, password, callback) {
@@ -81,13 +100,34 @@ LoginClient.prototype.channelList = function(serverId, callback) {
     data.channels = [];
     for (var i = 0; i < channelCount; ++i) {
       var chdata = {};
-      chdata.channelNo = pak.readUint8();
+      chdata.id = pak.readUint8();
       chdata.lowAge = pak.readUint8();
       chdata.highAge = pak.readUint8();
       chdata.userPercent = pak.readInt16();
       chdata.name = pak.readString();
       data.channels.push(chdata);
     }
+    callback(data);
+  });
+};
+
+LoginClient.prototype.selectServer = function(serverId, channelId, callback) {
+  var opak = new RosePacket(0x70a);
+  opak.addUint32(serverId);
+  opak.addUint8(channelId);
+  this.socket.sendPacket(opak);
+
+  this.son('packet', function(pak) {
+    if (pak.cmd !== 0x70a) {
+      return true;
+    }
+
+    var data = {};
+    data.result = pak.readUint8();
+    data.transferKey1 = pak.readUint32();
+    data.transferKey2 = pak.readUint32();
+    data.worldIp = pak.readString();
+    data.worldPort = pak.readUint16();
     callback(data);
   });
 };

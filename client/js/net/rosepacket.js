@@ -131,6 +131,17 @@ RosePacket.prototype.readUint32 = function() {
   this.readPos += 4;
   return val;
 };
+RosePacket.prototype.readPartItem = function() {
+  var item = {};
+  item.itemNo = this.readUint32();
+  item.gemOption1 = this.readUint16();
+  item.gemOption2 = this.readUint16();
+  item.gemOption3 = this.readUint16();
+  item.socketCount = this.readUint8();
+  item.refineGrade = this.readUint16();
+  item.color = this.readUint32();
+  return item;
+};
 RosePacket.prototype.readString = function() {
   var startPos = this.readPos;
   while (this.readUint8());
@@ -147,7 +158,7 @@ RosePacket.prototype.toBuffer = function() {
   var outView = new DataView(outBuf.buffer);
   outView.setUint16(0, outBuf.length, true);
   outView.setUint16(2, this.cmd, true);
-  if (this.cmd === 0x703) {
+  if (this.cmd === 0x703 || this.cmd === 0x712) {
     outView.setUint16(4, 0x58d1, true);
   } else {
     outView.setUint16(4, 0x39b0, true);

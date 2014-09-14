@@ -62,17 +62,18 @@ var renderFrame = function () {
 };
 renderFrame();
 
-var launchStateName = 'test';
-if (window.location.hash.length > 1) {
-  launchStateName = window.location.hash.substr(1);
-}
-
+var launchStateName = clientParams.length > 0 ? clientParams[0] : 'test';
 console.log('Launching game with state `' + launchStateName + '`');
+
 var launchGameState = null;
 if (launchStateName === 'test') {
   launchGameState = new TestState();
+} else if (launchStateName === 'nettest') {
+  launchGameState = new NetTestState();
 } else if (launchStateName === 'login') {
   launchGameState = new LoginState();
+} else if (launchStateName === 'gametest') {
+  launchGameState = new GameTestState();
 } else {
   console.log('Invalid launch state specified.');
 }
@@ -89,6 +90,11 @@ if (launchGameState) {
 }
 
 
+// Global Game Variables
+var netLogin = null;
+var netWorld = null;
+var netGame = null;
+
 
 GDM.register('npc_chars', CharacterList, '3DDATA/NPC/LIST_NPC.CHR');
 GDM.register('npc_models', ModelListManager, '3DDATA/NPC/PART_NPC.ZSC');
@@ -96,31 +102,26 @@ GDM.register('npc_models', ModelListManager, '3DDATA/NPC/PART_NPC.ZSC');
 GDM.register('male_skel', Skeleton, '3DDATA/AVATAR/MALE.ZMD');
 GDM.register('female_skel', Skeleton, '3DDATA/AVATAR/FEMALE.ZMD');
 
-GDM.register('male_face', ModelListManager, '3DDATA/AVATAR/LIST_MFACE.ZSC');
-GDM.register('male_hair', ModelListManager, '3DDATA/AVATAR/LIST_MHAIR.ZSC');
-GDM.register('male_body', ModelListManager, '3DDATA/AVATAR/LIST_MBODY.ZSC');
-GDM.register('male_foot', ModelListManager, '3DDATA/AVATAR/LIST_MFOOT.ZSC');
-GDM.register('male_arms', ModelListManager, '3DDATA/AVATAR/LIST_MARMS.ZSC');
+GDM.register('itm_mface', ModelListManager, '3DDATA/AVATAR/LIST_MFACE.ZSC');
+GDM.register('itm_mhair', ModelListManager, '3DDATA/AVATAR/LIST_MHAIR.ZSC');
+GDM.register('itm_mcap', ModelListManager, '3DDATA/AVATAR/LIST_MCAP.ZSC');
+GDM.register('itm_mbody', ModelListManager, '3DDATA/AVATAR/LIST_MBODY.ZSC');
+GDM.register('itm_marms', ModelListManager, '3DDATA/AVATAR/LIST_MARMS.ZSC');
+GDM.register('itm_mfoot', ModelListManager, '3DDATA/AVATAR/LIST_MFOOT.ZSC');
+
+GDM.register('itm_fface', ModelListManager, '3DDATA/AVATAR/LIST_FFACE.ZSC');
+GDM.register('itm_fhair', ModelListManager, '3DDATA/AVATAR/LIST_FHAIR.ZSC');
+GDM.register('itm_fcap', ModelListManager, '3DDATA/AVATAR/LIST_FCAP.ZSC');
+GDM.register('itm_fbody', ModelListManager, '3DDATA/AVATAR/LIST_FBODY.ZSC');
+GDM.register('itm_farms', ModelListManager, '3DDATA/AVATAR/LIST_FARMS.ZSC');
+GDM.register('itm_ffoot', ModelListManager, '3DDATA/AVATAR/LIST_FFOOT.ZSC');
+
+GDM.register('itm_faceitem', ModelListManager, '3DDATA/AVATAR/LIST_FACEITEM.ZSC');
+GDM.register('itm_back', ModelListManager, '3DDATA/AVATAR/LIST_BACK.ZSC');
+GDM.register('itm_weapon', ModelListManager, '3DDATA/AVATAR/LIST_WEAPON.ZSC');
+GDM.register('itm_subwpn', ModelListManager, '3DDATA/AVATAR/LIST_SUBWPN.ZSC');
 
 
-
-/*
-var loginClient = new LoginClient();
-loginClient.connect('128.241.92.36', 29000, function(err) {
-  console.log('login connected');
-
-  loginClient.login('*******', '********', function(data) {
-    console.log('login result', data);
-
-    for (var i = 0; i < data.servers.length; ++i) {
-      loginClient.channelList(data.servers[i].id, function(data) {
-        console.log('got channel reply', data);
-
-      });
-    }
-  });
-});
-//*/
 
 /*
 var charIdx = 2;

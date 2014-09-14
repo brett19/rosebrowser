@@ -234,6 +234,8 @@ ModelList.load = function(path, callback) {
         }
 
         rh.skip(2 * 3 * 4); // Bounding box
+      } else {
+        model = null;
       }
 
       data.models.push(model);

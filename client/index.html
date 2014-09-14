@@ -32,6 +32,7 @@
 <!-- GameCode for Game! -->
 <script src="js/util/binaryreader.js"></script>
 <script src="js/util/eventemitter.js"></script>
+<script src="js/util/generic.js"></script>
 
 <!-- Game Networking -->
 <script src="/socket.io/socket.io.js"></script>
@@ -39,6 +40,8 @@
 <script src="/js/net/rosepacket.js"></script>
 <script src="/js/net/rosesocket.js"></script>
 <script src="/js/net/loginclient.js"></script>
+<script src="/js/net/worldclient.js"></script>
+<script src="/js/net/gameclient.js"></script>
 
 <!-- Game Loaders -->
 <script src="js/loaders/chr.js"></script>
@@ -63,6 +66,7 @@
 
 <!-- Game Dialogs -->
 <script src="js/dialogs/login.js"></script>
+<script src="js/dialogs/msgbox.js"></script>
 
 <!-- Helper Objects -->
 <script src="js/objects/npccharacter.js"></script>
@@ -70,7 +74,9 @@
 
 <!-- Game States -->
 <script src="js/states/teststate.js"></script>
+<script src="js/states/netteststate.js"></script>
 <script src="js/states/loginstate.js"></script>
+<script src="js/states/gameteststate.js"></script>
 <script src="js/states/gamestate.js"></script>
 
 <!-- Game Core -->
@@ -80,6 +86,11 @@
     .gdialog {
         z-index: 1;
         position: absolute;
+    }
+
+    #dlgDisclaimer {
+        background-color: white;
+        padding: 2px 4px;
     }
 </style>
 
@@ -106,6 +117,19 @@
             </div>
         </form>
     </div>
+</div>
+
+<div id="dlgMsgBox" class="gdialog panel panel-default" style="left:40%;top:40%;width:300px;display:none;">
+    <div class="panel-heading">Working...</div>
+    <div class="panel-body">
+        <div id="messageText">Doing Something...</div>
+        <button type="submit" id="okButton" class="btn btn-default">OK</button>
+    </div>
+</div>
+
+<div id="dlgDisclaimer" class="gdialog" style="left:4px;bottom:4px;">
+    <b>Warning:</b> Due to browser limitations, network data must be tunneled
+    through an intermediate server.
 </div>
 
 </body>

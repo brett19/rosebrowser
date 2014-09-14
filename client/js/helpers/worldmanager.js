@@ -91,9 +91,7 @@ WorldManager.prototype._loadChunk = function(chunkX, chunkY, callback) {
       callback();
     }
   });
-  this._loadChunkObjects(chunkX, chunkY, function() {
-
-  });
+  this._loadChunkObjects(chunkX, chunkY);
 };
 
 WorldManager.prototype.setMap = function(mapIdx, callback) {
