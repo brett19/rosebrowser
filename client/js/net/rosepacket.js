@@ -131,6 +131,21 @@ RosePacket.prototype.readUint32 = function() {
   this.readPos += 4;
   return val;
 };
+RosePacket.prototype.readUint64 = function() {
+  var lo = this.readUint32();
+  var hi = this.readUint32();
+  return [lo, hi];
+};
+RosePacket.prototype.readFloat = function() {
+  var val = this.view.getFloat32(this.readPos, true);
+  this.readPos += 4;
+  return val;
+};
+RosePacket.prototype.readVector2 = function() {
+  var x = this.readFloat();
+  var y = this.readFloat();
+  return new THREE.Vector2(x, y);
+};
 RosePacket.prototype.readPartItem = function() {
   var item = {};
   item.itemNo = this.readUint32();
@@ -140,6 +155,29 @@ RosePacket.prototype.readPartItem = function() {
   item.socketCount = this.readUint8();
   item.refineGrade = this.readUint16();
   item.color = this.readUint32();
+  return item;
+};
+RosePacket.prototype.readItem = function() {
+  var item = {};
+  item.itemKey = this.readUint64();
+  item.isCrafted = this.readUint8();
+  item.gemOption1 = this.readUint16();
+  item.gemOption2 = this.readUint16();
+  item.gemOption3 = this.readUint16();
+  item.durability = this.readUint16();
+  item.itemLife = this.readUint16();
+  item.socketCount = this.readUint8();
+  item.isAppraised = this.readUint8();
+  item.refineGrade = this.readUint16();
+  item.quantity = this.readUint16();
+  item.location = this.readUint8();
+  item.slotNo = this.readUint32();
+  /*pickupTime*/ this.skip(14);
+  item.timeRemaining = this.readUint32();
+  item.moveLImits = this.readUint16();
+  item.bindOnAcquire = this.readUint8();
+  item.bindOnEquipUse = this.readUint8();
+  item.money = this.readUint32();
   return item;
 };
 RosePacket.prototype.readString = function() {
