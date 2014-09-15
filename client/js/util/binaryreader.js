@@ -83,6 +83,10 @@ BinaryReader.prototype.readUint8Str = function() {
   return this.readStrLen(this.readUint8());
 };
 
+BinaryReader.prototype.readUint16Str = function() {
+  return this.readStrLen(this.readUint16());
+};
+
 BinaryReader.prototype.readUint32Str = function() {
   return this.readStrLen(this.readUint32());
 };
