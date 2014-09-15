@@ -109,14 +109,14 @@ Zone.load = function(path, callback) {
         for (j = 0; j < count; ++j) {
           var spawn = new Zone.SpawnPoint();
           spawn.position = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
-          spawn.name     = rh.readByteStr();
+          spawn.name     = rh.readUint8Str();
           data.spawns.push(spawn);
         }
         break;
       case Zone.BLOCK.TEXTURES:
         count = rh.readUint32();
         for (j = 0; j < count; ++j) {
-          data.textures.push(rh.readByteStr());
+          data.textures.push(rh.readUint8Str());
         }
         break;
       case Zone.BLOCK.TILES:
@@ -134,10 +134,10 @@ Zone.load = function(path, callback) {
         }
         break;
       case Zone.BLOCK.ECONOMY:
-        data.name                = rh.readByteStr();
+        data.name                = rh.readUint8Str();
         data.underground         = rh.readUint32() !== 0;
-        data.backgroundMusicPath = rh.readByteStr();
-        data.skyPath             = rh.readByteStr();
+        data.backgroundMusicPath = rh.readUint8Str();
+        data.skyPath             = rh.readUint8Str();
         break;
       }
       rh.seek(pos);

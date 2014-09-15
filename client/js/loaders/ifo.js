@@ -210,7 +210,7 @@ MapInfo.Event = function() {
  * @returns {Object}
  */
 MapInfo.loadMapObject = function(rh, object) {
-  object.name        = rh.readByteStr();
+  object.name        = rh.readUint8Str();
   object.warpId      = rh.readUint16();
   object.eventId     = rh.readUint16();
   object.objectType  = rh.readUint32();
@@ -277,7 +277,7 @@ MapInfo.load = function(path, callback) {
           case MapInfo.BLOCK_TYPE.NPC:
             object = MapInfo.loadMapObject(rh, new MapInfo.Npc());
             object.aiIndex = rh.readUint32();
-            object.conFilePath = rh.readByteStr();
+            object.conFilePath = rh.readUint8Str();
             data.npcs.push(object);
             break;
           case MapInfo.BLOCK_TYPE.BUILDING:
@@ -286,14 +286,14 @@ MapInfo.load = function(path, callback) {
             break;
           case MapInfo.BLOCK_TYPE.SOUND:
             object = MapInfo.loadMapObject(rh, new MapInfo.Sound());
-            object.filePath = rh.readByteStr();
+            object.filePath = rh.readUint8Str();
             object.range = rh.readUint32();
             object.interval = rh.readUint32();
             data.sounds.push(object);
             break;
           case MapInfo.BLOCK_TYPE.EFFECT:
             object = MapInfo.loadMapObject(rh, new MapInfo.Effect());
-            object.filePath = rh.readByteStr();
+            object.filePath = rh.readUint8Str();
             data.effects.push(object);
             break;
           case MapInfo.BLOCK_TYPE.ANIMATION:
@@ -302,12 +302,12 @@ MapInfo.load = function(path, callback) {
             break;
           case MapInfo.BLOCK_TYPE.MONSTER_SPAWN:
             object = MapInfo.loadMapObject(rh, new MapInfo.MonsterSpawn());
-            object.name = rh.readByteStr();
+            object.name = rh.readUint8Str();
 
             count = rh.readUint32();
             for (k = 0; k < count; ++k) {
               var spawn = new MapInfo.MonsterSpawn.Spawn();
-              spawn.name = rh.readByteStr();
+              spawn.name = rh.readUint8Str();
               spawn.monster = rh.readUint32();
               spawn.count = rh.readUint32();
               object.normal.push(spawn);
@@ -316,7 +316,7 @@ MapInfo.load = function(path, callback) {
             count = rh.readUint32();
             for (k = 0; k < count; ++k) {
               var spawn = new MapInfo.MonsterSpawn.Spawn();
-              spawn.name = rh.readByteStr();
+              spawn.name = rh.readUint8Str();
               spawn.monster = rh.readUint32();
               spawn.count = rh.readUint32();
               object.tactical.push(spawn);
@@ -344,8 +344,8 @@ MapInfo.load = function(path, callback) {
             break;
           case MapInfo.BLOCK_TYPE.EVENT_OBJECT:
             object = MapInfo.loadMapObject(rh, new MapInfo.Event());
-            object.funcName = rh.readByteStr();
-            object.conFilePath = rh.readByteStr();
+            object.funcName = rh.readUint8Str();
+            object.conFilePath = rh.readUint8Str();
             data.events.push(object);
             break;
           default:

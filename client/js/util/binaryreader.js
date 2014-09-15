@@ -79,7 +79,7 @@ BinaryReader.prototype.readBytes = function(len) {
   return array;
 };
 
-BinaryReader.prototype.readByteStr = function() {
+BinaryReader.prototype.readUint8Str = function() {
   return this.readStrLen(this.readUint8());
 };
 
