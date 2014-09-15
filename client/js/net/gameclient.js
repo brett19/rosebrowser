@@ -219,3 +219,5 @@ GameClient.prototype._handlePacket = function(pak) {
 
   }
 };
+
+var netGame = null;

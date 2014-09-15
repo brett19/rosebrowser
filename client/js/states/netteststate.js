@@ -69,3 +69,5 @@ NetTestState.prototype.leave = function() {
 
 NetTestState.prototype.update = function(delta) {
 };
+
+var gsNetTest = new NetTestState();

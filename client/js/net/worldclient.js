@@ -1,6 +1,8 @@
 'use strict';
 
 function WorldClient() {
+  EventEmitter.call(this);
+
   this.socket = new RoseSocket();
   this.socket.name = 'ws';
   this.socket.on('connect', function() {
@@ -10,6 +12,7 @@ function WorldClient() {
     console.log('WorldClient ended');
   });
 }
+WorldClient.prototype = new EventEmitter();
 
 WorldClient.prototype.son = function(event, handler) {
   var self = this;
@@ -95,3 +98,5 @@ WorldClient.prototype.selectCharacter = function(charName, callback) {
     callback(data);
   });
 };
+
+var netWorld = null;

@@ -131,3 +131,5 @@ LoginClient.prototype.selectServer = function(serverId, channelId, callback) {
     callback(data);
   });
 };
+
+var netLogin = null;

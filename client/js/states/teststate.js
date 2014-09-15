@@ -108,3 +108,5 @@ TestState.prototype.leave = function() {
 TestState.prototype.update = function(delta) {
   this.controls.update( delta );
 };
+
+var gsTest = new TestState();

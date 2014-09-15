@@ -86,13 +86,13 @@ console.log('Launching game with state `' + launchStateName + '`');
 
 var launchGameState = null;
 if (launchStateName === 'test') {
-  launchGameState = new TestState();
+  launchGameState = gsTest;
 } else if (launchStateName === 'nettest') {
-  launchGameState = new NetTestState();
+  launchGameState = gsNetTest;
 } else if (launchStateName === 'login') {
-  launchGameState = new LoginState();
+  launchGameState = gsLogin;
 } else if (launchStateName === 'gametest') {
-  launchGameState = new GameTestState();
+  launchGameState = gsGameTest;
 } else {
   console.log('Invalid launch state specified.');
 }
@@ -107,12 +107,6 @@ if (launchGameState) {
     });
   });
 }
-
-
-// Global Game Variables
-var netLogin = null;
-var netWorld = null;
-var netGame = null;
 
 GDM.register('list_zone', DataTable, '3DDATA/STB/LIST_ZONE.STB');
 

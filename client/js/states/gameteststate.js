@@ -106,7 +106,10 @@ GameTestState.prototype.enter = function() {
 
                   var hasCharData = false;
                   var hasInvData = false;
+                  var targetMap = null;
                   netGame.on('char_data', function(data) {
+                    targetMap = data.zoneNo;
+
                     MC.name = data.name;
                     MC.level = data.level;
 
@@ -127,6 +130,13 @@ GameTestState.prototype.enter = function() {
                       waitDialog.setMessage('Ready to roll!');
 
                       // Time to switch states!
+                      NetManager.watch(netWorld, netGame);
+                      gsGame.setMap(targetMap);
+                      gsGame.prepare(function() {
+                        waitDialog.close();
+                        gsGameTest.leave();
+                        gsGame.enter();
+                      });
                     }
                   });
                 });
@@ -145,3 +155,5 @@ GameTestState.prototype.leave = function() {
 
 GameTestState.prototype.update = function(delta) {
 };
+
+var gsGameTest = new GameTestState();

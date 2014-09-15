@@ -213,3 +213,5 @@ LoginState.prototype.leave = function() {
 LoginState.prototype.update = function(delta) {
 
 };
+
+var gsLogin = new LoginState();
