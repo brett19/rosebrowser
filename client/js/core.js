@@ -56,9 +56,18 @@ var debugGui = new dat.GUI();
 
 var activeGameState = null;
 
+// FPS / MS indicator
+var stats = new Stats();
+stats.setMode(1); // 0: FPS, 1: MS
+stats.domElement.style.position = 'absolute';
+stats.domElement.style.left = '0px';
+stats.domElement.style.top = '0px';
+document.body.appendChild( stats.domElement );
+
 var clock = new THREE.Clock();
 var renderFrame = function () {
   requestAnimationFrame(renderFrame, renderer.domElement);
+  stats.begin();
 
   var delta = clock.getDelta();
   THREE.AnimationHandler.update( delta );
@@ -68,6 +77,7 @@ var renderFrame = function () {
   }
 
   renderer.render(scene, camera);
+  stats.end();
 };
 renderFrame();
 
