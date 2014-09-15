@@ -114,6 +114,7 @@ var netLogin = null;
 var netWorld = null;
 var netGame = null;
 
+GDM.register('list_zone', DataTable, '3DDATA/STB/LIST_ZONE.STB');
 
 GDM.register('npc_chars', CharacterList, '3DDATA/NPC/LIST_NPC.CHR');
 GDM.register('npc_models', ModelListManager, '3DDATA/NPC/PART_NPC.ZSC');
