@@ -1,6 +1,5 @@
 'use strict';
 
-// TODO: readUint32 is actually signed
 // TODO: readIntX using this.buffer
 
 var BinaryReader = function(arrayBuffer) {
@@ -35,10 +34,10 @@ BinaryReader.prototype.readUint24 = function() {
 };
 
 BinaryReader.prototype.readUint32 = function() {
-  var res = this.buffer[this.pos+3] << 24 |
-            this.buffer[this.pos+2] << 16 |
-            this.buffer[this.pos+1] << 8 |
-            this.buffer[this.pos+0];
+  var res = (this.buffer[this.pos+3] << 24 |
+             this.buffer[this.pos+2] << 16 |
+             this.buffer[this.pos+1] << 8 |
+             this.buffer[this.pos+0]) >>> 0;
   this.pos += 4;
   return res;
 };
