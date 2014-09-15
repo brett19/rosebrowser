@@ -55,12 +55,27 @@ TestState.prototype.enter = function() {
 
   var wm = new WorldManager();
   wm.rootObj.position.set(5200, 5200, 0);
-  wm.setMap(0, function() {
+  wm.setMap(2, function() {
     console.log('Map Ready');
   });
   scene.add(wm.rootObj);
 
-  this.playCamAnim('canim_intro');
+  //this.playCamAnim('canim_intro');
+
+  var container = document.createElement( 'div' );
+  document.body.appendChild( container );
+
+  var controls = new THREE.FlyControls(camera, renderer.domElement);
+  controls.movementSpeed = 100;
+  controls.domElement = container;
+  controls.rollSpeed = Math.PI / 24;
+  controls.autoForward = false;
+  controls.dragToLook = false;
+  self.controls = controls;
+
+  camera.position.x = 5100;
+  camera.position.y = 5450;
+  camera.position.z = 140;
 
   /*
   var charObj = new NpcCharacter();
@@ -91,4 +106,5 @@ TestState.prototype.leave = function() {
 };
 
 TestState.prototype.update = function(delta) {
+  this.controls.update( delta );
 };
