@@ -37,6 +37,15 @@ camera.lookAt(new THREE.Vector3(0, 0, 0));
 
 camera.position.add(new THREE.Vector3(5200, 5200, 0));
 
+// Auto resize canvas
+window.addEventListener('resize', onWindowResize, false);
+
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize( window.innerWidth, window.innerHeight );
+}
+
 // Default material for testing with
 var defaultMat = new THREE.MeshPhongMaterial({ambient: 0x030303, color: 0xdddddd, specular: 0x009900, shininess: 30, shading: THREE.FlatShading});
 
