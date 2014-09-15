@@ -100,11 +100,35 @@ GameTestState.prototype.enter = function() {
 
                 netGame = new GameClient();
                 netGame.connect(data.gameIp, data.gamePort, data.transferKey1, rPass, function () {
-                  waitDialog.setMessage('Connected to Game Server; Doing Something.');
+                  waitDialog.setMessage('Connected to Game Server; Waiting for character data.');
 
-                  // Not sure what to do from here yet!
-                  //waitDialog.close();
+                  MC = new MyCharacter();
 
+                  var hasCharData = false;
+                  var hasInvData = false;
+                  netGame.on('char_data', function(data) {
+                    MC.name = data.name;
+                    MC.level = data.level;
+
+                    hasCharData = true;
+                  });
+                  netGame.on('inventory_data', function(data) {
+                    hasInvData = true;
+                  });
+                  netGame.on('preload_char', function(data) {
+                    if (data.state === 2) {
+                      if (!hasCharData || !hasInvData) {
+                        waitDialog.setMessage('Got preload 2 without all data.');
+                        netWorld.end();
+                        netGame.end();
+                        return;
+                      }
+
+                      waitDialog.setMessage('Ready to roll!');
+
+                      // Time to switch states!
+                    }
+                  });
                 });
               });
             });

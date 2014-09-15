@@ -92,36 +92,28 @@ GameClient.prototype._handlePacket = function(pak) {
         data.stats.dex = pak.readInt16();
         data.stats.int = pak.readInt16();
         data.stats.con = pak.readInt16();
-        data.stats.charm = pak.readInt16();
-        data.stats.sense = pak.readInt16();
+        data.stats.cha = pak.readInt16();
+        data.stats.sen = pak.readInt16();
       }
       { // tagGrowAbility
-        data.hp = pak.readInt16();
-        data.mp = pak.readInt16();
-        data.exp = pak.readUint64();
+        data.hp = pak.readInt32();
+        data.mp = pak.readInt32();
+        data.exp = pak.readUint32();
         data.level = pak.readInt16();
         data.bonusPoint = pak.readInt16();
         data.skillPoint = pak.readInt16();
         data.bodySize = pak.readUint8();
         data.headSize = pak.readUint8();
-        /*
-        data.penalExp = pak.readUint64();
+        data.penalExp = pak.readUint32();
         data.fameG = pak.readInt16();
         data.fameB = pak.readInt16();
-        data.unionPoint = [];
-        for (var n = 0; n < 10; ++n) {
-          data.unionPoint.push(pak.readInt16());
-        }
-        data.null1 = pak.readInt32();
-        data.null2 = pak.readInt16();
-        data.null3 = pak.readUint8();
         data.pkFlag = pak.readInt16();
         data.stamina = pak.readInt16();
-        */
+        data.patHp = pak.readInt32();
+        data.patCoolTime = pak.readUint32();
       }
-      /*
       data.currency = [];
-      for (var r = 0; r < 2; ++r) {
+      for (var r = 0; r < 10; ++r) {
         data.currency.push(pak.readInt32());
       }
       data.maintainStatus = [];
@@ -133,17 +125,16 @@ GameClient.prototype._handlePacket = function(pak) {
         data.maintainStatus.push(mtns);
       }
       data.hotIcons = [];
-      for (var p = 0; p < 32; ++p) {
+      for (var p = 0; p < 48; ++p) {
         data.hotIcons.push(pak.readUint16());
       }
       data.uniqueTag = pak.readUint32();
       data.coolTime = [];
-      for (var q = 0; q < 16; ++q) {
+      for (var q = 0; q < 20; ++q) {
         data.coolTime.push(pak.readUint32());
       }
       data.name = pak.readString();
-      */
-      this._emitPE('select_char', data);
+      this._emitPE('char_data', data);
       break;
     }
     case 0x826: {
@@ -207,7 +198,8 @@ GameClient.prototype._handlePacket = function(pak) {
     }
     case 0x71b: {
       // TODO: This packet...
-      this._emitPE('quest_data', 'not implemented');
+      data.result = pak.readUint8();
+      this._emitPE('quest_data', data);
       break;
     }
     case 0x71a: {
