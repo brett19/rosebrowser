@@ -2,10 +2,10 @@
  * @constructor
  * @property {Number} width
  * @property {Number} height
- * @property {Tilemap.Tile[]} tiles
+ * @property {Tilemap.Tile[]} map
  */
 var Tilemap = function() {
-  this.tiles = [];
+  this.map = [];
 };
 
 
@@ -41,7 +41,7 @@ Tilemap.load = function(path, callback) {
       tile.index  = rh.readUint8();
       tile.set    = rh.readUint8();
       tile.number = rh.readUint32();
-      data.tiles.push(tile);
+      data.map.push(tile);
     }
 
     callback(data);
