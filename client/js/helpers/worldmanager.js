@@ -177,6 +177,8 @@ WorldManager.prototype._loadChunkObjectGroup = function(objList, modelList) {
     obj.position.copy(objData.position);
     obj.quaternion.copy(objData.rotation);
     obj.scale.copy(objData.scale);
+    obj.updateMatrix();
+    obj.matrixAutoUpdate = false;
     this.rootObj.add(obj);
   }
 };
