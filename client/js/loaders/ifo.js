@@ -154,6 +154,8 @@ MapInfo.WaterPatches.Patch = function() {
  * @property {Number} tacticalPoints
  */
 MapInfo.MonsterSpawn = function() {
+  this.normal = [];
+  this.tactical = [];
 };
 
 
