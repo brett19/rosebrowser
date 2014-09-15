@@ -67,7 +67,7 @@ function createZscObject(zscData, modelIdx) {
         partMeshs[partIdx] = partMesh;
 
         if (part.animPath) {
-          ZMOLoader.load(part.animPath, function(zmoData) {
+          Animation.load(part.animPath, function(zmoData) {
             var anim = zmoData.createForStatic(part.animPath, partMeshs[partIdx]);
             anim.play();
           });

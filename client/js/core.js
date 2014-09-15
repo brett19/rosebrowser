@@ -241,7 +241,7 @@ avatarGrp.load(function(loadedObjs) {
 /*
 var coreGrp = new GroupLoader();
 coreGrp.add('list_npc_chr', CharacterList, '3DDATA/NPC/LIST_NPC.CHR');
-coreGrp.add('part_npc_zsc', ZSCLoader, '3DDATA/NPC/PART_NPC.ZSC');
+coreGrp.add('part_npc_zsc', ModelList, '3DDATA/NPC/PART_NPC.ZSC');
 coreGrp.load(function(loadedObjs) {
   var chrData = loadedObjs['list_npc_chr'];
   var zscData = loadedObjs['part_npc_zsc'];
@@ -331,7 +331,7 @@ scene.add(rootObj);
 Mesh.load('3DDATA/NPC/PLANT/JELLYBEAN1/BODY02.ZMS', function (geometry) {
   Mesh.load('3DDATA/NPC/PLANT/JELLYBEAN1/BODY01.ZMS', function (geometry2) {
     Skeleton.load('3DDATA/NPC/PLANT/JELLYBEAN1/JELLYBEAN2_BONE.ZMD', function(zmdData) {
-      ZMOLoader.load('3DDATA/MOTION/NPC/JELLYBEAN1/JELLYBEAN1_WALK.ZMO', function(zmoData) {
+      Animation.load('3DDATA/MOTION/NPC/JELLYBEAN1/JELLYBEAN1_WALK.ZMO', function(zmoData) {
         var skel = zmdData.create(rootObj);
 
         cube = new THREE.SkinnedMesh(geometry, material1);
