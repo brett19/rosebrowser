@@ -58,7 +58,7 @@ LoginState.prototype.enter = function() {
 
   this.world = new WorldManager();
   this.world.rootObj.position.set(5200, 5200, 0);
-  this.world.setMap(0, function() {
+  this.world.setMap(4, function() {
     console.log('Map Ready');
   });
   scene.add(this.world.rootObj);
