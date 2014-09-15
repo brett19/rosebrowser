@@ -71,7 +71,7 @@ GameClient.prototype._handlePacket = function(pak) {
       // TODO: This packet is incorrect past headSize
       data.gender = pak.readUint8();
       data.zoneNo = pak.readInt32();
-      data.posStart = pak.readVector2();
+      data.posStart = pak.readVector2().divideScalar(100);
       data.reviveZoneNo = pak.readInt32();
       data.parts = [];
       for (var j = 0; j < AVTBODYPART.Max; ++j) {

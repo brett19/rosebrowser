@@ -31,22 +31,32 @@ Avatar.prototype._setModelPart = function(modelList, partIdx, modelIdx, bindBone
 
       var meshPath = modelList.data.meshes[part.meshIdx];
       Mesh.load(meshPath, function (geometry) {
+        if (part.boneIndex !== undefined) {
+          bindBone = part.boneIndex;
+        }
+        if (part.dummyIndex !== undefined) {
+          bindDummy = part.dummyIndex;
+        }
+
         if (bindBone === undefined && bindDummy === undefined) {
           var charPartMesh = new THREE.SkinnedMesh(geometry, material);
           charPartMesh.bind(self.skel);
           self.rootObj.add(charPartMesh);
         } else {
-          if (part.boneIndex) {
-            bindBone = part.boneIndex;
+          var charPartMesh = new THREE.Mesh(geometry, material);
+          if (part.position) {
+            charPartMesh.position.copy(part.position);
           }
-          if (part.dummyIndex) {
-            bindDummy = part.dummyIndex;
+          if (part.rotation) {
+            charPartMesh.quaternion.copy(part.rotation);
+          }
+          if (part.scale) {
+            charPartMesh.scale.copy(part.scale);
           }
 
-          var charPartMesh = new THREE.Mesh(geometry, material);
-          if (bindBone) {
+          if (bindBone !== undefined) {
             self.skel.bones[bindBone].add(charPartMesh);
-          } else if (bindDummy) {
+          } else if (bindDummy !== undefined) {
             self.skel.dummies[bindDummy].add(charPartMesh);
           } else {
             console.warn('Loaded part with no bind location');
@@ -61,7 +71,7 @@ Avatar.prototype.setGender = function(genderIdx, callback) {
   var self = this;
   var skelName = GENDERSKELNAMES[genderIdx];
   if (!skelName) {
-    throw new Error('Invalid gender specified');
+    throw new Error('Invalid gender specified (' + genderIdx + ')');
   }
   GDM.get(skelName, function(skelData) {
     self._setSkeleton(skelData);

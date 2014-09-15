@@ -210,7 +210,7 @@ WorldManager.prototype._loadChunk = function(chunkX, chunkY, callback) {
       callback();
     }
   });
-  this._loadChunkObjects(chunkX, chunkY);
+  //this._loadChunkObjects(chunkX, chunkY);
 };
 
 WorldManager.prototype.setMap = function(mapIdx, callback) {
@@ -232,6 +232,7 @@ WorldManager.prototype.setMap = function(mapIdx, callback) {
     var chunkBounds = MAP_BOUNDS[boundsName];
 
     Zone.load(mapRow[ZONE_TABLE.FILE], function(zone) {
+
       self.zoneInfo = zone;
 
       for (var i = 0; i < zone.textures.length; ++i) {
@@ -258,6 +259,8 @@ WorldManager.prototype.setMap = function(mapIdx, callback) {
               self._loadChunk(ix, iy);
             }
           }
+
+          callback();
         });
       });
     });
