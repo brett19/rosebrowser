@@ -137,9 +137,8 @@ GDM.register('itm_ffoot', ModelListManager, '3DDATA/AVATAR/LIST_FFOOT.ZSC');
 
 GDM.register('itm_faceitem', ModelListManager, '3DDATA/AVATAR/LIST_FACEITEM.ZSC');
 GDM.register('itm_back', ModelListManager, '3DDATA/AVATAR/LIST_BACK.ZSC');
-GDM.register('itm_weapon', ModelListManager, '3DDATA/AVATAR/LIST_WEAPON.ZSC');
-GDM.register('itm_subwpn', ModelListManager, '3DDATA/AVATAR/LIST_SUBWPN.ZSC');
-
+GDM.register('itm_weapon', ModelListManager, '3DDATA/WEAPON/LIST_WEAPON.ZSC');
+GDM.register('itm_subwpn', ModelListManager, '3DDATA/WEAPON/LIST_SUBWPN.ZSC');
 
 
 /*
