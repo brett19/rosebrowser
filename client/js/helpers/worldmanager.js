@@ -50,6 +50,8 @@ function WorldManager() {
   this.decoModelMgr = null;
   this.basePath = null;
   this.textures = [];
+  this.texturePaths = [];
+  this.matLookup = [];
   this.terChunks = [];
   this.shaderMaterial = new THREE.ShaderMaterial({
     uniforms: [],
@@ -66,6 +68,83 @@ WorldManager.prototype.addToScene = function() {
 WorldManager.prototype.removeFromScene = function() {
   scene.remove(this.rootObj);
 };
+
+WorldManager.prototype._createMaterial = function(texId1, texId2) {
+  var self = this;
+
+  if (self.matLookup[texId1]) {
+    if (self.matLookup[texId1][texId2]) {
+      return self.matLookup[texId1][texId2];
+    }
+  }
+
+  if (!self.textures[texId1]) {
+    self.textures[texId1] = RoseTextureManager.load(self.texturePaths[texId1]);
+  }
+  var tex1 = self.textures[texId1];
+  if (!self.textures[texId2]) {
+    self.textures[texId2] = RoseTextureManager.load(self.texturePaths[texId2]);
+  }
+  var tex2 = self.textures[texId2];
+
+  var newMaterial = self.shaderMaterial.clone();
+  newMaterial.texId1 = texId1;
+  newMaterial.texId2 = texId2;
+  newMaterial.uniforms = {
+    texture1: { type: 't', value: tex1 },
+    texture2: { type: 't', value: tex2 }
+  };
+
+  if (!self.matLookup[texId1]) {
+    self.matLookup[texId1] = [];
+  }
+  self.matLookup[texId1][texId2] = newMaterial;
+  return newMaterial;
+};
+
+WorldManager.prototype._rotateUV = function(tile, uv) {
+  switch(tile.rotation) {
+    case Zone.TILE_ROTATION.FLIP_HORIZONTAL:
+      uv.x = 1.0 - uv.x;
+      break;
+    case Zone.TILE_ROTATION.FLIP_VERTICAL:
+      uv.y = 1.0 - uv.y;
+      break;
+    case Zone.TILE_ROTATION.FLIP_BOTH:
+      uv.x = 1.0 - uv.x;
+      uv.y = 1.0 - uv.y;
+      break;
+    case Zone.TILE_ROTATION.CLOCKWISE_90:
+      var tmp = uv.x;
+      uv.x = uv.y;
+      uv.y = tmp;
+      break;
+    case Zone.TILE_ROTATION.COUNTER_CLOCKWISE_90:
+      var tmp = uv.x;
+      uv.x = uv.y;
+      uv.y = 1.0 - tmp;
+      break;
+  }
+  return uv;
+};
+
+WorldManager.prototype._findTileMaterial = function(geom, tile) {
+  var self = this;
+
+  var texId1 = tile.layer1 + tile.offset1;
+  var texId2 = tile.layer2 + tile.offset2;
+
+  for (var m = 0; m < geom.materials.length; ++m) {
+    var mat = geom.materials[m];
+    if (mat.texId1 === texId1 && mat.texId2 == texId2) {
+      return m;
+    }
+  }
+
+  var mat = self._createMaterial(texId1, texId2);
+  geom.materials.push(mat);
+  return geom.materials.length - 1;
+}
 
 WorldManager.prototype._loadChunkTerrain = function(chunkX, chunkY, callback) {
   var himPath = this.basePath + chunkX + '_' + chunkY + '.HIM';
@@ -87,58 +166,6 @@ WorldManager.prototype._loadChunkTerrain = function(chunkX, chunkY, callback) {
       }
 
       geom.materials = [];
-
-      // TODO: Brett you can clean up this mess thx
-      function getGeometryMaterialIndex(tile) {
-        var texid1 = tile.layer1 + tile.offset1;
-        var texid2 = tile.layer2 + tile.offset2;
-        var tex1 = self.textures[tile.layer1 + tile.offset1];
-        var tex2 = self.textures[tile.layer2 + tile.offset2];
-
-        for (var m = 0; m < geom.materials.length; ++m) {
-          var mat = geom.materials[m];
-          if (mat.uniforms.texture1.value === tex1 && mat.uniforms.texture2.value === tex2) {
-            return m;
-          }
-        }
-
-        var mat = self.shaderMaterial.clone();
-
-        mat.uniforms = {
-          texture1: { type: 't', value: tex1 },
-          texture2: { type: 't', value: tex2 }
-        };
-
-        geom.materials.push(mat);
-        return geom.materials.length - 1;
-      }
-
-      function rotateUV(tile, uv) {
-        switch(tile.rotation) {
-          case Zone.TILE_ROTATION.FLIP_HORIZONTAL:
-            uv.x = 1.0 - uv.x;
-            break;
-          case Zone.TILE_ROTATION.FLIP_VERTICAL:
-            uv.y = 1.0 - uv.y;
-            break;
-          case Zone.TILE_ROTATION.FLIP_BOTH:
-            uv.x = 1.0 - uv.x;
-            uv.y = 1.0 - uv.y;
-            break;
-          case Zone.TILE_ROTATION.CLOCKWISE_90:
-            var tmp = uv.x;
-            uv.x = uv.y;
-            uv.y = tmp;
-            break;
-          case Zone.TILE_ROTATION.COUNTER_CLOCKWISE_90:
-            var tmp = uv.x;
-            uv.x = uv.y;
-            uv.y = 1.0 - tmp;
-            break;
-        }
-        return uv;
-      }
-
       geom.faceVertexUvs[0] = [];
       geom.faceVertexUvs[1] = [];
 
@@ -155,7 +182,7 @@ WorldManager.prototype._loadChunkTerrain = function(chunkX, chunkY, callback) {
 
           var idx  = (15 - Math.floor(fy / 4)) * 16 + Math.floor(fx / 4);
           var tile = self.zoneInfo.tiles[tilemap.map[idx].number];
-          var matIndex = getGeometryMaterialIndex(tile);
+          var matIndex = self._findTileMaterial(geom, tile);
 
           var f1 = new THREE.Face3(v1, v2, v3);
           var f2 = new THREE.Face3(v4, v3, v2);
@@ -167,10 +194,10 @@ WorldManager.prototype._loadChunkTerrain = function(chunkX, chunkY, callback) {
           geom.faceVertexUvs[0].push([uv1, uv2, uv3]);
           geom.faceVertexUvs[0].push([uv4, uv3, uv2]);
 
-          uv1 = rotateUV(tile, uv1);
-          uv2 = rotateUV(tile, uv2);
-          uv3 = rotateUV(tile, uv3);
-          uv4 = rotateUV(tile, uv4);
+          uv1 = self._rotateUV(tile, uv1);
+          uv2 = self._rotateUV(tile, uv2);
+          uv3 = self._rotateUV(tile, uv3);
+          uv4 = self._rotateUV(tile, uv4);
           geom.faceVertexUvs[1].push([uv1, uv2, uv3]);
           geom.faceVertexUvs[1].push([uv4, uv3, uv2]);
         }
@@ -271,7 +298,8 @@ WorldManager.prototype.setMap = function(mapIdx, callback) {
           break;
         }
 
-        self.textures[i] = RoseTextureManager.load(zone.textures[i]);
+        self.texturePaths.push(zone.textures[i]);
+        self.textures.push(null);
       }
 
       ModelList.load(mapRow[ZONE_TABLE.CNST_TABLE], function(cnstData) {
