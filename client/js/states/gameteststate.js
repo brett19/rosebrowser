@@ -113,6 +113,16 @@ GameTestState.prototype.enter = function() {
                     MC.name = data.name;
                     MC.level = data.level;
 
+                    console.log(data.posStart);
+                    MC.avatar.rootObj.position.set(data.posStart.x, data.posStart.y, 10);
+                    console.log(MC.avatar.rootObj.position);
+
+                    MC.avatar.setGender(data.gender, function() {
+                      for (var j = 0; j < AVTBODYPART.Max; ++j) {
+                        MC.avatar.setModelPart(j, data.parts[j].itemNo);
+                      }
+                    });
+
                     hasCharData = true;
                   });
                   netGame.on('inventory_data', function(data) {
@@ -127,7 +137,7 @@ GameTestState.prototype.enter = function() {
                         return;
                       }
 
-                      waitDialog.setMessage('Ready to roll!');
+                      waitDialog.setMessage('Ready to roll!  Preparing Map!');
 
                       // Time to switch states!
                       NetManager.watch(netWorld, netGame);
@@ -136,6 +146,7 @@ GameTestState.prototype.enter = function() {
                         waitDialog.close();
                         gsGameTest.leave();
                         gsGame.enter();
+                        activeGameState = gsGame;
                       });
                     }
                   });

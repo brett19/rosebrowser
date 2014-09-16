@@ -15,6 +15,9 @@ function GameClient() {
   this.socket.on('packet', function(pak) {
     self._handlePacket(pak);
   });
+
+  this.socket.logIgnoreCmds.push(0x7ec);
+  this.socket.logIgnoreCmds.push(0x720);
 }
 GameClient.prototype = new EventEmitter();
 
@@ -46,6 +49,32 @@ GameClient.prototype.connect = function(host, port, transferKey, password, callb
 };
 GameClient.prototype.end = function() {
   this.socket.end();
+};
+
+GameClient.prototype.joinZone = function(posZ, callback) {
+  var opak = new RosePacket(0x753);
+  opak.addInt16(posZ);
+  this.socket.sendPacket(opak);
+
+  this.son('packet', function(pak) {
+    if (pak.cmd !== 0x753) {
+      return true;
+    }
+
+    var data = {};
+    data.objectIdx = pak.readUint16();
+    data.curHp = pak.readInt32();
+    data.curMp = pak.readInt32();
+    data.curExp = pak.readUint32();
+    data.penalExp = pak.readUint32();
+    // TODO: The rest of this...
+    //   ...GlobalVars
+    //   dwGlobalFlags
+    //   dwWorldTime
+    //   iTeamNo
+    //   nQuestEmote
+    callback(data);
+  });
 };
 
 /**
@@ -214,6 +243,40 @@ GameClient.prototype._handlePacket = function(pak) {
         data.skills.push(skill);
       }
       this._emitPE('skill_data', data);
+      break;
+    }
+    case 0x7ec: {
+      data.curHp = pak.readInt32();
+      data.curMp = pak.readInt32();
+      data.recoveryTickHp = pak.readInt32();
+      data.recoveryTickMp = pak.readInt32();
+      /*forceUpdate -- Not sure the size here*/
+      this._emitPE('char_hpmp_info', data);
+      break;
+    }
+    case 0x791: {
+      data.objectIdx = pak.readUint16();
+      data.position = pak.readVector2().divideScalar(100);
+      data.posTo = pak.readVector2().divideScalar(100);
+      data.command = pak.readUint16();
+      data.targetObj = pak.readUint16();
+      data.rideObj = pak.readUint16();
+      data.moveMode = pak.readUint8();
+      data.hp = pak.readInt32();
+      data.teamNo = pak.readInt32();
+      data.statusFlag = pak.readUint64();
+      data.statusTimers = [];
+      for (var si = 0; si < 66; ++si) {
+        data.statusTimers.push(pak.readInt16());
+      }
+      data.charIdx = pak.readInt16();
+      data.questIdx = pak.readInt16();
+      data.modelDir = pak.readFloat();
+      data.eventStatuses = [];
+      for (var ei = 0; ei < 5; ++ei) {
+        data.eventStatuses.push(pak.readInt16());
+      }
+      this._emitPE('spawn_npc_char', data);
       break;
     }
 

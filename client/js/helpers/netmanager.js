@@ -19,8 +19,18 @@ _NetManager.prototype.watch = function(wn, gn) {
     self._destroyWorld();
   });
 
-  gn.on('spawn_object', function(data) {
-    // Do something with GOM
+  gn.on('spawn_npc_char', function(data) {
+    var npc = new NpcObject();
+    npc.serverObjectIdx = data.objectIdx;
+    if (data.charIdx > 0) {
+      npc.charIdx = data.charIdx;
+    } else {
+      npc.charIdx = -data.charIdx;
+      npc.hidden = true;
+    }
+    npc.setPosition(data.position.x, data.position.y, 10);
+    npc.setDirection(data.modelDir);
+    GOM.addObject(npc);
   });
 };
 
