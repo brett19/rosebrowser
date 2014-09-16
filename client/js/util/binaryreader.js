@@ -92,9 +92,15 @@ BinaryReader.prototype.readUint16Array = function(len) {
 };
 
 BinaryReader.prototype.readFloatArray = function(len) {
-  var array = new Float32Array(this.buffer.buffer, this.pos, len);
-  this.pos += len * 4;
-  return array;
+  if ((this.pos % 4) === 0) {
+    var array = new Float32Array(this.buffer.buffer, this.pos, len);
+    this.pos += len * 4;
+    return array;
+  } else {
+    var buffer = new Uint8Array(len * 4);
+    buffer.set(this.readByteArray(len * 4));
+    return new Float32Array(buffer);
+  }
 };
 
 BinaryReader.prototype.readUint8Str = function() {
