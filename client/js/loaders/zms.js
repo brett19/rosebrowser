@@ -254,6 +254,15 @@ Mesh.prototype.createBufferGeometry = function() {
     geometry.addAttribute('uv', new THREE.BufferAttribute(this.uv[0], 2));
   }
 
+  if (this.uv[1]) {
+    geometry.addAttribute('uv2', new THREE.BufferAttribute(this.uv[1], 2));
+  }
+
+  if (this.uv[2] || this.uv[3]) {
+    // TODO: Fallback to normal Geometry
+    throw 'BufferGeometry does not support more than 2 uv channels!';
+  }
+
   geometry.computeBoundingSphere();
   geometry.computeFaceNormals();
   geometry.computeVertexNormals();
