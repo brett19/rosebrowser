@@ -2,8 +2,8 @@
 
 function MyCharacter() {
   this.avatar = new Avatar();
+  this.avatar.rootObj.name = 'LocalPlayer';
   this.name = '';
-  this.job = 0;
   this.level = 0;
 }
 

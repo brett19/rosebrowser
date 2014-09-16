@@ -40,16 +40,32 @@ var ZONE_TABLE = {
 
 function WorldManager() {
   this.rootObj = new THREE.Object3D();
+  this.octree = new THREE.Octree({
+    depthMax: Infinity,
+    objectsThreshold: 8,
+    overlapPct: 0.15,
+    undeferred: true
+  });
   this.cnstModelMgr = null;
   this.decoModelMgr = null;
   this.basePath = null;
   this.textures = [];
+  this.terChunks = [];
   this.shaderMaterial = new THREE.ShaderMaterial({
     uniforms: [],
     vertexShader:   document.getElementById( 'terrainVertexShader' ).textContent,
     fragmentShader: document.getElementById( 'terrainFragmentShader' ).textContent
   });
 }
+
+WorldManager.prototype.addToScene = function() {
+  scene.add(this.rootObj);
+  this.rootObj.updateMatrixWorld(true);
+};
+
+WorldManager.prototype.removeFromScene = function() {
+  scene.remove(this.rootObj);
+};
 
 WorldManager.prototype._loadChunkTerrain = function(chunkX, chunkY, callback) {
   var himPath = this.basePath + chunkX + '_' + chunkY + '.HIM';
@@ -170,16 +186,18 @@ WorldManager.prototype._loadChunkTerrain = function(chunkX, chunkY, callback) {
   });
 };
 
-WorldManager.prototype._loadChunkObjectGroup = function(objList, modelList) {
+WorldManager.prototype._loadChunkObjectGroup = function(namePrefix, objList, modelList) {
   for (var i = 0; i < objList.length; ++i) {
     var objData = objList[i];
     var obj = modelList.createForStatic(objData.objectId);
+    obj.name = namePrefix + '_' + i;
     obj.position.copy(objData.position);
     obj.quaternion.copy(objData.rotation);
     obj.scale.copy(objData.scale);
     obj.updateMatrix();
     obj.matrixAutoUpdate = false;
     this.rootObj.add(obj);
+    this.octree.add(obj);
   }
 };
 
@@ -187,8 +205,8 @@ WorldManager.prototype._loadChunkObjects = function(chunkX, chunkY, callback) {
   var self = this;
   var ifoPath = this.basePath + chunkX + '_' + chunkY + '.IFO';
   MapInfo.load(ifoPath, function(ifoData) {
-    self._loadChunkObjectGroup(ifoData.objects, self.decoModelMgr);
-    self._loadChunkObjectGroup(ifoData.buildings, self.cnstModelMgr);
+    self._loadChunkObjectGroup('DECO_' + chunkX + '_' + chunkY, ifoData.objects, self.decoModelMgr);
+    self._loadChunkObjectGroup('CNST_' + chunkX + '_' + chunkY, ifoData.buildings, self.cnstModelMgr);
 
     if (callback) {
       callback();
@@ -202,15 +220,27 @@ WorldManager.prototype._loadChunk = function(chunkX, chunkY, callback) {
   this._loadChunkTerrain(chunkX, chunkY, function(geom) {
     var material = new THREE.MeshFaceMaterial( geom.materials );
     var chunkMesh = new THREE.Mesh(geom, material);
+    chunkMesh.name = 'TER_' + chunkX + '_' + chunkY;
     chunkMesh.position.x = (chunkX - 32) * 160 - 80;
     chunkMesh.position.y = (32 - chunkY) * 160 - 80;
     self.rootObj.add(chunkMesh);
+    self.octree.add(chunkMesh);
+    self.terChunks.push(chunkMesh);
 
     if (callback) {
       callback();
     }
   });
   //this._loadChunkObjects(chunkX, chunkY);
+};
+
+WorldManager.prototype.findHighPoint = function(x, y) {
+  var caster = new THREE.Raycaster(new THREE.Vector3(x, y, 200), new THREE.Vector3(0, 0, -1));
+  var octreeObjects = this.octree.search( caster.ray.origin, caster.ray.far, true, caster.ray.direction );
+  var inters = caster.intersectOctreeObjects( octreeObjects );
+  if (inters.length > 0) {
+    return inters[0].point.z;
+  }
 };
 
 WorldManager.prototype.setMap = function(mapIdx, callback) {
@@ -254,13 +284,23 @@ WorldManager.prototype.setMap = function(mapIdx, callback) {
           var chunkSY = chunkBounds[1][0];
           var chunkEY = chunkBounds[1][1];
 
-          for (var iy = chunkSY; iy <= chunkEY; ++iy) {
-            for (var ix = chunkSX; ix <= chunkEX; ++ix) {
-              self._loadChunk(ix, iy);
+          // Start at 1 so if the first chunk instant-loads, it does not
+          //   cause it to call done multiple times.
+          var chunksLeft = 1;
+          function doneLoadChunk() {
+            chunksLeft--;
+            if (chunksLeft === 0) {
+              self.octree.update();
+              callback();
             }
           }
-
-          callback();
+          for (var iy = chunkSY; iy <= chunkEY; ++iy) {
+            for (var ix = chunkSX; ix <= chunkEX; ++ix) {
+              chunksLeft++;
+              self._loadChunk(ix, iy, doneLoadChunk);
+            }
+          }
+          chunksLeft--;
         });
       });
     });
