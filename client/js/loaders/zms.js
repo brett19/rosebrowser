@@ -1,28 +1,18 @@
 /**
  * @constructor
- * @property {RangeVector3} bounds
- * @property {THREE.Vector3[]} vertices
- * @property {THREE.Vector3[]} normals
- * @property {THREE.Vector3[]} tangents
- * @property {Colour3[]} colours
- * @property {THREE.Face3[]} faces
- * @property {{weights: THREE.Vector4[], indices: THREE.Vector4[]}} skin
- * @property {THREE.Vector2[][]} uv
+ * @property {{min: Vector3, max: Vector3}} bounds
+ * @property {Float32Array} vertices
+ * @property {Float32Array?} normals
+ * @property {Float32Array?} tangents
+ * @property {Float32Array?} colours
+ * @property {Float32Array?} faces
+ * @property {Float32Array?} skinWeights
+ * @property {Float32Array?} skinIndices
+ * @property {Float32Array?[]} uv
  */
 var Mesh = function() {
   this.bounds = {};
-  this.vertices = [];
-  this.normals = [];
-  this.tangents = [];
-  this.colours = [];
-  this.faces = [];
-  this.skin = {
-    weights: [],
-    indices: []
-  };
-  this.uv = [
-    [], [], [], []
-  ];
+  this.uv = [];
 };
 
 
@@ -77,25 +67,22 @@ Mesh.loadMesh8 = function(rh) {
 
   if (format & (Mesh.FORMAT.BLEND_INDEX | Mesh.FORMAT.BLEND_WEIGHT)) {
     var skinIdx = 0;
-    data.skin.weights = new Float32Array(4 * vertices);
-    data.skin.indices = new Float32Array(4 * vertices);
+    data.skinWeights = new Float32Array(4 * vertices);
+    data.skinIndices = new Float32Array(4 * vertices);
 
     for (i = 0; i < vertices; ++i) {
-      data.skin.weights[skinIdx + 0] = rh.readFloat();
-      data.skin.weights[skinIdx + 1] = rh.readFloat();
-      data.skin.weights[skinIdx + 2] = rh.readFloat();
-      data.skin.weights[skinIdx + 3] = rh.readFloat();
+      data.skinWeights[skinIdx + 0] = rh.readFloat();
+      data.skinWeights[skinIdx + 1] = rh.readFloat();
+      data.skinWeights[skinIdx + 2] = rh.readFloat();
+      data.skinWeights[skinIdx + 3] = rh.readFloat();
 
-      data.skin.indices[skinIdx + 0] = boneTable[rh.readUint16()];
-      data.skin.indices[skinIdx + 1] = boneTable[rh.readUint16()];
-      data.skin.indices[skinIdx + 2] = boneTable[rh.readUint16()];
-      data.skin.indices[skinIdx + 3] = boneTable[rh.readUint16()];
+      data.skinIndices[skinIdx + 0] = boneTable[rh.readUint16()];
+      data.skinIndices[skinIdx + 1] = boneTable[rh.readUint16()];
+      data.skinIndices[skinIdx + 2] = boneTable[rh.readUint16()];
+      data.skinIndices[skinIdx + 3] = boneTable[rh.readUint16()];
 
       skinIdx += 4;
     }
-  } else {
-    data.skin.weights = null;
-    data.skin.indices = null;
   }
 
   if (format & Mesh.FORMAT.TANGENT) {
@@ -130,7 +117,7 @@ Mesh.loadMesh8 = function(rh) {
  * @returns {Mesh}
  */
 Mesh.loadMesh6 = function(rh) {
-  var bones, boneTable, faces, format, i, vertices;
+  var bones, boneTable, faces, format, i, idx, vertices;
   var data = new Mesh();
 
   format = rh.readUint32();
@@ -145,87 +132,106 @@ Mesh.loadMesh6 = function(rh) {
   }
 
   vertices = rh.readUint32();
-  for (i = 0; i < vertices; ++i) {
+  data.vertices = new Float32Array(3 * vertices);
+  for (i = 0, idx = 0; i < vertices; i += 1, idx += 3) {
     rh.skip(4);
-    data.vertices.push(rh.readVector3());
+    data.vertices[idx    ] = rh.readFloat();
+    data.vertices[idx + 1] = rh.readFloat();
+    data.vertices[idx + 2] = rh.readFloat();
   }
 
   if (format & Mesh.FORMAT.NORMAL) {
-    for (i = 0; i < vertices; ++i) {
+    data.normals = new Float32Array(3 * vertices);
+    for (i = 0, idx = 0; i < vertices; i += 1, idx += 3) {
       rh.skip(4);
-      data.normals.push(rh.readVector3());
+      data.normals[idx + 0] = rh.readFloat();
+      data.normals[idx + 1] = rh.readFloat();
+      data.normals[idx + 2] = rh.readFloat();
     }
   }
 
   if (format & Mesh.FORMAT.COLOUR) {
-    for (i = 0; i < vertices; ++i) {
+    data.colours = new Float32Array(4 * vertices);
+    for (i = 0, idx = 0; i < vertices; i += 1, idx += 4) {
       rh.skip(4);
-      data.colours.push(rh.readColour4());
+      data.colours[idx + 0] = rh.readFloat();
+      data.colours[idx + 1] = rh.readFloat();
+      data.colours[idx + 2] = rh.readFloat();
+      data.colours[idx + 3] = rh.readFloat();
     }
   }
 
   if (format & (Mesh.FORMAT.BLEND_INDEX | Mesh.FORMAT.BLEND_WEIGHT)) {
-    for (i = 0; i < vertices; ++i) {
-      var weight1, weight2, weight3, weight4;
-      var index1, index2, index3, index4;
+    data.skinWeights = new Float32Array(4 * vertices);
+    data.skinIndices = new Float32Array(4 * vertices);
 
+    for (i = 0, idx = 0; i < vertices; i += 1, idx += 4) {
       rh.skip(4);
-      weight1 = rh.readFloat();
-      weight2 = rh.readFloat();
-      weight3 = rh.readFloat();
-      weight4 = rh.readFloat();
-      index1 = boneTable[rh.readUint32()];
-      index2 = boneTable[rh.readUint32()];
-      index3 = boneTable[rh.readUint32()];
-      index4 = boneTable[rh.readUint32()];
+      data.skinWeights[idx + 0] = rh.readFloat();
+      data.skinWeights[idx + 1] = rh.readFloat();
+      data.skinWeights[idx + 2] = rh.readFloat();
+      data.skinWeights[idx + 3] = rh.readFloat();
 
-      data.skin.weights.push(new THREE.Vector4(weight1, weight2, weight3, weight4));
-      data.skin.indices.push(new THREE.Vector4(index1, index2, index3, index4));
+      data.skinIndices[idx + 0] = boneTable[rh.readUint32()];
+      data.skinIndices[idx + 1] = boneTable[rh.readUint32()];
+      data.skinIndices[idx + 2] = boneTable[rh.readUint32()];
+      data.skinIndices[idx + 3] = boneTable[rh.readUint32()];
     }
   }
 
   if (format & Mesh.FORMAT.TANGENT) {
-    for (i = 0; i < vertices; ++i) {
+    data.tangents = new Float32Array(3 * vertices);
+    for (i = 0, idx = 0; i < vertices; i += 1, idx += 3) {
       rh.skip(4);
-      data.tangents.push(rh.readVector3());
+      data.tangents[idx + 0] = rh.readFloat();
+      data.tangents[idx + 1] = rh.readFloat();
+      data.tangents[idx + 2] = rh.readFloat();
     }
   }
 
   if (format & Mesh.FORMAT.UV1) {
-    for (i = 0; i < vertices; ++i) {
+    data.uv[0] = new Float32Array(2 * vertices);
+    for (i = 0, idx = 0; i < vertices; i += 1, idx += 2) {
       rh.skip(4);
-      data.uv[0].push(rh.readVector2());
+      data.uv[0][idx + 0] = rh.readFloat();
+      data.uv[0][idx + 1] = rh.readFloat();
     }
   }
 
   if (format & Mesh.FORMAT.UV2) {
-    for (i = 0; i < vertices; ++i) {
+    data.uv[1] = new Float32Array(2 * vertices);
+    for (i = 0, idx = 0; i < vertices; i += 1, idx += 2) {
       rh.skip(4);
-      data.uv[1].push(rh.readVector2());
+      data.uv[1][idx + 0] = rh.readFloat();
+      data.uv[1][idx + 1] = rh.readFloat();
     }
   }
+
   if (format & Mesh.FORMAT.UV3) {
-    for (i = 0; i < vertices; ++i) {
+    data.uv[2] = new Float32Array(2 * vertices);
+    for (i = 0, idx = 0; i < vertices; i += 1, idx += 2) {
       rh.skip(4);
-      data.uv[2].push(rh.readVector2());
+      data.uv[2][idx + 0] = rh.readFloat();
+      data.uv[2][idx + 1] = rh.readFloat();
     }
   }
 
   if (format & Mesh.FORMAT.UV4) {
-    for (i = 0; i < vertices; ++i) {
+    data.uv[3] = new Float32Array(2 * vertices);
+    for (i = 0, idx = 0; i < vertices; i += 1, idx += 2) {
       rh.skip(4);
-      data.uv[3].push(rh.readVector2());
+      data.uv[3][idx + 0] = rh.readFloat();
+      data.uv[3][idx + 1] = rh.readFloat();
     }
   }
 
   faces = rh.readUint32();
-  for (i = 0; i < faces; ++i) {
-    var v1, v2, v3;
+  data.faces = new Uint16Array(3 * faces);
+  for (i = 0, idx = 0; i < faces; i += 1, idx += 3) {
     rh.skip(4);
-    v1 = rh.readUint32();
-    v2 = rh.readUint32();
-    v3 = rh.readUint32();
-    data.faces.push(new THREE.Face3(v1, v2, v3));
+    data.faces[idx + 0] = rh.readUint32();
+    data.faces[idx + 1] = rh.readUint32();
+    data.faces[idx + 2] = rh.readUint32();
   }
 
   return data;
@@ -242,12 +248,12 @@ Mesh.prototype.createBufferGeometry = function() {
   geometry.addAttribute('position', new THREE.BufferAttribute(this.vertices, 3));
   geometry.addAttribute('index', new THREE.BufferAttribute(this.faces, 3));
 
-  if (this.skin.weights) {
-    geometry.addAttribute('skinWeight', new THREE.BufferAttribute(this.skin.weights, 4));
+  if (this.skinWeights) {
+    geometry.addAttribute('skinWeight', new THREE.BufferAttribute(this.skinWeights, 4));
   }
 
-  if (this.skin.indices) {
-    geometry.addAttribute('skinIndex', new THREE.BufferAttribute(this.skin.indices, 4));
+  if (this.skinIndices) {
+    geometry.addAttribute('skinIndex', new THREE.BufferAttribute(this.skinIndices, 4));
   }
 
   if (this.uv[0]) {
@@ -261,42 +267,6 @@ Mesh.prototype.createBufferGeometry = function() {
   if (this.uv[2] || this.uv[3]) {
     // TODO: Fallback to normal Geometry
     throw 'BufferGeometry does not support more than 2 uv channels!';
-  }
-
-  geometry.computeBoundingSphere();
-  geometry.computeFaceNormals();
-  geometry.computeVertexNormals();
-  return geometry;
-};
-
-
-/**
- * @returns {THREE.Geometry}
- */
-Mesh.prototype.createGeometry = function() {
-  var geometry, i, j;
-  geometry = new THREE.Geometry();
-  geometry.vertices = this.vertices;
-  geometry.skinWeights = this.skin.weights;
-  geometry.skinIndices = this.skin.indices;
-  geometry.faces = this.faces;
-
-  for (j = 0; j < 4; ++j) {
-    if (this.uv[j].length > 0) {
-      geometry.faceVertexUvs[j] = [];
-    }
-  }
-
-  for (i = 0; i < this.faces.length; ++i) {
-    for (j = 0; j < 4; ++j) {
-      if (this.uv[j].length > 0) {
-        var uv1, uv2, uv3;
-        uv1 = this.uv[j][this.faces[i].a];
-        uv2 = this.uv[j][this.faces[i].b];
-        uv3 = this.uv[j][this.faces[i].c];
-        geometry.faceVertexUvs[j].push([uv1, uv2, uv3]);
-      }
-    }
   }
 
   geometry.computeBoundingSphere();
@@ -336,12 +306,10 @@ Mesh.load = function(path, callback) {
 
     if (version >= 7) {
       mesh = Mesh.loadMesh8(rh);
-      mesh = mesh.createBufferGeometry();
     } else {
       mesh = Mesh.loadMesh6(rh);
-      mesh = mesh.createGeometry();
     }
 
-    callback(mesh);
+    callback(mesh.createBufferGeometry());
   });
 };
