@@ -10,6 +10,7 @@ function RoseSocket() {
   RSocket.call(this);
 
   this.name = '';
+  this.logIgnoreCmds = [];
 
   var headerBuf = new Uint8Array(6);
   var headerView = new DataView(headerBuf.buffer);
@@ -29,7 +30,9 @@ function RoseSocket() {
           pakBuf.cmd = headerView.getUint16(2, true);
 
           if (dataLen === 0) {
-            logPacket('net:recv', pakBuf);
+            if (this.logIgnoreCmds.indexOf(pakBuf.cmd) === -1) {
+              logPacket('net:recv', pakBuf);
+            }
             this.emit('packet', pakBuf);
             headerLen = 0;
             dataLen = 0;
@@ -40,7 +43,9 @@ function RoseSocket() {
         pakBuf.data[pakBuf.dataLength++] = data[i];
 
         if (pakBuf.dataLength === dataLen) {
-          logPacket('net:recv<'+this.name+'>', pakBuf);
+          if (this.logIgnoreCmds.indexOf(pakBuf.cmd) === -1) {
+            logPacket('net:recv<' + this.name + '>', pakBuf);
+          }
           this.emit('packet', pakBuf);
           headerLen = 0;
           dataLen = 0;
@@ -52,7 +57,9 @@ function RoseSocket() {
 }
 RoseSocket.prototype = new RSocket();
 RoseSocket.prototype.sendPacket = function(pak) {
-  logPacket('net:send<'+this.name+'>', pak);
+  if (this.logIgnoreCmds.indexOf(pak.cmd) === -1) {
+    logPacket('net:send<' + this.name + '>', pak);
+  }
   var buf = pak.toBuffer();
   buf[2] ^= 0x61;
   buf[3] ^= 0x61;
