@@ -44,16 +44,6 @@ Avatar.prototype._setModelPart = function(modelList, partIdx, modelIdx, bindBone
           self.rootObj.add(charPartMesh);
         } else {
           var charPartMesh = new THREE.Mesh(geometry, material);
-          if (part.position) {
-            charPartMesh.position.copy(part.position);
-          }
-          if (part.rotation) {
-            charPartMesh.quaternion.copy(part.rotation);
-          }
-          if (part.scale) {
-            charPartMesh.scale.copy(part.scale);
-          }
-
           if (bindBone !== undefined) {
             self.skel.bones[bindBone].add(charPartMesh);
           } else if (bindDummy !== undefined) {
