@@ -65,74 +65,61 @@ Mesh.loadMesh8 = function(rh) {
   }
 
   vertices = rh.readUint16();
-  for (i = 0; i < vertices; ++i) {
-    data.vertices.push(rh.readVector3());
-  }
+  data.vertices = rh.readFloatArray(3 * vertices);
 
   if (format & Mesh.FORMAT.NORMAL) {
-    for (i = 0; i < vertices; ++i) {
-      data.normals.push(rh.readVector3());
-    }
+    data.normals = rh.readFloatArray(3 * vertices);
   }
 
   if (format & Mesh.FORMAT.COLOUR) {
-    for (i = 0; i < vertices; ++i) {
-      data.colours.push(rh.readColour4());
-    }
+    data.colours = rh.readFloatArray(4 * vertices);
   }
 
   if (format & (Mesh.FORMAT.BLEND_INDEX | Mesh.FORMAT.BLEND_WEIGHT)) {
-    for (i = 0; i < vertices; ++i) {
-      var weight1 = rh.readFloat();
-      var weight2 = rh.readFloat();
-      var weight3 = rh.readFloat();
-      var weight4 = rh.readFloat();
-      var index1 = boneTable[rh.readUint16()];
-      var index2 = boneTable[rh.readUint16()];
-      var index3 = boneTable[rh.readUint16()];
-      var index4 = boneTable[rh.readUint16()];
+    var skinIdx = 0;
+    data.skin.weights = new Float32Array(4 * vertices);
+    data.skin.indices = new Float32Array(4 * vertices);
 
-      data.skin.weights.push(new THREE.Vector4(weight1, weight2, weight3, weight4));
-      data.skin.indices.push(new THREE.Vector4(index1, index2, index3, index4));
+    for (i = 0; i < vertices; ++i) {
+      data.skin.weights[skinIdx + 0] = rh.readFloat();
+      data.skin.weights[skinIdx + 1] = rh.readFloat();
+      data.skin.weights[skinIdx + 2] = rh.readFloat();
+      data.skin.weights[skinIdx + 3] = rh.readFloat();
+
+      data.skin.indices[skinIdx + 0] = boneTable[rh.readUint16()];
+      data.skin.indices[skinIdx + 1] = boneTable[rh.readUint16()];
+      data.skin.indices[skinIdx + 2] = boneTable[rh.readUint16()];
+      data.skin.indices[skinIdx + 3] = boneTable[rh.readUint16()];
+
+      skinIdx += 4;
     }
+  } else {
+    data.skin.weights = null;
+    data.skin.indices = null;
   }
 
   if (format & Mesh.FORMAT.TANGENT) {
-    for (i = 0; i < vertices; ++i) {
-      data.tangents.push(rh.readVector3());
-    }
+    data.tangents = rh.readFloatArray(3 * vertices);
   }
 
   if (format & Mesh.FORMAT.UV1) {
-    for (i = 0; i < vertices; ++i) {
-      data.uv[0].push(rh.readVector2());
-    }
+    data.uv[0] = rh.readFloatArray(2 * vertices);
   }
 
   if (format & Mesh.FORMAT.UV2) {
-    for (i = 0; i < vertices; ++i) {
-      data.uv[1].push(rh.readVector2());
-    }
+    data.uv[1] = rh.readFloatArray(2 * vertices);
   }
+
   if (format & Mesh.FORMAT.UV3) {
-    for (i = 0; i < vertices; ++i) {
-      data.uv[2].push(rh.readVector2());
-    }
+    data.uv[2] = rh.readFloatArray(2 * vertices);
   }
 
   if (format & Mesh.FORMAT.UV4) {
-    for (i = 0; i < vertices; ++i) {
-      data.uv[3].push(rh.readVector2());
-    }
+    data.uv[2] = rh.readFloatArray(2 * vertices);
   }
 
   faces = rh.readUint16();
-  for (i = 0; i < faces; ++i) {
-    var v1 = rh.readUint16();
-    var v2 = rh.readUint16();
-    var v3 = rh.readUint16();
-    data.faces.push(new THREE.Face3(v1, v2, v3));
-  }
+  data.faces = rh.readUint16Array(3 * faces);
 
   return data;
 };
@@ -246,9 +233,38 @@ Mesh.loadMesh6 = function(rh) {
 
 
 /**
+ * @returns {THREE.BufferGeometry}
+ */
+Mesh.prototype.createBufferGeometry = function() {
+  var geometry;
+  geometry = new THREE.BufferGeometry();
+
+  geometry.addAttribute('position', new THREE.BufferAttribute(this.vertices, 3));
+  geometry.addAttribute('index', new THREE.BufferAttribute(this.faces, 3));
+
+  if (this.skin.weights) {
+    geometry.addAttribute('skinWeight', new THREE.BufferAttribute(this.skin.weights, 4));
+  }
+
+  if (this.skin.indices) {
+    geometry.addAttribute('skinIndex', new THREE.BufferAttribute(this.skin.indices, 4));
+  }
+
+  if (this.uv[0]) {
+    geometry.addAttribute('uv', new THREE.BufferAttribute(this.uv[0], 2));
+  }
+
+  geometry.computeBoundingSphere();
+  geometry.computeFaceNormals();
+  geometry.computeVertexNormals();
+  return geometry;
+};
+
+
+/**
  * @returns {THREE.Geometry}
  */
-Mesh.prototype.create = function() {
+Mesh.prototype.createGeometry = function() {
   var geometry, i, j;
   geometry = new THREE.Geometry();
   geometry.vertices = this.vertices;
@@ -311,10 +327,12 @@ Mesh.load = function(path, callback) {
 
     if (version >= 7) {
       mesh = Mesh.loadMesh8(rh);
+      mesh = mesh.createBufferGeometry();
     } else {
       mesh = Mesh.loadMesh6(rh);
+      mesh = mesh.createGeometry();
     }
 
-    callback(mesh.create());
+    callback(mesh);
   });
 };
