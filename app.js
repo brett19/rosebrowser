@@ -18,6 +18,19 @@ if (!config.data || !(config.data.local || config.data.remote)) {
   process.exit(0);
 }
 
+
+
+// Helper to read a whole stream into a Buffer object.
+function streamToBuffer(sourceStream, callback) {
+  var bufs = [];
+  sourceStream.on('data', function(d){ bufs.push(d); });
+  sourceStream.on('end', function() {
+    callback(null, Buffer.concat(bufs));
+  });
+}
+
+
+
 function Cacher(source) {
   this.source = source;
   this.path = __dirname + '/cache/';
@@ -85,6 +98,13 @@ io.on('connection', function(socket) {
         sockets[i].end();
       }
     }
+  });
+  socket.on('fr', function(reqIdx, path) {
+    cache.getStream(path, function (err, sourceStream) {
+      streamToBuffer(sourceStream, function(err, sourceBuf) {
+        socket.emit('fr', reqIdx, sourceBuf);
+      });
+    });
   });
   socket.on('tc', function(sockIdx, host, port) {
     console.log('tc', sockIdx, host, port);
