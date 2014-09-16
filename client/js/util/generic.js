@@ -11,6 +11,10 @@ function enumToName(list, val) {
   return 'unknown:' + val;
 }
 
+function hrTime() {
+  return (new Date()).getTime();
+}
+
 var clientParams = [];
 if (window.location.hash.length > 1) {
   clientParams = window.location.hash.substr(1).split(',');
