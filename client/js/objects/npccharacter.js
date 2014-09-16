@@ -8,7 +8,7 @@ NpcCharacter.prototype._setModel = function(charData, modelMgr, charIdx) {
   var self = this;
 
   var char = charData.characters[charIdx];
-  if (char === null) {
+  if (!char) {
     console.warn('Attempted to use npc character which does not exist');
     return false;
   }
