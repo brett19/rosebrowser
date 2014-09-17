@@ -146,7 +146,7 @@ WorldManager.prototype._findTileMaterial = function(geom, tile) {
   return geom.materials.length - 1;
 }
 
-WorldManager.prototype._buildChunkTerarin = function(chunkX, chunkY, tilemap, heightmap) {
+WorldManager.prototype._buildChunkTerarin = function(chunkX, chunkY, tilemap, heightmap, lightmap) {
   var geom = new THREE.Geometry();
 
   for (var vy = 0; vy < 65; ++vy) {
@@ -209,16 +209,19 @@ WorldManager.prototype._buildChunkTerarin = function(chunkX, chunkY, tilemap, he
 WorldManager.prototype._loadChunkTerrain = function(chunkX, chunkY, callback) {
   var himPath = this.basePath + chunkX + '_' + chunkY + '.HIM';
   var tilPath = this.basePath + chunkX + '_' + chunkY + '.TIL';
+  var ddsPath = this.basePath + chunkX + '_' + chunkY + '/' + chunkX + '_' + chunkY + '_PLANELIGHTINGMAP.DDS';
   var self = this;
+
+  var lightmap = RoseTextureManager.load(ddsPath);
 
   Tilemap.load(tilPath, function(tilemap) {
     Heightmap.load(himPath, function (heightmap) {
-      callback(self._buildChunkTerarin(chunkX, chunkY, tilemap, heightmap));
+      callback(self._buildChunkTerarin(chunkX, chunkY, tilemap, heightmap, lightmap));
     });
   });
 };
 
-WorldManager.prototype._loadChunkObjectGroup = function(namePrefix, objList, modelList) {
+WorldManager.prototype._loadChunkObjectGroup = function(namePrefix, objList, modelList, lightmap) {
   for (var i = 0; i < objList.length; ++i) {
     var objData = objList[i];
     var obj = modelList.createForStatic(objData.objectId);
@@ -236,13 +239,20 @@ WorldManager.prototype._loadChunkObjectGroup = function(namePrefix, objList, mod
 WorldManager.prototype._loadChunkObjects = function(chunkX, chunkY, callback) {
   var self = this;
   var ifoPath = this.basePath + chunkX + '_' + chunkY + '.IFO';
-  MapInfo.load(ifoPath, function(ifoData) {
-    self._loadChunkObjectGroup('DECO_' + chunkX + '_' + chunkY, ifoData.objects, self.decoModelMgr);
-    self._loadChunkObjectGroup('CNST_' + chunkX + '_' + chunkY, ifoData.buildings, self.cnstModelMgr);
+  var litCnstPath = this.basePath + chunkX + '_' + chunkY + '/LIGHTMAP/BUILDINGLIGHTMAPDATA.LIT';
+  var litDecoPath = this.basePath + chunkX + '_' + chunkY + '/LIGHTMAP/OBJECTLIGHTMAPDATA.LIT';
 
-    if (callback) {
-      callback();
-    }
+  Lightmap.load(litCnstPath, function(cnstLightmap) {
+    Lightmap.load(litDecoPath, function (decoLightmap) {
+      MapInfo.load(ifoPath, function (ifoData) {
+        self._loadChunkObjectGroup('DECO_' + chunkX + '_' + chunkY, ifoData.objects, self.decoModelMgr, decoLightmap);
+        self._loadChunkObjectGroup('CNST_' + chunkX + '_' + chunkY, ifoData.buildings, self.cnstModelMgr, cnstLightmap);
+
+        if (callback) {
+          callback();
+        }
+      });
+    });
   });
 };
 
