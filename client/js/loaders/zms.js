@@ -269,6 +269,7 @@ Mesh.prototype.createBufferGeometry = function() {
     throw 'BufferGeometry does not support more than 2 uv channels!';
   }
 
+  geometry.dynamic = false;
   geometry.computeBoundingSphere();
   geometry.computeFaceNormals();
   geometry.computeVertexNormals();

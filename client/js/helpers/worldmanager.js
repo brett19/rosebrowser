@@ -197,6 +197,7 @@ WorldManager.prototype._buildChunkTerarin = function(chunkX, chunkY, tilemap, he
     }
   }
 
+  geom.dynamic = false;
   geom.computeBoundingSphere();
   geom.computeBoundingBox();
   geom.computeFaceNormals();
@@ -254,6 +255,8 @@ WorldManager.prototype._loadChunk = function(chunkX, chunkY, callback) {
     chunkMesh.name = 'TER_' + chunkX + '_' + chunkY;
     chunkMesh.position.x = (chunkX - 32) * 160 - 80;
     chunkMesh.position.y = (32 - chunkY) * 160 - 80;
+    chunkMesh.updateMatrix();
+    chunkMesh.matrixAutoUpdate = false;
     self.rootObj.add(chunkMesh);
     self.octree.add(chunkMesh);
     self.terChunks.push(chunkMesh);
