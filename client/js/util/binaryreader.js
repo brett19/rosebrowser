@@ -99,7 +99,7 @@ BinaryReader.prototype.readFloatArray = function(len) {
   } else {
     var buffer = new Uint8Array(len * 4);
     buffer.set(this.readByteArray(len * 4));
-    return new Float32Array(buffer);
+    return new Float32Array(buffer.buffer, 0, len);
   }
 };
 
