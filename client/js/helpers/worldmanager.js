@@ -54,6 +54,7 @@ function WorldManager() {
   this.matLookup = [];
   this.terChunks = [];
   this.shaderMaterial = new THREE.ShaderMaterial({
+    attributes: {uv3:{}},
     uniforms: [],
     vertexShader:   document.getElementById( 'terrainVertexShader' ).textContent,
     fragmentShader: document.getElementById( 'terrainFragmentShader' ).textContent
@@ -69,12 +70,14 @@ WorldManager.prototype.removeFromScene = function() {
   scene.remove(this.rootObj);
 };
 
-WorldManager.prototype._createMaterial = function(texId1, texId2) {
+WorldManager.prototype._createMaterial = function(texId1, texId2, blockIdx, lmTex) {
   var self = this;
 
-  if (self.matLookup[texId1]) {
-    if (self.matLookup[texId1][texId2]) {
-      return self.matLookup[texId1][texId2];
+  if (self.matLookup[blockIdx]) {
+    if (self.matLookup[blockIdx][texId1]) {
+      if (self.matLookup[blockIdx][texId1][texId2]) {
+        return self.matLookup[blockIdx][texId1][texId2];
+      }
     }
   }
 
@@ -92,13 +95,17 @@ WorldManager.prototype._createMaterial = function(texId1, texId2) {
   newMaterial.texId2 = texId2;
   newMaterial.uniforms = {
     texture1: { type: 't', value: tex1 },
-    texture2: { type: 't', value: tex2 }
+    texture2: { type: 't', value: tex2 },
+    texture3: { type: 't', value: lmTex }
   };
 
-  if (!self.matLookup[texId1]) {
-    self.matLookup[texId1] = [];
+  if (!self.matLookup[blockIdx]) {
+    self.matLookup[blockIdx] = [];
   }
-  self.matLookup[texId1][texId2] = newMaterial;
+  if (!self.matLookup[blockIdx][texId1]) {
+    self.matLookup[blockIdx][texId1] = [];
+  }
+  self.matLookup[blockIdx][texId1][texId2] = newMaterial;
   return newMaterial;
 };
 
@@ -139,7 +146,7 @@ WorldManager.prototype._addTileMaterial = function(geom, tile) {
   return geom.materials.length - 1;
 }
 
-WorldManager.prototype._buildChunkTerarin = function(chunkX, chunkY, blockX, blockY, tilemap, heightmap, blockIdx, verts, indices, uv0, uv1) {
+WorldManager.prototype._buildChunkTerarin = function(chunkX, chunkY, blockX, blockY, tilemap, heightmap, blockIdx, verts, indices, uv0, uv1, uv2) {
   var tileIdx = (15-blockY) * 16 + blockX;
   var tile = this.zoneInfo.tiles[tilemap.map[tileIdx].number];
 
@@ -159,6 +166,8 @@ WorldManager.prototype._buildChunkTerarin = function(chunkX, chunkY, blockX, blo
       var tex2Uv = this._rotateUV(tile, {x:vx/5,y:vy/5});
       uv1[vertIdx*2+0] = tex2Uv.x;
       uv1[vertIdx*2+1] = 1 - tex2Uv.y;
+      uv2[vertIdx*2+0] = (vertX / 65);
+      uv2[vertIdx*2+1] = (vertY / 65);
     }
   }
 
@@ -226,11 +235,12 @@ WorldManager.prototype._loadChunkTerrain = function(chunkX, chunkY, callback) {
         var indices = new Uint16Array(blockCount * 4*4*2*3);
         var uv0 = new Float32Array(blockCount * 5*5*2);
         var uv1 = new Float32Array(blockCount * 5*5*2);
+        var uv2 = new Float32Array(blockCount * 5*5*2);
 
         for (var j = 0; j < chunkGrp.blocks.length; ++j) {
           var blockX = chunkGrp.blocks[j][0];
           var blockY = chunkGrp.blocks[j][1];
-          self._buildChunkTerarin(chunkX, chunkY, blockX, blockY, tilemap, heightmap, j, verts, indices, uv0, uv1)
+          self._buildChunkTerarin(chunkX, chunkY, blockX, blockY, tilemap, heightmap, j, verts, indices, uv0, uv1, uv2)
         }
 
         var geometry = new THREE.BufferGeometry();
@@ -238,6 +248,7 @@ WorldManager.prototype._loadChunkTerrain = function(chunkX, chunkY, callback) {
         geometry.addAttribute('index', new THREE.BufferAttribute(indices, 3));
         geometry.addAttribute('uv', new THREE.BufferAttribute(uv0, 2));
         geometry.addAttribute('uv2', new THREE.BufferAttribute(uv1, 2));
+        geometry.addAttribute('uv3', new THREE.BufferAttribute(uv2, 2));
 
         geometry.dynamic = false;
         geometry.computeBoundingSphere();
@@ -245,7 +256,7 @@ WorldManager.prototype._loadChunkTerrain = function(chunkX, chunkY, callback) {
         geometry.computeFaceNormals();
         geometry.computeVertexNormals();
 
-        var chunkGrpMat = self._createMaterial(chunkGrp.texId1, chunkGrp.texId2);
+        var chunkGrpMat = self._createMaterial(chunkGrp.texId1, chunkGrp.texId2, chunkY*64+chunkX, lightmap);
         var chunkMesh = new THREE.Mesh(geometry, chunkGrpMat);
         chunkMesh.name = 'TER_' + chunkX + '_' + chunkY + '_' + i;
         chunkMesh.position.x = (chunkX - 32) * 160 - 80;
