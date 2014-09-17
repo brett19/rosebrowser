@@ -344,14 +344,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 
       dollyStart.set( event.clientX, event.clientY );
 
-    /*
-    } else if ( event.button === 2 ) {
-      if ( scope.noPan === true ) return;
-
-      state = STATE.PAN;
-
-      panStart.set( event.clientX, event.clientY );
-    */
+    } else if ( event.button === 0 ) {
+      return;
     }
 
     document.addEventListener( 'mousemove', onMouseMove, false );

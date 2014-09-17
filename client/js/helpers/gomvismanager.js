@@ -14,9 +14,13 @@ function GOMVisManager(world) {
   };
 }
 
-GOMVisManager.prototype._addObject = function(obj) {
-  console.log('GOMVis::_addObject', obj);
+GOMVisManager.prototype._addObjectLocal = function(obj) {
+  obj.on('moved', function() {
+    MC.avatar.rootObj.position.copy(obj.position);
+  });
+};
 
+GOMVisManager.prototype._addObjectNpc = function(obj) {
   var highZ = this.world.findHighPoint(obj.position.x, obj.position.y);
 
   var visObj = new NpcCharacter();
@@ -28,6 +32,16 @@ GOMVisManager.prototype._addObject = function(obj) {
   scene.add(visObj.rootObj);
 
   this.visObjects.push(visObj);
+};
+
+GOMVisManager.prototype._addObject = function(obj) {
+  console.log('GOMVis::_addObject', obj);
+
+  if (obj.type === 'local') {
+    this._addObjectLocal(obj);
+  } else if (obj.type === 'npc') {
+    this._addObjectNpc(obj);
+  }
 };
 
 GOMVisManager.prototype._removeObject = function(obj) {

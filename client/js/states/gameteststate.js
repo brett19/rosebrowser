@@ -103,6 +103,7 @@ GameTestState.prototype.enter = function() {
                   waitDialog.setMessage('Connected to Game Server; Waiting for character data.');
 
                   MC = new MyCharacter();
+                  GOM.addObject(MC);
 
                   var hasCharData = false;
                   var hasInvData = false;
@@ -114,6 +115,7 @@ GameTestState.prototype.enter = function() {
                     MC.level = data.level;
 
                     console.log(data.posStart);
+                    MC.setPosition(data.posStart.x, data.posStart.y, 10);
                     MC.avatar.rootObj.position.set(data.posStart.x, data.posStart.y, 10);
                     console.log(MC.avatar.rootObj.position);
 

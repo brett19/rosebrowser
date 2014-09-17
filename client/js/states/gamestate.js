@@ -5,6 +5,8 @@ function GameState() {
   this.worldMgr.rootObj.position.set(5200, 5200, 0);
   this.gomMgr = new GOMVisManager(this.worldMgr);
   this.activeMapIdx = -1;
+
+  this.pickPosH = new THREE.AxisHelper(2);
 }
 
 GameState.prototype.setMap = function(mapIdx) {
@@ -25,8 +27,8 @@ GameState.prototype.mapSwitchPrep = function(callback) {
   });
 };
 
-GameState.prototype.update = function() {
-
+GameState.prototype.update = function(delta) {
+  GOM.update(delta);
 };
 
 GameState.prototype.debugPrintScene = function() {
@@ -62,12 +64,40 @@ GameState.prototype.enter = function() {
   var highPoint = this.worldMgr.findHighPoint(avtPos.x, avtPos.y);
   MC.avatar.rootObj.position.z = highPoint;
 
+  this.pickPosH.position.copy(MC.avatar.rootObj.position);
+  scene.add(this.pickPosH);
+
   var controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.damping = 0.2;
 
   netGame.joinZone(highPoint, function() {
     console.log('ZONE JOINED');
   });
+
+  var projector = new THREE.Projector();
+  var self = this;
+  renderer.domElement.addEventListener('mousedown', function(e) {
+    e.preventDefault();
+
+    if ( event.button !== 0 ) {
+      return;
+    }
+
+    var mouse = new THREE.Vector3(0, 0, 0.5);
+    mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
+    mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
+    projector.unprojectVector( mouse, camera );
+
+    var cameraPos = camera.localToWorld(new THREE.Vector3(0,0,0));
+    var ray = new THREE.Raycaster(cameraPos, mouse.sub( cameraPos ).normalize());
+    var octreeObjects = self.worldMgr.octree.search( ray.ray.origin, ray.ray.far, true, ray.ray.direction );
+    var inters = ray.intersectOctreeObjects( octreeObjects );
+    if (inters.length > 0) {
+      var moveToPos = inters[0].point;
+      MC.moveTo(moveToPos.x, moveToPos.y);
+      self.pickPosH.position.copy(moveToPos);
+    }
+  }, false );
 };
 
 GameState.prototype.leave = function() {
