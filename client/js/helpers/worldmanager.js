@@ -128,82 +128,56 @@ WorldManager.prototype._rotateUV = function(tile, uv) {
   return uv;
 };
 
-WorldManager.prototype._findTileMaterial = function(geom, tile) {
+WorldManager.prototype._addTileMaterial = function(geom, tile) {
   var self = this;
 
   var texId1 = tile.layer1 + tile.offset1;
   var texId2 = tile.layer2 + tile.offset2;
-
-  for (var m = 0; m < geom.materials.length; ++m) {
-    var mat = geom.materials[m];
-    if (mat.texId1 === texId1 && mat.texId2 == texId2) {
-      return m;
-    }
-  }
 
   var mat = self._createMaterial(texId1, texId2);
   geom.materials.push(mat);
   return geom.materials.length - 1;
 }
 
-WorldManager.prototype._buildChunkTerarin = function(chunkX, chunkY, tilemap, heightmap, lightmap) {
-  var geom = new THREE.Geometry();
+WorldManager.prototype._buildChunkTerarin = function(chunkX, chunkY, blockX, blockY, tilemap, heightmap, blockIdx, verts, indices, uv0, uv1) {
+  var tileIdx = (15-blockY) * 16 + blockX;
+  var tile = this.zoneInfo.tiles[tilemap.map[tileIdx].number];
 
-  for (var vy = 0; vy < 65; ++vy) {
-    for (var vx = 0; vx < 65; ++vx) {
-      geom.vertices.push(new THREE.Vector3(
-          vx * 2.5,
-          vy * 2.5,
-          heightmap.map[(64 - vy) * 65 + (vx)] * ZZ_SCALE_IN
-      ));
+  var vertBase = blockIdx * 5 * 5;
+  var indexBase = blockIdx * 4 * 4;
+
+  for (var vy = 0; vy < 5; ++vy) {
+    for (var vx = 0; vx < 5; ++vx) {
+      var vertIdx = vertBase + (vy * 5 + vx);
+      var vertX = blockX * 4 + vx;
+      var vertY = 64 - (blockY * 4 + vy);
+      verts[vertIdx*3+0] = (blockX * 10) + (vx * 2.5);
+      verts[vertIdx*3+1] = (blockY * 10) + (vy * 2.5);
+      verts[vertIdx*3+2] = heightmap.map[vertY * 65 + vertX] * ZZ_SCALE_IN;
+      uv0[vertIdx*2+0] = (vx / 5);
+      uv0[vertIdx*2+1] = 1- (vy / 5);
+      var tex2Uv = this._rotateUV(tile, {x:vx/5,y:vy/5});
+      uv1[vertIdx*2+0] = tex2Uv.x;
+      uv1[vertIdx*2+1] = 1 - tex2Uv.y;
     }
   }
 
-  geom.materials = [];
-  geom.faceVertexUvs[0] = [];
-  geom.faceVertexUvs[1] = [];
+  for (var fy = 0; fy < 4; ++fy) {
+    for (var fx = 0; fx < 4; ++fx) {
+      var v1 = vertBase + (fy + 0) * 5 + (fx + 0);
+      var v2 = vertBase + (fy + 0) * 5 + (fx + 1);
+      var v3 = vertBase + (fy + 1) * 5 + (fx + 0);
+      var v4 = vertBase + (fy + 1) * 5 + (fx + 1);
 
-  for (var fy = 0; fy < 64; ++fy) {
-    for (var fx = 0; fx < 64; ++fx) {
-      var v1 = (fy + 0) * 65 + (fx + 0);
-      var v2 = (fy + 0) * 65 + (fx + 1);
-      var v3 = (fy + 1) * 65 + (fx + 0);
-      var v4 = (fy + 1) * 65 + (fx + 1);
-      var uv1 = new THREE.Vector2(((fx % 4) + 0) / 4, 1.0 - ((fy % 4) + 0) / 4);
-      var uv2 = new THREE.Vector2(((fx % 4) + 1) / 4, 1.0 - ((fy % 4) + 0) / 4);
-      var uv3 = new THREE.Vector2(((fx % 4) + 0) / 4, 1.0 - ((fy % 4) + 1) / 4);
-      var uv4 = new THREE.Vector2(((fx % 4) + 1) / 4, 1.0 - ((fy % 4) + 1) / 4);
-
-      var idx  = (15 - Math.floor(fy / 4)) * 16 + Math.floor(fx / 4);
-      var tile = this.zoneInfo.tiles[tilemap.map[idx].number];
-      var matIndex = this._findTileMaterial(geom, tile);
-
-      var f1 = new THREE.Face3(v1, v2, v3);
-      var f2 = new THREE.Face3(v4, v3, v2);
-      f1.materialIndex = matIndex;
-      f2.materialIndex = matIndex;
-
-      geom.faces.push(f1);
-      geom.faces.push(f2);
-      geom.faceVertexUvs[0].push([uv1, uv2, uv3]);
-      geom.faceVertexUvs[0].push([uv4, uv3, uv2]);
-
-      uv1 = this._rotateUV(tile, uv1);
-      uv2 = this._rotateUV(tile, uv2);
-      uv3 = this._rotateUV(tile, uv3);
-      uv4 = this._rotateUV(tile, uv4);
-      geom.faceVertexUvs[1].push([uv1, uv2, uv3]);
-      geom.faceVertexUvs[1].push([uv4, uv3, uv2]);
+      var faceIdx = indexBase + (fy * 4 + fx);
+      indices[faceIdx*6+0] = v1;
+      indices[faceIdx*6+1] = v2;
+      indices[faceIdx*6+2] = v3;
+      indices[faceIdx*6+3] = v4;
+      indices[faceIdx*6+4] = v3;
+      indices[faceIdx*6+5] = v2;
     }
   }
-
-  geom.dynamic = false;
-  geom.computeBoundingSphere();
-  geom.computeBoundingBox();
-  geom.computeFaceNormals();
-  geom.computeVertexNormals();
-
-  return geom;
 };
 
 WorldManager.prototype._loadChunkTerrain = function(chunkX, chunkY, callback) {
@@ -216,7 +190,74 @@ WorldManager.prototype._loadChunkTerrain = function(chunkX, chunkY, callback) {
 
   Tilemap.load(tilPath, function(tilemap) {
     Heightmap.load(himPath, function (heightmap) {
-      callback(self._buildChunkTerarin(chunkX, chunkY, tilemap, heightmap, lightmap));
+      var chunkGrps = [];
+      function findChunkGrp(tile) {
+        var texId1 = tile.layer1 + tile.offset1;
+        var texId2 = tile.layer2 + tile.offset2;
+        for (var i = 0; i < chunkGrps.length; ++i) {
+          var chunkGrp = chunkGrps[i];
+          if (chunkGrp.texId1 === texId1 && chunkGrp.texId2 === texId2) {
+            return chunkGrp;
+          }
+        }
+        var newChunkGrp = {
+          texId1: texId1,
+          texId2: texId2,
+          blocks: []
+        };
+        chunkGrps.push(newChunkGrp);
+        return newChunkGrp;
+      }
+
+      for (var by = 0; by < 16; ++by) {
+        for (var bx = 0; bx < 16; ++bx) {
+          var tileIdx = (15-by) * 16 + bx;
+          var tile = self.zoneInfo.tiles[tilemap.map[tileIdx].number];
+          var chunkGrp = findChunkGrp(tile);
+          chunkGrp.blocks.push([bx, by]);
+        }
+      }
+
+      for (var i = 0; i < chunkGrps.length; ++i) {
+        var chunkGrp = chunkGrps[i];
+
+        var blockCount = chunkGrp.blocks.length;
+        var verts = new Float32Array(blockCount * 5*5*3);
+        var indices = new Uint16Array(blockCount * 4*4*2*3);
+        var uv0 = new Float32Array(blockCount * 5*5*2);
+        var uv1 = new Float32Array(blockCount * 5*5*2);
+
+        for (var j = 0; j < chunkGrp.blocks.length; ++j) {
+          var blockX = chunkGrp.blocks[j][0];
+          var blockY = chunkGrp.blocks[j][1];
+          self._buildChunkTerarin(chunkX, chunkY, blockX, blockY, tilemap, heightmap, j, verts, indices, uv0, uv1)
+        }
+
+        var geometry = new THREE.BufferGeometry();
+        geometry.addAttribute('position', new THREE.BufferAttribute(verts, 3));
+        geometry.addAttribute('index', new THREE.BufferAttribute(indices, 3));
+        geometry.addAttribute('uv', new THREE.BufferAttribute(uv0, 2));
+        geometry.addAttribute('uv2', new THREE.BufferAttribute(uv1, 2));
+
+        geometry.dynamic = false;
+        geometry.computeBoundingSphere();
+        geometry.computeBoundingBox();
+        geometry.computeFaceNormals();
+        geometry.computeVertexNormals();
+
+        var chunkGrpMat = self._createMaterial(chunkGrp.texId1, chunkGrp.texId2);
+        var chunkMesh = new THREE.Mesh(geometry, chunkGrpMat);
+        chunkMesh.name = 'TER_' + chunkX + '_' + chunkY + '_' + i;
+        chunkMesh.position.x = (chunkX - 32) * 160 - 80;
+        chunkMesh.position.y = (32 - chunkY) * 160 - 80;
+        chunkMesh.updateMatrix();
+        chunkMesh.matrixAutoUpdate = false;
+        self.rootObj.add(chunkMesh);
+        //self.octree.add(chunkMesh);
+        self.terChunks.push(chunkMesh);
+      }
+
+      callback();
     });
   });
 };
@@ -259,18 +300,7 @@ WorldManager.prototype._loadChunkObjects = function(chunkX, chunkY, callback) {
 WorldManager.prototype._loadChunk = function(chunkX, chunkY, callback) {
   var self = this;
 
-  this._loadChunkTerrain(chunkX, chunkY, function(geom) {
-    var material = new THREE.MeshFaceMaterial( geom.materials );
-    var chunkMesh = new THREE.Mesh(geom, material);
-    chunkMesh.name = 'TER_' + chunkX + '_' + chunkY;
-    chunkMesh.position.x = (chunkX - 32) * 160 - 80;
-    chunkMesh.position.y = (32 - chunkY) * 160 - 80;
-    chunkMesh.updateMatrix();
-    chunkMesh.matrixAutoUpdate = false;
-    self.rootObj.add(chunkMesh);
-    self.octree.add(chunkMesh);
-    self.terChunks.push(chunkMesh);
-
+  this._loadChunkTerrain(chunkX, chunkY, function() {
     if (callback) {
       callback();
     }
