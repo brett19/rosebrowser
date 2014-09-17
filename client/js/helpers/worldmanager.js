@@ -166,8 +166,8 @@ WorldManager.prototype._buildChunkTerarin = function(chunkX, chunkY, blockX, blo
       var tex2Uv = this._rotateUV(tile, {x:vx/5,y:vy/5});
       uv1[vertIdx*2+0] = tex2Uv.x;
       uv1[vertIdx*2+1] = 1 - tex2Uv.y;
-      uv2[vertIdx*2+0] = (vertX / 65);
-      uv2[vertIdx*2+1] = (vertY / 65);
+      uv2[vertIdx*2+0] = (vertX / 64);
+      uv2[vertIdx*2+1] = (vertY / 64);
     }
   }
 

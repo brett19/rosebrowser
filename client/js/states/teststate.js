@@ -73,7 +73,7 @@ TestState.prototype.enter = function() {
   controls.dragToLook = false;
   self.controls = controls;
 
-  camera.position.x = 5100;
+  camera.position.x = 5200;
   camera.position.y = 5450;
   camera.position.z = 140;
 
