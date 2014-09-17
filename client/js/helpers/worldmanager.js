@@ -273,10 +273,24 @@ WorldManager.prototype._loadChunkTerrain = function(chunkX, chunkY, callback) {
   });
 };
 
-WorldManager.prototype._loadChunkObjectGroup = function(namePrefix, objList, modelList, lightmap) {
+WorldManager.prototype._loadChunkObjectGroup = function(namePrefix, objList, modelList, lightmap, callback) {
+  if (objList.length === 0) {
+    callback();
+    return;
+  }
+
+  var objectsLeft = objList.length;
+  function oneObjectDone() {
+    objectsLeft--;
+    if (objectsLeft === 0) {
+      if (callback) {
+        callback();
+      }
+    }
+  }
   for (var i = 0; i < objList.length; ++i) {
     var objData = objList[i];
-    var obj = modelList.createForStatic(objData.objectId);
+    var obj = modelList.createForStatic(objData.objectId, oneObjectDone);
     obj.name = namePrefix + '_' + i;
     obj.position.copy(objData.position);
     obj.quaternion.copy(objData.rotation);
@@ -297,12 +311,17 @@ WorldManager.prototype._loadChunkObjects = function(chunkX, chunkY, callback) {
   Lightmap.load(litCnstPath, function(cnstLightmap) {
     Lightmap.load(litDecoPath, function (decoLightmap) {
       MapInfo.load(ifoPath, function (ifoData) {
-        self._loadChunkObjectGroup('DECO_' + chunkX + '_' + chunkY, ifoData.objects, self.decoModelMgr, decoLightmap);
-        self._loadChunkObjectGroup('CNST_' + chunkX + '_' + chunkY, ifoData.buildings, self.cnstModelMgr, cnstLightmap);
-
-        if (callback) {
-          callback();
+        var groupsLeft = 2;
+        function oneGroupDone() {
+          groupsLeft--;
+          if (groupsLeft === 0) {
+            if (callback) {
+              callback();
+            }
+          }
         }
+        self._loadChunkObjectGroup('DECO_' + chunkX + '_' + chunkY, ifoData.objects, self.decoModelMgr, decoLightmap, oneGroupDone);
+        self._loadChunkObjectGroup('CNST_' + chunkX + '_' + chunkY, ifoData.buildings, self.cnstModelMgr, cnstLightmap, oneGroupDone);
       });
     });
   });
@@ -311,12 +330,17 @@ WorldManager.prototype._loadChunkObjects = function(chunkX, chunkY, callback) {
 WorldManager.prototype._loadChunk = function(chunkX, chunkY, callback) {
   var self = this;
 
-  this._loadChunkTerrain(chunkX, chunkY, function() {
-    if (callback) {
-      callback();
+  var itemsLeft = 2;
+  function oneItemDone() {
+    itemsLeft--;
+    if (itemsLeft === 0) {
+      if (callback) {
+        callback();
+      }
     }
-  });
-  this._loadChunkObjects(chunkX, chunkY);
+  }
+  this._loadChunkTerrain(chunkX, chunkY, oneItemDone);
+  this._loadChunkObjects(chunkX, chunkY, oneItemDone);
 };
 
 WorldManager.prototype.findHighPoint = function(x, y) {

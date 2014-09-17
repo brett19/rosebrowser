@@ -77,7 +77,7 @@ ModelListManager.prototype._createMaterial = function(materialIdx) {
   return newMaterial;
 };
 
-ModelListManager.prototype.createForStatic = function(modelIdx) {
+ModelListManager.prototype.createForStatic = function(modelIdx, callback) {
   var model = this.data.models[modelIdx];
 
   var modelObj = new THREE.Object3D();
@@ -101,6 +101,9 @@ ModelListManager.prototype.createForStatic = function(modelIdx) {
 
     }
     modelObj.visible = true;
+    if (callback) {
+      callback();
+    }
   }
   var loadedCount = 0;
 
