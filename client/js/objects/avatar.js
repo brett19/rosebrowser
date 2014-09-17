@@ -106,7 +106,7 @@ var MAVTPARTTYPES = [
   { dataName: 'itm_mbody' },
   { dataName: 'itm_marms' },
   { dataName: 'itm_mfoot' },
-  { dataName: 'itm_faceitem', dummyIdx: DummyIndex.Mouse },
+  { dataName: 'itm_mfaceitem', dummyIdx: DummyIndex.Mouse },
   { dataName: 'itm_back', dummyIdx: DummyIndex.Back },
   { dataName: 'itm_weapon' },
   { dataName: 'itm_subwpn' }
@@ -118,7 +118,7 @@ var FAVTPARTTYPES = [
   { dataName: 'itm_fbody' },
   { dataName: 'itm_farms' },
   { dataName: 'itm_ffoot' },
-  { dataName: 'itm_faceitem', dummyIdx: DummyIndex.Mouse },
+  { dataName: 'itm_ffaceitem', dummyIdx: DummyIndex.Mouse },
   { dataName: 'itm_back', dummyIdx: DummyIndex.Back },
   { dataName: 'itm_weapon' },
   { dataName: 'itm_subwpn' }
