@@ -20,6 +20,9 @@ if (!config.data || !(config.data.local || config.data.remote)) {
 
 
 
+http.globalAgent.maxSockets = 100;
+
+
 // Helper to read a whole stream into a Buffer object.
 function streamToBuffer(sourceStream, callback) {
   var bufs = [];
@@ -41,12 +44,13 @@ Cacher.prototype.getSourceStream = function(filePath, callback) {
   }).end();
 };
 Cacher.prototype.getStream = function(filePath, callback) {
+  filePath = path.normalize(filePath);
+
   var cacheFile = this.path + filePath;
   var cacheDir = path.dirname(cacheFile);
 
   var self = this;
   fs.exists(cacheFile, function(fileExists) {
-    fileExists = false;
     if (fileExists) {
       var rs = fs.createReadStream(cacheFile);
       callback(null, rs)
