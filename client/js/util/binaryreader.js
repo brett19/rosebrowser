@@ -124,6 +124,20 @@ BinaryReader.prototype.readUint32Str = function() {
   return this.readStrLen(this.readUint32());
 };
 
+BinaryReader.prototype.readVarLengthStr = function() {
+  var chr = this.readUint8();
+  var length = chr & 0x7f;
+  var shift = 7;
+
+  while (chr & 0x80) {
+    chr = this.readUint8();
+    length |= (chr & 0x7f) << shift;
+    shift += 7;
+  }
+
+  return this.readStrLen(length);
+};
+
 BinaryReader.prototype.tell = function() {
   return this.pos;
 };
