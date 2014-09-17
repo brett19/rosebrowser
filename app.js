@@ -12,6 +12,9 @@ var yaml_config = require('node-yaml-config');
 var SshTunnel = require('./sshtunnel');
 
 var config = yaml_config.load(__dirname + '/config.yml');
+if (!config.client) {
+  config.client = {};
+}
 
 if (!config.data || !(config.data.local || config.data.remote)) {
   console.log('You need a proper config!');
@@ -70,6 +73,10 @@ Cacher.prototype.getStream = function(filePath, callback) {
 
 
 var app = express();
+
+app.get('/config', function(req, resp, next) {
+  resp.send('var config = ' + JSON.stringify(config.client) + ';');
+});
 
 // Static Client Data
 app.use(express.static(__dirname + '/client'));
