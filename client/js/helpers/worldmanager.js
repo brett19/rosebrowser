@@ -316,7 +316,7 @@ WorldManager.prototype._loadChunk = function(chunkX, chunkY, callback) {
       callback();
     }
   });
-  //this._loadChunkObjects(chunkX, chunkY);
+  this._loadChunkObjects(chunkX, chunkY);
 };
 
 WorldManager.prototype.findHighPoint = function(x, y) {

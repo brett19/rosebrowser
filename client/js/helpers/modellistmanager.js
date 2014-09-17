@@ -2,6 +2,7 @@
 
 function ModelListManager(data) {
   this.data = data;
+  this.meshes = {};
   this.materials = {};
 }
 
@@ -13,6 +14,31 @@ function ModelListManager(data) {
 ModelListManager.load = function(path, callback) {
   ModelList.load(path, function(data) {
     callback(new ModelListManager(data));
+  });
+};
+
+ModelListManager.prototype._createMesh = function(meshIdx, callback) {
+  var existingMesh = this.meshes[meshIdx];
+  if (existingMesh) {
+    if (existingMesh.mesh) {
+      callback(existingMesh.mesh);
+    } else {
+      existingMesh.waiters.push(callback);
+    }
+    return;
+  }
+
+  var newMesh = {
+    mesh: null,
+    waiters: [callback]
+  };
+  this.meshes[meshIdx] = newMesh;
+
+  var meshPath = this.data.meshes[meshIdx];
+  Mesh.load(meshPath, function (geometry) {
+    for (var i = 0; i < newMesh.waiters.length; ++i) {
+      newMesh.waiters[i](geometry);
+    }
   });
 };
 
@@ -81,11 +107,8 @@ ModelListManager.prototype.createForStatic = function(modelIdx) {
   var self = this;
   for (var i = 0; i < model.parts.length; ++i) {
     (function(partIdx, part) {
-      var meshPath = self.data.meshes[part.meshIdx];
-
       var material = self._createMaterial(part.materialIdx);
-
-      Mesh.load(meshPath, function (geometry) {
+      self._createMesh(part.meshIdx, function(geometry) {
         var partMesh = new THREE.Mesh(geometry, material);
         partMesh.position.copy(part.position);
         partMesh.quaternion.copy(part.rotation);
