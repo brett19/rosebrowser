@@ -233,6 +233,7 @@ ModelList.load = function(path, callback) {
           model.effects.push(effect);
         }
 
+        // Confirmed to be laughably invalid.
         rh.skip(2 * 3 * 4); // Bounding box
       } else {
         model = null;
