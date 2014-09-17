@@ -315,7 +315,7 @@ DDS.load = function(path, callback) {
         case THREE.RGBA_S3TC_DXT3_Format:
         case THREE.RGBA_S3TC_DXT5_Format:
           var length = dxtBlockSize * (Math.max(4, width) / 4) * (Math.max(4, height) / 4);
-          mipmap.data   = rh.readBytes(length);
+          mipmap.data   = rh.readUint8Array(length);
           mipmap.width  = Math.max(4, mipmap.width);
           mipmap.height = Math.max(4, mipmap.height);
           break;
@@ -376,7 +376,7 @@ DDS.load = function(path, callback) {
         case THREE.AlphaFormat:
         case THREE.LuminanceFormat:
           var length = width * height * (header.pixelFormat.bitCount / 8);
-          mipmap.data = rh.readBytes(length);
+          mipmap.data = rh.readUint8Array(length);
           break;
         }
 

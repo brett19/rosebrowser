@@ -73,22 +73,32 @@ BinaryReader.prototype.readStrLen = function(len) {
   return String.fromCharCode.apply(null, strArray);
 };
 
-BinaryReader.prototype.readBytes = function(len) {
-  var array = this.buffer.subarray(this.pos, this.pos + len);
-  this.pos += len;
-  return array;
-};
-
-BinaryReader.prototype.readByteArray = function(len) {
+BinaryReader.prototype.readUint8Array = function(len) {
   var array = new Uint8Array(this.buffer.buffer, this.pos, len);
   this.pos += len;
   return array;
 };
 
 BinaryReader.prototype.readUint16Array = function(len) {
-  var array = new Uint16Array(this.buffer.buffer, this.pos, len);
-  this.pos += len * 2;
-  return array;
+  if ((this.pos % 2) === 0) {
+    var array = new Uint16Array(this.buffer.buffer, this.pos, len);
+    this.pos += len * 2;
+    return array;
+  } else {
+    var buffer = new Uint8Array(this.readUint8Array(len * 2));
+    return new Uint16Array(buffer.buffer, 0, len);
+  }
+};
+
+BinaryReader.prototype.readUint32Array = function(len) {
+  if ((this.pos % 4) === 0) {
+    var array = new Uint32Array(this.buffer.buffer, this.pos, len);
+    this.pos += len * 4;
+    return array;
+  } else {
+    var buffer = new Uint8Array(this.readUint8Array(len * 4));
+    return new Uint32Array(buffer.buffer, 0, len);
+  }
 };
 
 BinaryReader.prototype.readFloatArray = function(len) {
@@ -97,8 +107,7 @@ BinaryReader.prototype.readFloatArray = function(len) {
     this.pos += len * 4;
     return array;
   } else {
-    var buffer = new Uint8Array(len * 4);
-    buffer.set(this.readByteArray(len * 4));
+    var buffer = new Uint8Array(this.readUint8Array(len * 4));
     return new Float32Array(buffer.buffer, 0, len);
   }
 };

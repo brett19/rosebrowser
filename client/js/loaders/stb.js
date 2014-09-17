@@ -30,7 +30,7 @@ DataTable.load = function(path, callback) {
     textDecoder = new TextDecoder('euc-kr');
 
     function readString() {
-      return textDecoder.decode(rh.readBytes(rh.readUint16()));
+      return textDecoder.decode(rh.readUint8Array(rh.readUint16()));
     }
 
     offset  = rh.readUint32();
