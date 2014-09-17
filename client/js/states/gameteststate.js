@@ -33,8 +33,18 @@ GameTestState.prototype.enter = function() {
 
   var waitDialog = MsgBoxDialog.create('Connecting...', false);
 
+  var serverIp = '128.241.92.44';
+  var serverName = '!Pegasus';
+  var channelName = '1channel1';
+  var USE_LIVE_SERVER = true;
+  if (USE_LIVE_SERVER) {
+    serverIp = '128.241.92.36';
+    serverName = '1Draconis';
+    channelName = 'Channel 1';
+  }
+
   netLogin = new LoginClient();
-  netLogin.connect('128.241.92.36', 29000, function(err) {
+  netLogin.connect(serverIp, 29000, function(err) {
     waitDialog.setMessage('Connected; Logging In.');
 
     netLogin.login(rUser, rPass, function (data) {
@@ -48,13 +58,14 @@ GameTestState.prototype.enter = function() {
       var serverIdx = -1;
       for (var i = 0; i < data.servers.length; ++i) {
         var tServer = data.servers[i];
-        if (tServer.name === '1Draconis') {
+        if (tServer.name === serverName) {
           serverIdx = tServer.id;
           break;
         }
       }
 
       if (serverIdx < 0) {
+        console.log(data.servers);
         waitDialog.setMessage('Failed to find a server.');
         netLogin.end();
         return;
@@ -66,12 +77,13 @@ GameTestState.prototype.enter = function() {
         var channelIdx = -1;
         for (var j = 0; j < data.channels.length; ++j) {
           var tChannel = data.channels[j];
-          if (tChannel.name === 'Channel 1') {
+          if (tChannel.name === channelName) {
             channelIdx = tChannel.id;
           }
         }
 
         if (channelIdx < 0) {
+          console.log(data.channels);
           waitDialog.setMessage('Failed to find a channel.');
           netLogin.end();
           return;
@@ -88,7 +100,8 @@ GameTestState.prototype.enter = function() {
             netWorld.characterList(function (data) {
               waitDialog.setMessage('Loaded characters; Selecting one.');
 
-              if (data.characters.length < 0) {
+              if (data.characters.length === 0) {
+                console.log(data.characters);
                 waitDialog.setMessage('Failed to find a character.');
                 netWorld.end();
                 return;
