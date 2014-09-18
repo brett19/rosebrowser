@@ -176,12 +176,12 @@ BinaryReader.prototype.readColour = function() {
   return new THREE.Color(r, g, b);
 };
 
-BinaryReader.prototype.readColour4 = function() {
+BinaryReader.prototype.readColor4 = function() {
   var r = this.readFloat();
   var g = this.readFloat();
   var b = this.readFloat();
   var a = this.readFloat();
-  return new Colour4(r, g, b, a);
+  return new Color4(r, g, b, a);
 };
 
 BinaryReader.prototype.readQuat = function() {
