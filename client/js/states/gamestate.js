@@ -29,6 +29,8 @@ GameState.prototype.mapSwitchPrep = function(callback) {
 
 GameState.prototype.update = function(delta) {
   GOM.update(delta);
+
+  this.worldMgr.setViewerInfo(MC.position);
 };
 
 GameState.prototype.debugPrintScene = function() {
