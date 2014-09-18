@@ -109,7 +109,7 @@ WorldManager.prototype.removeFromScene = function() {
 };
 
 WorldManager.prototype.findHighPoint = function(x, y) {
-  var caster = new THREE.Raycaster(new THREE.Vector3(x, y, 200), new THREE.Vector3(0, 0, -1));
+  var caster = new THREE.Raycaster(new THREE.Vector3(x, y, 1000), new THREE.Vector3(0, 0, -1));
   //var octreeObjects = this.octree.search( caster.ray.origin, caster.ray.far, true, caster.ray.direction );
   //var inters = caster.intersectOctreeObjects( octreeObjects );
   var inters = caster.intersectObjects( this.terChunks );
@@ -164,7 +164,7 @@ WorldManager.prototype.setMap = function(mapIdx, callback) {
 /**
  * Causes the world to update which chunks need to be visible for this
  * particular camera/player position.
- * 
+ *
  * @param pos The position of the viewer, or null to load the whole map
  * @param callback Callback to invoke when all close chunks are loaded
  */

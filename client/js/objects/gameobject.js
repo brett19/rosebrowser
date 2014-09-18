@@ -1,8 +1,9 @@
 'use strict';
 
-function GameObject(objType) {
+function GameObject(objType, world) {
   EventEmitter.call(this);
 
+  this.world = world;
   this.type = objType;
   this.serverObjectIdx = -1;
   this.position = new THREE.Vector3(0, 0, 0);
@@ -21,6 +22,13 @@ GameObject.prototype.moveTo = function(x, y) {
 
 GameObject.prototype.setPosition = function(x, y, z) {
   this.position.set(x, y, z);
+  this.emit('moved');
+};
+
+GameObject.prototype.dropFromSky = function() {
+  var highZ = this.world.findHighPoint(this.position.x, this.position.y);
+  this.position.z = highZ;
+  this.emit('moved');
 };
 
 GameObject.prototype.update = function(delta) {
@@ -33,8 +41,16 @@ GameObject.prototype.update = function(delta) {
       this.velocity.multiplyScalar(this.moveSpeed);
     }
     if (this.velocity.lengthSq() > 0.00001) {
-      this.position.add(this.velocity);
-      this.emit('moved');
+      var newPosition = this.position.clone().add(this.velocity);
+      var highZ = this.world.findHighPoint(newPosition.x, newPosition.y);
+      if ((highZ - this.position.z) / this.velocity.length() < 0.5) {
+        newPosition.z = highZ;
+        this.position.copy(newPosition);
+        this.emit('moved');
+      } else {
+        // Bumped into something, just stop for now
+        this.isMoving = false;
+      }
     } else {
       this.isMoving = false;
     }

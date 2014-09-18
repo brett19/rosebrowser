@@ -1,7 +1,7 @@
 'use strict';
 
-function NpcObject() {
-  GameObject.call(this, 'npc');
+function NpcObject(world) {
+  GameObject.call(this, 'npc', world);
 
   this.charIdx = 0;
   this.direction = 0;

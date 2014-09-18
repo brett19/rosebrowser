@@ -1,7 +1,7 @@
 'use strict';
 
-function _NetManager() {
-
+function _NetManager(world) {
+  this.world = world;
 }
 
 _NetManager.prototype._destroyWorld = function() {
@@ -20,7 +20,7 @@ _NetManager.prototype.watch = function(wn, gn) {
   });
 
   gn.on('spawn_npc_char', function(data) {
-    var npc = new NpcObject();
+    var npc = new NpcObject(this.world);
     npc.serverObjectIdx = data.objectIdx;
     if (data.charIdx > 0) {
       npc.charIdx = data.charIdx;

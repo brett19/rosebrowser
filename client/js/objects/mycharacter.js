@@ -1,7 +1,7 @@
 'use strict';
 
-function MyCharacter() {
-  GameObject.call(this, 'local');
+function MyCharacter(world) {
+  GameObject.call(this, 'local', world);
 
   this.avatar = new Avatar();
   this.avatar.rootObj.name = 'LocalPlayer';

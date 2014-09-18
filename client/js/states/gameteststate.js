@@ -115,37 +115,19 @@ GameTestState.prototype.enter = function() {
                 netGame.connect(data.gameIp, data.gamePort, data.transferKey1, rPass, function () {
                   waitDialog.setMessage('Connected to Game Server; Waiting for character data.');
 
-                  MC = new MyCharacter();
-                  GOM.addObject(MC);
+                  var charData = null;
+                  var invData = null;
 
-                  var hasCharData = false;
-                  var hasInvData = false;
                   var targetMap = null;
                   netGame.on('char_data', function(data) {
-                    targetMap = data.zoneNo;
-
-                    MC.name = data.name;
-                    MC.level = data.level;
-
-                    console.log(data.posStart);
-                    MC.setPosition(data.posStart.x, data.posStart.y, 10);
-                    MC.avatar.rootObj.position.set(data.posStart.x, data.posStart.y, 10);
-                    console.log(MC.avatar.rootObj.position);
-
-                    MC.avatar.setGender(data.gender, function() {
-                      for (var j = 0; j < AVTBODYPART.Max; ++j) {
-                        MC.avatar.setModelPart(j, data.parts[j].itemNo);
-                      }
-                    });
-
-                    hasCharData = true;
+                    charData = data;
                   });
                   netGame.on('inventory_data', function(data) {
-                    hasInvData = true;
+                    invData = data;
                   });
                   netGame.on('preload_char', function(data) {
                     if (data.state === 2) {
-                      if (!hasCharData || !hasInvData) {
+                      if (!charData || !invData) {
                         waitDialog.setMessage('Got preload 2 without all data.');
                         netWorld.end();
                         netGame.end();
@@ -155,13 +137,40 @@ GameTestState.prototype.enter = function() {
                       waitDialog.setMessage('Ready to roll!  Preparing Map!');
 
                       // Time to switch states!
-                      NetManager.watch(netWorld, netGame);
-                      gsGame.setMap(targetMap);
+                      gsGame.setMap(charData.zoneNo);
                       gsGame.prepare(function() {
-                        waitDialog.close();
-                        gsGameTest.leave();
-                        gsGame.enter();
-                        activeGameState = gsGame;
+                        var startPos = new THREE.Vector3(
+                            charData.posStart.x,
+                            charData.posStart.y,
+                            0);
+                        gsGame.worldMgr.setViewerInfo(startPos, function() {
+                          gsGame.worldMgr.rootObj.updateMatrixWorld();
+
+                          NetManager.world = gsGame.worldMgr;
+                          NetManager.watch(netWorld, netGame);
+
+                          MC = new MyCharacter(gsGame.worldMgr);
+                          GOM.addObject(MC);
+
+                          MC.name = charData.name;
+                          MC.level = charData.level;
+
+                          console.log(charData.posStart);
+                          MC.setPosition(charData.posStart.x, charData.posStart.y, 10);
+                          MC.dropFromSky();
+
+                          MC.avatar.setGender(charData.gender, function() {
+                            for (var j = 0; j < AVTBODYPART.Max; ++j) {
+                              MC.avatar.setModelPart(j, charData.parts[j].itemNo);
+                            }
+                          });
+
+                          waitDialog.close();
+                          gsGameTest.leave();
+                          gsGame.enter();
+                          activeGameState = gsGame;
+
+                        });
                       });
                     }
                   });

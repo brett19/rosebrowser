@@ -60,9 +60,6 @@ GameState.prototype.enter = function() {
   this.worldMgr.addToScene();
   this.gomMgr.addToScene();
 
-  var avtPos = MC.avatar.rootObj.position;
-  var highPoint = this.worldMgr.findHighPoint(avtPos.x, avtPos.y);
-  MC.avatar.rootObj.position.z = highPoint;
 
   this.pickPosH.position.copy(MC.avatar.rootObj.position);
   scene.add(this.pickPosH);
@@ -70,7 +67,7 @@ GameState.prototype.enter = function() {
   var controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.damping = 0.2;
 
-  netGame.joinZone(highPoint, function() {
+  netGame.joinZone(MC.position.z, function() {
     console.log('ZONE JOINED');
   });
 

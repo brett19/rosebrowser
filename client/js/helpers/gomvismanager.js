@@ -15,6 +15,8 @@ function GOMVisManager(world) {
 }
 
 GOMVisManager.prototype._addObjectLocal = function(obj) {
+  MC.avatar.rootObj.position.copy(obj.position);
+
   obj.on('moved', function() {
     MC.avatar.rootObj.position.copy(obj.position);
   });
