@@ -20,7 +20,7 @@ var Particle = function() {
  * @property {Number} b
  * @property {Number} a
  */
-var Colour4 = function(r, g, b, a) {
+var Color4 = function(r, g, b, a) {
   this.r = r;
   this.g = g;
   this.b = b;
@@ -74,9 +74,9 @@ var RangeVector3 = function(min, max) {
  * @property {THREE.Vector3} min
  * @property {THREE.Vector3} max
  */
-var RangeColour4 = function(min, max) {
-  this.min = min || new Colour4(0, 0, 0);
-  this.max = max || new Colour4(0, 0, 0);
+var RangeColor4 = function(min, max) {
+  this.min = min || new Color4(0, 0, 0);
+  this.max = max || new Color4(0, 0, 0);
 };
 
 
@@ -273,9 +273,9 @@ Particle.loadAlphaEvent = function(rh, evt) {
  * @returns {Particle.Event}
  */
 Particle.loadColourEvent = function(rh, evt) {
-  var min = rh.readColour4();
-  var max = rh.readColour4();
-  evt.colour = new RangeColour4(min, max);
+  var min = rh.readColor4();
+  var max = rh.readColor4();
+  evt.colour = new RangeColor4(min, max);
   return evt;
 };
 

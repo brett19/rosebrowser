@@ -11,7 +11,7 @@ var socketio = require('socket.io');
 var yaml_config = require('node-yaml-config');
 var SshTunnel = require('./sshtunnel');
 
-var config = yaml_config.load(__dirname + '/config.yml');
+var config = yaml_config.load(path.normalize(__dirname + '/config.yml'));
 if (!config.client) {
   config.client = {};
 }
@@ -39,7 +39,7 @@ function streamToBuffer(sourceStream, callback) {
 
 function Cacher(source) {
   this.source = source;
-  this.path = __dirname + '/cache/';
+  this.path = path.normalize(__dirname + '/cache/');
 }
 Cacher.prototype.getSourceStream = function(filePath, callback) {
   http.request(this.source + filePath, function(lRes) {
@@ -79,11 +79,11 @@ app.get('/config', function(req, resp, next) {
 });
 
 // Static Client Data
-app.use(express.static(__dirname + '/client'));
+app.use(express.static(path.normalize(__dirname + '/client')));
 
 if (config.data.local) {
   console.log('Serving data from local source:', config.data.local);
-  app.use('/data', express.static(config.data.local));
+  app.use('/data', express.static(path.normalize(config.data.local)));
 } else {
   console.log('Serving data from remote source:', config.data.remote);
   var cache = new Cacher(config.data.remote);
