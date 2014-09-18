@@ -74,6 +74,21 @@ ModelListManager.prototype._createMaterialWithLightmap = function(materialIdx, l
     vLmScale: { type: 'v2', value: new THREE.Vector2(objScale, objScale) }
   };
 
+  if (zscMat.twoSided) {
+    newMaterial.side = THREE.DoubleSide;
+  }
+  if (zscMat.alphaEnabled) {
+    newMaterial.transparent = true;
+  }
+  if (zscMat.alphaTestEnabled) {
+    newMaterial.alphaTest = zscMat.alphaRef / 255;
+  } else {
+    newMaterial.alphaTest = 0;
+  }
+  newMaterial.opacity = zscMat.alpha;
+  newMaterial.depthTest = zscMat.depthTestEnabled;
+  newMaterial.depthWrite = zscMat.depthWriteEnabled;
+
   return newMaterial;
 };
 
