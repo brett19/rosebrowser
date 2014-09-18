@@ -2,6 +2,7 @@
 
 function TestState() {
   this.DM = new DataManager();
+  this.world = null;
 }
 
 TestState.prototype.prepare = function(callback) {
@@ -58,6 +59,7 @@ TestState.prototype.enter = function() {
   wm.setMap(2, function() {
     console.log('Map Ready');
   });
+  this.world = wm;
   scene.add(wm.rootObj);
 
   //this.playCamAnim('canim_intro');
@@ -107,6 +109,10 @@ TestState.prototype.leave = function() {
 
 TestState.prototype.update = function(delta) {
   this.controls.update( delta );
+
+  if (this.world.isLoaded) {
+    this.world.setViewerInfo(camera.position);
+  }
 };
 
 var gsTest = new TestState();

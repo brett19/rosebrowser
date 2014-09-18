@@ -73,12 +73,15 @@ function WorldManager() {
     overlapPct: 0.15,
     undeferred: true
   });
+  this.isLoaded = false;
   this.cnstModelMgr = null;
   this.decoModelMgr = null;
   this.basePath = null;
+  this.chunks = {};
   this.terChunks = [];
   this.objects = [];
   this.zoneInfo = null;
+  this.viewDistSq = Math.pow(300, 2);
   this.DM = new DataManager();
 }
 
@@ -95,7 +98,6 @@ WorldManager.getBaseShaderMaterial = function() {
   }
   return WorldManager.baseShaderMaterial;
 };
-
 
 WorldManager.prototype.addToScene = function() {
   scene.add(this.rootObj);
@@ -146,16 +148,50 @@ WorldManager.prototype.setMap = function(mapIdx, callback) {
       var chunkSY = chunkBounds[1][0];
       var chunkEY = chunkBounds[1][1];
 
-      var waitAll = new MultiWait();
       for (var iy = chunkSY; iy <= chunkEY; ++iy) {
         for (var ix = chunkSX; ix <= chunkEX; ++ix) {
-          var chunk = new WorldChunk(self, ix, iy);
-          chunk._load(waitAll.one());
+          // ROSE uses 64, mind as well use 100 so its easier to read...
+          self.chunks[ix*100+iy] = new WorldChunk(self, ix, iy);
         }
       }
-      waitAll.wait(callback);
+
+      self.isLoaded = true;
+      callback();
     });
   });
+};
+
+/**
+ * Causes the world to update which chunks need to be visible for this
+ * particular camera/player position.
+ * 
+ * @param pos The position of the viewer, or null to load the whole map
+ * @param callback Callback to invoke when all close chunks are loaded
+ */
+WorldManager.prototype.setViewerInfo = function(pos, callback) {
+  if (!this.isLoaded) {
+    console.warn('Attempted to load chunks before map was finished loading.');
+    callback();
+    return;
+  }
+
+  // TODO: Fix this, this is dumb.
+  var localViewPos = pos.clone().sub(this.rootObj.position);
+
+  var waitAll = new MultiWait();
+  for (var chunkIdx in this.chunks) {
+    if (this.chunks.hasOwnProperty(chunkIdx)) {
+      var chunk = this.chunks[chunkIdx];
+      var chunkDelta = localViewPos.clone().sub(chunk.position);
+      chunkDelta.z = 0; // We don't care about the Z distance for here
+      if (chunkDelta.lengthSq() <= this.viewDistSq) {
+        chunk.load(waitAll.one());
+      } else {
+        chunk.markNotNeeded();
+      }
+    }
+  }
+  waitAll.wait(callback);
 };
 
 function WorldChunk(world, chunkX, chunkY) {
@@ -167,6 +203,11 @@ function WorldChunk(world, chunkX, chunkY) {
   this.lightmapTex = null;
   this.heightmap = null;
   this.tilemap = null;
+  this.position = new THREE.Vector3((chunkX - 33) * 160, (32 - chunkY) * 160, 0);
+  this.isVisible = false;
+  this.loadState = 0;
+  this.loadWaiters = [];
+  this.rootObj = new THREE.Object3D();
 }
 
 WorldChunk.prototype._getBlockTile = function(blockX, blockY) {
@@ -299,13 +340,17 @@ WorldChunk.prototype._buildTerrain = function() {
     var chunkGrpMat = this._createMaterial(chunkGrp.texId1, chunkGrp.texId2);
     var chunkMesh = new THREE.Mesh(geometry, chunkGrpMat);
     chunkMesh.name = 'TER_' + this.name + '_' + i;
-    chunkMesh.position.x = (this.chunkX - 32) * 160 - 80;
-    chunkMesh.position.y = (32 - this.chunkY) * 160 - 80;
+    chunkMesh.position.copy(
+        this.position.clone().add(new THREE.Vector3(80, -80, 0)));
     chunkMesh.updateMatrix();
     chunkMesh.matrixAutoUpdate = false;
-    this.world.rootObj.add(chunkMesh);
+    this.rootObj.add(chunkMesh);
     //self.world.octree.add(chunkMesh);
     this.world.terChunks.push(chunkMesh);
+
+    var ah = new THREE.AxisHelper(20);
+    ah.position.copy(this.position);
+    this.rootObj.add(ah);
   }
 };
 
@@ -345,7 +390,7 @@ function _loadChunkObjectGroup(chunk, namePrefix, objList, modelList, lightmap, 
     obj.scale.copy(objData.scale);
     obj.updateMatrix();
     obj.matrixAutoUpdate = false;
-    chunk.world.rootObj.add(obj);
+    chunk.rootObj.add(obj);
     //this.octree.add(obj);
     chunk.world.objects.push(obj);
   }
@@ -369,11 +414,46 @@ WorldChunk.prototype._loadObjects = function(callback) {
   });
 };
 
-WorldChunk.prototype._load = function(callback) {
-  var self = this;
+WorldChunk.prototype.load = function(callback) {
+  if (this.loadState === 2) {
+    if (!this.isVisible) {
+      this.world.rootObj.add(this.rootObj);
+      this.isVisible = true;
+    }
+    callback();
+    return;
+  }
 
-  var waitAll = new MultiWait();
-  this._loadTerrain(waitAll.one());
-  this._loadObjects(waitAll.one());
-  waitAll.wait(callback);
+  if (callback) {
+    this.loadWaiters.push(callback);
+  }
+
+  if (this.loadState === 0) {
+    this.world.rootObj.add(this.rootObj);
+    this.isVisible = true;
+
+    var waitAll = new MultiWait();
+    this._loadTerrain(waitAll.one());
+    this._loadObjects(waitAll.one());
+
+    this.loadState = 1;
+
+    var self = this;
+    waitAll.wait(function () {
+      self.loadState = 2;
+      for (var i = 0; i < self.loadWaiters.length; ++i) {
+        self.loadWaiters[i]();
+      }
+      self.loadWaiters = [];
+    });
+  }
+};
+
+WorldChunk.prototype.markNotNeeded = function() {
+  if (this.isVisible) {
+    this.world.rootObj.remove(this.rootObj);
+    this.isVisible = false;
+  }
+
+  // TODO: Implement unloading
 };
