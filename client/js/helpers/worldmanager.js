@@ -53,6 +53,7 @@ function WorldManager() {
   this.texturePaths = [];
   this.matLookup = [];
   this.terChunks = [];
+  this.DM = new DataManager();
   this.shaderMaterial = new THREE.ShaderMaterial({
     attributes: {uv3:{}},
     uniforms: [],
@@ -347,6 +348,7 @@ WorldManager.prototype.findHighPoint = function(x, y) {
   var caster = new THREE.Raycaster(new THREE.Vector3(x, y, 200), new THREE.Vector3(0, 0, -1));
   var octreeObjects = this.octree.search( caster.ray.origin, caster.ray.far, true, caster.ray.direction );
   var inters = caster.intersectOctreeObjects( octreeObjects );
+  var inters = caster.intersectObjects( this.terChunks );
   if (inters.length > 0) {
     return inters[0].point.z;
   }
@@ -356,21 +358,23 @@ WorldManager.prototype.setMap = function(mapIdx, callback) {
   var self = this;
   self.textures = [];
 
-  GDM.get('list_zone', function (zoneTable)
-  {
+  GDM.get('list_zone', function (zoneTable) {
     var mapRow = zoneTable.rows[mapIdx];
 
-    var lastPathSlash = mapRow[ZONE_TABLE.FILE].lastIndexOf('\\');
-    self.basePath = mapRow[ZONE_TABLE.FILE].substr(0, lastPathSlash + 1);
+    self.DM.register('cnstmdls', ModelListManager, mapRow[ZONE_TABLE.CNST_TABLE]);
+    self.DM.register('decomdls', ModelListManager, mapRow[ZONE_TABLE.OBJECT_TABLE]);
+    self.DM.register('zoneinfo', Zone, mapRow[ZONE_TABLE.FILE]);
+    self.DM.get('zoneinfo', 'cnstmdls', 'decomdls',
+        function(zone, cnstMdls, decoMdls) {
+      var lastPathSlash = mapRow[ZONE_TABLE.FILE].lastIndexOf('\\');
+      self.basePath = mapRow[ZONE_TABLE.FILE].substr(0, lastPathSlash + 1);
 
-    // TODO: Cleanup MAP_BOUNDS, this is nasty. Probably can use REGEX for clean
-    var boundsName = self.basePath.toUpperCase();
-    boundsName = boundsName.substr("3DDATA\\MAPS\\".length);
-    boundsName = boundsName.substr(0, boundsName.length - 1);
-    boundsName = boundsName.replace('\\', '/');
-    var chunkBounds = MAP_BOUNDS[boundsName];
-
-    Zone.load(mapRow[ZONE_TABLE.FILE], function(zone) {
+      // TODO: Cleanup MAP_BOUNDS, this is nasty. Probably can use REGEX for clean
+      var boundsName = self.basePath.toUpperCase();
+      boundsName = boundsName.substr("3DDATA\\MAPS\\".length);
+      boundsName = boundsName.substr(0, boundsName.length - 1);
+      boundsName = boundsName.replace('\\', '/');
+      var chunkBounds = MAP_BOUNDS[boundsName];
 
       self.zoneInfo = zone;
 
@@ -384,35 +388,31 @@ WorldManager.prototype.setMap = function(mapIdx, callback) {
         self.textures.push(null);
       }
 
-      ModelList.load(mapRow[ZONE_TABLE.CNST_TABLE], function(cnstData) {
-        ModelList.load(mapRow[ZONE_TABLE.OBJECT_TABLE], function (decoData) {
-          self.cnstModelMgr = new ModelListManager(cnstData);
-          self.decoModelMgr = new ModelListManager(decoData);
+      self.cnstModelMgr = cnstMdls;
+      self.decoModelMgr = decoMdls;
 
-          var chunkSX = chunkBounds[0][0];
-          var chunkEX = chunkBounds[0][1];
-          var chunkSY = chunkBounds[1][0];
-          var chunkEY = chunkBounds[1][1];
+      var chunkSX = chunkBounds[0][0];
+      var chunkEX = chunkBounds[0][1];
+      var chunkSY = chunkBounds[1][0];
+      var chunkEY = chunkBounds[1][1];
 
-          // Start at 1 so if the first chunk instant-loads, it does not
-          //   cause it to call done multiple times.
-          var chunksLeft = 1;
-          function doneLoadChunk() {
-            chunksLeft--;
-            if (chunksLeft === 0) {
-              self.octree.update();
-              callback();
-            }
-          }
-          for (var iy = chunkSY; iy <= chunkEY; ++iy) {
-            for (var ix = chunkSX; ix <= chunkEX; ++ix) {
-              chunksLeft++;
-              self._loadChunk(ix, iy, doneLoadChunk);
-            }
-          }
-          chunksLeft--;
-        });
-      });
+      // Start at 1 so if the first chunk instant-loads, it does not
+      //   cause it to call done multiple times.
+      var chunksLeft = 1;
+      function doneLoadChunk() {
+        chunksLeft--;
+        if (chunksLeft === 0) {
+          self.octree.update();
+          callback();
+        }
+      }
+      for (var iy = chunkSY; iy <= chunkEY; ++iy) {
+        for (var ix = chunkSX; ix <= chunkEX; ++ix) {
+          chunksLeft++;
+          self._loadChunk(ix, iy, doneLoadChunk);
+        }
+      }
+      chunksLeft--;
     });
   });
 };
