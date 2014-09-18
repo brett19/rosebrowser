@@ -55,13 +55,21 @@ function WorldManager() {
   this.objects = [];
   this.zoneInfo = null;
   this.DM = new DataManager();
-  this.shaderMaterial = new THREE.ShaderMaterial({
-    attributes: {uv3:{}},
-    uniforms: [],
-    vertexShader:   document.getElementById( 'terrainVertexShader' ).textContent,
-    fragmentShader: document.getElementById( 'terrainFragmentShader' ).textContent
-  });
 }
+
+WorldManager.baseShaderMaterial = null;
+WorldManager.getBaseShaderMaterial = function() {
+  if (!WorldManager.baseShaderMaterial) {
+    var shaderMaterial = new THREE.ShaderMaterial({
+      attributes: {uv3:{}},
+      uniforms: [],
+      vertexShader:   document.getElementById( 'terrainVertexShader' ).textContent,
+      fragmentShader: document.getElementById( 'terrainFragmentShader' ).textContent
+    });
+    WorldManager.baseShaderMaterial = shaderMaterial;
+  }
+  return WorldManager.baseShaderMaterial;
+};
 
 WorldManager.prototype.addToScene = function() {
   scene.add(this.rootObj);
@@ -93,7 +101,7 @@ WorldManager.prototype._createMaterial = function(texId1, texId2, blockIdx, lmTe
   }
   var tex2 = self.textures[texId2];
 
-  var newMaterial = self.shaderMaterial.clone();
+  var newMaterial = WorldManager.getBaseShaderMaterial().clone();
   newMaterial.texId1 = texId1;
   newMaterial.texId2 = texId2;
   newMaterial.uniforms = {
