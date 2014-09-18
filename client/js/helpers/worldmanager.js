@@ -49,11 +49,11 @@ function WorldManager() {
   this.cnstModelMgr = null;
   this.decoModelMgr = null;
   this.basePath = null;
-  this.textures = [];
-  this.texturePaths = [];
+  this.textures = {};
   this.matLookup = [];
   this.terChunks = [];
   this.objects = [];
+  this.zoneInfo = null;
   this.DM = new DataManager();
   this.shaderMaterial = new THREE.ShaderMaterial({
     attributes: {uv3:{}},
@@ -84,11 +84,12 @@ WorldManager.prototype._createMaterial = function(texId1, texId2, blockIdx, lmTe
   }
 
   if (!self.textures[texId1]) {
-    self.textures[texId1] = RoseTextureManager.load(self.texturePaths[texId1]);
+    self.textures[texId1] = RoseTextureManager.load(self.zoneInfo.textures[texId1]);
   }
   var tex1 = self.textures[texId1];
+
   if (!self.textures[texId2]) {
-    self.textures[texId2] = RoseTextureManager.load(self.texturePaths[texId2]);
+    self.textures[texId2] = RoseTextureManager.load(self.zoneInfo.textures[texId2]);
   }
   var tex2 = self.textures[texId2];
 
@@ -356,6 +357,13 @@ WorldManager.prototype.findHighPoint = function(x, y) {
   }
 };
 
+function getMapBounds(mapBasePath) {
+  var boundsName = mapBasePath.toUpperCase();
+  boundsName = boundsName.substr("3DDATA\\MAPS\\".length);
+  boundsName = boundsName.substr(0, boundsName.length - 1);
+  boundsName = boundsName.replace('\\', '/');
+  return MAP_BOUNDS[boundsName];
+}
 WorldManager.prototype.setMap = function(mapIdx, callback) {
   var self = this;
   self.textures = [];
@@ -366,33 +374,14 @@ WorldManager.prototype.setMap = function(mapIdx, callback) {
     self.DM.register('cnstmdls', ModelListManager, mapRow[ZONE_TABLE.CNST_TABLE]);
     self.DM.register('decomdls', ModelListManager, mapRow[ZONE_TABLE.OBJECT_TABLE]);
     self.DM.register('zoneinfo', Zone, mapRow[ZONE_TABLE.FILE]);
-    self.DM.get('zoneinfo', 'cnstmdls', 'decomdls',
-        function(zone, cnstMdls, decoMdls) {
+    self.DM.get('zoneinfo', 'cnstmdls', 'decomdls',  function(zone, cnstMdls, decoMdls) {
       var lastPathSlash = mapRow[ZONE_TABLE.FILE].lastIndexOf('\\');
       self.basePath = mapRow[ZONE_TABLE.FILE].substr(0, lastPathSlash + 1);
-
-      // TODO: Cleanup MAP_BOUNDS, this is nasty. Probably can use REGEX for clean
-      var boundsName = self.basePath.toUpperCase();
-      boundsName = boundsName.substr("3DDATA\\MAPS\\".length);
-      boundsName = boundsName.substr(0, boundsName.length - 1);
-      boundsName = boundsName.replace('\\', '/');
-      var chunkBounds = MAP_BOUNDS[boundsName];
-
       self.zoneInfo = zone;
-
-      for (var i = 0; i < zone.textures.length; ++i) {
-        // Why ROSE, why?
-        if (zone.textures[i] === 'end') {
-          break;
-        }
-
-        self.texturePaths.push(zone.textures[i]);
-        self.textures.push(null);
-      }
-
       self.cnstModelMgr = cnstMdls;
       self.decoModelMgr = decoMdls;
 
+      var chunkBounds = getMapBounds(self.basePath);
       var chunkSX = chunkBounds[0][0];
       var chunkEX = chunkBounds[0][1];
       var chunkSY = chunkBounds[1][0];
