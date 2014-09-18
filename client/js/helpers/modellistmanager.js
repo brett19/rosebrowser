@@ -36,9 +36,11 @@ ModelListManager.prototype._createMesh = function(meshIdx, callback) {
 
   var meshPath = this.data.meshes[meshIdx];
   Mesh.load(meshPath, function (geometry) {
+    newMesh.mesh = geometry;
     for (var i = 0; i < newMesh.waiters.length; ++i) {
       newMesh.waiters[i](geometry);
     }
+    newMesh.waiters = [];
   });
 };
 
@@ -83,33 +85,12 @@ ModelListManager.prototype.createForStatic = function(modelIdx, callback) {
   var modelObj = new THREE.Object3D();
   modelObj.visible = false;
 
-  var loadWarn = setTimeout(function() {
-    console.log('Model took a long time to load...');
-  }, 5000);
-
   var partMeshs = [];
-  function completeLoad() {
-    clearTimeout(loadWarn);
-    for (var i = 0; i < partMeshs.length; ++i) {
-      var part = model.parts[i];
-
-      if (i === 0) {
-        modelObj.add(partMeshs[i]);
-      } else {
-        partMeshs[part.parent-1].add(partMeshs[i]);
-      }
-
-    }
-    modelObj.visible = true;
-    if (callback) {
-      callback();
-    }
-  }
-  var loadedCount = 0;
+  var waitAll = new MultiWait();
 
   var self = this;
   for (var i = 0; i < model.parts.length; ++i) {
-    (function(partIdx, part) {
+    (function(partIdx, part, partCallback) {
       var material = self._createMaterial(part.materialIdx);
       self._createMesh(part.meshIdx, function(geometry) {
         var partMesh = new THREE.Mesh(geometry, material);
@@ -125,13 +106,27 @@ ModelListManager.prototype.createForStatic = function(modelIdx, callback) {
           });
         }
 
-        loadedCount++;
-        if (loadedCount === model.parts.length) {
-          completeLoad();
-        }
+        partCallback();
       });
-    })(i, model.parts[i]);
+    })(i, model.parts[i], waitAll.one());
   }
+
+  waitAll.wait(function() {
+    for (var i = 0; i < partMeshs.length; ++i) {
+      var part = model.parts[i];
+
+      if (i === 0) {
+        modelObj.add(partMeshs[i]);
+      } else {
+        partMeshs[part.parent-1].add(partMeshs[i]);
+      }
+
+    }
+    modelObj.visible = true;
+    if (callback) {
+      callback();
+    }
+  });
 
   return modelObj;
 };
