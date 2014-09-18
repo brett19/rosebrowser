@@ -53,6 +53,7 @@ function WorldManager() {
   this.texturePaths = [];
   this.matLookup = [];
   this.terChunks = [];
+  this.objects = [];
   this.DM = new DataManager();
   this.shaderMaterial = new THREE.ShaderMaterial({
     attributes: {uv3:{}},
@@ -299,7 +300,8 @@ WorldManager.prototype._loadChunkObjectGroup = function(namePrefix, objList, mod
     obj.updateMatrix();
     obj.matrixAutoUpdate = false;
     this.rootObj.add(obj);
-    this.octree.add(obj);
+    //this.octree.add(obj);
+    this.objects.push(obj);
   }
 };
 
@@ -346,8 +348,8 @@ WorldManager.prototype._loadChunk = function(chunkX, chunkY, callback) {
 
 WorldManager.prototype.findHighPoint = function(x, y) {
   var caster = new THREE.Raycaster(new THREE.Vector3(x, y, 200), new THREE.Vector3(0, 0, -1));
-  var octreeObjects = this.octree.search( caster.ray.origin, caster.ray.far, true, caster.ray.direction );
-  var inters = caster.intersectOctreeObjects( octreeObjects );
+  //var octreeObjects = this.octree.search( caster.ray.origin, caster.ray.far, true, caster.ray.direction );
+  //var inters = caster.intersectOctreeObjects( octreeObjects );
   var inters = caster.intersectObjects( this.terChunks );
   if (inters.length > 0) {
     return inters[0].point.z;
@@ -402,7 +404,7 @@ WorldManager.prototype.setMap = function(mapIdx, callback) {
       function doneLoadChunk() {
         chunksLeft--;
         if (chunksLeft === 0) {
-          self.octree.update();
+          //self.octree.update();
           callback();
         }
       }

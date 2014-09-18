@@ -90,8 +90,8 @@ GameState.prototype.enter = function() {
 
     var cameraPos = camera.localToWorld(new THREE.Vector3(0,0,0));
     var ray = new THREE.Raycaster(cameraPos, mouse.sub( cameraPos ).normalize());
-    var octreeObjects = self.worldMgr.octree.search( ray.ray.origin, ray.ray.far, true, ray.ray.direction );
-    var inters = ray.intersectOctreeObjects( octreeObjects );
+    //var octreeObjects = self.worldMgr.octree.search( ray.ray.origin, ray.ray.far, true, ray.ray.direction );
+    var inters = ray.intersectObjects( self.worldMgr.terChunks );
     if (inters.length > 0) {
       var moveToPos = inters[0].point;
       MC.moveTo(moveToPos.x, moveToPos.y);
