@@ -146,24 +146,14 @@ WorldManager.prototype.setMap = function(mapIdx, callback) {
       var chunkSY = chunkBounds[1][0];
       var chunkEY = chunkBounds[1][1];
 
-      // Start at 1 so if the first chunk instant-loads, it does not
-      //   cause it to call done multiple times.
-      var chunksLeft = 1;
-      function doneLoadChunk() {
-        chunksLeft--;
-        if (chunksLeft === 0) {
-          //self.octree.update();
-          callback();
-        }
-      }
+      var waitAll = new MultiWait();
       for (var iy = chunkSY; iy <= chunkEY; ++iy) {
         for (var ix = chunkSX; ix <= chunkEX; ++ix) {
-          chunksLeft++;
           var chunk = new WorldChunk(self, ix, iy);
-          chunk._load(doneLoadChunk);
+          chunk._load(waitAll.one());
         }
       }
-      chunksLeft--;
+      waitAll.wait(callback);
     });
   });
 };
@@ -345,23 +335,10 @@ WorldChunk.prototype._loadTerrain = function(callback) {
 };
 
 function _loadChunkObjectGroup(chunk, namePrefix, objList, modelList, lightmap, callback) {
-  if (objList.length === 0) {
-    callback();
-    return;
-  }
-
-  var objectsLeft = objList.length;
-  function oneObjectDone() {
-    objectsLeft--;
-    if (objectsLeft === 0) {
-      if (callback) {
-        callback();
-      }
-    }
-  }
+  var waitAll = new MultiWait();
   for (var i = 0; i < objList.length; ++i) {
     var objData = objList[i];
-    var obj = modelList.createForStatic(objData.objectId, oneObjectDone);
+    var obj = modelList.createForStatic(objData.objectId, waitAll.one());
     obj.name = namePrefix + '_' + i;
     obj.position.copy(objData.position);
     obj.quaternion.copy(objData.rotation);
@@ -372,6 +349,7 @@ function _loadChunkObjectGroup(chunk, namePrefix, objList, modelList, lightmap, 
     //this.octree.add(obj);
     chunk.world.objects.push(obj);
   }
+  waitAll.wait(callback);
 };
 WorldChunk.prototype._loadObjects = function(callback) {
   var self = this;
@@ -382,18 +360,10 @@ WorldChunk.prototype._loadObjects = function(callback) {
   Lightmap.load(litCnstPath, function(cnstLightmap) {
     Lightmap.load(litDecoPath, function (decoLightmap) {
       MapInfo.load(ifoPath, function (ifoData) {
-        var groupsLeft = 2;
-        function oneGroupDone() {
-          groupsLeft--;
-          if (groupsLeft === 0) {
-            if (callback) {
-              callback();
-            }
-          }
-        }
-
-        _loadChunkObjectGroup(self,'DECO_' + self.name, ifoData.objects, self.world.decoModelMgr, decoLightmap, oneGroupDone);
-        _loadChunkObjectGroup(self,'CNST_' + self.name, ifoData.buildings, self.world.cnstModelMgr, cnstLightmap, oneGroupDone);
+        var waitAll = new MultiWait();
+        _loadChunkObjectGroup(self,'DECO_' + self.name, ifoData.objects, self.world.decoModelMgr, decoLightmap, waitAll.one());
+        _loadChunkObjectGroup(self,'CNST_' + self.name, ifoData.buildings, self.world.cnstModelMgr, cnstLightmap, waitAll.one());
+        waitAll.wait(callback);
       });
     });
   });
@@ -402,15 +372,8 @@ WorldChunk.prototype._loadObjects = function(callback) {
 WorldChunk.prototype._load = function(callback) {
   var self = this;
 
-  var itemsLeft = 2;
-  function oneItemDone() {
-    itemsLeft--;
-    if (itemsLeft === 0) {
-      if (callback) {
-        callback();
-      }
-    }
-  }
-  this._loadTerrain(oneItemDone);
-  this._loadObjects(oneItemDone);
+  var waitAll = new MultiWait();
+  this._loadTerrain(waitAll.one());
+  this._loadObjects(waitAll.one());
+  waitAll.wait(callback);
 };
