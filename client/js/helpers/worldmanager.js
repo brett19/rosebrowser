@@ -383,7 +383,7 @@ function _loadChunkObjectGroup(chunk, namePrefix, objList, modelList, lightmap, 
   var waitAll = new MultiWait();
   for (var i = 0; i < objList.length; ++i) {
     var objData = objList[i];
-    var obj = modelList.createForStatic(objData.objectId, waitAll.one());
+    var obj = modelList.createForStatic(objData.objectId, lightmap, i, waitAll.one());
     obj.name = namePrefix + '_' + i;
     obj.position.copy(objData.position);
     obj.quaternion.copy(objData.rotation);
@@ -402,8 +402,8 @@ WorldChunk.prototype._loadObjects = function(callback) {
   var litCnstPath = this.world.basePath + this.name + '/LIGHTMAP/BUILDINGLIGHTMAPDATA.LIT';
   var litDecoPath = this.world.basePath + this.name + '/LIGHTMAP/OBJECTLIGHTMAPDATA.LIT';
 
-  Lightmap.load(litCnstPath, function(cnstLightmap) {
-    Lightmap.load(litDecoPath, function (decoLightmap) {
+  LightmapManager.load(litCnstPath, function(cnstLightmap) {
+    LightmapManager.load(litDecoPath, function (decoLightmap) {
       MapInfo.load(ifoPath, function (ifoData) {
         var waitAll = new MultiWait();
         _loadChunkObjectGroup(self,'DECO_' + self.name, ifoData.objects, self.world.decoModelMgr, decoLightmap, waitAll.one());

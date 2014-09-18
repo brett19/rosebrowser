@@ -6,6 +6,19 @@ function ModelListManager(data) {
   this.materials = {};
 }
 
+ModelListManager.baseShaderMaterial = null;
+ModelListManager.getBaseShaderMaterial = function() {
+  if (!ModelListManager.baseShaderMaterial) {
+    var shaderMaterial = new THREE.ShaderMaterial({
+      uniforms: [],
+      vertexShader:   document.getElementById( 'staticObjVertexShader' ).textContent,
+      fragmentShader: document.getElementById( 'staticObjFragmentShader' ).textContent
+    });
+    ModelListManager.baseShaderMaterial = shaderMaterial;
+  }
+  return ModelListManager.baseShaderMaterial;
+};
+
 /**
  * This is a helper to allow a ModelListManager to be used by the DataManager.
  * @param path
@@ -44,6 +57,26 @@ ModelListManager.prototype._createMesh = function(meshIdx, callback) {
   });
 };
 
+ModelListManager.prototype._createMaterialWithLightmap = function(materialIdx, lmData) {
+  var zscMat = this.data.materials[materialIdx];
+  var texture = RoseTextureManager.load(zscMat.texturePath);
+
+  var lmTexture = lmData.texture;
+  var objScale = 1 / lmData.objectsPerRow;
+  var rowNum = Math.floor(lmData.objectIndex / lmData.objectsPerRow);
+  var colNum = lmData.objectIndex % lmData.objectsPerRow;
+
+  var newMaterial = ModelListManager.getBaseShaderMaterial().clone();
+  newMaterial.uniforms = {
+    texture1: { type: 't', value: texture },
+    texture2: { type: 't', value: lmTexture },
+    vLmOffset: { type: 'v2', value: new THREE.Vector2(colNum*objScale, rowNum*objScale) },
+    vLmScale: { type: 'v2', value: new THREE.Vector2(objScale, objScale) }
+  };
+
+  return newMaterial;
+};
+
 ModelListManager.prototype._createMaterial = function(materialIdx) {
   var foundMaterial = this.materials[materialIdx];
   if (foundMaterial) {
@@ -79,7 +112,7 @@ ModelListManager.prototype._createMaterial = function(materialIdx) {
   return newMaterial;
 };
 
-ModelListManager.prototype.createForStatic = function(modelIdx, callback) {
+ModelListManager.prototype.createForStatic = function(modelIdx, lightmap, lmIdx, callback) {
   var model = this.data.models[modelIdx];
 
   var modelObj = new THREE.Object3D();
@@ -91,7 +124,8 @@ ModelListManager.prototype.createForStatic = function(modelIdx, callback) {
   var self = this;
   for (var i = 0; i < model.parts.length; ++i) {
     (function(partIdx, part, partCallback) {
-      var material = self._createMaterial(part.materialIdx);
+      var lmData = lightmap.getDataForPart(lmIdx, i);
+      var material = self._createMaterialWithLightmap(part.materialIdx, lmData);
       self._createMesh(part.meshIdx, function(geometry) {
         var partMesh = new THREE.Mesh(geometry, material);
         partMesh.position.copy(part.position);

@@ -1,10 +1,10 @@
 /**
  * @constructor
- * @property {Lightmap.Object[]} objects
- * @property {String} textures
+ * @property {Object.<number,Lightmap.Object>} objects
+ * @property {String[]} textures
  */
 var Lightmap = function() {
-  this.objects = [];
+  this.objects = {};
   this.textures = [];
 };
 
@@ -12,10 +12,10 @@ var Lightmap = function() {
 /**
  * @constructor
  * @property {Number} id
- * @property {Lightmap.Object.Part[]} parts
+ * @property {Object.<number,Lightmap.Object.Part>} parts
  */
 Lightmap.Object = function() {
-  this.parts = [];
+  this.parts = {};
 };
 
 
@@ -43,34 +43,36 @@ Lightmap.Object.Part = function() {
  * @param {Lightmap~onLoad} callback
  */
 Lightmap.load = function(path, callback) {
+  var folderPath = path.substr(0, path.lastIndexOf('/') + 1);
   ROSELoader.load(path, function(/** BinaryReader */rh) {
-    var i, j, objects, parts, textures;
+    var i, j, objects, partsCount, textures;
     var data = new Lightmap();
 
     objects = rh.readUint32();
     for (i = 0; i < objects; ++i) {
       var object = new Lightmap.Object();
 
-      parts     = rh.readUint32();
-      object.id = rh.readUint32();
-      for (j = 0; j < parts; ++j) {
+      partsCount     = rh.readUint32();
+      var objectId = rh.readUint32() - 1;
+      for (j = 0; j < partsCount; ++j) {
         var part = new Lightmap.Object.Part();
         part.name            = rh.readUint8Str();
-        part.id              = rh.readUint32();
+        var partId           = rh.readUint32();
         part.filePath        = rh.readUint8Str();
         part.lightmapIndex   = rh.readUint32();
         part.pixelsPerObject = rh.readUint32();
         part.objectsPerRow   = rh.readUint32();
         part.objectIndex     = rh.readUint32();
-        object.parts.push(part);
+        object.parts[partId] = part;
       }
-
-      data.objects.push(object);
+      data.objects[objectId] = object;
     }
 
     textures = rh.readUint32();
     for (i = 0; i < textures; ++i) {
-      data.textures.push(rh.readUint8Str());
+      var lmTexName = rh.readUint8Str();
+      lmTexName = folderPath + lmTexName;
+      data.textures.push(lmTexName);
     }
 
     callback(data);

@@ -42,6 +42,29 @@
     }
 </script>
 
+<script id="staticObjVertexShader" type="x-shader/x-vertex">
+    uniform vec2 vLmOffset;
+    uniform vec2 vLmScale;
+    varying vec2 vUv1;
+    varying vec2 vUv2;
+    void main() {
+        vUv1 = uv;
+        vUv2 = uv2 * vLmScale + vLmOffset;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+    }
+</script>
+
+<script id="staticObjFragmentShader" type="x-shader/x-fragment">
+    uniform sampler2D texture1;
+    uniform sampler2D texture2;
+    varying vec2 vUv1;
+    varying vec2 vUv2;
+    void main() {
+        vec4 baseColor = texture2D(texture1, vUv1);
+        gl_FragColor = baseColor * texture2D(texture2, vUv2) * 2.0;
+    }
+</script>
+
 <!-- Config from Server -->
 <script src="/config"></script>
 
@@ -112,6 +135,7 @@
 <script src="js/helpers/netmanager.js"></script>
 <script src="js/helpers/gameobjectmanager.js"></script>
 <script src="js/helpers/gomvismanager.js"></script>
+<script src="js/helpers/lightmapmanager.js"></script>
 
 <!-- Game Dialogs -->
 <script src="js/dialogs/login.js"></script>
