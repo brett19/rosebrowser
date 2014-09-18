@@ -39,7 +39,9 @@ MultiWait.prototype.one = function() {
 };
 MultiWait.prototype.wait = function(callback) {
   if (this.count === 0) {
-    callback();
+    if (callback) {
+      callback();
+    }
   } else {
     this.callback = callback;
   }
