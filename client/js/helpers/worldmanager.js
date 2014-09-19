@@ -187,6 +187,7 @@ function WorldChunk(world, chunkX, chunkY) {
   this.chunkY = chunkY;
   this.textures = {};
   this.lightmapTex = null;
+  this.info = null;
   this.heightmap = null;
   this.tilemap = null;
   this.position = new THREE.Vector3((chunkX - 33) * 160, (32 - chunkY) * 160, 0);
@@ -410,25 +411,26 @@ function _loadChunkObjectGroup(chunk, namePrefix, objList, modelList, lightmap, 
   }
   waitAll.wait(callback);
 };
+
 WorldChunk.prototype._loadObjects = function(callback) {
-  var self = this;
-  var ifoPath = this.world.basePath + this.name + '.IFO';
   var litCnstPath = this.world.basePath + this.name + '/LIGHTMAP/BUILDINGLIGHTMAPDATA.LIT';
   var litDecoPath = this.world.basePath + this.name + '/LIGHTMAP/OBJECTLIGHTMAPDATA.LIT';
+  var waitAll = new MultiWait();
+  var self = this;
 
   LightmapManager.load(litCnstPath, function(cnstLightmap) {
     LightmapManager.load(litDecoPath, function (decoLightmap) {
-      MapInfo.load(ifoPath, function (ifoData) {
-        var waitAll = new MultiWait();
-        _loadChunkObjectGroup(self,'DECO_' + self.name, ifoData.objects, self.world.decoModelMgr, decoLightmap, waitAll.one());
-        _loadChunkObjectGroup(self,'CNST_' + self.name, ifoData.buildings, self.world.cnstModelMgr, cnstLightmap, waitAll.one());
-        waitAll.wait(callback);
-      });
+      _loadChunkObjectGroup(self,'DECO_' + self.name, self.info.objects, self.world.decoModelMgr, decoLightmap, waitAll.one());
+      _loadChunkObjectGroup(self,'CNST_' + self.name, self.info.buildings, self.world.cnstModelMgr, cnstLightmap, waitAll.one());
     });
   });
+
+  waitAll.wait(callback);
 };
 
 WorldChunk.prototype.load = function(callback) {
+  var self = this;
+
   if (this.loadState === 2) {
     if (!this.isVisible) {
       this.world.rootObj.add(this.rootObj);
@@ -445,20 +447,23 @@ WorldChunk.prototype.load = function(callback) {
   if (this.loadState === 0) {
     this.world.rootObj.add(this.rootObj);
     this.isVisible = true;
+    this.loadState = 1;
 
     var waitAll = new MultiWait();
     this._loadTerrain(waitAll.one());
-    this._loadObjects(waitAll.one());
 
-    this.loadState = 1;
+    MapInfo.load(this.world.basePath + this.name + '.IFO', function (info) {
 
-    var self = this;
-    waitAll.wait(function () {
-      self.loadState = 2;
-      for (var i = 0; i < self.loadWaiters.length; ++i) {
-        self.loadWaiters[i]();
-      }
-      self.loadWaiters = [];
+      self.info = info;
+      self._loadObjects(waitAll.one());
+
+      waitAll.wait(function () {
+        self.loadState = 2;
+        for (var i = 0; i < self.loadWaiters.length; ++i) {
+          self.loadWaiters[i]();
+        }
+        self.loadWaiters = [];
+      });
     });
   }
 };
