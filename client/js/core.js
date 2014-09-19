@@ -101,10 +101,14 @@ if (clientParams.indexOf('lmonly') !== -1) {
   config.lmonly = true;
 }
 
-ShaderManager.register('terrain', 'terrain.vert', 'terrain.frag', {uv3:{}});
-ShaderManager.register('terrain_lmonly', 'terrain.vert', 'terrain_lmonly.frag', {uv3:{}});
-ShaderManager.register('staticobj', 'staticobj.vert', 'staticobj.frag', {uv3:{}});
-ShaderManager.register('staticobj_lmonly', 'staticobj.vert', 'staticobj_lmonly.frag', {uv3:{}});
+ShaderManager.register('terrain', 'terrain.vert', 'terrain.frag', {
+  attributes: {uv3:{}}
+});
+ShaderManager.register('terrain_lmonly', 'terrain.vert', 'terrain_lmonly.frag', {
+  attributes: {uv3:{}}
+});
+ShaderManager.register('staticobj', 'staticobj.vert', 'staticobj.frag');
+ShaderManager.register('staticobj_lmonly', 'staticobj.vert', 'staticobj_lmonly.frag');
 
 if (launchGameState) {
   // Shaders before anything else

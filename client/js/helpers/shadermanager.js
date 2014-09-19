@@ -35,7 +35,7 @@ _ShaderManager.prototype._loadShader = function(path, callback) {
   });
 };
 
-_ShaderManager.prototype.register = function(name, vertShader, fragShader, attributes) {
+_ShaderManager.prototype.register = function(name, vertShader, fragShader, options) {
   var waitAllParts = new MultiWait();
 
   var vertShaderWait = waitAllParts.one();
@@ -55,12 +55,15 @@ _ShaderManager.prototype.register = function(name, vertShader, fragShader, attri
   var shaderWait = this.waitAll.one();
   var self = this;
   waitAllParts.wait(function() {
-    var shaderMaterial = new THREE.ShaderMaterial({
-      attributes: attributes,
-      uniforms: [],
-      vertexShader: vertShaderData,
-      fragmentShader: fragShaderData
-    });
+    if (!options) {
+      options = {};
+    }
+    options.vertexShader = vertShaderData;
+    options.fragmentShader = fragShaderData;
+    if (!options.uniforms) {
+      options.uniforms = [];
+    }
+    var shaderMaterial = new THREE.ShaderMaterial(options);
     self.materials[name] = shaderMaterial;
     shaderWait();
   });
