@@ -78,7 +78,7 @@ ModelListManager.prototype._createMaterialWithLightmap = function(materialIdx, l
   var rowNum = Math.floor(lmData.objectIndex / lmData.objectsPerRow);
   var colNum = lmData.objectIndex % lmData.objectsPerRow;
 
-  var newMaterial = ShaderManager.get('statiobj').clone();
+  var newMaterial = ShaderManager.get('staticobj').clone();
   newMaterial.uniforms = {
     texture1: { type: 't', value: texture },
     texture2: { type: 't', value: lmTexture },
