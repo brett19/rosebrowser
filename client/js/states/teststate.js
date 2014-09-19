@@ -112,6 +112,7 @@ TestState.prototype.update = function(delta) {
 
   if (this.world.isLoaded) {
     this.world.setViewerInfo(camera.position);
+    this.world.update(delta);
   }
 };
 

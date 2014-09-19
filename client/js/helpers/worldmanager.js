@@ -85,6 +85,10 @@ function WorldManager() {
   this.DM = new DataManager();
 }
 
+WorldManager.prototype.update = function(delta) {
+  OceanBlock.update(delta);
+};
+
 WorldManager.prototype.addToScene = function() {
   scene.add(this.rootObj);
   this.rootObj.updateMatrixWorld(true);
@@ -178,6 +182,114 @@ WorldManager.prototype.setViewerInfo = function(pos, callback) {
     }
   }
   waitAll.wait(callback);
+};
+
+var OceanBlock = function(start, end) {
+  this.start = start.clone();
+  this.end = end.clone();
+  this.start.multiplyScalar(ZZ_SCALE_IN);
+  this.end.multiplyScalar(ZZ_SCALE_IN);
+};
+
+OceanBlock._material = null;
+
+OceanBlock.update = function(delta) {
+  if (OceanBlock._material) {
+    var max = OceanBlock._material.textureList.length;
+    var index = Math.floor((new Date().getTime()) / 100) % max;
+    var frame = OceanBlock._material.textureList[index];
+    OceanBlock._material.uniforms.texture1.value = frame;
+  }
+};
+
+OceanBlock._loadMaterial = function() {
+  var mat = ShaderManager.get('water').clone();
+  mat.transparent = true;
+  mat.blending = THREE.AdditiveBlending;
+  mat.blendSrc = THREE.SrcAlphaFactor;
+  mat.blendDst = THREE.OneFactor;
+  mat.blendEquation = THREE.AddEquation;
+  mat.textureList = [];
+
+  for (var i = 1; i <= 25; ++i) {
+    var texture, path;
+    path = String(i);
+
+    if (path.length < 2) {
+      path = '0' + path;
+    }
+
+    path = '3Ddata\\JUNON\\WATER\\OCEAN01_' + path + '.DDS';
+
+    texture = RoseTextureManager.load(path);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    mat.textureList.push(texture);
+  }
+
+  mat.uniforms = {
+    texture1: { type: 't', value: mat.textureList[0] }
+  };
+
+  return mat;
+};
+
+OceanBlock.prototype.load = function() {
+  var verts = new Float32Array(3 * 4);
+  verts[0] = this.start.x;
+  verts[1] = this.start.y;
+  verts[2] = this.start.z;
+
+  verts[3] = this.end.x;
+  verts[4] = this.start.y;
+  verts[5] = this.start.z;
+
+  verts[6] = this.end.x;
+  verts[7] = this.end.y;
+  verts[8] = this.start.z;
+
+  verts[9] = this.start.x;
+  verts[10] = this.end.y;
+  verts[11] = this.start.z;
+
+  var uv1 = new Float32Array(2 * 4);
+  uv1[0] = this.start.x / 16.0;
+  uv1[1] = this.start.y / 16.0;
+
+  uv1[2] = this.end.x / 16.0;
+  uv1[3] = this.start.y / 16.0;
+
+  uv1[4] = this.end.x / 16.0;
+  uv1[5] = this.end.y / 16.0;
+
+  uv1[6] = this.start.x / 16.0;
+  uv1[7] = this.end.y / 16.0;
+
+  var faces = new Uint16Array(3 * 2);
+  faces[0] = 0;
+  faces[1] = 3;
+  faces[2] = 2;
+
+  faces[3] = 2;
+  faces[4] = 1;
+  faces[5] = 0;
+
+  var geometry = new THREE.BufferGeometry();
+  geometry.addAttribute('position', new THREE.BufferAttribute(verts, 3));
+  geometry.addAttribute('index', new THREE.BufferAttribute(faces, 3));
+  geometry.addAttribute('uv', new THREE.BufferAttribute(uv1, 2));
+
+  geometry.dynamic = false;
+  geometry.computeBoundingSphere();
+  geometry.computeBoundingBox();
+  geometry.computeFaceNormals();
+  geometry.computeVertexNormals();
+
+  if (!OceanBlock._material) {
+    OceanBlock._material = OceanBlock._loadMaterial();
+  }
+
+  return new THREE.Mesh(geometry, OceanBlock._material);
 };
 
 function WorldChunk(world, chunkX, chunkY) {
@@ -428,6 +540,16 @@ WorldChunk.prototype._loadObjects = function(callback) {
   waitAll.wait(callback);
 };
 
+WorldChunk.prototype._loadWater = function(callback) {
+  for (var i = 0; i < this.info.waterPlanes.length; ++i) {
+    var plane = this.info.waterPlanes[i];
+    var block = new OceanBlock(plane.start, plane.end);
+    this.rootObj.add(block.load());
+  }
+
+  callback();
+};
+
 WorldChunk.prototype.load = function(callback) {
   var self = this;
 
@@ -453,9 +575,9 @@ WorldChunk.prototype.load = function(callback) {
     this._loadTerrain(waitAll.one());
 
     MapInfo.load(this.world.basePath + this.name + '.IFO', function (info) {
-
       self.info = info;
       self._loadObjects(waitAll.one());
+      self._loadWater(waitAll.one());
 
       waitAll.wait(function () {
         self.loadState = 2;

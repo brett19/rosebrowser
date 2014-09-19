@@ -33,6 +33,7 @@ GameState.prototype.update = function(delta) {
 
   this.mcPawnRoot.position.copy(MC.position);
   this.worldMgr.setViewerInfo(MC.position);
+  this.worldMgr.update(delta);
 };
 
 GameState.prototype.debugPrintScene = function() {

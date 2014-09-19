@@ -169,6 +169,13 @@ BinaryReader.prototype.readVector3 = function() {
   return new THREE.Vector3(x, y, z);
 };
 
+BinaryReader.prototype.readVector3xzy = function() {
+  var x = this.readFloat();
+  var z = this.readFloat();
+  var y = this.readFloat();
+  return new THREE.Vector3(x, y, z);
+};
+
 BinaryReader.prototype.readColour = function() {
   var r = this.readFloat();
   var g = this.readFloat();

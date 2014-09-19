@@ -330,8 +330,8 @@ MapInfo.load = function(path, callback) {
             break;
           case MapInfo.BLOCK_TYPE.WATER_PLANE:
             object = new MapInfo.WaterPlane();
-            object.start = rh.readVector3();
-            object.end = rh.readVector3();
+            object.start = rh.readVector3xzy();
+            object.end = rh.readVector3xzy();
             data.waterPlanes.push(object);
             break;
           case MapInfo.BLOCK_TYPE.WARP_POINT:

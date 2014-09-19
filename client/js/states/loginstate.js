@@ -211,7 +211,7 @@ LoginState.prototype.leave = function() {
 };
 
 LoginState.prototype.update = function(delta) {
-
+  this.world.update(delta);
 };
 
 var gsLogin = new LoginState();
