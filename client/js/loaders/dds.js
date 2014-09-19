@@ -323,11 +323,11 @@ DDS.load = function(path, callback) {
     for (var i = 0; i < faces; ++i) {
       var width  = header.width;
       var height = header.height;
-      var pixelCount = width * height;
-      var byteCount  = pixelCount * header.pixelFormat.bitCount;
 
       for (var j = 0; j < header.mipmaps; ++j) {
         var mipmap = new DDS.Mipmap(width, height);
+        var pixelCount = width * height;
+        var byteCount = pixelCount * (header.pixelFormat.bitCount / 8);
 
         switch (format) {
         case THREE.RGB_S3TC_DXT1_Format:
@@ -417,7 +417,7 @@ DDS.load = function(path, callback) {
         case THREE.AlphaFormat:
         case THREE.LuminanceFormat:
           if (shiftA === 0) {
-            mipmap.data = rh.readUint8Array(pixelCount);
+            mipmap.data = rh.readUint8Array(byteCount);
           } else {
             for (var k = 0; k < pixelCount; ++k) {
               var pixel = readPixelFn.apply(rh);
