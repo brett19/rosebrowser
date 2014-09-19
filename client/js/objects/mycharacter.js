@@ -1,17 +1,13 @@
 'use strict';
 
 function MyCharacter(world) {
-  GameObject.call(this, 'local', world);
-
-  this.avatar = new CharPawn();
-  this.avatar.rootObj.name = 'LocalPlayer';
-  this.name = '';
-  this.level = 0;
+  CharObject.call(this, world);
+  this.type = 'local';
 }
-MyCharacter.prototype = new GameObject();
+MyCharacter.prototype = new CharObject();
 
 /**
  * @name MC
- * @type {null}
+ * @type {MyCharacter}
  */
 var MC = null;

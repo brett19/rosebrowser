@@ -52,18 +52,18 @@ GameState.prototype.debugPrintScene = function() {
 GameState.prototype.enter = function() {
   debugGui.add(this, 'debugPrintScene');
 
-  // Some of this will need to be moved to a place thats used when you
-  //  switch maps as well...
-  scene.add(MC.avatar.rootObj);
-  camera.lookAt(0, 0, 0);
-  camera.position.set(4, 4, 4);
-  MC.avatar.rootObj.add(camera);
-
   this.worldMgr.addToScene();
   this.gomMgr.addToScene();
 
+  var mcPawn = this.gomMgr.findByObject(MC);
 
-  this.pickPosH.position.copy(MC.avatar.rootObj.position);
+  // Some of this will need to be moved to a place thats used when you
+  //  switch maps as well...
+  camera.lookAt(0, 0, 0);
+  camera.position.set(4, 4, 4);
+  mcPawn.rootObj.add(camera);
+
+  this.pickPosH.position.copy(MC.position);
   scene.add(this.pickPosH);
 
   var controls = new THREE.OrbitControls(camera, renderer.domElement);

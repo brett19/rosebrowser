@@ -159,11 +159,8 @@ GameTestState.prototype.enter = function() {
                           MC.setPosition(charData.posStart.x, charData.posStart.y, 10);
                           MC.dropFromSky();
 
-                          MC.avatar.setGender(charData.gender, function() {
-                            for (var j = 0; j < AVTBODYPART.Max; ++j) {
-                              MC.avatar.setModelPart(j, charData.parts[j].itemNo);
-                            }
-                          });
+                          MC.gender = charData.gender;
+                          MC.visParts = charData.parts;
 
                           waitDialog.close();
                           gsGameTest.leave();
