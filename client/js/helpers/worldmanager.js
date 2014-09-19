@@ -327,17 +327,24 @@ WorldChunk.prototype._buildTerrain = function() {
     return newChunkGrp;
   }
 
-  for (var by = 0; by < 16; ++by) {
-    for (var bx = 0; bx < 16; ++bx) {
-      var tile = this._getBlockTile(bx, by);
-      var chunkGrp = findChunkGrp(tile);
-      chunkGrp.blocks.push({x:bx,y:by});
-    }
-  }
-
   var materialOverride = null;
-  if (config.lmonly) {
+  if (!config.lmonly) {
+    for (var by = 0; by < 16; ++by) {
+      for (var bx = 0; bx < 16; ++bx) {
+        var tile = this._getBlockTile(bx, by);
+        var chunkGrp = findChunkGrp(tile);
+        chunkGrp.blocks.push({x:bx,y:by});
+      }
+    }
+  } else {
     materialOverride = this._createLmOnlyMaterial();
+    var tile = this._getBlockTile(0, 0);
+    var chunkGrp = findChunkGrp(tile);
+    for (var by = 0; by < 16; ++by) {
+      for (var bx = 0; bx < 16; ++bx) {
+        chunkGrp.blocks.push({x:bx,y:by});
+      }
+    }
   }
 
   for (var i = 0; i < chunkGrps.length; ++i) {
