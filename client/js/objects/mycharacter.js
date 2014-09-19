@@ -3,7 +3,7 @@
 function MyCharacter(world) {
   GameObject.call(this, 'local', world);
 
-  this.avatar = new Avatar();
+  this.avatar = new CharPawn();
   this.avatar.rootObj.name = 'LocalPlayer';
   this.name = '';
   this.level = 0;

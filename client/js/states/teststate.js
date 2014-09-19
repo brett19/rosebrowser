@@ -83,7 +83,7 @@ TestState.prototype.enter = function() {
   var charObj = new NpcCharacter();
   charObj.setModel(1);
   */
-  var charObj = new Avatar();
+  var charObj = new CharPawn();
   charObj.setGender(0, function() {
     charObj.setModelPart(3, 1);
     charObj.setModelPart(4, 1);

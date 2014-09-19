@@ -25,7 +25,7 @@ GOMVisManager.prototype._addObjectLocal = function(obj) {
 GOMVisManager.prototype._addObjectNpc = function(obj) {
   var highZ = this.world.findHighPoint(obj.position.x, obj.position.y);
 
-  var visObj = new NpcCharacter();
+  var visObj = new NpcPawn();
   visObj.rootObj.name = 'NPC_' + obj.serverObjectIdx + '_' + obj.charIdx;
   visObj.setModel(obj.charIdx);
   visObj.rootObj.position.copy(obj.position);

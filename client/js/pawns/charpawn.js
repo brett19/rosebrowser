@@ -5,16 +5,16 @@ var GENDERSKELNAMES = {
   1: 'female_skel'
 }
 
-function Avatar() {
+function CharPawn() {
   this.rootObj = new THREE.Object3D();
   this.skel = null;
 }
 
-Avatar.prototype._setSkeleton = function(skelData) {
+CharPawn.prototype._setSkeleton = function(skelData) {
   this.skel = skelData.create(this.rootObj);
 };
 
-Avatar.prototype._setModelPart = function(modelList, partIdx, modelIdx, bindBone, bindDummy) {
+CharPawn.prototype._setModelPart = function(modelList, partIdx, modelIdx, bindBone, bindDummy) {
   var model = modelList.data.models[modelIdx];
   if (!model) {
     // This is only really a warnable offence if not 0
@@ -57,7 +57,7 @@ Avatar.prototype._setModelPart = function(modelList, partIdx, modelIdx, bindBone
   }
 };
 
-Avatar.prototype.setGender = function(genderIdx, callback) {
+CharPawn.prototype.setGender = function(genderIdx, callback) {
   var self = this;
   var skelName = GENDERSKELNAMES[genderIdx];
   if (!skelName) {
@@ -123,7 +123,7 @@ var FAVTPARTTYPES = [
   { dataName: 'itm_weapon' },
   { dataName: 'itm_subwpn' }
 ];
-Avatar.prototype.setModelPart = function(partIdx, modelIdx, callback) {
+CharPawn.prototype.setModelPart = function(partIdx, modelIdx, callback) {
   var self = this;
   var partType = MAVTPARTTYPES[partIdx];
   GDM.get(partType.dataName, function(partModelList) {

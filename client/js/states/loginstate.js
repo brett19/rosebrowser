@@ -93,7 +93,7 @@ LoginState.prototype._beginCharSelect = function(charData) {
     (function(charIdx, charInfo) {
       console.log('Char', charIdx, charInfo);
 
-      var charObj = new Avatar();
+      var charObj = new CharPawn();
       charObj.setGender(0, function() {
         for (var j = 0; j < AVTBODYPART.Max; ++j) {
           charObj.setModelPart(j, charInfo.parts[j].itemNo);

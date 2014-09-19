@@ -1,10 +1,10 @@
 'use strict';
 
-function NpcCharacter() {
+function NpcPawn() {
   this.rootObj = new THREE.Object3D();
 }
 
-NpcCharacter.prototype._setModel = function(charData, modelMgr, charIdx) {
+NpcPawn.prototype._setModel = function(charData, modelMgr, charIdx) {
   var self = this;
 
   var char = charData.characters[charIdx];
@@ -47,7 +47,7 @@ NpcCharacter.prototype._setModel = function(charData, modelMgr, charIdx) {
   });
 };
 
-NpcCharacter.prototype.setModel = function(charIdx, callback) {
+NpcPawn.prototype.setModel = function(charIdx, callback) {
   var self = this;
   GDM.get('npc_chars', 'npc_models', function(charList, modelList) {
     self._setModel(charList, modelList, charIdx);
@@ -57,6 +57,6 @@ NpcCharacter.prototype.setModel = function(charIdx, callback) {
   });
 };
 
-NpcCharacter.prototype.update = function(delta) {
+NpcPawn.prototype.update = function(delta) {
 
 };
