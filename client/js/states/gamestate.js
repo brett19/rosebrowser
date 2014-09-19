@@ -5,6 +5,7 @@ function GameState() {
   this.worldMgr.rootObj.position.set(5200, 5200, 0);
   this.gomMgr = new GOMVisManager(this.worldMgr);
   this.activeMapIdx = -1;
+  this.mcPawnRoot = new THREE.Object3D();
 
   this.pickPosH = new THREE.AxisHelper(2);
 }
@@ -30,6 +31,7 @@ GameState.prototype.mapSwitchPrep = function(callback) {
 GameState.prototype.update = function(delta) {
   GOM.update(delta);
 
+  this.mcPawnRoot.position.copy(MC.position);
   this.worldMgr.setViewerInfo(MC.position);
 };
 
@@ -61,7 +63,8 @@ GameState.prototype.enter = function() {
   //  switch maps as well...
   camera.lookAt(0, 0, 0);
   camera.position.set(4, 4, 4);
-  mcPawn.rootObj.add(camera);
+  this.mcPawnRoot.add(camera);
+  scene.add(this.mcPawnRoot);
 
   this.pickPosH.position.copy(MC.position);
   scene.add(this.pickPosH);

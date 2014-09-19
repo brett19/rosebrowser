@@ -55,8 +55,15 @@ GOMVisManager.prototype._addObjectMovable = function(obj) {
   }
 
   if (visObj) {
+    var oldPosition = obj.position.clone();
     obj.on('moved', function () {
+      // Update Rotation
+      var posDiff = new THREE.Vector2(obj.position.x-oldPosition.x, obj.position.y-oldPosition.y);
+      var angle = Math.atan2(posDiff.y, posDiff.x);
+      visObj.rootObj.rotation.z = angle + Math.PI/2;
+
       visObj.rootObj.position.copy(obj.position);
+      oldPosition = obj.position.clone();
     });
   }
 
