@@ -14,78 +14,6 @@
 </head>
 <body>
 
-<script id="terrainVertexShader" type="x-shader/x-vertex">
-    attribute vec2 uv3;
-    varying vec2 vUv1;
-    varying vec2 vUv2;
-    varying vec2 vUv3;
-    void main() {
-        vUv1 = uv;
-        vUv2 = uv2;
-        vUv3 = uv3;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
-    }
-</script>
-
-<script id="terrainFragmentShader" type="x-shader/x-fragment">
-    uniform sampler2D texture1;
-    uniform sampler2D texture2;
-    uniform sampler2D texture3;
-    varying vec2 vUv1;
-    varying vec2 vUv2;
-    varying vec2 vUv3;
-    void main() {
-        vec4 layer1 = texture2D(texture1, vUv1);
-        vec4 layer2 = texture2D(texture2, vUv2);
-        vec4 baseColor = mix(layer1, layer2, layer2.a);
-        gl_FragColor = baseColor * texture2D(texture3, vUv3) * 2.0;
-    }
-</script>
-<script id="terrainLMOnlyFragmentShader" type="x-shader/x-fragment">
-    uniform sampler2D texture1;
-    varying vec2 vUv1;
-    varying vec2 vUv2;
-    varying vec2 vUv3;
-    void main() {
-        gl_FragColor = texture2D(texture1, vUv3);
-    }
-</script>
-
-<script id="staticObjVertexShader" type="x-shader/x-vertex">
-    uniform vec2 vLmOffset;
-    uniform vec2 vLmScale;
-    varying vec2 vUv1;
-    varying vec2 vUv2;
-    void main() {
-        vUv1 = uv;
-        vUv2 = uv2 * vLmScale + vLmOffset;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
-    }
-</script>
-
-<script id="staticObjFragmentShader" type="x-shader/x-fragment">
-    uniform sampler2D texture1;
-    uniform sampler2D texture2;
-    varying vec2 vUv1;
-    varying vec2 vUv2;
-    void main() {
-        vec4 baseColor = texture2D(texture1, vUv1);
-        #ifdef ALPHATEST
-	      if ( baseColor.a < ALPHATEST ) discard;
-        #endif
-        gl_FragColor = baseColor * texture2D(texture2, vUv2) * 2.0;
-    }
-</script>
-<script id="staticObjLMOnlyFragmentShader" type="x-shader/x-fragment">
-    uniform sampler2D texture1;
-    varying vec2 vUv1;
-    varying vec2 vUv2;
-    void main() {
-        vec4 baseColor = texture2D(texture1, vUv2);
-        gl_FragColor = baseColor;
-    }
-</script>
-
 <!-- Config from Server -->
 <script src="/config"></script>
 
@@ -145,6 +73,7 @@
 <!-- Game Helpers -->
 <script src="js/controls/orbit.js"></script>
 <script src="js/controls/fly.js"></script>
+<script src="js/helpers/shadermanager.js"></script>
 <script src="js/helpers/datamanager.js"></script>
 <script src="js/helpers/temporary.js"></script>
 <script src="js/helpers/rosetexloader.js"></script>

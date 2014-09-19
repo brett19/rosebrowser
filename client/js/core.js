@@ -101,13 +101,20 @@ if (clientParams.indexOf('lmonly') !== -1) {
   config.lmonly = true;
 }
 
+ShaderManager.register('terrain', 'terrain.vert', 'terrain.frag', {uv3:{}});
+ShaderManager.register('terrain_lmonly', 'terrain.vert', 'terrain_lmonly.frag', {uv3:{}});
+ShaderManager.register('staticobj', 'staticobj.vert', 'staticobj.frag', {uv3:{}});
+ShaderManager.register('staticobj_lmonly', 'staticobj.vert', 'staticobj_lmonly.frag', {uv3:{}});
 
 if (launchGameState) {
-  // Needed for game states that alter UI.
-  $(function() {
-    launchGameState.prepare(function() {
-      launchGameState.enter();
-      activeGameState = launchGameState;
+  // Shaders before anything else
+  ShaderManager.init(function() {
+    // Needed for game states that alter UI.
+    $(function() {
+      launchGameState.prepare(function() {
+        launchGameState.enter();
+        activeGameState = launchGameState;
+      });
     });
   });
 }

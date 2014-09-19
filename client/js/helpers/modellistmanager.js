@@ -6,32 +6,6 @@ function ModelListManager(data) {
   this.materials = {};
 }
 
-ModelListManager.baseShaderMaterial = null;
-ModelListManager.getBaseShaderMaterial = function() {
-  if (!ModelListManager.baseShaderMaterial) {
-    var shaderMaterial = new THREE.ShaderMaterial({
-      uniforms: [],
-      vertexShader:   document.getElementById( 'staticObjVertexShader' ).textContent,
-      fragmentShader: document.getElementById( 'staticObjFragmentShader' ).textContent
-    });
-    ModelListManager.baseShaderMaterial = shaderMaterial;
-  }
-  return ModelListManager.baseShaderMaterial;
-};
-
-ModelListManager.baseLmOnlyShaderMaterial = null;
-ModelListManager.getBaseLmOnlyShaderMaterial = function() {
-  if (!ModelListManager.baseLmOnlyShaderMaterial) {
-    var shaderMaterial = new THREE.ShaderMaterial({
-      uniforms: [],
-      vertexShader:   document.getElementById( 'staticObjVertexShader' ).textContent,
-      fragmentShader: document.getElementById( 'staticObjLMOnlyFragmentShader' ).textContent
-    });
-    ModelListManager.baseLmOnlyShaderMaterial = shaderMaterial;
-  }
-  return ModelListManager.baseLmOnlyShaderMaterial;
-};
-
 /**
  * This is a helper to allow a ModelListManager to be used by the DataManager.
  * @param path
@@ -78,7 +52,7 @@ ModelListManager.prototype._createMaterialLMOnly = function(materialIdx, lmData)
   var rowNum = Math.floor(lmData.objectIndex / lmData.objectsPerRow);
   var colNum = lmData.objectIndex % lmData.objectsPerRow;
 
-  var newMaterial = ModelListManager.getBaseLmOnlyShaderMaterial().clone();
+  var newMaterial = ShaderManager.get('staticobj_lmonly').clone();
   newMaterial.uniforms = {
     texture1: { type: 't', value: lmTexture },
     vLmOffset: { type: 'v2', value: new THREE.Vector2(colNum*objScale, rowNum*objScale) },
@@ -104,7 +78,7 @@ ModelListManager.prototype._createMaterialWithLightmap = function(materialIdx, l
   var rowNum = Math.floor(lmData.objectIndex / lmData.objectsPerRow);
   var colNum = lmData.objectIndex % lmData.objectsPerRow;
 
-  var newMaterial = ModelListManager.getBaseShaderMaterial().clone();
+  var newMaterial = ShaderManager.get('statiobj').clone();
   newMaterial.uniforms = {
     texture1: { type: 't', value: texture },
     texture2: { type: 't', value: lmTexture },

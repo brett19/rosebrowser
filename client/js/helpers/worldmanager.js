@@ -85,34 +85,6 @@ function WorldManager() {
   this.DM = new DataManager();
 }
 
-WorldManager.baseShaderMaterial = null;
-WorldManager.getBaseShaderMaterial = function() {
-  if (!WorldManager.baseShaderMaterial) {
-    var shaderMaterial = new THREE.ShaderMaterial({
-      attributes: {uv3:{}},
-      uniforms: [],
-      vertexShader:   document.getElementById( 'terrainVertexShader' ).textContent,
-      fragmentShader: document.getElementById( 'terrainFragmentShader' ).textContent
-    });
-    WorldManager.baseShaderMaterial = shaderMaterial;
-  }
-  return WorldManager.baseShaderMaterial;
-};
-
-WorldManager.baseLmOnlyShaderMaterial = null;
-WorldManager.getBaseLmOnlyShaderMaterial = function() {
-  if (!WorldManager.baseLmOnlyShaderMaterial) {
-    var shaderMaterial = new THREE.ShaderMaterial({
-      attributes: {uv3:{}},
-      uniforms: [],
-      vertexShader:   document.getElementById( 'terrainVertexShader' ).textContent,
-      fragmentShader: document.getElementById( 'terrainLMOnlyFragmentShader' ).textContent
-    });
-    WorldManager.baseLmOnlyShaderMaterial = shaderMaterial;
-  }
-  return WorldManager.baseLmOnlyShaderMaterial;
-};
-
 WorldManager.prototype.addToScene = function() {
   scene.add(this.rootObj);
   this.rootObj.updateMatrixWorld(true);
@@ -230,7 +202,7 @@ WorldChunk.prototype._getBlockTile = function(blockX, blockY) {
 };
 
 WorldChunk.prototype._createLmOnlyMaterial = function() {
-  var newMaterial = WorldManager.getBaseLmOnlyShaderMaterial().clone();
+  var newMaterial = ShaderManager.get('terrain_lmonly').clone();
   newMaterial.uniforms = {
     texture1: {type: 't', value: this.lightmapTex}
   };
@@ -252,7 +224,7 @@ WorldChunk.prototype._createMaterial = function(texId1, texId2) {
   }
   var tex2 = this.textures[texId2];
 
-  var newMaterial = WorldManager.getBaseShaderMaterial().clone();
+  var newMaterial = ShaderManager.get('terrain').clone();
   newMaterial.texId1 = texId1;
   newMaterial.texId2 = texId2;
   newMaterial.uniforms = {
