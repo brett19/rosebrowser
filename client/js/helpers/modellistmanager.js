@@ -19,6 +19,19 @@ ModelListManager.getBaseShaderMaterial = function() {
   return ModelListManager.baseShaderMaterial;
 };
 
+ModelListManager.baseLmOnlyShaderMaterial = null;
+ModelListManager.getBaseLmOnlyShaderMaterial = function() {
+  if (!ModelListManager.baseLmOnlyShaderMaterial) {
+    var shaderMaterial = new THREE.ShaderMaterial({
+      uniforms: [],
+      vertexShader:   document.getElementById( 'staticObjVertexShader' ).textContent,
+      fragmentShader: document.getElementById( 'staticObjLMOnlyFragmentShader' ).textContent
+    });
+    ModelListManager.baseLmOnlyShaderMaterial = shaderMaterial;
+  }
+  return ModelListManager.baseLmOnlyShaderMaterial;
+};
+
 /**
  * This is a helper to allow a ModelListManager to be used by the DataManager.
  * @param path
@@ -55,6 +68,31 @@ ModelListManager.prototype._createMesh = function(meshIdx, callback) {
     }
     newMesh.waiters = [];
   });
+};
+
+ModelListManager.prototype._createMaterialLMOnly = function(materialIdx, lmData) {
+  var zscMat = this.data.materials[materialIdx];
+
+  var lmTexture = lmData.texture;
+  var objScale = 1 / lmData.objectsPerRow;
+  var rowNum = Math.floor(lmData.objectIndex / lmData.objectsPerRow);
+  var colNum = lmData.objectIndex % lmData.objectsPerRow;
+
+  var newMaterial = ModelListManager.getBaseLmOnlyShaderMaterial().clone();
+  newMaterial.uniforms = {
+    texture1: { type: 't', value: lmTexture },
+    vLmOffset: { type: 'v2', value: new THREE.Vector2(colNum*objScale, rowNum*objScale) },
+    vLmScale: { type: 'v2', value: new THREE.Vector2(objScale, objScale) }
+  };
+
+  if (zscMat.twoSided) {
+    newMaterial.side = THREE.DoubleSide;
+  }
+  newMaterial.opacity = zscMat.alpha;
+  newMaterial.depthTest = zscMat.depthTestEnabled;
+  newMaterial.depthWrite = zscMat.depthWriteEnabled;
+
+  return newMaterial;
 };
 
 ModelListManager.prototype._createMaterialWithLightmap = function(materialIdx, lmData) {
@@ -140,7 +178,12 @@ ModelListManager.prototype.createForStatic = function(modelIdx, lightmap, lmIdx,
   for (var i = 0; i < model.parts.length; ++i) {
     (function(partIdx, part, partCallback) {
       var lmData = lightmap.getDataForPart(lmIdx, i);
-      var material = self._createMaterialWithLightmap(part.materialIdx, lmData);
+      var material = null;
+      if (!config.lmonly || !lmData) {
+        material = self._createMaterialWithLightmap(part.materialIdx, lmData);
+      } else {
+        material = self._createMaterialLMOnly(part.materialIdx, lmData);
+      }
       self._createMesh(part.meshIdx, function(geometry) {
         var partMesh = new THREE.Mesh(geometry, material);
         partMesh.position.copy(part.position);

@@ -99,6 +99,20 @@ WorldManager.getBaseShaderMaterial = function() {
   return WorldManager.baseShaderMaterial;
 };
 
+WorldManager.baseLmOnlyShaderMaterial = null;
+WorldManager.getBaseLmOnlyShaderMaterial = function() {
+  if (!WorldManager.baseLmOnlyShaderMaterial) {
+    var shaderMaterial = new THREE.ShaderMaterial({
+      attributes: {uv3:{}},
+      uniforms: [],
+      vertexShader:   document.getElementById( 'terrainVertexShader' ).textContent,
+      fragmentShader: document.getElementById( 'terrainLMOnlyFragmentShader' ).textContent
+    });
+    WorldManager.baseLmOnlyShaderMaterial = shaderMaterial;
+  }
+  return WorldManager.baseLmOnlyShaderMaterial;
+};
+
 WorldManager.prototype.addToScene = function() {
   scene.add(this.rootObj);
   this.rootObj.updateMatrixWorld(true);
@@ -215,6 +229,18 @@ WorldChunk.prototype._getBlockTile = function(blockX, blockY) {
   return this.world.zoneInfo.tiles[this.tilemap.map[tileIdx].number];
 };
 
+WorldChunk.prototype._createLmOnlyMaterial = function() {
+  var newMaterial = WorldManager.getBaseLmOnlyShaderMaterial().clone();
+  newMaterial.uniforms = {
+    texture1: {type: 't', value: this.lightmapTex}
+  };
+  return newMaterial;
+};
+
+// We don't need to cache the materials here as they are generated on a
+//   per-chunk basis.  Additionally, the mesh generator groups all blocks
+//   using the same tiles to the same mesh, so this function only is called
+//   once.
 WorldChunk.prototype._createMaterial = function(texId1, texId2) {
   if (!this.textures[texId1]) {
     this.textures[texId1] = RoseTextureManager.load(this.world.zoneInfo.textures[texId1]);
@@ -309,6 +335,11 @@ WorldChunk.prototype._buildTerrain = function() {
     }
   }
 
+  var materialOverride = null;
+  if (config.lmonly) {
+    materialOverride = this._createLmOnlyMaterial();
+  }
+
   for (var i = 0; i < chunkGrps.length; ++i) {
     var chunkGrp = chunkGrps[i];
 
@@ -337,7 +368,11 @@ WorldChunk.prototype._buildTerrain = function() {
     geometry.computeFaceNormals();
     geometry.computeVertexNormals();
 
-    var chunkGrpMat = this._createMaterial(chunkGrp.texId1, chunkGrp.texId2);
+    var chunkGrpMat = materialOverride;
+    if (!materialOverride) {
+      chunkGrpMat = this._createMaterial(chunkGrp.texId1, chunkGrp.texId2);
+    }
+
     var chunkMesh = new THREE.Mesh(geometry, chunkGrpMat);
     chunkMesh.name = 'TER_' + this.name + '_' + i;
     chunkMesh.position.copy(

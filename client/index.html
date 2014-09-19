@@ -41,6 +41,15 @@
         gl_FragColor = baseColor * texture2D(texture3, vUv3) * 2.0;
     }
 </script>
+<script id="terrainLMOnlyFragmentShader" type="x-shader/x-fragment">
+    uniform sampler2D texture1;
+    varying vec2 vUv1;
+    varying vec2 vUv2;
+    varying vec2 vUv3;
+    void main() {
+        gl_FragColor = texture2D(texture1, vUv3);
+    }
+</script>
 
 <script id="staticObjVertexShader" type="x-shader/x-vertex">
     uniform vec2 vLmOffset;
@@ -65,6 +74,15 @@
 	      if ( baseColor.a < ALPHATEST ) discard;
         #endif
         gl_FragColor = baseColor * texture2D(texture2, vUv2) * 2.0;
+    }
+</script>
+<script id="staticObjLMOnlyFragmentShader" type="x-shader/x-fragment">
+    uniform sampler2D texture1;
+    varying vec2 vUv1;
+    varying vec2 vUv2;
+    void main() {
+        vec4 baseColor = texture2D(texture1, vUv2);
+        gl_FragColor = baseColor;
     }
 </script>
 

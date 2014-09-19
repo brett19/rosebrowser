@@ -97,6 +97,10 @@ if (launchStateName === 'test') {
   console.log('Invalid launch state specified.');
 }
 
+if (clientParams.indexOf('lmonly') !== -1) {
+  config.lmonly = true;
+}
+
 
 if (launchGameState) {
   // Needed for game states that alter UI.
