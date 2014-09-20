@@ -86,6 +86,14 @@ var FAVTPARTTYPES = [
   { dataName: 'itm_subwpn' }
 ];
 
+/**
+ * @constructor
+ *
+ * Holds a cache of all animations that are actually loaded against
+ * this skeleton and can be used immediately (and should not be loaded
+ * against the skeleton again).
+ * @property {IndexedCache.<THREE.Animation>} motionCache
+ */
 function CharPawn() {
   this.rootObj = new THREE.Object3D();
   this.skel = null;
@@ -93,6 +101,12 @@ function CharPawn() {
   this.motionCache = null;
 }
 
+/**
+ * Holds a cache of all loaded animation files data.  This is just the data,
+ * and not bound to any particular skeleton.
+ *
+ * @type {DataCache.<Animation>}
+ */
 CharPawn.motionFileCache = new DataCache(Animation);
 
 // This function should never be called directly, and should only used
