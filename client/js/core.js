@@ -93,6 +93,8 @@ if (launchStateName === 'test') {
   launchGameState = gsLogin;
 } else if (launchStateName === 'gametest') {
   launchGameState = gsGameTest;
+} else if (launchStateName === 'particle') {
+  launchGameState = gsParticleTest;
 } else {
   console.log('Invalid launch state specified.');
 }
@@ -110,6 +112,12 @@ ShaderManager.register('terrain_lmonly', 'terrain.vert', 'terrain_lmonly.frag', 
 ShaderManager.register('staticobj', 'staticobj.vert', 'staticobj.frag');
 ShaderManager.register('staticobj_lmonly', 'staticobj.vert', 'staticobj_lmonly.frag');
 ShaderManager.register('water', 'water.vert', 'water.frag');
+ShaderManager.register('particle', 'particle.vert', 'particle.frag', {
+  attributes: {
+    alpha: { type: 'f', value: [] },
+    psize: { type: 'f', value: [] }
+  }
+});
 
 if (launchGameState) {
   // Shaders before anything else
