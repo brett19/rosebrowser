@@ -3,6 +3,7 @@
 function MyCharacter(world) {
   CharObject.call(this, world);
   this.type = 'local';
+  this.useMoveCollision = true;
 }
 MyCharacter.prototype = new CharObject();
 

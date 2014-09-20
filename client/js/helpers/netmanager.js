@@ -29,7 +29,7 @@ _NetManager.prototype.watch = function(wn, gn) {
       npc.hidden = true;
     }
     npc.setPosition(data.position.x, data.position.y, 10);
-    npc.setDirection(data.modelDir);
+    npc.setDirection(data.modelDir / 180 * Math.PI);
     GOM.addObject(npc);
   });
 };

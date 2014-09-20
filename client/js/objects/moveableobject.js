@@ -5,31 +5,63 @@ function MoveableObject(type, world) {
 
   this.velocity = new THREE.Vector3(0, 0, 0);
   this.targetPos = new THREE.Vector3(0, 0, 0);
+  this.direction = 0;
   this.isMoving = false;
-  this.moveSpeed = 0.2;
+  this.moveSpeed = 20;
+  this.useMoveCollision = false;
 }
 MoveableObject.prototype = new GameObject();
 
 MoveableObject.prototype.moveTo = function(x, y) {
-  console.log('Object move-to', this.type, 'to', x, y);
   this.targetPos.set(x, y, 0);
   this.isMoving = true;
 };
 
+MoveableObject.prototype.setDirection = function(radians) {
+  this.direction = radians;
+  this.emit('moved');
+};
+
 MoveableObject.prototype.update = function(delta) {
   if (this.isMoving) {
+    var frameMoveSpeed = this.moveSpeed * delta;
+
     this.targetPos.z = this.position.z;
 
     this.velocity.subVectors(this.targetPos, this.position);
-    if (this.velocity.lengthSq() > this.moveSpeed*this.moveSpeed) {
+    if (this.velocity.lengthSq() > frameMoveSpeed*frameMoveSpeed) {
       this.velocity.normalize();
-      this.velocity.multiplyScalar(this.moveSpeed);
+      this.velocity.multiplyScalar(frameMoveSpeed);
     }
     if (this.velocity.lengthSq() > 0.00001) {
       var newPosition = this.position.clone().add(this.velocity);
       var highZ = this.world.findHighPoint(newPosition.x, newPosition.y);
-      if ((highZ - this.position.z) / this.velocity.length() < 0.5) {
+      var moveSlope = (highZ - this.position.z) / this.velocity.length();
+      if (!this.useMoveCollision || moveSlope < 0.5) {
         newPosition.z = highZ;
+
+        var posDiff = new THREE.Vector2(
+            this.position.x-newPosition.x,
+            this.position.y-newPosition.y);
+        var newDirection = Math.atan2(posDiff.y, posDiff.x) - Math.PI/2;
+
+        var dirDelta = newDirection - this.direction;
+        if (dirDelta < -Math.PI) {
+          dirDelta += Math.PI * 2;
+        } else if(dirDelta > Math.PI) {
+          dirDelta -= Math.PI * 2;
+        }
+
+        var maxDelta = (Math.PI * 4) * delta;
+        if (dirDelta < -maxDelta) {
+          dirDelta = -maxDelta;
+        } else if (dirDelta > maxDelta) {
+          dirDelta = maxDelta;
+        }
+
+        this.direction += dirDelta;
+
+
         this.position.copy(newPosition);
         this.emit('moved');
       } else {
