@@ -349,8 +349,8 @@ THREE.OrbitControls = function ( object, inputMgr ) {
       return;
     }
 
-    document.addEventListener( 'mousemove', onMouseMove, false );
-    document.addEventListener( 'mouseup', onMouseUp, false );
+    scope.inputMgr.addEventListener( 'mousemove', onMouseMove );
+    scope.inputMgr.addEventListener( 'mouseup', onMouseUp );
     scope.dispatchEvent( startEvent );
 
   }
@@ -419,8 +419,9 @@ THREE.OrbitControls = function ( object, inputMgr ) {
 
     if ( scope.enabled === false ) return;
 
-    document.removeEventListener( 'mousemove', onMouseMove, false );
-    document.removeEventListener( 'mouseup', onMouseUp, false );
+    scope.inputMgr.removeEventListener( 'mousemove', onMouseMove );
+    scope.inputMgr.removeEventListener( 'mouseup', onMouseUp );
+
     scope.dispatchEvent( endEvent );
     state = STATE.NONE;
 

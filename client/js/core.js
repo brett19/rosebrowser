@@ -66,8 +66,6 @@ function initDebugCamera() {
   debugCamera.quaternion.setFromRotationMatrix(camera.matrixWorld);
   debugControls = new THREE.FreeFlyControls(debugCamera, debugInput);
   debugControls.movementSpeed = 100;
-  debugCamAxis.position.setFromMatrixPosition(camera.matrixWorld);
-  debugCamAxis.quaternion.setFromRotationMatrix(camera.matrixWorld);
   scene.add(debugCamAxis);
 }
 
@@ -79,7 +77,6 @@ function destroyDebugCamera() {
 
 var inputMgrEventHandler = InputManager._handleEvent;
 InputManager._handleEvent = function(name, e) {
-  console.log(name, e);
   if (name === 'keydown' && e.keyCode === 192) {
     if (!debugCamera) {
       initDebugCamera();
@@ -125,6 +122,10 @@ var renderFrame = function () {
   if (!debugCamera) {
     renderer.render(scene, camera);
   } else {
+    if (debugCamAxis) {
+      debugCamAxis.position.setFromMatrixPosition(camera.matrixWorld);
+      debugCamAxis.quaternion.setFromRotationMatrix(camera.matrixWorld);
+    }
     debugControls.update(delta);
     renderer.render(scene, debugCamera);
   }

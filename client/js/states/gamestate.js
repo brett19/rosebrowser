@@ -71,7 +71,7 @@ GameState.prototype.enter = function() {
   this.pickPosH.position.copy(MC.position);
   scene.add(this.pickPosH);
 
-  var controls = new THREE.OrbitControls(camera, renderer.domElement);
+  var controls = new THREE.OrbitControls(camera);
   controls.damping = 0.2;
 
   netGame.joinZone(MC.position.z, function() {
