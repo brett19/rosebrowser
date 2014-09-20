@@ -21,6 +21,13 @@ if (window.location.hash.length > 1) {
 }
 
 
+function normalizePath(path) {
+  path = path.replace(/\\/g, '/');
+  path = path.replace(/\/\//g, '/');
+  return path;
+}
+
+
 function MultiWait() {
   this.count = 0;
   this.callback = null;

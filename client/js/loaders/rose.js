@@ -28,6 +28,13 @@ if (EXPERIMENTAL_WS_LOAD) {
 } else {
 
   ROSELoader.load = function(path, callback) {
+    // Check for errors.
+    var normPath = normalizePath(path);
+    if (normPath !== path) {
+      //console.warn('Unnormalized path used.', path);
+      path = normPath;
+    }
+
     var loader = new THREE.XHRLoader();
     loader.setResponseType('arraybuffer');
     loader.load(ROSE_DATA_PATH + path, function (buffer) {
