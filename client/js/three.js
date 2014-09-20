@@ -82,6 +82,8 @@ THREE.CustomBlending = 5;
 THREE.AddEquation = 100;
 THREE.SubtractEquation = 101;
 THREE.ReverseSubtractEquation = 102;
+THREE.MinEquation = 103;
+THREE.MaxEquation = 104;
 
 // custom blending destination factors
 
@@ -25335,6 +25337,8 @@ THREE.WebGLRenderer = function ( parameters ) {
     if ( p === THREE.AddEquation ) return _gl.FUNC_ADD;
     if ( p === THREE.SubtractEquation ) return _gl.FUNC_SUBTRACT;
     if ( p === THREE.ReverseSubtractEquation ) return _gl.FUNC_REVERSE_SUBTRACT;
+    if ( p === THREE.MinEquation ) return 32775;
+    if ( p === THREE.MaxEquation ) return 32776;
 
     if ( p === THREE.ZeroFactor ) return _gl.ZERO;
     if ( p === THREE.OneFactor ) return _gl.ONE;
