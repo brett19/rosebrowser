@@ -15,6 +15,7 @@ MoveableObject.prototype = new GameObject();
 MoveableObject.prototype.moveTo = function(x, y) {
   this.targetPos.set(x, y, 0);
   this.isMoving = true;
+  this.emit('start_move');
 };
 
 MoveableObject.prototype.setDirection = function(radians) {
@@ -52,7 +53,7 @@ MoveableObject.prototype.update = function(delta) {
           dirDelta -= Math.PI * 2;
         }
 
-        var maxDelta = (Math.PI * 4) * delta;
+        var maxDelta = (Math.PI * 3) * delta;
         if (dirDelta < -maxDelta) {
           dirDelta = -maxDelta;
         } else if (dirDelta > maxDelta) {
@@ -67,9 +68,11 @@ MoveableObject.prototype.update = function(delta) {
       } else {
         // Bumped into something, just stop for now
         this.isMoving = false;
+        this.emit('stop_move');
       }
     } else {
       this.isMoving = false;
+      this.emit('stop_move');
     }
   }
 };

@@ -1,7 +1,15 @@
 'use strict';
 
-function NpcPawn() {
+function NpcPawn(go) {
   this.rootObj = new THREE.Object3D();
+
+  if (go) {
+    this.owner = go;
+
+    this.rootObj.name = 'NPC_' + go.serverObjectIdx + '_' + go.charIdx;
+    this.rootObj.rotation.z = go.direction;
+    this.setModel(go.charIdx);
+  }
 }
 
 NpcPawn.prototype._setModel = function(charData, modelMgr, charIdx) {

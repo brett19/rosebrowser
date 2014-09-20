@@ -94,11 +94,37 @@ var FAVTPARTTYPES = [
  * against the skeleton again).
  * @property {IndexedCache.<THREE.Animation>} motionCache
  */
-function CharPawn() {
+function CharPawn(go) {
   this.rootObj = new THREE.Object3D();
   this.skel = null;
   this.gender = 0;
   this.motionCache = null;
+  this.activeMotionIdx = -1;
+  this.activeMotion = null;
+  this.prevMotion = null;
+
+  if (go) {
+    this.owner = go;
+
+    var self = this;
+    this.rootObj.name = 'CHAR_' + '????';
+    this.setGender(go.gender, function() {
+      for (var j = 0; j < AVTBODYPART.Max; ++j) {
+        self.setModelPart(j, go.visParts[j].itemNo);
+      }
+    });
+
+    go.on('start_move', function() {
+      self.setMotion(AVTANI.RUN);
+    });
+    go.on('stop_move', function() {
+      self.setMotion(AVTANI.STOP1);
+    });
+    go.on('moved', function () {
+      self.rootObj.position.copy(go.position);
+      self.rootObj.rotation.z = go.direction;
+    });
+  }
 }
 
 /**
@@ -193,15 +219,35 @@ CharPawn.prototype.setGender = function(genderIdx, callback) {
 };
 
 CharPawn.prototype.setMotion = function(motionIdx, callback) {
+  this.activeMotionIdx = motionIdx;
+
   var self = this;
   GDM.get('char_motiontypes', function(motionTypes) {
 
     var motionFileIdx = motionTypes.rows[motionIdx][1];
 
     self.motionCache.get(motionFileIdx, function(anim) {
-      anim.play();
-    });
+      // Don't overwrite any newer motion changes.
+      if (motionIdx !== self.activeMotionIdx) {
+        return;
+      }
 
+      if (self.activeMotion === anim) {
+        // Already playing this animation!
+        return;
+      }
+
+      self.prevMotion = self.activeMotion;
+
+      self.activeMotion = anim;
+
+      anim.play();
+      if (self.prevMotion) {
+        self.activeMotion.weight = 1 - self.prevMotion.weight;
+      } else {
+        self.activeMotion.weight = 1;
+      }
+    });
   });
 };
 
@@ -215,4 +261,19 @@ CharPawn.prototype.setModelPart = function(partIdx, modelIdx, callback) {
       callback();
     }
   });
+};
+
+CharPawn.prototype.update = function(delta) {
+  var blendWeightDelta = 6 * delta;
+
+  if (this.prevMotion && this.activeMotion) {
+    this.prevMotion.weight -= blendWeightDelta;
+    this.activeMotion.weight += blendWeightDelta;
+
+    if (this.activeMotion.weight >= 1.0) {
+      this.activeMotion.weight = 1.0;
+      this.prevMotion.stop();
+      this.prevMotion = null;
+    }
+  }
 };

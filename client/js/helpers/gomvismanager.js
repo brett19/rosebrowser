@@ -23,42 +23,14 @@ GOMVisManager.prototype.findByObject = function(obj) {
   return null;
 };
 
-GOMVisManager.prototype._addObjectChar = function(obj) {
-  var visObj = new CharPawn();
-  visObj.rootObj.name = 'CHAR_' + '????';
-  visObj.setGender(obj.gender, function() {
-    for (var j = 0; j < AVTBODYPART.Max; ++j) {
-      visObj.setModelPart(j, obj.visParts[j].itemNo);
-    }
-  });
-
-  return visObj;
-};
-
-GOMVisManager.prototype._addObjectNpc = function(obj) {
-  var visObj = new NpcPawn();
-  visObj.rootObj.name = 'NPC_' + obj.serverObjectIdx + '_' + obj.charIdx;
-  visObj.setModel(obj.charIdx);
-  visObj.rootObj.rotation.z = obj.direction;
-
-  return visObj;
-};
-
 GOMVisManager.prototype._addObjectMovable = function(obj) {
   var visObj = null;
   if (obj instanceof CharObject) {
-    visObj = this._addObjectChar(obj);
+    visObj = new CharPawn(obj);
   } else if (obj instanceof NpcObject) {
-    visObj = this._addObjectNpc(obj);
+    visObj = new NpcPawn(obj);
   } else {
     return null;
-  }
-
-  if (visObj) {
-    obj.on('moved', function () {
-      visObj.rootObj.position.copy(obj.position);
-      visObj.rootObj.rotation.z = obj.direction;
-    });
   }
 
   return visObj;
@@ -80,8 +52,6 @@ GOMVisManager.prototype._addObject = function(obj) {
   }
 
   if (visObj) {
-    visObj.owner = obj;
-
     var highZ = this.world.findHighPoint(obj.position.x, obj.position.y);
     visObj.rootObj.position.copy(obj.position);
     visObj.rootObj.position.z = highZ;
@@ -109,6 +79,12 @@ GOMVisManager.prototype.addToScene = function() {
 
   GOM.addEventListener('object_added', this.onAddObject);
   GOM.addEventListener('object_removed', this.onRemoveObject);
+};
+
+GOMVisManager.prototype.update = function(delta) {
+  for (var i = 0; i < this.visObjects.length; ++i) {
+    this.visObjects[i].update(delta);
+  }
 };
 
 GOMVisManager.prototype.removeFromScene = function() {
