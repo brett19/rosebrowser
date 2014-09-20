@@ -67,7 +67,7 @@ TestState.prototype.enter = function() {
   var container = document.createElement( 'div' );
   document.body.appendChild( container );
 
-  var controls = new THREE.FlyControls(camera, renderer.domElement);
+  var controls = new THREE.FreeFlyControls(camera, renderer.domElement);
   controls.movementSpeed = 100;
   controls.domElement = container;
   controls.rollSpeed = Math.PI / 24;
