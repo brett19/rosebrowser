@@ -67,7 +67,7 @@ TestState.prototype.enter = function() {
   var container = document.createElement( 'div' );
   document.body.appendChild( container );
 
-  var controls = new THREE.FreeFlyControls(camera, renderer.domElement);
+  var controls = new THREE.FlyControls(camera);
   controls.movementSpeed = 100;
   controls.domElement = container;
   controls.rollSpeed = Math.PI / 24;
@@ -101,6 +101,8 @@ TestState.prototype.enter = function() {
   charObj.rootObj.rotateOnAxis(new THREE.Vector3(0,0,1), Math.PI);
   charObj.rootObj.scale.set(1.2, 1.2, 1.2);
   scene.add(charObj.rootObj);
+
+  //LoginDialog.show();
 };
 
 TestState.prototype.leave = function() {

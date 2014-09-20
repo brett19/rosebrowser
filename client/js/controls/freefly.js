@@ -2,12 +2,11 @@
  * @author James Baicoianu / http://www.baicoianu.com/
  */
 
-THREE.FreeFlyControls = function ( object, domElement ) {
+THREE.FreeFlyControls = function ( object, inputMgr ) {
 
   this.object = object;
 
-  this.domElement = ( domElement !== undefined ) ? domElement : document;
-  if ( domElement ) this.domElement.setAttribute( 'tabindex', -1 );
+  this.inputMgr = ( inputMgr !== undefined ) ? inputMgr : InputManager;
 
   // API
 
@@ -87,12 +86,6 @@ THREE.FreeFlyControls = function ( object, domElement ) {
   };
 
   this.mousedown = function( event ) {
-
-    if ( this.domElement !== document ) {
-
-      this.domElement.focus();
-
-    }
 
     event.preventDefault();
     event.stopPropagation();
@@ -190,14 +183,13 @@ THREE.FreeFlyControls = function ( object, domElement ) {
 
   };
 
-  this.domElement.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
 
-  this.domElement.addEventListener( 'mousemove', bind( this, this.mousemove ), false );
-  this.domElement.addEventListener( 'mousedown', bind( this, this.mousedown ), false );
-  this.domElement.addEventListener( 'mouseup',   bind( this, this.mouseup ), false );
+  this.inputMgr.addEventListener( 'mousemove', bind( this, this.mousemove ) );
+  this.inputMgr.addEventListener( 'mousedown', bind( this, this.mousedown ) );
+  this.inputMgr.addEventListener( 'mouseup',   bind( this, this.mouseup ) );
 
-  window.addEventListener( 'keydown', bind( this, this.keydown ), false );
-  window.addEventListener( 'keyup',   bind( this, this.keyup ), false );
+  this.inputMgr.addEventListener( 'keydown', bind( this, this.keydown ) );
+  this.inputMgr.addEventListener( 'keyup',   bind( this, this.keyup ) );
 
   this.updateMovementVector();
   this.updateRotation();

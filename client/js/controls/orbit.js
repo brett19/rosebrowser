@@ -21,10 +21,11 @@
 //      controls.target.z = 150;
 // Simple substitute "OrbitControls" and the control should work as-is.
 
-THREE.OrbitControls = function ( object, domElement ) {
+THREE.OrbitControls = function ( object, inputMgr ) {
 
   this.object = object;
-  this.domElement = ( domElement !== undefined ) ? domElement : document;
+
+  this.inputMgr = ( inputMgr !== undefined ) ? inputMgr : InputManager;
 
   // API
 
@@ -360,7 +361,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
     event.preventDefault();
 
-    var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
+    var element = document.body;
 
     if ( state === STATE.ROTATE ) {
 
@@ -628,16 +629,14 @@ THREE.OrbitControls = function ( object, domElement ) {
 
   }
 
-  this.domElement.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
-  this.domElement.addEventListener( 'mousedown', onMouseDown, false );
-  this.domElement.addEventListener( 'mousewheel', onMouseWheel, false );
-  this.domElement.addEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
+  this.inputMgr.addEventListener( 'mousedown', onMouseDown );
+  this.inputMgr.addEventListener( 'mousewheel', onMouseWheel );
 
-  this.domElement.addEventListener( 'touchstart', touchstart, false );
-  this.domElement.addEventListener( 'touchend', touchend, false );
-  this.domElement.addEventListener( 'touchmove', touchmove, false );
+  this.inputMgr.addEventListener( 'touchstart', touchstart );
+  this.inputMgr.addEventListener( 'touchend', touchend );
+  this.inputMgr.addEventListener( 'touchmove', touchmove );
 
-  window.addEventListener( 'keydown', onKeyDown, false );
+  this.inputMgr.addEventListener( 'keydown', onKeyDown );
 
   // force an update at start
   this.update();

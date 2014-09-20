@@ -80,7 +80,7 @@ GameState.prototype.enter = function() {
 
   var projector = new THREE.Projector();
   var self = this;
-  renderer.domElement.addEventListener('mousedown', function(e) {
+  InputManager.on('mousedown', function(e) {
     e.preventDefault();
 
     if ( event.button !== 0 ) {

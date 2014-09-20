@@ -54,6 +54,52 @@ var defaultMat = new THREE.MeshPhongMaterial({ambient: 0x030303, color: 0xdddddd
 var debugGui = new dat.GUI();
 
 
+// Set up the debugging camera
+var debugCamera = null;
+var debugInput = new EventEmitter();
+var debugControls = null;
+var debugCamAxis = new THREE.AxisHelper(10);
+
+function initDebugCamera() {
+  debugCamera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
+  debugCamera.position.setFromMatrixPosition(camera.matrixWorld);
+  debugCamera.quaternion.setFromRotationMatrix(camera.matrixWorld);
+  debugControls = new THREE.FreeFlyControls(debugCamera, debugInput);
+  debugControls.movementSpeed = 100;
+  debugCamAxis.position.setFromMatrixPosition(camera.matrixWorld);
+  debugCamAxis.quaternion.setFromRotationMatrix(camera.matrixWorld);
+  scene.add(debugCamAxis);
+}
+
+function destroyDebugCamera() {
+  debugCamera = null;
+  debugControls = null;
+  scene.remove(debugCamAxis);
+}
+
+var inputMgrEventHandler = InputManager._handleEvent;
+InputManager._handleEvent = function(name, e) {
+  console.log(name, e);
+  if (name === 'keydown' && e.keyCode === 192) {
+    if (!debugCamera) {
+      initDebugCamera();
+    } else {
+      destroyDebugCamera();
+    }
+    e.preventDefault();
+    return;
+  }
+
+  if (debugControls) {
+    debugInput.emit(name, e);
+  } else {
+    // Use the default handler
+    inputMgrEventHandler.call(this, name, e);
+  }
+};
+
+
+
 var activeGameState = null;
 
 // FPS / MS indicator
@@ -76,7 +122,12 @@ var renderFrame = function () {
     activeGameState.update(delta);
   }
 
-  renderer.render(scene, camera);
+  if (!debugCamera) {
+    renderer.render(scene, camera);
+  } else {
+    debugControls.update(delta);
+    renderer.render(scene, debugCamera);
+  }
   stats.end();
 };
 renderFrame();
