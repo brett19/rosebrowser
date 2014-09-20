@@ -302,7 +302,7 @@ function WorldChunk(world, chunkX, chunkY) {
   this.info = null;
   this.heightmap = null;
   this.tilemap = null;
-  this.position = new THREE.Vector3((chunkX - 33) * 160, (32 - chunkY) * 160, 0);
+  this.position = new THREE.Vector3((chunkX - 32) * 160, (32 - chunkY) * 160, 0);
   this.isVisible = false;
   this.loadState = 0;
   this.loadWaiters = [];
@@ -468,7 +468,7 @@ WorldChunk.prototype._buildTerrain = function() {
     var chunkMesh = new THREE.Mesh(geometry, chunkGrpMat);
     chunkMesh.name = 'TER_' + this.name + '_' + i;
     chunkMesh.position.copy(
-        this.position.clone().add(new THREE.Vector3(80, -80, 0)));
+        this.position.clone().add(new THREE.Vector3(-80, -80, 0)));
     chunkMesh.updateMatrix();
     chunkMesh.matrixAutoUpdate = false;
     this.rootObj.add(chunkMesh);
