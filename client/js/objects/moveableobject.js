@@ -7,7 +7,7 @@ function MoveableObject(type, world) {
   this.targetPos = new THREE.Vector3(0, 0, 0);
   this.direction = 0;
   this.isMoving = false;
-  this.moveSpeed = 20;
+  this.moveSpeed = 550;
   this.useMoveCollision = false;
 }
 MoveableObject.prototype = new GameObject();
@@ -24,7 +24,7 @@ MoveableObject.prototype.setDirection = function(radians) {
 
 MoveableObject.prototype.update = function(delta) {
   if (this.isMoving) {
-    var frameMoveSpeed = this.moveSpeed * delta;
+    var frameMoveSpeed = this.moveSpeed * 0.01 * delta;
 
     this.targetPos.z = this.position.z;
 
