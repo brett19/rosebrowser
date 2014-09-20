@@ -134,6 +134,9 @@ if (launchGameState) {
 
 GDM.register('list_zone', DataTable, '3DDATA/STB/LIST_ZONE.STB');
 
+GDM.register('char_motiontypes', DataTable, '3DDATA/STB/TYPE_MOTION.STB');
+GDM.register('char_motions', DataTable, '3DDATA/STB/FILE_MOTION.STB');
+
 GDM.register('npc_chars', CharacterList, '3DDATA/NPC/LIST_NPC.CHR');
 GDM.register('npc_models', ModelListManager, '3DDATA/NPC/PART_NPC.ZSC');
 

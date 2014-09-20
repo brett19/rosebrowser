@@ -3,72 +3,34 @@
 var GENDERSKELNAMES = {
   0: 'male_skel',
   1: 'female_skel'
-}
-
-function CharPawn() {
-  this.rootObj = new THREE.Object3D();
-  this.skel = null;
-}
-
-CharPawn.prototype._setSkeleton = function(skelData) {
-  this.skel = skelData.create(this.rootObj);
 };
 
-CharPawn.prototype._setModelPart = function(modelList, partIdx, modelIdx, bindBone, bindDummy) {
-  var model = modelList.data.models[modelIdx];
-  if (!model) {
-    // This is only really a warnable offence if not 0
-    if (modelIdx !== 0) {
-      console.warn('Tried to set avatar part to invalid item (' + partIdx + ', ' + modelIdx + ', ' + bindBone + ')');
-    }
-    return;
-  }
-
-  var self = this;
-  for (var j = 0; j < model.parts.length; ++j) {
-    (function(part) {
-      var material = modelList._createMaterial(part.materialIdx);
-
-      var meshPath = modelList.data.meshes[part.meshIdx];
-      Mesh.load(meshPath, function (geometry) {
-        if (part.boneIndex !== undefined) {
-          bindBone = part.boneIndex;
-        }
-        if (part.dummyIndex !== undefined) {
-          bindDummy = part.dummyIndex;
-        }
-
-        if (bindBone === undefined && bindDummy === undefined) {
-          var charPartMesh = new THREE.SkinnedMesh(geometry, material);
-          charPartMesh.bind(self.skel);
-          self.rootObj.add(charPartMesh);
-        } else {
-          var charPartMesh = new THREE.Mesh(geometry, material);
-          if (bindBone !== undefined) {
-            self.skel.bones[bindBone].add(charPartMesh);
-          } else if (bindDummy !== undefined) {
-            self.skel.dummies[bindDummy].add(charPartMesh);
-          } else {
-            console.warn('Loaded part with no bind location');
-          }
-        }
-      });
-    })(model.parts[j]);
-  }
+var MOTION_TABLE = {
+  MALE_MOTION: 0, // STR
+  FEMALE_MOTION: 1, // STR
+  MOTION_TYPE: 2, // INT
+  DESCRIPTION: 3 // STR
 };
 
-CharPawn.prototype.setGender = function(genderIdx, callback) {
-  var self = this;
-  var skelName = GENDERSKELNAMES[genderIdx];
-  if (!skelName) {
-    throw new Error('Invalid gender specified (' + genderIdx + ')');
-  }
-  GDM.get(skelName, function(skelData) {
-    self._setSkeleton(skelData);
-    if (callback) {
-      callback();
-    }
-  });
+var AVTANI = {
+  STOP1: 0,
+  STOP2: 1,
+  WALK: 2,
+  RUN: 3,
+  SITTING: 4,
+  SIT: 5,
+  STANDUP: 6,
+  STOP3: 7,
+  ATTACK: 8,
+  ATTACK2: 9,
+  ATTACK3: 10,
+  HIT: 11,
+  FALL: 12,
+  DIE: 13,
+  RAISE: 14,
+  JUMP1: 15,
+  JUMP2: 16,
+  PICKITEM: 17
 };
 
 var AVTBODYPART = {
@@ -123,6 +85,112 @@ var FAVTPARTTYPES = [
   { dataName: 'itm_weapon' },
   { dataName: 'itm_subwpn' }
 ];
+
+function CharPawn() {
+  this.rootObj = new THREE.Object3D();
+  this.skel = null;
+  this.gender = 0;
+  this.motionCache = null;
+}
+
+CharPawn.motionFileCache = new DataCache(Animation);
+
+// This function should never be called directly, and should only used
+//   by the loadedMotions cache.  Use this.motionCache.get instead.
+CharPawn.prototype._loadMotion = function(motionFileIdx, callback) {
+  var self = this;
+  GDM.get('char_motions', function(motionTable) {
+    var motionRow = motionTable.rows[motionFileIdx];
+    var motionFile = motionRow[MOTION_TABLE.MALE_MOTION + self.gender];
+
+    CharPawn.motionFileCache.get(motionFile, function(animData) {
+      var anim = animData.createForSkeleton(motionFile, self.rootObj, self.skel);
+      callback(anim);
+    });
+  });
+};
+
+CharPawn.prototype._setSkeleton = function(skelData) {
+  this.skel = skelData.create(this.rootObj);
+
+  // Reset the loaded motions if the skeleton changed...
+  this.motionCache = new IndexedCache(this._loadMotion.bind(this));
+
+  this.setMotion(AVTANI.STOP1);
+};
+
+CharPawn.prototype._setModelPart = function(modelList, partIdx, modelIdx, bindBone, bindDummy) {
+  var model = modelList.data.models[modelIdx];
+  if (!model) {
+    // This is only really a warnable offence if not 0
+    if (modelIdx !== 0) {
+      console.warn('Tried to set avatar part to invalid item (' + partIdx + ', ' + modelIdx + ', ' + bindBone + ')');
+    }
+    return;
+  }
+
+  var self = this;
+  for (var j = 0; j < model.parts.length; ++j) {
+    (function(part) {
+      var material = modelList._createMaterial(part.materialIdx);
+
+      var meshPath = modelList.data.meshes[part.meshIdx];
+      Mesh.load(meshPath, function (geometry) {
+        if (part.boneIndex !== undefined) {
+          bindBone = part.boneIndex;
+        }
+        if (part.dummyIndex !== undefined) {
+          bindDummy = part.dummyIndex;
+        }
+
+        if (bindBone === undefined && bindDummy === undefined) {
+          var charPartMesh = new THREE.SkinnedMesh(geometry, material);
+          charPartMesh.bind(self.skel);
+          self.rootObj.add(charPartMesh);
+        } else {
+          var charPartMesh = new THREE.Mesh(geometry, material);
+          if (bindBone !== undefined) {
+            self.skel.bones[bindBone].add(charPartMesh);
+          } else if (bindDummy !== undefined) {
+            self.skel.dummies[bindDummy].add(charPartMesh);
+          } else {
+            console.warn('Loaded part with no bind location');
+          }
+        }
+      });
+    })(model.parts[j]);
+  }
+};
+
+CharPawn.prototype.setGender = function(genderIdx, callback) {
+  var self = this;
+  this.gender = genderIdx;
+
+  var skelName = GENDERSKELNAMES[genderIdx];
+  if (!skelName) {
+    throw new Error('Invalid gender specified (' + genderIdx + ')');
+  }
+  GDM.get(skelName, function(skelData) {
+    self._setSkeleton(skelData);
+    if (callback) {
+      callback();
+    }
+  });
+};
+
+CharPawn.prototype.setMotion = function(motionIdx, callback) {
+  var self = this;
+  GDM.get('char_motiontypes', function(motionTypes) {
+
+    var motionFileIdx = motionTypes.rows[motionIdx][1];
+
+    self.motionCache.get(motionFileIdx, function(anim) {
+      anim.play();
+    });
+
+  });
+};
+
 CharPawn.prototype.setModelPart = function(partIdx, modelIdx, callback) {
   var self = this;
   var partType = MAVTPARTTYPES[partIdx];
