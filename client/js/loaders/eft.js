@@ -1,6 +1,7 @@
 /**
  * @constructor
  * @property {String} name
+ * @property {Boolean} soundEnabled
  * @property {String} soundPath
  * @property {Number} loopCount
  * @property {Effect.Particle[]} particles
@@ -82,9 +83,10 @@ Effect.load = function(path, callback) {
     var animations, data, i, particles;
 
     data = new Effect();
-    data.name      = rh.readUint32Str();
-    data.soundPath = rh.readUint32Str();
-    data.loopCount = rh.readUint32();
+    data.name         = rh.readUint32Str();
+    data.soundEnabled = (rh.readUint32() & 0xff) !== 0;
+    data.soundPath    = rh.readUint32Str();
+    data.loopCount    = rh.readUint32();
 
     particles = rh.readUint32();
     for (i = 0; i < particles; ++i) {
