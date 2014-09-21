@@ -36,9 +36,11 @@ MoveableObject.prototype.update = function(delta) {
     }
     if (this.velocity.lengthSq() > 0.00001) {
       var newPosition = this.position.clone().add(this.velocity);
-      var highZ = this.world.findHighPoint(newPosition.x, newPosition.y);
+      var highZ = this.world.findHighPoint(newPosition.x, newPosition.y, newPosition.z + 1);
       var moveSlope = (highZ - this.position.z) / this.velocity.length();
-      if (!this.useMoveCollision || moveSlope < 0.5) {
+
+      // TODO: Readd proper slope checking!
+      if (!this.useMoveCollision || true) {
         newPosition.z = highZ;
 
         var posDiff = new THREE.Vector2(

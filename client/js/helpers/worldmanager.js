@@ -80,6 +80,7 @@ function WorldManager() {
   this.chunks = {};
   this.terChunks = [];
   this.objects = [];
+  this.colObjects = [];
   this.zoneInfo = null;
   this.viewDistSq = Math.pow(300, 2);
   this.DM = new DataManager();
@@ -98,11 +99,15 @@ WorldManager.prototype.removeFromScene = function() {
   scene.remove(this.rootObj);
 };
 
-WorldManager.prototype.findHighPoint = function(x, y) {
-  var caster = new THREE.Raycaster(new THREE.Vector3(x, y, 1000), new THREE.Vector3(0, 0, -1));
+WorldManager.prototype.findHighPoint = function(x, y, fromZ) {
+  if (fromZ === undefined) {
+    fromZ = 1000; // From the Sky!!
+  }
+
+  var caster = new THREE.Raycaster(new THREE.Vector3(x, y, fromZ), new THREE.Vector3(0, 0, -1));
   //var octreeObjects = this.octree.search( caster.ray.origin, caster.ray.far, true, caster.ray.direction );
   //var inters = caster.intersectOctreeObjects( octreeObjects );
-  var inters = caster.intersectObjects( this.terChunks );
+  var inters = caster.intersectObjects( this.colObjects, true );
   if (inters.length > 0) {
     return inters[0].point.z;
   }
@@ -474,6 +479,7 @@ WorldChunk.prototype._buildTerrain = function() {
     this.rootObj.add(chunkMesh);
     //self.world.octree.add(chunkMesh);
     this.world.terChunks.push(chunkMesh);
+    this.world.colObjects.push(chunkMesh);
 
     var ah = new THREE.AxisHelper(20);
     ah.position.copy(this.position);
@@ -520,6 +526,7 @@ function _loadChunkObjectGroup(chunk, namePrefix, objList, modelList, lightmap, 
     chunk.rootObj.add(obj);
     //this.octree.add(obj);
     chunk.world.objects.push(obj);
+    chunk.world.colObjects.push(obj);
   }
   waitAll.wait(callback);
 };
