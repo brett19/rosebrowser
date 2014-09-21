@@ -64,18 +64,20 @@ CameraAnimator.prototype.update = function(delta) {
 
   this.time += delta * this.timeScale;
 
-  if (this.loopCount === 1) {
-    var lastFrameTime = this.length - (1 / this.data.fps);
-    if (this.time >= lastFrameTime) {
-      this.time = lastFrameTime;
-      this.state = CAMANIMPLAYSTATE.Stopped;
-    }
-  } else {
-    if (this.time >= this.length) {
-      if (this.loopCount !== -1) {
-        this.loopCount--;
+  while (this.time >= this.length) {
+    if (this.loopCount === 1) {
+      var lastFrameTime = this.length - (1 / this.data.fps);
+      if (this.time >= lastFrameTime) {
+        this.time = lastFrameTime;
+        this.state = CAMANIMPLAYSTATE.Stopped;
       }
-      this.time -= this.length;
+    } else {
+      if (this.time >= this.length) {
+        if (this.loopCount !== -1) {
+          this.loopCount--;
+        }
+        this.time -= this.length;
+      }
     }
   }
 
