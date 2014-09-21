@@ -42,6 +42,7 @@ _NetManager.prototype.watch = function(wn, gn) {
     char.serverObjectIdx = data.objectIdx;
     char.name = data.name;
     char.level = data.level;
+    char.moveSpeed = data.runSpeed;
     char.setPosition(data.position.x, data.position.y, 10);
     char.gender = data.gender;
     char.visParts = data.parts;

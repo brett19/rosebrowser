@@ -98,6 +98,7 @@ GameState.prototype.enter = function() {
     var inters = ray.intersectObjects( self.worldMgr.terChunks );
     if (inters.length > 0) {
       var moveToPos = inters[0].point;
+      netGame.moveTo(moveToPos.x, moveToPos.y, moveToPos.z);
       MC.moveTo(moveToPos.x, moveToPos.y);
       self.pickPosH.position.copy(moveToPos);
     }

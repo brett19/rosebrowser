@@ -77,6 +77,25 @@ GameClient.prototype.joinZone = function(posZ, callback) {
   });
 };
 
+GameClient.prototype.moveTo = function(x, y, z) {
+  var opak = new RosePacket(0x79a);
+  opak.addUint16(0);
+  opak.addFloat(x * 100);
+  opak.addFloat(y * 100);
+  opak.addInt16(z * 100);
+  this.socket.sendPacket(opak);
+
+  /*
+  this.son('packet', function(pak) {
+    if (pak.cmd !== 0x79a) {
+      return true;
+    }
+
+    callback(data);
+  });
+  */
+};
+
 /**
  * Little helper to emit packet events that can be logged.
  * @param {string} event
