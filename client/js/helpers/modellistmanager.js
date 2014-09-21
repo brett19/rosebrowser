@@ -119,18 +119,19 @@ ModelListManager.prototype._createMaterial = function(materialIdx) {
   if (zscMat.twoSided) {
     newMaterial.side = THREE.DoubleSide;
   }
-  if (zscMat.alphaEnabled) {
-    newMaterial.transparent = true;
-  }
 
-  // TODO: temporary hack!
-  if (!zscMat.forSkinning) {
+  // TEMPORARY HACK
+  if (!zscMat.useSpecular) {
+    if (zscMat.alphaEnabled) {
+      newMaterial.transparent = true;
+    }
     if (zscMat.alphaTestEnabled) {
       newMaterial.alphaTest = zscMat.alphaRef / 255;
     } else {
       newMaterial.alphaTest = 0;
     }
   }
+
   newMaterial.opacity = zscMat.alpha;
   newMaterial.depthTest = zscMat.depthTestEnabled;
   newMaterial.depthWrite = zscMat.depthWriteEnabled;
