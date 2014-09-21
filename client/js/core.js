@@ -52,7 +52,7 @@ var defaultMat = new THREE.MeshPhongMaterial({ambient: 0x030303, color: 0xdddddd
 
 // Create a debug GUI manager.
 var debugGui = new dat.GUI();
-
+DebugHelper.init();
 
 // Set up the debugging camera
 var debugCamera = null;

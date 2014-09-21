@@ -37,25 +37,7 @@ GameState.prototype.update = function(delta) {
   this.gomVisMgr.update(delta);
 };
 
-GameState.prototype.debugPrintScene = function() {
-  function _printThis(obj) {
-    var out = '';
-    out += 'OBJ';
-    out += '[' + obj.name + ']';
-    out += ' @ ' + obj.position.x + ',' + obj.position.y + ',' + obj.position.z;
-
-    console.groupCollapsed(out);
-    for (var j = 0; j < obj.children.length; ++j) {
-      _printThis(obj.children[j]);
-    }
-    console.groupEnd();
-  }
-  _printThis(scene);
-};
-
 GameState.prototype.enter = function() {
-  debugGui.add(this, 'debugPrintScene');
-
   this.worldMgr.addToScene();
   this.gomVisMgr.addToScene();
 
