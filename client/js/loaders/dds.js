@@ -189,20 +189,25 @@ DDS.loadHeader = function(rh) {
  * @returns {Number} shift
  */
 DDS.getMaskShift = function(mask) {
-  if (mask & 0xff) {
-    return 0;
-  } else if (mask & 0xff00) {
-    return 8;
-  } else if (mask & 0xff0000) {
-    return 16;
-  } else if (mask & 0xff000000) {
-    return 24;
-  } else {
-    console.error('DDS.Loader.getMaskShift: Invalid channel mask ' + mask);
-    return 0;
-  }
+  var str = mask.toString(2);
+  return str.length - (str.lastIndexOf('1') + 1);
 };
 
+
+/**
+ * @param {Number} mask
+ * @returns {Number} scale
+ */
+DDS.getMaskScale = function(mask) {
+  var str = mask.toString(2);
+  var pos = str.lastIndexOf('1');
+
+  if (pos === 0) {
+    return 256.0;
+  } else {
+    return 256.0 / (1 << (pos + 1));
+  }
+};
 
 /**
  * @callback DDS~onLoad
@@ -223,6 +228,7 @@ DDS.load = function(path, callback) {
   ROSELoader.load(path, function(/** BinaryReader */rh) {
     var maskR, maskG, maskB, maskA;
     var shiftR, shiftG, shiftB, shiftA;
+    var scaleR, scaleG, scaleB, scaleA;
     var header, format, dxtBlockSize;
     var faces, cubemap, readPixelFn;
     var mipmaps = [];
@@ -253,14 +259,10 @@ DDS.load = function(path, callback) {
         break;
       }
     } else if (header.pixelFormat.flags & DDS.PIXEL_FORMAT_FLAGS.RGB) {
-      if (header.pixelFormat.bitCount == 32) {
-        if (header.pixelFormat.flags & DDS.PIXEL_FORMAT_FLAGS.ALPHA_PIXELS) {
-          format = THREE.RGBAFormat;
-        }
-      } else if (header.pixelFormat.bitCount == 24) {
-        if (!(header.pixelFormat.flags & DDS.PIXEL_FORMAT_FLAGS.ALPHA_PIXELS)) {
-          format = THREE.RGBFormat;
-        }
+      if (header.pixelFormat.flags & DDS.PIXEL_FORMAT_FLAGS.ALPHA_PIXELS) {
+        format = THREE.RGBAFormat;
+      } else {
+        format = THREE.RGBFormat;
       }
     } else if (header.pixelFormat.flags & DDS.PIXEL_FORMAT_FLAGS.LUMINANCE) {
       if (header.pixelFormat.flags & DDS.PIXEL_FORMAT_FLAGS.ALPHA_PIXELS) {
@@ -298,11 +300,15 @@ DDS.load = function(path, callback) {
         shiftR = DDS.getMaskShift(maskR);
         shiftG = DDS.getMaskShift(maskG);
         shiftB = DDS.getMaskShift(maskB);
+        scaleR = DDS.getMaskScale(maskR);
+        scaleG = DDS.getMaskScale(maskG);
+        scaleB = DDS.getMaskScale(maskB);
       }
 
       if (header.pixelFormat.flags & DDS.PIXEL_FORMAT_FLAGS.ALPHA_PIXELS) {
         maskA = header.pixelFormat.maskA;
         shiftA = DDS.getMaskShift(maskA);
+        scaleA = DDS.getMaskScale(maskA);
       }
 
       switch (header.pixelFormat.bitCount) {
@@ -361,10 +367,10 @@ DDS.load = function(path, callback) {
               var g = (pixel & maskG) >> shiftG;
               var b = (pixel & maskB) >> shiftB;
               var a = (pixel & maskA) >> shiftA;
-              mipmap.data[idx++] = r;
-              mipmap.data[idx++] = g;
-              mipmap.data[idx++] = b;
-              mipmap.data[idx++] = a;
+              mipmap.data[idx++] = r * scaleR;
+              mipmap.data[idx++] = g * scaleG;
+              mipmap.data[idx++] = b * scaleB;
+              mipmap.data[idx++] = a * scaleA;
             }
           }
           break;
@@ -387,9 +393,9 @@ DDS.load = function(path, callback) {
               var r = (pixel & maskR) >> shiftR;
               var g = (pixel & maskG) >> shiftG;
               var b = (pixel & maskB) >> shiftB;
-              mipmap.data[idx++] = r;
-              mipmap.data[idx++] = g;
-              mipmap.data[idx++] = b;
+              mipmap.data[idx++] = r * scaleR;
+              mipmap.data[idx++] = g * scaleG;
+              mipmap.data[idx++] = b * scaleB;
             }
           }
 
@@ -412,8 +418,8 @@ DDS.load = function(path, callback) {
               var pixel = readPixelFn.apply(rh);
               var r = (pixel & maskR) >> shiftR;
               var a = (pixel & maskA) >> shiftA;
-              mipmap.data[idx++] = r;
-              mipmap.data[idx++] = a;
+              mipmap.data[idx++] = r * scaleR;
+              mipmap.data[idx++] = a * scaleA;
             }
           }
           break;
@@ -425,7 +431,7 @@ DDS.load = function(path, callback) {
             for (var k = 0; k < pixelCount; ++k) {
               var pixel = readPixelFn.apply(rh);
               var a = (pixel & maskA) >> shiftA;
-              mipmap.data[k] = a;
+              mipmap.data[k] = a * scaleA;
             }
           }
           break;
