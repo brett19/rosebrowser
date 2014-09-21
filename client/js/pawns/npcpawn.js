@@ -2,6 +2,7 @@
 
 function NpcPawn(go) {
   this.rootObj = new THREE.Object3D();
+  this.rootObj.owner = this;
 
   if (go) {
     this.owner = go;

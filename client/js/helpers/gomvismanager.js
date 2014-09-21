@@ -4,6 +4,7 @@ function GOMVisManager(world) {
   this.world = world;
   this.inScene = false;
   this.visObjects = [];
+  this.colObjects = [];
 
   var self = this;
   this.onAddObject = function(obj) {
@@ -13,6 +14,27 @@ function GOMVisManager(world) {
     self._removeObject(obj);
   };
 }
+
+GOMVisManager.prototype.rayPick = function(rayCaster) {
+  var inters = rayCaster.intersectObjects( this.colObjects, true );
+  if (inters.length > 0) {
+    return inters[0];
+  }
+  return null;
+};
+
+GOMVisManager.prototype.findByMesh = function(mesh) {
+  // Find the root Object3D for whatever we clicked.
+  var rootObj = mesh.rootObject;
+  if (rootObj) {
+    // Find the Pawn associated with this Object3D
+    var foundPawn = rootObj.owner;
+    if (foundPawn) {
+      return foundPawn;
+    }
+  }
+  return null;
+};
 
 GOMVisManager.prototype.findByObject = function(obj) {
   for (var i = 0; i < this.visObjects.length; ++i) {
@@ -58,6 +80,7 @@ GOMVisManager.prototype._addObject = function(obj) {
 
     scene.add(visObj.rootObj);
     this.visObjects.push(visObj);
+    this.colObjects.push(visObj.rootObj);
   } else {
     console.warn('Object added to GOMVis is not a recognized GameObject.');
     return null;
@@ -71,10 +94,16 @@ GOMVisManager.prototype._removeObject = function(obj) {
 
   var visObj = this.findByObject(obj);
   if (visObj) {
+    scene.remove(visObj.rootObj);
+
     var objIdx = this.visObjects.indexOf(visObj);
     if (objIdx !== -1) {
-      scene.remove(visObj.rootObj);
       this.visObjects.splice(objIdx, 1);
+    }
+
+    var colObjIdx = this.colObjects.indexOf(visObj.rootObj);
+    if (colObjIdx !== -1) {
+      this.colObjects.splice(colObjIdx, 1);
     }
   }
 };

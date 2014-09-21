@@ -3,7 +3,7 @@
 function GameState() {
   this.worldMgr = new WorldManager();
   this.worldMgr.rootObj.position.set(5200, 5200, 0);
-  this.gomMgr = new GOMVisManager(this.worldMgr);
+  this.gomVisMgr = new GOMVisManager(this.worldMgr);
   this.activeMapIdx = -1;
   this.mcPawnRoot = new THREE.Object3D();
 
@@ -34,7 +34,7 @@ GameState.prototype.update = function(delta) {
   this.mcPawnRoot.position.copy(MC.position);
   this.worldMgr.setViewerInfo(MC.position);
   this.worldMgr.update(delta);
-  this.gomMgr.update(delta);
+  this.gomVisMgr.update(delta);
 };
 
 GameState.prototype.debugPrintScene = function() {
@@ -57,9 +57,9 @@ GameState.prototype.enter = function() {
   debugGui.add(this, 'debugPrintScene');
 
   this.worldMgr.addToScene();
-  this.gomMgr.addToScene();
+  this.gomVisMgr.addToScene();
 
-  var mcPawn = this.gomMgr.findByObject(MC);
+  var mcPawn = this.gomVisMgr.findByObject(MC);
 
   // Some of this will need to be moved to a place thats used when you
   //  switch maps as well...
@@ -94,15 +94,34 @@ GameState.prototype.enter = function() {
 
     var cameraPos = camera.localToWorld(new THREE.Vector3(0,0,0));
     var ray = new THREE.Raycaster(cameraPos, mouse.sub( cameraPos ).normalize());
-    //var octreeObjects = self.worldMgr.octree.search( ray.ray.origin, ray.ray.far, true, ray.ray.direction );
-    var inters = ray.intersectObjects( self.worldMgr.terChunks );
-    if (inters.length > 0) {
-      var moveToPos = inters[0].point;
+
+    var objPickInfo = self.gomVisMgr.rayPick(ray);
+    var worldPickInfo = self.worldMgr.rayPick(ray);
+    if (worldPickInfo && objPickInfo) {
+      if (worldPickInfo.distance < objPickInfo.distance) {
+        // If the world is closer, remove the object pick
+        objPickInfo = null;
+      } else {
+        // Otherwise, remove the world pick
+        worldPickInfo = null;
+      }
+    }
+
+    if (objPickInfo) {
+      var pickPawn = self.gomVisMgr.findByMesh(objPickInfo.object);
+      if (pickPawn) {
+        var pickGo = pickPawn.owner;
+        console.log(pickGo);
+      }
+    }
+
+    if (worldPickInfo) {
+      var moveToPos = worldPickInfo.point;
       netGame.moveTo(moveToPos.x, moveToPos.y, moveToPos.z);
       MC.moveTo(moveToPos.x, moveToPos.y);
       self.pickPosH.position.copy(moveToPos);
     }
-  }, false );
+  });
 };
 
 GameState.prototype.leave = function() {

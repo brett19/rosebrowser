@@ -104,6 +104,7 @@ var FAVTPARTTYPES = [
  */
 function CharPawn(go) {
   this.rootObj = new THREE.Object3D();
+  this.rootObj.owner = this;
   this.skel = null;
   this.gender = 0;
   this.motionCache = null;
@@ -193,10 +194,12 @@ CharPawn.prototype._setModelPart = function(modelList, partIdx, modelIdx, bindBo
 
         if (bindBone === undefined && bindDummy === undefined) {
           var charPartMesh = new THREE.SkinnedMesh(geometry, material);
+          charPartMesh.rootObject = self.rootObj;
           charPartMesh.bind(self.skel);
           self.rootObj.add(charPartMesh);
         } else {
           var charPartMesh = new THREE.Mesh(geometry, material);
+          charPartMesh.rootObject = self.rootObj;
           if (bindBone !== undefined) {
             self.skel.bones[bindBone].add(charPartMesh);
           } else if (bindDummy !== undefined) {
