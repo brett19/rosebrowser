@@ -250,8 +250,10 @@ CharPawn.prototype.setMotion = function(motionIdx, callback) {
       self.activeMotion = anim;
 
       // TODO: Accessing owner like this is unsafe for non-GO based pawns.
-      var moveAnimScale = (self.owner.moveSpeed + 180) / 600;
-      anim.timeScale = moveAnimScale;
+      if (self.owner) {
+        var moveAnimScale = (self.owner.moveSpeed + 180) / 600;
+        anim.timeScale = moveAnimScale;
+      }
 
       anim.play();
       if (self.prevMotion) {
