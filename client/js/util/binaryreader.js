@@ -179,7 +179,7 @@ BinaryReader.prototype.readVector3xzy = function() {
 BinaryReader.prototype.readMatrix4 = function() {
   var out = new THREE.Matrix4();
   for (var i = 0; i < 16; ++i) {
-    out.elements[i] = this.readVector3();
+    out.elements[i] = this.readFloat();
   }
   return out;
 };
