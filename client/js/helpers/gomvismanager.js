@@ -68,6 +68,15 @@ GOMVisManager.prototype._addObject = function(obj) {
 
 GOMVisManager.prototype._removeObject = function(obj) {
   console.log('GOMVis::_removeObject', obj);
+
+  var visObj = this.findByObject(obj);
+  if (visObj) {
+    var objIdx = this.visObjects.indexOf(visObj);
+    if (objIdx !== -1) {
+      scene.remove(visObj.rootObj);
+      this.visObjects.splice(objIdx, 1);
+    }
+  }
 };
 
 GOMVisManager.prototype.addToScene = function() {

@@ -351,4 +351,11 @@ GameClient._registerHandler(0x79a, function(pak, data) {
   this._emitPE('obj_moveto', data);
 });
 
+GameClient._registerHandler(0x794, function(pak, data) {
+  while (!pak.isReadEof()) {
+    data.objectIdx = pak.readUint16();
+    this._emitPE('obj_remove', data);
+  }
+});
+
 var netGame = null;

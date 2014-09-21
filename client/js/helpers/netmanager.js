@@ -52,6 +52,13 @@ _NetManager.prototype.watch = function(wn, gn) {
     GOM.addObject(char);
   });
 
+  gn.on('obj_remove', function(data) {
+    var obj = GOM.findByServerObjectIdx(data.objectIdx);
+    if (obj) {
+      GOM.removeObject(obj);
+    }
+  });
+
   gn.on('obj_moveto', function(data) {
     var obj = GOM.findByServerObjectIdx(data.objectIdx);
     if (obj) {
