@@ -261,7 +261,7 @@ GameClient._registerHandler(0x7ec, function(pak, data) {
   this._emitPE('char_hpmp_info', data);
 });
 
-GameClient._registerHandler(0x791, function(pak, data) {
+function handleAddChar(pak, data) {
   data.objectIdx = pak.readUint16();
   data.position = pak.readVector2().divideScalar(100);
   data.posTo = pak.readVector2().divideScalar(100);
@@ -276,14 +276,79 @@ GameClient._registerHandler(0x791, function(pak, data) {
   for (var si = 0; si < 66; ++si) {
     data.statusTimers.push(pak.readInt16());
   }
+}
+function handleAddMob(pak, data) {
+  handleAddChar(pak, data);
   data.charIdx = pak.readInt16();
   data.questIdx = pak.readInt16();
+}
+function handleAddNpc(pak, data) {
+  handleAddMob(pak, data);
   data.modelDir = pak.readFloat();
   data.eventStatuses = [];
   for (var ei = 0; ei < 5; ++ei) {
     data.eventStatuses.push(pak.readInt16());
   }
-  this._emitPE('spawn_npc_char', data);
+}
+function handleAddAvatar(pak, data) {
+  handleAddChar(pak, data);
+  data.dbId = pak.readUint32();
+  data.gender = pak.readUint8();
+  data.runSpeedBase = pak.readInt16();
+  data.runSpeed = pak.readInt16();
+  data.attackSpeedBase = pak.readInt16();
+  data.attackSpeed = pak.readInt16();
+  data.weightRate = pak.readUint8();
+  data.parts = [];
+  for (var j = 0; j < AVTBODYPART.Max; ++j) {
+    data.parts.push(pak.readPartItem());
+  }
+  data.shotItems = [];
+  for (var k = 0; k < AVTSHOTTYPE.Max; ++k) {
+    data.shotItems.push(pak.readInt16());
+  }
+  data.job = pak.readInt16();
+  data.level = pak.readUint8();
+  data.questEmoticon = pak.readInt16();
+  data.rideParts = [];
+  for (var j = 0; j < AVTRIDEPART.Max; ++j) {
+    data.rideParts.push(pak.readPartItem());
+  }
+  { // tagMOUNT
+    data.mount = {};
+    data.mount.mounted = pak.readUint8() !== 0;
+    data.mount.mountId = pak.readInt32();
+    data.mount.mountRunning = pak.readUint8() !== 0;
+  }
+  data.posZ = pak.readInt16();
+  data.statusFlag = pak.readUint64();
+  data.hairColor = pak.readUint8();
+  data.statusTimers = [];
+  for (var si = 0; si < 66; ++si) {
+    data.statusTimers.push(pak.readInt16());
+  }
+  data.name = pak.readString();
+}
+GameClient._registerHandler(0x791, function(pak, data) {
+  handleAddNpc(pak, data);
+  this._emitPE('spawn_npc', data);
+});
+GameClient._registerHandler(0x792, function(pak, data) {
+  handleAddMob(pak, data);
+  this._emitPE('spawn_mob', data);
+});
+GameClient._registerHandler(0x793, function(pak, data) {
+  handleAddAvatar(pak, data);
+  this._emitPE('spawn_char', data);
+});
+
+GameClient._registerHandler(0x79a, function(pak, data) {
+  data.objectIdx = pak.readUint16();
+  data.targetObjectIdx = pak.readUint16();
+  data.serverDist = pak.readInt16();
+  data.posTo = pak.readVector2().divideScalar(100);
+  data.posZ = pak.readInt16();
+  this._emitPE('obj_moveto', data);
 });
 
 var netGame = null;

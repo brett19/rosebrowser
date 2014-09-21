@@ -47,6 +47,14 @@ var AVTBODYPART = {
   Max: 10
 };
 
+var AVTRIDEPART = {
+  Max: 5
+};
+
+var AVTSHOTTYPE = {
+  Max: 3
+};
+
 var BoneIndex = {
   Pelvis: 0,
   Head: 4

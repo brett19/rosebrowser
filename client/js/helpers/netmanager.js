@@ -19,8 +19,8 @@ _NetManager.prototype.watch = function(wn, gn) {
     self._destroyWorld();
   });
 
-  gn.on('spawn_npc_char', function(data) {
-    var npc = new NpcObject(this.world);
+  gn.on('spawn_npc', function(data) {
+    var npc = new NpcObject(self.world);
     npc.serverObjectIdx = data.objectIdx;
     if (data.charIdx > 0) {
       npc.charIdx = data.charIdx;
@@ -30,7 +30,33 @@ _NetManager.prototype.watch = function(wn, gn) {
     }
     npc.setPosition(data.position.x, data.position.y, 10);
     npc.setDirection(data.modelDir / 180 * Math.PI);
+    npc.dropFromSky();
+    if (data.command !== 0) {
+      npc.moveTo(data.posTo.x, data.posTo.y);
+    }
     GOM.addObject(npc);
+  });
+
+  gn.on('spawn_char', function(data) {
+    var char = new CharObject(self.world);
+    char.serverObjectIdx = data.objectIdx;
+    char.name = data.name;
+    char.level = data.level;
+    char.setPosition(data.position.x, data.position.y, 10);
+    char.gender = data.gender;
+    char.visParts = data.parts;
+    char.dropFromSky();
+    if (data.command !== 0) {
+      char.moveTo(data.posTo.x, data.posTo.y);
+    }
+    GOM.addObject(char);
+  });
+
+  gn.on('obj_moveto', function(data) {
+    var obj = GOM.findByServerObjectIdx(data.objectIdx);
+    if (obj) {
+      obj.moveTo(data.posTo.x, data.posTo.y);
+    }
   });
 };
 

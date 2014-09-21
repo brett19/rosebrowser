@@ -150,17 +150,13 @@ GameTestState.prototype.enter = function() {
                           NetManager.watch(netWorld, netGame);
 
                           MC = new MyCharacter(gsGame.worldMgr);
-                          GOM.addObject(MC);
-
                           MC.name = charData.name;
                           MC.level = charData.level;
-
-                          console.log(charData.posStart);
                           MC.setPosition(charData.posStart.x, charData.posStart.y, 10);
                           MC.dropFromSky();
-
                           MC.gender = charData.gender;
                           MC.visParts = charData.parts;
+                          GOM.addObject(MC);
 
                           waitDialog.close();
                           gsGameTest.leave();

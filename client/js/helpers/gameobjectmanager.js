@@ -22,6 +22,16 @@ _GameObjectManager.prototype.removeObject = function(obj) {
   this.emit('object_removed', obj);
 };
 
+_GameObjectManager.prototype.findByServerObjectIdx = function(objectIdx) {
+  for (var i = 0;  i < this.objects.length; ++i) {
+    var thisObject = this.objects[i];
+    if (thisObject.serverObjectIdx === objectIdx) {
+      return thisObject;
+    }
+  }
+  return null;
+};
+
 _GameObjectManager.prototype.update = function(delta) {
   for (var i = 0; i < this.objects.length; ++i) {
     this.objects[i].update(delta);
