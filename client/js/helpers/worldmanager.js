@@ -176,7 +176,9 @@ WorldManager.prototype.setMap = function(mapIdx, callback) {
 WorldManager.prototype.setViewerInfo = function(pos, callback) {
   if (!this.isLoaded) {
     console.warn('Attempted to load chunks before map was finished loading.');
-    callback();
+    if (callback) {
+      callback();
+    }
     return;
   }
 
