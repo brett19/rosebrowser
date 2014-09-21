@@ -58,7 +58,7 @@ var debugGui = new dat.GUI();
 var debugCamera = null;
 var debugInput = new EventEmitter();
 var debugControls = null;
-var debugCamAxis = new THREE.AxisHelper(10);
+var debugCamFrust = new THREE.CameraHelper(camera);
 
 function initDebugCamera() {
   debugCamera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
@@ -66,13 +66,14 @@ function initDebugCamera() {
   debugCamera.quaternion.setFromRotationMatrix(camera.matrixWorld);
   debugControls = new THREE.FreeFlyControls(debugCamera, debugInput);
   debugControls.movementSpeed = 100;
-  scene.add(debugCamAxis);
+  debugCamFrust.camera = camera;
+  scene.add(debugCamFrust);
 }
 
 function destroyDebugCamera() {
   debugCamera = null;
   debugControls = null;
-  scene.remove(debugCamAxis);
+  scene.remove(debugCamFrust);
 }
 
 var inputMgrEventHandler = InputManager._handleEvent;
@@ -122,10 +123,7 @@ var renderFrame = function () {
   if (!debugCamera) {
     renderer.render(scene, camera);
   } else {
-    if (debugCamAxis) {
-      debugCamAxis.position.setFromMatrixPosition(camera.matrixWorld);
-      debugCamAxis.quaternion.setFromRotationMatrix(camera.matrixWorld);
-    }
+    debugCamFrust.update(delta);
     debugControls.update(delta);
     renderer.render(scene, debugCamera);
   }
