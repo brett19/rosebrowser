@@ -141,7 +141,7 @@ RosePacket.prototype.readUint32 = function() {
 RosePacket.prototype.readUint64 = function() {
   var lo = this.readUint32();
   var hi = this.readUint32();
-  return [lo, hi];
+  return new Int64(lo, hi);
 };
 RosePacket.prototype.readFloat = function() {
   var val = this.view.getFloat32(this.readPos, true);

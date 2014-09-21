@@ -290,7 +290,7 @@ function handleAddChar(pak, data) {
   data.moveMode = pak.readUint8();
   data.hp = pak.readInt32();
   data.teamNo = pak.readInt32();
-  data.statusFlag = pak.readUint64();
+  data.statusFlags = pak.readUint64();
   data.statusTimers = [];
   for (var si = 0; si < 66; ++si) {
     data.statusTimers.push(pak.readInt16());
@@ -340,13 +340,52 @@ function handleAddAvatar(pak, data) {
     data.mount.mountRunning = pak.readUint8() !== 0;
   }
   data.posZ = pak.readInt16();
-  data.statusFlag = pak.readUint64();
+  data.subStatusFlags = pak.readUint64();
   data.hairColor = pak.readUint8();
   data.statusTimers = [];
   for (var si = 0; si < 66; ++si) {
     data.statusTimers.push(pak.readInt16());
   }
   data.name = pak.readString();
+
+  // How we read these is a bit dirty...
+  if (data.statusFlags.lo & CHARSTATUSLO.MAX_HP) {
+    data.flagMaxHp = pak.readInt16();
+  }
+  if (data.statusFlags.lo & CHARSTATUSLO.INC_MOV_SPEED) {
+    data.flagIncMovSpeed = pak.readInt16();
+  }
+  if (data.statusFlags.lo & CHARSTATUSLO.DEC_MOV_SPEED) {
+    data.flagDecMovSpeed = pak.readInt16();
+  }
+  if (data.statusFlags.lo & CHARSTATUSLO.INC_ATK_SPEED) {
+    data.flagIncAtkSpeed = pak.readInt16();
+  }
+  if (data.statusFlags.lo & CHARSTATUSLO.DEC_ATK_SPEED) {
+    data.flagDecAtkSpeed = pak.readInt16();
+  }
+  if (data.statusFlags.lo & CHARSTATUSLO.DEC_LIFE_TIME) {
+    data.flagCallerIdx = data.readUint16();
+    if (data.flagCallerIdx) {
+      data.flagSummonedSkillIdx = data.readInt16();
+    }
+  }
+
+  if (data.subStatusFlags.lo & CHARFLAGSLO.STORE) {
+    data.storeSkin = pak.readInt16();
+    data.storeTitle = pak.readString();
+  } else if (data.subStatusFlags.lo & CHARFLAGSLO.CHAT) {
+    data.chatTitle = pak.readString();
+  }
+
+  if (!pak.isReadEof()) {
+    data.clan = {};
+    data.clan.id = pak.readUint32();
+    data.clan.mark = pak.readUint32();
+    data.clan.level = pak.readUint8();
+    data.clan.position = pak.readUint8();
+    data.clan.name = pak.readString();
+  }
 }
 GameClient._registerHandler(0x791, function(pak, data) {
   handleAddNpc(pak, data);
