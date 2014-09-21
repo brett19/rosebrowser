@@ -170,8 +170,8 @@ WorldManager.prototype.setMap = function(mapIdx, callback) {
  * Causes the world to update which chunks need to be visible for this
  * particular camera/player position.
  *
- * @param pos The position of the viewer, or null to load the whole map
- * @param callback Callback to invoke when all close chunks are loaded
+ * @param {THREE.Vector3|null} pos The position of the viewer, or null to load the whole map
+ * @param {Function} [callback] Callback to invoke when all close chunks are loaded
  */
 WorldManager.prototype.setViewerInfo = function(pos, callback) {
   if (!this.isLoaded) {
@@ -183,18 +183,25 @@ WorldManager.prototype.setViewerInfo = function(pos, callback) {
   }
 
   // TODO: Fix this, this is dumb.
-  var localViewPos = pos.clone().sub(this.rootObj.position);
+  var localViewPos = pos;
+  if (pos) {
+    localViewPos = pos.clone().sub(this.rootObj.position);
+  }
 
   var waitAll = new MultiWait();
   for (var chunkIdx in this.chunks) {
     if (this.chunks.hasOwnProperty(chunkIdx)) {
       var chunk = this.chunks[chunkIdx];
-      var chunkDelta = localViewPos.clone().sub(chunk.position);
-      chunkDelta.z = 0; // We don't care about the Z distance for here
-      if (chunkDelta.lengthSq() <= this.viewDistSq) {
-        chunk.load(waitAll.one());
+      if (localViewPos) {
+        var chunkDelta = localViewPos.clone().sub(chunk.position);
+        chunkDelta.z = 0; // We don't care about the Z distance for here
+        if (chunkDelta.lengthSq() <= this.viewDistSq) {
+          chunk.load(waitAll.one());
+        } else {
+          chunk.markNotNeeded();
+        }
       } else {
-        chunk.markNotNeeded();
+        chunk.load(waitAll.one());
       }
     }
   }
