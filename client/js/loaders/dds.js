@@ -277,7 +277,10 @@ DDS.load = function(path, callback) {
     }
 
     if (format === undefined) {
-      throw 'Error loading dds, unsupported pixel format';
+      console.warn('Unable to load DDS, unsupported pixel format.');
+      console.log(path);
+      callback(null);
+      return;
     }
 
     if (!(header.flags & DDS.FLAGS.MIPMAP_COUNT)) {
