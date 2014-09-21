@@ -43,6 +43,8 @@ THREE.FreeFlyControls = function ( object, inputMgr ) {
     switch ( event.keyCode ) {
 
       case 16: /* shift */ this.movementSpeedMultiplier = 5; break;
+      case 81: /* Q */ this.movementSpeedMultiplier = 1/4; break;
+      case 69: /* E */ this.movementSpeedMultiplier = 4; break;
 
       case 87: /*W*/ this.moveState.forward = 1; break;
       case 83: /*S*/ this.moveState.back = 1; break;
@@ -69,6 +71,8 @@ THREE.FreeFlyControls = function ( object, inputMgr ) {
     switch( event.keyCode ) {
 
       case 16: /* shift */ this.movementSpeedMultiplier = 1; break;
+      case 81: /* Q */ this.movementSpeedMultiplier = 1; break;
+      case 69: /* E */ this.movementSpeedMultiplier = 1; break;
 
       case 87: /*W*/ this.moveState.forward = 0; break;
       case 83: /*S*/ this.moveState.back = 0; break;
