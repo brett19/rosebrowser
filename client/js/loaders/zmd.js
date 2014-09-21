@@ -109,7 +109,7 @@ Skeleton.load = function(path, callback) {
       bone.parent   = rh.readUint32();
       bone.name     = rh.readStr();
       bone.position = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
-      bone.rotation = rh.readBadQuat();
+      bone.rotation = rh.readQuatwxyz();
 
       if (i == 0) {
         bone.parent = -1;
@@ -126,7 +126,7 @@ Skeleton.load = function(path, callback) {
       dummy.position = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
 
       if (version === 3) {
-        dummy.rotation = rh.readBadQuat();
+        dummy.rotation = rh.readQuatwxyz();
       } else {
         dummy.rotation = new THREE.Quaternion(0,0,0,1);
       }

@@ -171,7 +171,7 @@ Animation.load = function(path, callback) {
           frame = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
           break;
         case Animation.CHANNEL_TYPE.Rotation:
-          frame = rh.readBadQuat();
+          frame = rh.readQuatwxyz();
           break;
         default:
           throw 'Unexpected ZMO channel type ' + data.channels[j].type + ' in ' + path;

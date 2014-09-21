@@ -207,7 +207,7 @@ BinaryReader.prototype.readQuat = function() {
   return new THREE.Quaternion(x, y, z, w);
 };
 
-BinaryReader.prototype.readBadQuat = function() {
+BinaryReader.prototype.readQuatwxyz = function() {
   var w = this.readFloat();
   var x = this.readFloat();
   var y = this.readFloat();

@@ -164,7 +164,7 @@ ModelList.load = function(path, callback) {
               part.position = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
               break;
             case ModelList.PROPERTY_TYPE.ROTATION:
-              part.rotation = rh.readBadQuat();
+              part.rotation = rh.readQuatwxyz();
               break;
             case ModelList.PROPERTY_TYPE.SCALE:
               part.scale = rh.readVector3();
@@ -173,7 +173,7 @@ ModelList.load = function(path, callback) {
               part.parent = rh.readUint16();
               break;
             case ModelList.PROPERTY_TYPE.AXIS_ROTATION:
-              part.axisRotation = rh.readBadQuat();
+              part.axisRotation = rh.readQuatwxyz();
               break;
             case ModelList.PROPERTY_TYPE.COLLISION:
               part.collisionMode = rh.readUint16();
@@ -216,7 +216,7 @@ ModelList.load = function(path, callback) {
               effect.position = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
               break;
             case ModelList.PROPERTY_TYPE.ROTATION:
-              effect.rotation = rh.readBadQuat();
+              effect.rotation = rh.readQuatwxyz();
               break;
             case ModelList.PROPERTY_TYPE.SCALE:
               effect.scale = rh.readVector3();
