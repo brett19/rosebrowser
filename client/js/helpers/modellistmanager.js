@@ -153,7 +153,10 @@ ModelListManager.prototype.createForStatic = function(modelIdx, lightmap, lmIdx,
     (function(partIdx, part, partCallback) {
       var lmData = lightmap.getDataForPart(lmIdx, i);
       var material = null;
-      if (!config.lmonly || !lmData) {
+
+      if (!lmData) {
+        material = self._createMaterial(part.materialIdx);
+      } else if (!config.lmonly) {
         material = self._createMaterialWithLightmap(part.materialIdx, lmData);
       } else {
         material = self._createMaterialLMOnly(part.materialIdx, lmData);
