@@ -1,9 +1,105 @@
 'use strict';
 
-var particleSystems = [];
+var particleEmitters = [];
 
+var ParticleEmitter = function(data)
+{
+  this.rootObj = new THREE.Object3D();
+  this.particles = [];
+  this.data = data;
 
-var Particle = function() {
+  this.texture = RoseTextureManager.load(data.texturePath);
+  this.texture.repeat.set(1 / data.spriteCols, 1 / data.spriteRows);
+
+  // TODO: i'd really like to COPY data.events and keep it local to this instance.
+
+  // Setup our actual event times
+  for (var j = 0; j < data.events.length; ++j) {
+    var event = data.events[j];
+    event.actualTime = event.time.getValueInRange();
+  }
+
+  // Link events
+  for (var j = 0; j < data.events.length; ++j) {
+    for (var k = j + 1; k < data.events.length; ++k) {
+      if (data.events[j].type === data.events[k].type) {
+        if (data.events[k].blended) {
+          data.events[j].nextEvent = data.events[k];
+        }
+        break;
+      }
+    }
+  }
+
+  // Sort the events
+  data.events.sort(function(left, right) {
+    return left.actualTime - right.actualTime;
+  });
+
+  this.rootObj.position.set(5200, 5280, 0);
+  scene.add(this.rootObj);
+};
+
+ParticleEmitter.prototype.createParticle = function()
+{
+  var particle = new ParticleEmitter.Particle();
+  particle.lifetime = this.data.lifeTime.getValueInRange();
+  particle.position = this.data.emitRadius.getValueInRange();
+  particle.gravity  = this.data.gravity.getValueInRange();
+  particle.textureCols = this.data.spriteCols;
+  particle.textureRows = this.data.spriteRows;
+
+  // Apply initial events
+  this.applyEvents(particle);
+  this.particles.push(particle);
+
+  // Create sprite
+  var material = new THREE.SpriteMaterial({
+    map: this.texture,
+    useScreenCoordinates: false,
+    transparent: true,
+    color: new THREE.Color(particle.color.r, particle.color.g, particle.color.b),
+    alpha: particle.color.a
+  });
+
+  material.blending = THREE.CustomBlending;
+  material.blendEquation = convertZnzinBlendOp(this.data.blendOp);
+  material.blendSrc = convertZnzinBlendType(this.data.blendSrc);
+  material.blendDst = convertZnzinBlendType(this.data.blendDst);
+
+  var sprite = new THREE.Sprite(material);
+  sprite.position.copy(particle.position);
+  sprite.scale.set(particle.size.x, particle.size.y, 1.0);
+
+  particle.sprite = sprite;
+  this.rootObj.add(sprite);
+  return particle;
+};
+
+ParticleEmitter.prototype.update = function(dt)
+{
+  for (var i = 0; i < this.particles.length; ++i) {
+    var particle = this.particles[i];
+
+    if (particle.update(dt)) {
+      this.applyEvents(particle);
+    } else {
+      this.particles.splice(i, 1);
+      this.rootObj.remove(particle.sprite);
+      --i;
+    }
+  }
+
+  // TODO: Change this to use emitRate
+  for (var i = this.particles.length; i < this.data.particleCount; ++i) {
+    this.particles.push(this.createParticle());
+  }
+};
+
+ParticleEmitter.Particle = function()
+{
+  this.sprite = 0;
+
   this.age = 0;
   this.lifetime = 1;
   this.eventIndex = 0;
@@ -16,6 +112,8 @@ var Particle = function() {
   this.sizeStep = new THREE.Vector2();
   this.textureIndex = 0;
   this.textureIndexStep = 0;
+  this.textureColumns = 1;
+  this.textureRows = 1;
   this.color = new Color4(1, 1, 1, 1);
   this.colorStep = new Color4();
   this.velocity = new THREE.Vector3();
@@ -24,51 +122,54 @@ var Particle = function() {
   this.rotationStep = 0;
 };
 
-function updateParticle(particle, dt) {
-  particle.age += dt;
-  particle.eventTimer += dt;
+ParticleEmitter.Particle.prototype.update = function(dt)
+{
+  this.age += dt;
+  this.eventTimer += dt;
 
-  if (particle.age > particle.lifetime) {
+  if (this.age > this.lifetime) {
     return false;
   }
 
-  particle.position.add(particle.velocity.clone().multiplyScalar(dt));
-  particle.velocity.add(particle.gravity.clone().multiplyScalar(dt));
-  particle.color.add(particle.colorStep.clone().multiplyScalar(dt));
-  particle.velocity.add(particle.velocityStep.clone().multiplyScalar(dt));
-  particle.size.add(particle.sizeStep.clone().multiplyScalar(dt));
-  particle.textureIndex += particle.textureIndexStep * dt;
-  particle.rotation += particle.rotationStep * dt;
+  this.position.add(this.velocity.clone().multiplyScalar(dt));
+  this.velocity.add(this.gravity.clone().multiplyScalar(dt));
+  this.color.add(this.colorStep.clone().multiplyScalar(dt));
+  this.velocity.add(this.velocityStep.clone().multiplyScalar(dt));
+  this.size.add(this.sizeStep.clone().multiplyScalar(dt));
+  this.textureIndex += this.textureIndexStep * dt;
+  this.rotation += this.rotationStep * dt;
 
-  if (particle.rotation >= 360) {
-    particle.rotation -= 360;
+  // TODO: Implement rotation in rendering!!
+  if (this.rotation >= 360) {
+    this.rotation -= 360;
+  }
+
+  this.sprite.position.copy(this.position);
+  this.sprite.scale.set(this.size.x, this.size.y, 1.0); // TODO: remove *10
+  this.sprite.material.color.setRGB(this.color.r, this.color.g, this.color.b);
+  this.sprite.alpha = this.color.a;
+
+  if (this.textureRows > 1 || this.textureColumns > 1) {
+    var index = Math.floor(this.textureIndex);
+    var offsetX = index % this.textureColumns;
+    var offsetY = Math.floor(index / this.textureRows);
+    offsetX /= this.textureColumns;
+    offsetY /= this.textureRows;
+    this.sprite.material.map.offset.set(offsetX, offsetY);
   }
 
   return true;
-}
+};
 
-function updateSystem(system, ms) {
-  var dt = ms;
-  for (var i = 0; i < system.particles.length; ++i) {
-    var particle = system.particles[i];
-    if (updateParticle(particle, dt)) {
-      applyParticleEvents(particle, system.events);
-    }
+/**
+ * @param {ParticleEmitter.Particle} particle
+ */
+ParticleEmitter.prototype.applyEvents = function(particle)
+{
+  var dt, event;
 
-    system.geom.vertices[i].copy(particle.position);
-    system.geom.colors[i].setRGB(particle.color.r, particle.color.g, particle.color.b);
-    system.material.attributes.alpha.value[i] = particle.color.a;
-    system.material.attributes.psize.value[i] = 10;
-    system.geom.verticesNeedUpdate = true;
-  }
-
-  // Create new particles if we are not at particleCount yet!!
-}
-
-function applyParticleEvents(particle, events) {
-  for (; particle.eventIndex < events.length; ++particle.eventIndex) {
-    var event = events[particle.eventIndex];
-    var dt;
+  for (; particle.eventIndex < this.data.events.length; ++particle.eventIndex) {
+    event = this.data.events[particle.eventIndex];
 
     if (event.actualTime > particle.eventTimer) {
       break;
@@ -83,16 +184,20 @@ function applyParticleEvents(particle, events) {
       case ParticleSystem.EVENT_TYPE.SIZE:
         if (!event.blended) {
           particle.size = event.size.getValueInRange();
-        } else if (event.nextEvent) {
+        }
+
+        if (event.nextEvent) {
           var next = event.nextEvent.size.getValueInRange();
-          particle.sizeStep.x = (next - particle.size.x) / dt;
-          particle.sizeStep.y = (next - particle.size.y) / dt;
+          particle.sizeStep.x = (next.x - particle.size.x) / dt;
+          particle.sizeStep.y = (next.y - particle.size.y) / dt;
         }
         break;
       case ParticleSystem.EVENT_TYPE.RED:
         if (!event.blended) {
           particle.color.r = event.red.getValueInRange();
-        } else if (event.nextEvent) {
+        }
+
+        if (event.nextEvent) {
           var next = event.nextEvent.red.getValueInRange();
           particle.colorStep.r = (next - particle.color.r) / dt;
         }
@@ -100,7 +205,9 @@ function applyParticleEvents(particle, events) {
       case ParticleSystem.EVENT_TYPE.GREEN:
         if (!event.blended) {
           particle.color.g = event.green.getValueInRange();
-        } else if (event.nextEvent) {
+        }
+
+        if (event.nextEvent) {
           var next = event.nextEvent.green.getValueInRange();
           particle.colorStep.g = (next - particle.color.g) / dt;
         }
@@ -108,7 +215,9 @@ function applyParticleEvents(particle, events) {
       case ParticleSystem.EVENT_TYPE.BLUE:
         if (!event.blended) {
           particle.color.b = event.blue.getValueInRange();
-        } else if (event.nextEvent) {
+        }
+
+        if (event.nextEvent) {
           var next = event.nextEvent.blue.getValueInRange();
           particle.colorStep.b = (next - particle.color.b) / dt;
         }
@@ -116,15 +225,19 @@ function applyParticleEvents(particle, events) {
       case ParticleSystem.EVENT_TYPE.ALPHA:
         if (!event.blended) {
           particle.color.a = event.alpha.getValueInRange();
-        } else if (event.nextEvent) {
+        }
+
+        if (event.nextEvent) {
           var next = event.nextEvent.alpha.getValueInRange();
           particle.colorStep.a = (next - particle.color.a) / dt;
         }
         break;
-      case ParticleSystem.EVENT_TYPE.COLOUR:
+      case ParticleSystem.EVENT_TYPE.COLOR:
         if (!event.blended) {
           particle.color = event.color.getValueInRange();
-        } else if (event.nextEvent) {
+        }
+
+        if (event.nextEvent) {
           var next = event.nextEvent.color.getValueInRange();
           particle.colorStep.r = (next.r - particle.color.r) / dt;
           particle.colorStep.g = (next.g - particle.color.g) / dt;
@@ -135,7 +248,9 @@ function applyParticleEvents(particle, events) {
       case ParticleSystem.EVENT_TYPE.VELOCITY_X:
         if (!event.blended) {
           particle.velocity.x = event.velocityX.getValueInRange();
-        } else if (event.nextEvent) {
+        }
+
+        if (event.nextEvent) {
           var next = event.nextEvent.velocityX.getValueInRange();
           particle.velocityStep.x = (next - particle.velocity.x) / dt;
         }
@@ -143,7 +258,9 @@ function applyParticleEvents(particle, events) {
       case ParticleSystem.EVENT_TYPE.VELOCITY_Y:
         if (!event.blended) {
           particle.velocity.y = event.velocityY.getValueInRange();
-        } else if (event.nextEvent) {
+        }
+
+        if (event.nextEvent) {
           var next = event.nextEvent.velocityY.getValueInRange();
           particle.velocityStep.y = (next - particle.velocity.y) / dt;
         }
@@ -151,7 +268,9 @@ function applyParticleEvents(particle, events) {
       case ParticleSystem.EVENT_TYPE.VELOCITY_Z:
         if (!event.blended) {
           particle.velocity.z = event.velocityZ.getValueInRange();
-        } else if (event.nextEvent) {
+        }
+
+        if (event.nextEvent) {
           var next = event.nextEvent.velocityZ.getValueInRange();
           particle.velocityStep.z = (next - particle.velocity.z) / dt;
         }
@@ -159,7 +278,9 @@ function applyParticleEvents(particle, events) {
       case ParticleSystem.EVENT_TYPE.VELOCITY:
         if (!event.blended) {
           particle.velocity = event.velocity.getValueInRange();
-        } else if (event.nextEvent) {
+        }
+
+        if (event.nextEvent) {
           var next = event.nextEvent.velocity.getValueInRange();
           particle.velocityStep.x = (next.x - particle.velocity.x) / dt;
           particle.velocityStep.y = (next.y - particle.velocity.y) / dt;
@@ -169,7 +290,9 @@ function applyParticleEvents(particle, events) {
       case ParticleSystem.EVENT_TYPE.TEXTURE:
         if (!event.blended) {
           particle.textureIndex = event.textureIndex.getValueInRange();
-        } else if (event.nextEvent) {
+        }
+
+        if (event.nextEvent) {
           var next = event.nextEvent.textureIndex.getValueInRange();
           particle.textureIndexStep = (next - particle.textureIndex) / dt;
         }
@@ -177,7 +300,9 @@ function applyParticleEvents(particle, events) {
       case ParticleSystem.EVENT_TYPE.ROTATION:
         if (!event.blended) {
           particle.rotation = event.rotation.getValueInRange();
-        } else if (event.nextEvent) {
+        }
+
+        if (event.nextEvent) {
           var next = event.nextEvent.rotation.getValueInRange();
           particle.rotationStep = (next - particle.rotation) / dt;
         }
@@ -198,7 +323,8 @@ function applyParticleEvents(particle, events) {
         break;
     }
   }
-}
+};
+
 
 function ParticleTestState() {
   this.DM = new DataManager();
@@ -242,103 +368,20 @@ ParticleTestState.prototype.playCamAnim = function(name, loopCount) {
 };
 
 ParticleTestState.prototype.spawnParticles = function() {
-  Effect.load('3Ddata\\EFFECT\\_FIREWORK_01.EFT', function(effect){
+  Effect.load('3Ddata\\EFFECT\\BONFIRE_01.EFT', function(effect){
     console.log(effect);
 
-    ParticleSystem.load(effect.particles[0].particlePath, function(particleSystem) {
-      console.log(particleSystem)
+    for (var j = 0; j < effect.particles.length; ++j) {
+      ParticleSystem.load(effect.particles[j].particlePath, function (particleSystem)
+      {
+        console.log(particleSystem)
 
-      for (var i = 0; i < particleSystem.emitters.length; ++i) {
-        var emitter = particleSystem.emitters[i];
-        var texture = RoseTextureManager.load(emitter.texturePath);
-        var myNewSystem = {};
-
-        emitter.particles = [];
-
-        // Setup our actual even times
-        for (var j = 0; j < emitter.events.length; ++j) {
-          var event = emitter.events[j];
-          event.actualTime = event.time.getValueInRange() / 1000;
+        for (var i = 0; i < particleSystem.emitters.length; ++i) {
+          var data = particleSystem.emitters[i];
+          particleEmitters.push(new ParticleEmitter(data));
         }
-
-        // Link events
-        for (var j = 0; j < emitter.events.length; ++j) {
-          for (var k = j + 1; k < emitter.events.length; ++k) {
-            if (emitter.events[j].type === emitter.events[k].type) {
-              emitter.events[j].nextEvent = emitter.events[k];
-              break;
-            }
-          }
-        }
-
-        // Sort the events
-        emitter.events.sort(function(left, right) {
-          return left.actualTime - right.actualTime;
-        });
-
-        // Create our initial particles
-        myNewSystem.particles = [];
-        myNewSystem.events = emitter.events;
-
-        var geom = new THREE.Geometry();
-
-        var shaderMan = ShaderManager.get('particle').clone();
-
-        var material = new THREE.ShaderMaterial({
-          uniforms: {
-            texture1:   { type: "t", value: texture }
-          },
-          attributes: {
-            psize:  { type: 'f', value: [] },
-            alpha:  { type: 'f', value: [] }
-          },
-
-          vertexShader: shaderMan.vertexShader,
-          fragmentShader: shaderMan.fragmentShader
-        });
-
-        material.transparent = true;
-        material.blending = THREE.CustomBlending;
-        material.blendEquation = convertZnzinBlendOp(emitter.blendOp);
-        material.blendSrc = convertZnzinBlendType(emitter.blendSrc);
-        material.blendDst = convertZnzinBlendType(emitter.blendDst);
-        myNewSystem.material = material;
-
-        geom.colors = [];
-        material.attributes.psize.value = [];
-        material.attributes.alpha.value = [];
-        material.attributes.alpha.needsUpdate = true;
-        material.attributes.psize.needsUpdate = true;
-        material.needsUpdate = true;
-
-        for (var j = 0; j < emitter.particleCount; ++j) {
-          var particle = new Particle();
-          particle.lifetime = emitter.lifeTime.getValueInRange();
-          particle.position = emitter.emitRadius.getValueInRange();
-          particle.gravity = emitter.gravity.getValueInRange();
-
-          applyParticleEvents(particle, emitter.events);
-          myNewSystem.particles.push(particle);
-
-          emitter.particles.push(particle);
-          geom.vertices[j] = particle.position;
-          geom.colors[j] = new THREE.Color(particle.color.r, particle.color.g, particle.color.b);
-          material.attributes.psize.value[j] = 10;
-          material.attributes.alpha.value[j] = 1;
-        }
-
-        var pointCloud = new THREE.PointCloud(geom, material);
-        pointCloud.position.set(5195, 5375, 10);
-        scene.add(pointCloud);
-
-        geom.dynamic = true;
-        pointCloud.dynamic = true;
-        myNewSystem.geom = geom;
-        myNewSystem.material = material;
-        myNewSystem.pointCloud = pointCloud;
-        particleSystems.push(myNewSystem);
-      }
-    });
+      });
+    }
   });
 };
 
@@ -346,14 +389,6 @@ ParticleTestState.prototype.enter = function() {
   var self = this;
 
   debugGui.add(this, 'spawnParticles');
-
-  var wm = new WorldManager();
-  wm.rootObj.position.set(5200, 5200, 0);
-  wm.setMap(4, function() {
-    console.log('Map Ready');
-  });
-  this.world = wm;
-  scene.add(wm.rootObj);
 
   //this.playCamAnim('canim_intro');
 
@@ -368,32 +403,41 @@ ParticleTestState.prototype.enter = function() {
   controls.dragToLook = false;
   self.controls = controls;
 
-  camera.position.x = 5154;
-  camera.position.y = 5417;
-  camera.position.z = 49;
+  camera.position.x = 5150;
+  camera.position.y = 5333;
+  camera.position.z = 39;
 
-  /*
-   var charObj = new NpcCharacter();
-   charObj.setModel(1);
-   */
-  var charObj = new CharPawn();
-  charObj.setGender(0, function() {
-    charObj.setModelPart(3, 1);
-    charObj.setModelPart(4, 1);
-    charObj.setModelPart(5, 1);
-    charObj.setModelPart(7, 202);
-    charObj.setModelPart(8, 2);
-
-    var animPath = '3DData/Motion/Avatar/EMPTY_STOP1_M1.ZMO';
-    Animation.load(animPath, function(zmoData) {
-      var anim = zmoData.createForSkeleton('test', charObj.rootObj, charObj.skel);
-      anim.play();
+  if (1) {
+    var wm = new WorldManager();
+    wm.rootObj.position.set(5200, 5200, 0);
+    wm.setMap(5, function ()
+    {
+      console.log('Map Ready');
     });
-  });
-  charObj.rootObj.position.set(5195, 5375, 5);
-  charObj.rootObj.rotateOnAxis(new THREE.Vector3(0,0,1), Math.PI);
-  charObj.rootObj.scale.set(1.2, 1.2, 1.2);
-  scene.add(charObj.rootObj);
+    this.world = wm;
+    scene.add(wm.rootObj);
+
+    var charObj = new CharPawn();
+    charObj.setGender(0, function ()
+    {
+      charObj.setModelPart(3, 1);
+      charObj.setModelPart(4, 1);
+      charObj.setModelPart(5, 1);
+      charObj.setModelPart(7, 202);
+      charObj.setModelPart(8, 2);
+
+      var animPath = '3DData/Motion/Avatar/EMPTY_STOP1_M1.ZMO';
+      Animation.load(animPath, function (zmoData)
+      {
+        var anim = zmoData.createForSkeleton('test', charObj.rootObj, charObj.skel);
+        anim.play();
+      });
+    });
+    charObj.rootObj.position.set(5200, 5280, -5);
+    charObj.rootObj.rotateOnAxis(new THREE.Vector3(0, 0, 1), Math.PI);
+    charObj.rootObj.scale.set(1.2, 1.2, 1.2);
+    scene.add(charObj.rootObj);
+  }
 };
 
 ParticleTestState.prototype.leave = function() {
@@ -403,11 +447,11 @@ ParticleTestState.prototype.leave = function() {
 ParticleTestState.prototype.update = function(delta) {
   this.controls.update( delta );
 
-  for (var i = 0; i < particleSystems.length; ++i) {
-    updateSystem(particleSystems[i], delta);
+  for (var i = 0; i < particleEmitters.length; ++i) {
+    particleEmitters[i].update(delta);
   }
 
-  if (this.world.isLoaded) {
+  if (this.world && this.world.isLoaded) {
     this.world.setViewerInfo(camera.position);
     this.world.update(delta);
   }

@@ -138,8 +138,8 @@ RangeColor4.prototype.getValueInRange = function() {
  * @property {Number} particleCount
  * @property {Number} alignType
  * @property {Number} coordType
- * @property {Number} textureWidth
- * @property {Number} textureHeight
+ * @property {Number} spriteCols
+ * @property {Number} spriteRows
  * @property {Number} drawType
  * @property {Number} blendDst
  * @property {Number} blendSrc
@@ -497,8 +497,8 @@ ParticleSystem.load = function(path, callback) {
       emitter.particleCount       = rh.readUint32();
       emitter.alignType           = rh.readUint32();
       emitter.coordType           = rh.readUint32();
-      emitter.textureWidth        = rh.readUint32();
-      emitter.textureHeight       = rh.readUint32();
+      emitter.spriteCols          = rh.readUint32();
+      emitter.spriteRows          = rh.readUint32();
       emitter.drawType            = rh.readUint32(); // Ignored by ZNZIN
       emitter.blendDst            = rh.readUint32();
       emitter.blendSrc            = rh.readUint32();
