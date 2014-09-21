@@ -99,18 +99,28 @@ WorldManager.prototype.removeFromScene = function() {
   scene.remove(this.rootObj);
 };
 
+// Returns the closest picked object.
+WorldManager.prototype.rayPick = function(rayCaster) {
+  //var octreeObjects = this.octree.search( caster.ray.origin, caster.ray.far, true, caster.ray.direction );
+  //var inters = caster.intersectOctreeObjects( octreeObjects );
+  var inters = rayCaster.intersectObjects( this.colObjects, true );
+  if (inters.length > 0) {
+    return inters[0];
+  }
+  return null;
+};
+
 WorldManager.prototype.findHighPoint = function(x, y, fromZ) {
   if (fromZ === undefined) {
     fromZ = 1000; // From the Sky!!
   }
 
   var caster = new THREE.Raycaster(new THREE.Vector3(x, y, fromZ), new THREE.Vector3(0, 0, -1));
-  //var octreeObjects = this.octree.search( caster.ray.origin, caster.ray.far, true, caster.ray.direction );
-  //var inters = caster.intersectOctreeObjects( octreeObjects );
-  var inters = caster.intersectObjects( this.colObjects, true );
-  if (inters.length > 0) {
-    return inters[0].point.z;
+  var pickInfo = this.rayPick(caster);
+  if (pickInfo) {
+    return pickInfo.point.z;
   }
+  return undefined;
 };
 
 function getMapBounds(mapBasePath) {
