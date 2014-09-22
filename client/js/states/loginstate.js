@@ -7,12 +7,16 @@ function LoginState() {
   this.DM = new DataManager();
 }
 
-LoginState.prototype.prepare = function(callback) {
-  this.DM.register('canim_intro', Animation, '3DDATA/TITLEIROSE/CAMERA01_INTRO01.ZMO');
-  this.DM.register('canim_inselect', Animation, '3DDATA/TITLEIROSE/CAMERA01_INSELECT01.ZMO');
-  this.DM.register('canim_ingame', Animation, '3DDATA/TITLEIROSE/CAMERA01_INGAME01.ZMO');
-  this.DM.register('canim_create', Animation, '3DDATA/TITLEIROSE/CAMERA01_CREATE01.ZMO');
-  this.DM.register('canim_outcreate', Animation, '3DDATA/TITLEIROSE/CAMERA01_OUTCREATE01.ZMO');
+LoginState._prepareOnceDone = false;
+LoginState.prototype._prepareOnce = function(callback) {
+  if (LoginState._prepareOnceDone) {
+    return callback();
+  }
+  LoginState._prepareOnceDone = true;
+
+  this.DM.register('canim_intro', Animation, 'CAMERAS/TITLEMAP_LOGIN.ZMO');
+  this.DM.register('canim_inselect', Animation, 'CAMERAS/TITLEMAP_AVTLIST.ZMO');
+  this.DM.register('canim_outselect', Animation, 'CAMERAS/TITLEMAP_AVTLIST_RETURN.ZMO');
 
   var self = this;
   this.DM.get('canim_intro', function() {
@@ -20,13 +24,118 @@ LoginState.prototype.prepare = function(callback) {
 
     // Continue by preloading the rest for now.
     self.DM.get('canim_inselect');
-    self.DM.get('canim_ingame');
-    self.DM.get('canim_create');
-    self.DM.get('canim_outcreate');
+    self.DM.get('canim_outselect');
   });
 
+  CharSelDialog.on('select_char', function(charIdx) {
+    self._onSelectChar(charIdx);
+  });
+  CharSelDialog.on('confirm_char', function() {
+    self._onConfirmChar();
+  });
+};
+
+LoginState.prototype._prepare = function(callback) {
   this.activeCamAnim = null;
   this.world = null;
+  this.chars = [];
+  this.selectedCharIdx = -1;
+  this.visChars = [];
+
+  callback();
+};
+
+LoginState.prototype.prepare = function(callback) {
+  this._prepareOnce(function() {
+    this._prepare(callback);
+  }.bind(this));
+};
+
+LoginState.prototype._onSelectChar = function(charIdx) {
+  for (var i = 0; i < this.visChars.length; ++i) {
+    var visChar = this.visChars[i];
+    if (i === charIdx) {
+      visChar.rootObj.visible = true;
+    } else {
+      visChar.rootObj.visible = false;
+    }
+  }
+  this.selectedCharIdx = charIdx;
+};
+
+LoginState.prototype._onConfirmChar = function() {
+  var selectedChar = this.chars[this.selectedCharIdx];
+
+  CharSelDialog.hide();
+
+  var waitDialog = MsgBoxDialog.create('Confirming character...', false);
+
+  var pickCharName = selectedChar.name;
+  netWorld.selectCharacter(pickCharName, function(data) {
+    waitDialog.setMessage('Character Selected. Connecting to Game Server.');
+
+    netGame = new GameClient();
+    netGame.connect(data.gameIp, data.gamePort, data.transferKey1, rPass, function () {
+      waitDialog.setMessage('Connected to Game Server; Waiting for character data.');
+
+      var charData = null;
+      var invData = null;
+
+      var targetMap = null;
+      netGame.on('char_data', function(data) {
+        charData = data;
+      });
+      netGame.on('inventory_data', function(data) {
+        invData = data;
+      });
+      netGame.on('preload_char', function(data) {
+        if (data.state === 2) {
+          if (!charData || !invData) {
+            waitDialog.setMessage('Got preload 2 without all data.');
+            netWorld.end();
+            netGame.end();
+            return;
+          }
+
+          waitDialog.setMessage('Ready to roll!  Preparing Map!');
+
+          // Time to switch states!
+          gsGame.setMap(charData.zoneNo);
+          gsGame.prepare(function() {
+            var startPos = new THREE.Vector3(
+                charData.posStart.x,
+                charData.posStart.y,
+                0);
+            gsGame.worldMgr.setViewerInfo(startPos, function() {
+              gsGame.worldMgr.rootObj.updateMatrixWorld();
+
+              NetManager.world = gsGame.worldMgr;
+              NetManager.watch(netWorld, netGame);
+
+              MC = new MyCharacter(gsGame.worldMgr);
+              MC.name = charData.name;
+              MC.level = charData.level;
+              MC.setPosition(charData.posStart.x, charData.posStart.y, 0);
+              MC.dropFromSky();
+              MC.gender = charData.gender;
+              MC.visParts = charData.parts;
+              GOM.addObject(MC);
+
+              waitDialog.close();
+              gsLogin.leave();
+              gsGame.enter();
+              activeGameState = gsGame;
+
+            });
+          });
+        }
+      });
+    });
+  });
+};
+
+LoginState.prototype.playNextAnim = function() {
+  this.playCamAnim('canim_inselect', 1);
 };
 
 LoginState.prototype.playCamAnim = function(name, loopCount, speed, callback) {
@@ -56,39 +165,59 @@ LoginState.prototype.playCamAnim = function(name, loopCount, speed, callback) {
 LoginState.prototype.enter = function() {
   var self = this;
 
+  debugGui.add(this, 'playNextAnim');
+
   this.world = new WorldManager();
   this.world.rootObj.position.set(5200, 5200, 0);
-  this.world.setMap(4, function() {
+  this.world.setMap(7, function() {
     console.log('Map Ready');
+    self.world.setViewerInfo(null);
   });
+
   scene.add(this.world.rootObj);
 
   this.playCamAnim('canim_intro');
 
   LoginDialog.show();
-  LoginDialog.setUsername('Burtteh');
-  LoginDialog.setPassword('oblivion');
   LoginDialog.on('loginClicked', function() {
     self._beginLogin();
   });
 
-  // For Testing
-  LoginDialog.emit('loginClicked');
+  // Grab user/pass from local storage
+  var rUser = localStorage.getItem('roseuser');
+  var rPass = localStorage.getItem('rosepass');
+
+  // Help out by setting some initial but blank entries.
+  if (!rUser) {
+    localStorage.setItem('roseuser', '');
+  }
+  if (!rPass) {
+    localStorage.setItem('rosepass', '');
+  }
+
+  if (rUser) {
+    LoginDialog.setUsername(rUser);
+  }
+  if (rPass) {
+    LoginDialog.setPassword(rPass);
+  }
+
+  // For testing, skip login if local storage is set...
+  if (rUser && rPass) {
+    LoginDialog.emit('loginClicked');
+  }
 };
 
-var CHARPOSITIONS = [
-  new THREE.Vector3(5205.00, 5205.00, 1.00),
-  new THREE.Vector3(5202.70, 5206.53, 1.00),
-  new THREE.Vector3(5200.00, 5207.07, 1.00),
-  new THREE.Vector3(5197.30, 5206.53, 1.00),
-  new THREE.Vector3(5195.00, 5205.00, 1.00)
-];
+var CHARPOSITION = new THREE.Vector3(5742.0038, 5095.2579, 17.9782);
+var CHARDIRECTION = 230;
+var CHARSCALE = 3.5;
 
 LoginState.prototype._beginCharSelect = function(charData) {
   var self = this;
 
   console.log('begin char select', charData);
 
+  this.chars = charData.characters;
   for (var i = 0; i < charData.characters.length; ++i) {
     (function(charIdx, charInfo) {
       console.log('Char', charIdx, charInfo);
@@ -99,50 +228,26 @@ LoginState.prototype._beginCharSelect = function(charData) {
           charObj.setModelPart(j, charInfo.parts[j].itemNo);
         }
 
-        var animPath = '3DData/Motion/Avatar/EMPTY_STOP1_M1.ZMO';
-        Animation.load(animPath, function(zmoData) {
-          var anim = zmoData.createForSkeleton('test', charObj.rootObj, charObj.skel);
-          anim.play();
-        });
+        charObj.setMotion(AVTANI.STOP1);
       });
-      charObj.rootObj.position.copy(CHARPOSITIONS[charIdx]);
-      charObj.rootObj.rotateOnAxis(new THREE.Vector3(0,0,1), Math.PI);
-      charObj.rootObj.scale.set(1.2, 1.2, 1.2);
+
+      charObj.rootObj.position.copy(CHARPOSITION);
+      charObj.rootObj.rotateOnAxis(new THREE.Vector3(0,0,1), CHARDIRECTION/180*Math.PI);
+      charObj.rootObj.scale.set(CHARSCALE, CHARSCALE, CHARSCALE);
+      charObj.rootObj.visible = false;
       scene.add(charObj.rootObj);
+      self.visChars.push(charObj);
     })(i, charData.characters[i]);
   }
+
+  CharSelDialog.setCharacters(charData.characters);
+  CharSelDialog.selectCharacter(0);
 
   console.log('INSELECT STARTED');
   this.playCamAnim('canim_inselect', 1, 8, function() {
     console.log('INSELECT DONE');
 
-    if (charData.characters.length < 1) {
-      MsgBoxDialog.create('Failed to Login.  No Characters...');
-      return;
-    }
-
-    var pickCharName = charData.characters[0].name;
-
-    var waitDialog = MsgBoxDialog.create('Joining game...  [Force Character ' + pickCharName + ']', false);
-
-    netWorld.selectCharacter(pickCharName, function(data) {
-
-      console.log('char picked', data);
-
-      netGame = new GameClient();
-      netGame.connect(data.gameIp, data.gamePort, data.transferKey1, rPass, function () {
-        console.log('GAME CONNECTED');
-
-        waitDialog.close();
-
-        console.log('INGAME STARTED');
-        self.playCamAnim('canim_ingame', 1, 8, function() {
-          console.log('INGAME DONE');
-        });
-      });
-
-    });
-
+    CharSelDialog.show();
   });
 };
 
@@ -155,59 +260,91 @@ LoginState.prototype._beginLogin = function() {
 
   LoginDialog.hide();
 
-  var waitDialog = MsgBoxDialog.create('Logging in...  [Force Server Draconis]', false);
+  var waitDialog = MsgBoxDialog.create('Logging in...', false);
+
+  var serverIp = '128.241.92.44';
+  var serverName = '!Pegasus';
+  var channelName = '1channel1';
+  var USE_LIVE_SERVER = true;
+  if (USE_LIVE_SERVER) {
+    serverIp = '128.241.92.36';
+    serverName = '1Draconis';
+    channelName = 'Channel 1';
+  }
 
   netLogin = new LoginClient();
-  netLogin.connect('128.241.92.36', 29000, function (err) {
-    console.log('login connected');
+  netLogin.connect(serverIp, 29000, function(err) {
+    waitDialog.setMessage('Connected; Logging In.');
 
     netLogin.login(rUser, rPass, function (data) {
-      console.log('login result', data);
+      if ((data.result & 0x7f) !== NETLOGINREPLY.OK) {
+        waitDialog.setMessage('Failed to Login (' + enumToName(NETLOGINREPLY, data.result) + ').');
+        netLogin.end();
+        return;
+      }
+      waitDialog.setMessage('Logged In; Finding Server.');
 
+      var serverIdx = -1;
       for (var i = 0; i < data.servers.length; ++i) {
         var tServer = data.servers[i];
-        console.log(tServer.name);
-        if (tServer.name === '1Draconis') {
-          netLogin.channelList(tServer.id, function (data) {
-
-            for (var j = 0; j < data.channels.length; ++j) {
-              var tChannel = data.channels[j];
-              if (tChannel.name === 'Channel 1') {
-                console.log('Found valid Server Channel combo', tServer.id, tChannel.id);
-
-                netLogin.selectServer(tServer.id, tChannel.id, function (data) {
-                  netLogin.end();
-
-                  netWorld = new WorldClient();
-                  netWorld.connect(data.worldIp, data.worldPort, data.transferKey1, rPass, function () {
-                    console.log('WORLD CONNECTED');
-
-                    netWorld.characterList(function (data) {
-                      console.log('world charlist data', data);
-
-                      waitDialog.close();
-                      self._beginCharSelect(data);
-                    });
-
-                  });
-
-                  console.log('select server data', data);
-                });
-              }
-            }
-            console.log('got channel reply', data);
-
-          });
+        if (tServer.name === serverName) {
+          serverIdx = tServer.id;
           break;
         }
       }
 
+      if (serverIdx < 0) {
+        console.log(data.servers);
+        waitDialog.setMessage('Failed to find a server.');
+        netLogin.end();
+        return;
+      }
+
+      netLogin.channelList(serverIdx, function (data) {
+        waitDialog.setMessage('Found Server; Retrieving endpoint info.');
+
+        var channelIdx = -1;
+        for (var j = 0; j < data.channels.length; ++j) {
+          var tChannel = data.channels[j];
+          if (tChannel.name === channelName) {
+            channelIdx = tChannel.id;
+          }
+        }
+
+        if (channelIdx < 0) {
+          console.log(data.channels);
+          waitDialog.setMessage('Failed to find a channel.');
+          netLogin.end();
+          return;
+        }
+
+        netLogin.selectServer(tServer.id, tChannel.id, function (data) {
+          waitDialog.setMessage('Found Endpoint; Connecting to World Server.');
+          netLogin.end();
+
+          netWorld = new WorldClient();
+          netWorld.connect(data.worldIp, data.worldPort, data.transferKey1, rPass, function () {
+            waitDialog.setMessage('Connected to World Server.  Loading characters.');
+
+            netWorld.characterList(function (data) {
+              waitDialog.close();
+
+              self._beginCharSelect(data);
+            });
+          });
+        });
+      });
     });
   });
 };
 
 LoginState.prototype.leave = function() {
+  for (var i = 0; i < this.visChars.length; ++i) {
+    scene.remove(this.visChars[i].rootObj);
+  }
+  this.visChars = [];
 
+  this.world.removeFromScene();
 };
 
 LoginState.prototype.update = function(delta) {

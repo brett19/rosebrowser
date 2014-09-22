@@ -95,6 +95,7 @@
 
 <!-- Game Dialogs -->
 <script src="js/dialogs/login.js"></script>
+<script src="js/dialogs/charsel.js"></script>
 <script src="js/dialogs/msgbox.js"></script>
 
 <!-- Game Pawns -->
@@ -130,7 +131,34 @@
         background-color: white;
         padding: 2px 4px;
     }
+
+    #dlgCharSel .character {
+        padding: 4px 3px;
+        cursor: pointer;
+    }
+    #dlgCharSel .character:hover {
+        background-color: #ffffcc;
+    }
+    #dlgCharSel .character.selected {
+        background-color: #ccccff;
+    }
 </style>
+
+<div id="dlgCharSel" class="gdialog panel panel-default" style="right:5%;top:20%;width:300px;display:none;">
+    <div class="panel-heading">Characters</div>
+    <div class="panel-body">
+        <div class="character">
+            <b>Character 1</b><br />
+            Level 1<br />
+            Junon Polish
+        </div>
+        <div class="character">
+            <b>Character 2</b><br />
+            Level 9001<br />
+            Adventure Plans
+        </div>
+    </div>
+</div>
 
 <div id="dlgLogin" class="gdialog panel panel-default" style="left:55%;top:40%;width:300px;display:none;">
     <div class="panel-heading">Login</div>
