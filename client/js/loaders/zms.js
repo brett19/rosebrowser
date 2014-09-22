@@ -302,7 +302,7 @@ Mesh.load = function(path, callback) {
     } else if (magic === 'ZMS0008') {
       version = 8;
     } else {
-      throw 'Unexpected ZMS magic header ' + magic + ' in ' + path;
+      throw new Error('Unexpected ZMS magic header ' + magic + ' in ' + path);
     }
 
     if (version >= 7) {
