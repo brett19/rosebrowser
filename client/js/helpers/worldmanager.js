@@ -182,9 +182,9 @@ WorldManager.prototype.setViewerInfo = function(pos, callback) {
     return;
   }
 
-  // TODO: Fix this, this is dumb.
-  var localViewPos = pos;
+  var localViewPos = null;
   if (pos) {
+    // TODO: Fix this, this is dumb.
     localViewPos = pos.clone().sub(this.rootObj.position);
   }
 
@@ -554,12 +554,14 @@ WorldChunk.prototype._loadObjects = function(callback) {
   var litCnstPath = this.world.basePath + this.name + '/LIGHTMAP/BUILDINGLIGHTMAPDATA.LIT';
   var litDecoPath = this.world.basePath + this.name + '/LIGHTMAP/OBJECTLIGHTMAPDATA.LIT';
   var waitAll = new MultiWait();
+  var waitDecoObjs = waitAll.one();
+  var waitCnstObjs = waitAll.one();
   var self = this;
 
   LightmapManager.load(litCnstPath, function(cnstLightmap) {
     LightmapManager.load(litDecoPath, function (decoLightmap) {
-      _loadChunkObjectGroup(self,'DECO_' + self.name, self.info.objects, self.world.decoModelMgr, decoLightmap, waitAll.one());
-      _loadChunkObjectGroup(self,'CNST_' + self.name, self.info.buildings, self.world.cnstModelMgr, cnstLightmap, waitAll.one());
+      _loadChunkObjectGroup(self,'DECO_' + self.name, self.info.objects, self.world.decoModelMgr, decoLightmap, waitDecoObjs);
+      _loadChunkObjectGroup(self,'CNST_' + self.name, self.info.buildings, self.world.cnstModelMgr, cnstLightmap, waitCnstObjs);
     });
   });
 
