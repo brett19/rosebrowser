@@ -62,7 +62,7 @@ StringTable.Entry = function() {
  */
 StringTable.prototype.getByKey = function(key)
 {
-  return this.getByID(this.keys[key]);
+  return this.getById(this.keys[key]);
 };
 
 
@@ -70,7 +70,7 @@ StringTable.prototype.getByKey = function(key)
  * @param {Number} id
  * @returns {StringTable.Entry}
  */
-StringTable.prototype.getByID = function(id)
+StringTable.prototype.getById = function(id)
 {
   var entry = new StringTable.Entry();
   this.rh.seek(this.offsets[this.useLanguage][id]);
