@@ -4,6 +4,7 @@ var ROSE_DATA_PATH = config.dataPath ? config.dataPath : '/data/';
 
 var ZZ_SCALE_IN = 0.01;
 var ZZ_SCALE_OUT = 100;
+var ZZ_TICK_PER_SEC = 4800;
 
 var ROSELoader = {};
 

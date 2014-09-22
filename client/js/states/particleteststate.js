@@ -164,8 +164,10 @@ ParticleEmitter.Particle = function()
   this.rotationStep = 0;
 };
 
-ParticleEmitter.Particle.prototype.update = function(dt)
+ParticleEmitter.Particle.prototype.update = function(_dt)
 {
+  var dt = _dt * (ZZ_TICK_PER_SEC / 1000)
+
   this.age += dt;
   this.eventTimer += dt;
 
