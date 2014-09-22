@@ -73,6 +73,11 @@ BinaryReader.prototype.readStrLen = function(len) {
   return String.fromCharCode.apply(null, strArray);
 };
 
+BinaryReader.prototype.readIntStr = function() {
+  var strLen = this.readUint32();
+  return this.readStrLen(strLen);
+};
+
 BinaryReader.prototype.readUint8Array = function(len) {
   var array = new Uint8Array(this.buffer.buffer, this.pos, len);
   this.pos += len;
