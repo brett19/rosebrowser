@@ -13,6 +13,13 @@ document.body.appendChild(renderer.domElement);
 renderer.setClearColor( 0x888888, 1 );
 
 
+// Load any needed extensions
+var minMaxGlExt = renderer.getContext().getExtension('EXT_blend_minmax');
+if (!minMaxGlExt) {
+  console.warn('Could not load blend_minmax extension!');
+}
+
+
 // Create a global scene to work with
 var scene = new THREE.Scene();
 
@@ -95,8 +102,6 @@ InputManager._handleEvent = function(name, e) {
     inputMgrEventHandler.call(this, name, e);
   }
 };
-
-
 
 var activeGameState = null;
 
