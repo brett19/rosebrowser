@@ -174,13 +174,17 @@ ParticleEmitter.Particle.prototype.update = function(_dt)
   this.textureIndex += this.textureIndexStep * dt;
   this.rotation += this.rotationStep * dt;
 
-  // TODO: Implement rotation in rendering!!
-  if (this.rotation >= 360) {
+  while (this.rotation >= 360) {
     this.rotation -= 360;
+  }
+
+  while (this.rotation < 0) {
+    this.rotation += 360;
   }
 
   this.sprite.position.copy(this.position);
   this.sprite.scale.set(this.size.x, -this.size.y, 1.0);
+  this.sprite.material.rotation = this.rotation * (Math.PI / 180);
   this.sprite.material.color.setRGB(this.color.r, this.color.g, this.color.b);
   this.sprite.alpha = this.color.a;
 
