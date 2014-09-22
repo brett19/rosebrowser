@@ -11,7 +11,7 @@ renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 renderer.setClearColor( 0x888888, 1 );
-
+renderer.autoClear = false;
 
 // Load any needed extensions
 var minMaxGlExt = renderer.getContext().getExtension('EXT_blend_minmax');
@@ -22,7 +22,8 @@ if (!minMaxGlExt) {
 
 // Create a global scene to work with
 var scene = new THREE.Scene();
-
+var skyScene = new THREE.Scene();
+var skyObject = null;
 
 // Set up some basic initial lighting
 var directionalLight = new THREE.DirectionalLight( 0xffffff, 1.1 );
@@ -125,13 +126,25 @@ var renderFrame = function () {
     activeGameState.update(delta);
   }
 
-  if (!debugCamera) {
-    renderer.render(scene, camera);
-  } else {
+  var renderCamera = camera;
+  if (debugCamera) {
     debugCamFrust.update(delta);
     debugControls.update(delta);
-    renderer.render(scene, debugCamera);
+    renderCamera = debugCamera;
   }
+
+  // TODO: I don't think this works how I think it works.
+  //  Everything appears to draw perfectly correctly no matter what
+  //  clearing flags I set, or what clearing I do on my own...
+  if (skyObject) {
+    skyObject.position.copy(renderCamera.position);
+    renderer.render(skyScene, renderCamera);
+    renderer.clear(false, true, false);
+  } else {
+    renderer.clear(true, true, false);
+  }
+  renderer.render(scene, renderCamera);
+
   stats.end();
 };
 renderFrame();
@@ -158,6 +171,10 @@ if (clientParams.indexOf('lmonly') !== -1) {
   config.lmonly = true;
 }
 
+ShaderManager.register('skydome', 'skydome.vert', 'skydome.frag', {
+  depthWrite: false,
+  depthTest: false
+});
 ShaderManager.register('terrain', 'terrain.vert', 'terrain.frag', {
   attributes: {uv3:{}}
 });

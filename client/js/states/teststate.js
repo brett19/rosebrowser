@@ -102,6 +102,19 @@ TestState.prototype.enter = function() {
   charObj.rootObj.scale.set(1.2, 1.2, 1.2);
   scene.add(charObj.rootObj);
 
+  Mesh.load('3DDATA/JUNON/SKY/DAY01.ZMS', function(geom) {
+    var texd = ROSETexLoader.load('3DDATA/JUNON/SKY/DAY01.DDS');
+    var texn = ROSETexLoader.load('3DDATA/JUNON/SKY/NIGHT01.DDS');
+    var mat = ShaderManager.get('skydome').clone();
+    mat.uniforms = {
+      texture1: { type: 't', value: texd },
+      texture2: { type: 't', value: texn },
+      blendRatio: { type: 'f', value: 0.5 }
+    };
+    skyObject = new THREE.Mesh(geom, mat);
+    scene.add(skyObject);
+  });
+
   //LoginDialog.show();
 };
 
