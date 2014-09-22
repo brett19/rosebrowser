@@ -85,16 +85,16 @@ ConversationSpec.load = function(path, callback) {
             case CXEINSTYPE.OPTCONDITION:
               break;
             case CXEINSTYPE.LUACONDITION:
-              ins.luaFuncName = rh.readIntStr();
+              ins.luaFuncName = rh.readUint32Str();
               break;
             case CXEINSTYPE.QSDCONDITION:
-              ins.qsdTriggerName = rh.readIntStr();
+              ins.qsdTriggerName = rh.readUint32Str();
               break;
             case CXEINSTYPE.LUAACTION:
-              ins.luaFuncName = rh.readIntStr();
+              ins.luaFuncName = rh.readUint32Str();
               break;
             case CXEINSTYPE.QSDACTION:
-              ins.qsdTriggerName = rh.readIntStr();
+              ins.qsdTriggerName = rh.readUint32Str();
               break;
             default:
               throw new Error('Unexpected CXE instruction type.');
@@ -102,15 +102,15 @@ ConversationSpec.load = function(path, callback) {
           data.instructions.push(ins)
         }
       } else if (blockType === CXEBLOCKTYPE.STRINGS) {
-        var langId = rh.readIntStr();
+        var langId = rh.readUint32Str();
         var numStrings = rh.readUint32();
         data.strings[langId] = {};
         for (var i = 0; i < numStrings; ++i) {
           var stringId = rh.readUint32();
-          data.strings[langId][stringId] = rh.readIntStr();
+          data.strings[langId][stringId] = rh.readUint32Str();
         }
       } else if (blockType === CXEBLOCKTYPE.LUADATA) {
-        data.luaData = rh.readIntStr();
+        data.luaData = rh.readUint32Str();
       } else if (blockType === CXEBLOCKTYPE.END) {
         break;
       } else {
