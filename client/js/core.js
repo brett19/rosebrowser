@@ -84,9 +84,10 @@ function destroyDebugCamera() {
   scene.remove(debugCamFrust);
 }
 
+var debugTriggerKeyCodes = [ 192, 223 ];
 var inputMgrEventHandler = InputManager._handleEvent;
 InputManager._handleEvent = function(name, e) {
-  if (name === 'keydown' && e.keyCode === 192) {
+  if (name === 'keydown' && debugTriggerKeyCodes.indexOf(e.keyCode) !== -1) {
     if (!debugCamera) {
       initDebugCamera();
     } else {
