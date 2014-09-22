@@ -111,9 +111,15 @@ function convertZnzinBlendOp(znzin) {
       return THREE.SubtractEquation;
     case ZZ_BLEND_OP.REV_SUBTRACT:
       return THREE.ReverseSubtractEquation;
-    case ZZ_BLEND_OP.MIN:
+  }
+
+  if (renderer.supportsBlendMinMax()) {
+    if (znzin === ZZ_BLEND_OP.MIN) {
       return THREE.MinEquation;
-    case ZZ_BLEND_OP.MAX:
+    } else if (znzin === ZZ_BLEND_OP.MAX) {
       return THREE.MaxEquation;
+    }
+  } else {
+    return THREE.AddEquation;
   }
 }
