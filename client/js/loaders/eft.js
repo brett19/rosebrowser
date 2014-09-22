@@ -69,6 +69,25 @@ Effect.Animation = function() {
 };
 
 
+/*
+ +D3DXQUATERNION* WINAPI D3DXQuaternionRotationYawPitchRoll(D3DXQUATERNION *pout, FLOAT yaw, FLOAT pitch, FLOAT roll)
+ +{
+ +    pout->x = sin( yaw / 2.0f) * cos(pitch / 2.0f) * sin(roll / 2.0f) + cos(yaw / 2.0f) * sin(pitch / 2.0f) * cos(roll / 2.0f);
+ +    pout->y = sin( yaw / 2.0f) * cos(pitch / 2.0f) * cos(roll / 2.0f) - cos(yaw / 2.0f) * sin(pitch / 2.0f) * sin(roll / 2.0f);
+ +    pout->z = cos(yaw / 2.0f) * cos(pitch / 2.0f) * sin(roll / 2.0f) - sin( yaw / 2.0f) * sin(pitch / 2.0f) * cos(roll / 2.0f);
+ +    pout->w = cos( yaw / 2.0f) * cos(pitch / 2.0f) * cos(roll / 2.0f) + sin(yaw / 2.0f) * sin(pitch / 2.0f) * sin(roll / 2.0f);
+ +    return pout;
+ +}
+ */
+function D3DXQuaternionRotationYawPitchRoll(yaw, pitch, roll) {
+  var x = Math.sin( yaw / 2.0) * Math.cos(pitch / 2.0) * Math.sin(roll / 2.0) + Math.cos(yaw / 2.0) * Math.sin(pitch / 2.0) * Math.cos(roll / 2.0);
+  var y = Math.sin( yaw / 2.0) * Math.cos(pitch / 2.0) * Math.cos(roll / 2.0) - Math.cos(yaw / 2.0) * Math.sin(pitch / 2.0) * Math.sin(roll / 2.0);
+  var z = Math.cos(yaw / 2.0) * Math.cos(pitch / 2.0) * Math.sin(roll / 2.0) - Math.sin( yaw / 2.0) * Math.sin(pitch / 2.0) * Math.cos(roll / 2.0);
+  var w = Math.cos( yaw / 2.0) * Math.cos(pitch / 2.0) * Math.cos(roll / 2.0) + Math.sin(yaw / 2.0) * Math.sin(pitch / 2.0) * Math.sin(roll / 2.0);
+
+  return new THREE.Quaternion(x, y, z, w);
+}
+
 /**
  * @callback Effect~onLoad
  * @param {Effect} effect
@@ -101,6 +120,7 @@ Effect.load = function(path, callback) {
       particle.animation.index      = rh.readUint32();
       particle.position             = rh.readVector3();
       particle.rotation             = rh.readQuat();
+      particle.rotation = D3DXQuaternionRotationYawPitchRoll(particle.rotation.x, particle.rotation.y, particle.rotation.z);
       particle.delay                = rh.readUint32();
       particle.linkRoot             = rh.readUint32() !== 0;
       particle.position.multiplyScalar(ZZ_SCALE_IN);

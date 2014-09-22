@@ -7,6 +7,8 @@ var ParticleEmitter = function(data)
   this.rootObj = new THREE.Object3D();
   this.particles = [];
   this.data = data;
+  this.newParticleCounter = 0;
+  this.totalParticleLives = 0;
 
   this.texture = RoseTextureManager.load(data.texturePath);
   this.texture.repeat.set(1 / data.spriteCols, 1 / data.spriteRows);
@@ -35,9 +37,6 @@ var ParticleEmitter = function(data)
   data.events.sort(function(left, right) {
     return left.actualTime - right.actualTime;
   });
-
-  this.rootObj.position.set(5200, 5280, 0);
-  scene.add(this.rootObj);
 };
 
 ParticleEmitter.prototype.createParticle = function()
@@ -73,6 +72,7 @@ ParticleEmitter.prototype.createParticle = function()
 
   particle.sprite = sprite;
   this.rootObj.add(sprite);
+  this.totalParticleLives++;
   return particle;
 };
 
@@ -90,10 +90,52 @@ ParticleEmitter.prototype.update = function(dt)
     }
   }
 
-  // TODO: Change this to use emitRate
-  for (var i = this.particles.length; i < this.data.particleCount; ++i) {
-    this.particles.push(this.createParticle());
+
+
+ // console.log(dt);
+  var frameEmitRate = this.data.emitRate.getValueInRange();
+  var numNewParts = Math.floor(frameEmitRate * dt);
+
+  this.newParticleCounter += (frameEmitRate * dt) - numNewParts;
+
+  if ( this.newParticleCounter > 1) {
+    numNewParts += Math.floor(this.newParticleCounter);
+    this.newParticleCounter -= Math.floor(this.newParticleCounter);
   }
+
+/*
+  var newParticles = Math.floor(this.newParticleCounter);
+  this.newParticleCounter -= newParticles;
+
+  var isRunning = true;
+
+  if (this.data.loopCount > 0 && this.totalParticleLives + newParticles > this.data.loopCount * this.data.particleCount) {
+    newParticles = (this.data.loopCount * this.data.particleCount) - this.totalParticleLives;
+    newParticles = Math.max(0, newParticles);
+
+    if (newParticles === 0 && this.particles.length === 0) {
+      isRunning = false;
+    }
+  } else if (this.data.loopCount > 0 && this.totalParticleLives >= this.data.loopCount * this.data.particleCount) {
+    if (this.particles.length === 0) {
+      isRunning = false;
+    }
+  }
+
+
+  newParticles = Math.min(newParticles, this.data.particleCount - this.particles.length);
+
+  if (newParticles > 1) {
+    console.log("this.newParticleCounter > 1, pCount: " + this.data.particleCount + " length: " + this.particles.length + " newParticles: " + newParticles);
+  }*/
+
+  numNewParts = Math.min(numNewParts, this.data.particleCount - this.particles.length);
+
+  for (var i = 0; i < numNewParts; ++i) {
+    this.createParticle();
+    console.log("createParticle");
+  }
+
 };
 
 ParticleEmitter.Particle = function()
@@ -127,7 +169,7 @@ ParticleEmitter.Particle.prototype.update = function(dt)
   this.age += dt;
   this.eventTimer += dt;
 
-  if (this.age > this.lifetime) {
+  if (this.age >= this.lifetime) {
     return false;
   }
 
@@ -371,17 +413,29 @@ ParticleTestState.prototype.spawnParticles = function() {
   Effect.load('3Ddata\\EFFECT\\BONFIRE_01.EFT', function(effect){
     console.log(effect);
 
+    var rootObj = new THREE.Object3D();
+
     for (var j = 0; j < effect.particles.length; ++j) {
-      ParticleSystem.load(effect.particles[j].particlePath, function (particleSystem)
+      var particle = effect.particles[j];
+
+      ParticleSystem.load(particle.particlePath, function (particleSystem)
       {
-        console.log(particleSystem)
+        console.log(particleSystem);
 
         for (var i = 0; i < particleSystem.emitters.length; ++i) {
           var data = particleSystem.emitters[i];
-          particleEmitters.push(new ParticleEmitter(data));
+          var emitter = new ParticleEmitter(data);
+          emitter.rootObj.position.copy(particle.position);
+          emitter.rootObj.quaternion.copy(particle.rotation);
+          particleEmitters.push(emitter);
+
+          rootObj.add(emitter.rootObj);
         }
       });
     }
+
+    rootObj.position.set(5200, 5280, 0);
+    scene.add(rootObj);
   });
 };
 
