@@ -48,8 +48,8 @@ ParticleEmitter.prototype.createParticle = function()
     transparent: true,
     blending: THREE.CustomBlending,
     blendEquation: convertZnzinBlendOp(this.data.blendOp),
-    blendSrc: convertZnzinBlendOp(this.data.blendSrc),
-    blendDst: convertZnzinBlendOp(this.data.blendDst)
+    blendSrc: convertZnzinBlendType(this.data.blendSrc),
+    blendDst: convertZnzinBlendType(this.data.blendDst)
   });
 
   // Create sprite
