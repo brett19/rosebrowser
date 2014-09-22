@@ -66,7 +66,7 @@ ParticleEmitter.prototype.createParticle = function()
 
   var sprite = new THREE.Sprite(material);
   sprite.position.copy(particle.position);
-  sprite.scale.set(particle.size.x, particle.size.y, 1.0);
+  sprite.scale.set(particle.size.x, -particle.size.y, 1.0);
 
   particle.sprite = sprite;
   this.rootObj.add(sprite);
@@ -129,7 +129,6 @@ ParticleEmitter.prototype.update = function(dt)
 
   for (var i = 0; i < numNewParts; ++i) {
     this.createParticle();
-    console.log("createParticle");
   }
 
 };
@@ -185,7 +184,7 @@ ParticleEmitter.Particle.prototype.update = function(_dt)
   }
 
   this.sprite.position.copy(this.position);
-  this.sprite.scale.set(this.size.x, this.size.y, 1.0); // TODO: remove *10
+  this.sprite.scale.set(this.size.x, -this.size.y, 1.0);
   this.sprite.material.color.setRGB(this.color.r, this.color.g, this.color.b);
   this.sprite.alpha = this.color.a;
 
