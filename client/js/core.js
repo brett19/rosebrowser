@@ -188,6 +188,7 @@ if (launchGameState) {
 }
 
 GDM.register('list_zone', DataTable, '3DDATA/STB/LIST_ZONE.STB');
+GDM.register('zone_names', StringTable, '3DDATA/STB/LIST_ZONE_S.STL');
 
 GDM.register('char_motiontypes', DataTable, '3DDATA/STB/TYPE_MOTION.STB');
 GDM.register('char_motions', DataTable, '3DDATA/STB/FILE_MOTION.STB');
