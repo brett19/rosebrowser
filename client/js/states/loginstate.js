@@ -18,6 +18,9 @@ LoginState.prototype._prepareOnce = function(callback) {
   this.DM.register('canim_inselect', Animation, 'CAMERAS/TITLEMAP_AVTLIST.ZMO');
   this.DM.register('canim_outselect', Animation, 'CAMERAS/TITLEMAP_AVTLIST_RETURN.ZMO');
 
+  // Start loading this, going to need it later.
+  GDM.get('zone_names', 'list_zone');
+
   var self = this;
   this.DM.get('canim_intro', function() {
     callback();
@@ -217,6 +220,9 @@ LoginState.prototype._beginCharSelect = function(charData) {
 
   console.log('begin char select', charData);
 
+  var listZones = GDM.getNow('list_zone');
+  var zoneNames = GDM.getNow('zone_names');
+
   this.chars = charData.characters;
   for (var i = 0; i < charData.characters.length; ++i) {
     (function(charIdx, charInfo) {
@@ -237,10 +243,14 @@ LoginState.prototype._beginCharSelect = function(charData) {
       charObj.rootObj.visible = false;
       scene.add(charObj.rootObj);
       self.visChars.push(charObj);
+
+      // Add Zone name on behalf of the CharSelDialog
+      var zoneStrKey = listZones.rows[charInfo.zoneNo][26];
+      charInfo.zoneName = zoneNames.getByKey(zoneStrKey).text;
     })(i, charData.characters[i]);
   }
 
-  CharSelDialog.setCharacters(charData.characters);
+  CharSelDialog.setCharacters(this.chars);
   CharSelDialog.selectCharacter(0);
 
   console.log('INSELECT STARTED');
@@ -327,9 +337,14 @@ LoginState.prototype._beginLogin = function() {
             waitDialog.setMessage('Connected to World Server.  Loading characters.');
 
             netWorld.characterList(function (data) {
-              waitDialog.close();
 
-              self._beginCharSelect(data);
+              // need list zone to show character select:
+              GDM.get('zone_names', 'list_zone', function() {
+                waitDialog.close();
+
+                self._beginCharSelect(data);
+              });
+
             });
           });
         });

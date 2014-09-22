@@ -46,7 +46,7 @@ _CharSelDialog.prototype.setCharacters = function(characters) {
     var charBox = $('<div class="character"><b class="name"></b><br />Level: <span class="level"></span><br />Location: <span class="loc"></span></div>');
     charBox.find('.name').text(character.name);
     charBox.find('.level').text(character.level);
-    charBox.find('.loc').text(character.zoneNo);
+    charBox.find('.loc').text(character.zoneName);
 
     charBox.on('click', function(charIdx) {
       this.selectCharacter(charIdx);
