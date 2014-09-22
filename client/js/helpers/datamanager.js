@@ -28,6 +28,19 @@ DataManager.prototype.evict = function(name) {
   item.data = null;
 };
 
+DataManager.prototype.getNow = function(name) {
+  var item = this.items[name];
+  if (!item) {
+    throw new Error('Attempted to retrieve unregistered data resource (' + name + ').');
+  }
+
+  if (!item.data) {
+    throw new Error('Attempted to getNow an unloaded data resource (' + name + ').');
+  }
+
+  return item.data;
+};
+
 DataManager.prototype.getOne = function(name, callback) {
   var item = this.items[name];
   if (!item) {
