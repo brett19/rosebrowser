@@ -40,37 +40,33 @@ var ParticleEmitter = function(data)
 ParticleEmitter.prototype.createParticle = function()
 {
   var particle = new ParticleEmitter.Particle();
+
+  // Create material
+  particle.material = new THREE.SpriteMaterial({
+    map: this.texture,
+    useScreenCoordinates: false,
+    transparent: true,
+    blending: THREE.CustomBlending,
+    blendEquation: convertZnzinBlendOp(this.data.blendOp),
+    blendSrc: convertZnzinBlendOp(this.data.blendSrc),
+    blendDst: convertZnzinBlendOp(this.data.blendDst)
+  });
+
+  // Create sprite
+  particle.sprite = new THREE.Sprite(particle.material);
+  this.rootObj.add(particle.sprite);
+  this.totalParticleLives++;
+  this.particles.push(particle);
+
+  // Set the initial properties
   particle.lifetime = this.data.lifeTime.getValueInRange();
   particle.position = this.data.emitRadius.getValueInRange();
   particle.gravity  = this.data.gravity.getValueInRange();
   particle.textureCols = this.data.spriteCols;
   particle.textureRows = this.data.spriteRows;
-
-  // Apply initial events
   this.applyEvents(particle);
-  this.particles.push(particle);
+  particle.update(0);
 
-  // Create sprite
-  var material = new THREE.SpriteMaterial({
-    map: this.texture,
-    useScreenCoordinates: false,
-    transparent: true,
-    color: new THREE.Color(particle.color.r, particle.color.g, particle.color.b),
-    alpha: particle.color.a
-  });
-
-  material.blending = THREE.CustomBlending;
-  material.blendEquation = convertZnzinBlendOp(this.data.blendOp);
-  material.blendSrc = convertZnzinBlendType(this.data.blendSrc);
-  material.blendDst = convertZnzinBlendType(this.data.blendDst);
-
-  var sprite = new THREE.Sprite(material);
-  sprite.position.copy(particle.position);
-  sprite.scale.set(particle.size.x, -particle.size.y, 1.0);
-
-  particle.sprite = sprite;
-  this.rootObj.add(sprite);
-  this.totalParticleLives++;
   return particle;
 };
 
