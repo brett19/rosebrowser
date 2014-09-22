@@ -73,18 +73,27 @@ DataManager.prototype.getOne = function(name, callback) {
  */
 DataManager.prototype.get = function() {
   var self = this;
-  var callback = arguments[arguments.length - 1];
+  var argsLen = arguments.length;
 
-  var resultsNeeded = arguments.length - 1;
+  var callback = arguments[arguments.length - 1];
+  if (callback instanceof Function) {
+    argsLen--;
+  } else {
+    callback = null;
+  }
+
+  var resultsNeeded = argsLen;
   var results = [];
-  for (var i = 0; i < arguments.length - 1; ++i) {
+  for (var i = 0; i < argsLen; ++i) {
     results.push(null);
     (function(resIdx, resName) {
       self.getOne(resName, function(res) {
         results[resIdx] = res;
         resultsNeeded--;
         if (resultsNeeded === 0) {
-          callback.apply(this, results);
+          if (callback) {
+            callback.apply(this, results);
+          }
         }
       });
     })(i, arguments[i]);
