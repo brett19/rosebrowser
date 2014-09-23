@@ -60,8 +60,8 @@ QuestScriptList.load = function(path, callback) {
 
         if (previousTrigger) {
           previousTrigger.nextTriggerName = trigger.name;
-          previousTrigger = trigger;
         }
+        previousTrigger = trigger;
 
         trigger.conditions = [];
 
@@ -93,18 +93,18 @@ QuestScriptList.load = function(path, callback) {
               break;
             // Character Ability Check
             case 3:
-              var varCount = rh.readInt32();
-              ins.vars = [];
-              for (var l = 0; l < varCount; ++l) {
-                ins.vars.push(readStrAbilData());
+              var abilCount = rh.readInt32();
+              ins.abils = [];
+              for (var l = 0; l < abilCount; ++l) {
+                ins.abils.push(readStrAbilData());
               }
               break;
             // Check Character Item
             case 4:
-              var varCount = rh.readInt32();
-              ins.vars = [];
-              for (var l = 0; l < varCount; ++l) {
-                ins.vars.push(readStrItemData());
+              var itemCount = rh.readInt32();
+              ins.items = [];
+              for (var l = 0; l < itemCount; ++l) {
+                ins.items.push(readStrItemData());
               }
               break;
             // Party Check
@@ -279,7 +279,8 @@ QuestScriptList.load = function(path, callback) {
       }
 
       if (previousTrigger && previousTrigger.checkNext) {
-        console.warn('Last trigger in QuestList had checkNext set!');
+        previousTrigger.checkNext = false;
+        //console.warn('Last trigger in QuestList had checkNext set!');
       }
 
       data.scripts.push(script);

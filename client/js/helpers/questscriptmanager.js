@@ -25,6 +25,65 @@ QuestScriptManager.prototype._registerTrigger = function(trigger) {
   this.triggers[trigger.name] = trigger;
 };
 
+function _checkCond(ins) {
+  switch (ins.type) {
+    case 0:
+      console.log('set quest', ins.questNo);
+      break;
+    case 3:
+      console.group('check abilitys');
+      for (var i = 0; i < ins.abils.length; ++i) {
+        console.log(ins.abils[i]);
+      }
+      console.groupEnd();
+      break;
+    case 4:
+      console.group('check items');
+      for (var i = 0; i < ins.items.length; ++i) {
+        console.log(ins.items[i]);
+      }
+      console.groupEnd();
+      break;
+    case 9:
+      console.log('skill check', ins.skillNo1, ins.skillNo2, ins.op);
+      break;
+    case 13:
+      console.log('set npc', ins.npcNo);
+      break;
+    case 31:
+      console.log('quest log activity', ins.questNo, ins.op);
+      break;
+    default:
+      console.warn('Encountered unhandled condition type:', ins.type);
+      break;
+  }
+  return true;
+}
+function _checkTrigger(trigger) {
+  console.log('checkTrigger', trigger.name);
+  for (var i = 0; i < trigger.conditions.length; ++i) {
+    if (!_checkCond(trigger.conditions[i])) {
+      return false;
+    }
+  }
+  return true;
+}
+
+QuestScriptManager.prototype.checkOnly = function(triggerName) {
+  while (true) {
+    var trigger = this.triggers[triggerName];
+    if (!_checkTrigger(trigger)) {
+      return false;
+    }
+    if (trigger.checkNext) {
+      triggerName = trigger.nextTriggerName;
+    } else {
+      break;
+    }
+  }
+  return true;
+}
+
 /**
  * Load helper so the QuestScriptManager can be controlled by the GDM.
  *
