@@ -164,8 +164,17 @@ RosePacket.prototype.readPartItem = function() {
   item.color = this.readUint32();
   return item;
 };
-RosePacket.prototype.readItem = function() {
+RosePacket.prototype.readVisItem = function() {
   var item = {};
+  item.itemType = this.readUint16();
+  item.itemNo = this.readUint32();
+  item.charDbId = this.readUint32();
+  /* reserved */ this.readUint32();
+  item.color = this.readUint32();
+  return item;
+};
+RosePacket.prototype.readItem = function() {
+  var item = this.readVisItem();
   item.itemKey = this.readUint64();
   item.isCrafted = this.readUint8();
   item.gemOption1 = this.readUint16();
