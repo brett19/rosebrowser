@@ -6,6 +6,12 @@ function logPacket(text, pak) {
   console.groupEnd();
 }
 
+function _checkPacket(pak) {
+  if (pak.readPos > 0 && pak.readPos !== pak.dataLength) {
+    console.warn('Packet not read properly (cmd:' + pak.cmd.toString(16) + ' length:' + pak.dataLength + ' read:' + pak.readPos + ').');
+  }
+}
+
 function RoseSocket() {
   RSocket.call(this);
 
@@ -34,6 +40,7 @@ function RoseSocket() {
               logPacket('net:recv', pakBuf);
             }
             this.emit('packet', pakBuf);
+            _checkPacket(pakBuf);
             headerLen = 0;
             dataLen = 0;
             pakBuf = null;
@@ -47,6 +54,7 @@ function RoseSocket() {
             logPacket('net:recv<' + this.name + '>', pakBuf);
           }
           this.emit('packet', pakBuf);
+          _checkPacket(pakBuf);
           headerLen = 0;
           dataLen = 0;
           pakBuf = null;
