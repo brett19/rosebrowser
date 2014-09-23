@@ -34,7 +34,14 @@ Animation.CHANNEL_TYPE = {
   None: 1 << 0,
   Position: 1 << 1,
   Rotation: 1 << 2,
-  Normal: 1 << 3
+  Normal: 1 << 3,
+  Alpha: 1 << 4,
+  Uv1: 1 << 5,
+  Uv2: 1 << 6,
+  Uv3: 1 << 7,
+  Uv4: 1 << 8,
+  TexAnim: 1 << 9,
+  Scale: 1 << 10
 };
 
 
@@ -70,10 +77,13 @@ Animation.prototype.createForSkeleton = function(name, rootObj, skel) {
     var c = this.channels[j];
     for (var i = 0; i < this.frameCount; ++i) {
       var thisKey = animD.hierarchy[c.index].keys[i];
-      if (c.type == Animation.CHANNEL_TYPE.Position) {
-        thisKey.pos = [c.frames[i].x, c.frames[i].y, c.frames[i].z];
-      } else if (c.type == Animation.CHANNEL_TYPE.Rotation) {
-        thisKey.rot = [c.frames[i].x, c.frames[i].y, c.frames[i].z, c.frames[i].w];
+      switch (c.type) {
+        case Animation.CHANNEL_TYPE.Position:
+          thisKey.pos = [c.frames[i].x, c.frames[i].y, c.frames[i].z];
+          break;
+        case Animation.CHANNEL_TYPE.Rotation:
+          thisKey.rot = [c.frames[i].x, c.frames[i].y, c.frames[i].z, c.frames[i].w];
+          break;
       }
     }
   }
@@ -115,12 +125,16 @@ Animation.prototype.createForStatic = function(name, rootObj) {
         console.log('bad index');
       }
       var thisKey = animD.hierarchy[c.index].keys[i];
-      if (c.type == Animation.CHANNEL_TYPE.Position) {
-        thisKey.pos = [c.frames[i].x, c.frames[i].y, c.frames[i].z];
-      } else if (c.type == Animation.CHANNEL_TYPE.Rotation) {
-        thisKey.rot = [c.frames[i].x, c.frames[i].y, c.frames[i].z, c.frames[i].w];
-      } else if (c.type == Animation.CHANNEL_TYPE.Scale) {
-        thisKey.scl = [c.frames[i].x, c.frames[i].y, c.frames[i].z];
+      switch (c.type) {
+        case Animation.CHANNEL_TYPE.Position:
+          thisKey.pos = [c.frames[i].x, c.frames[i].y, c.frames[i].z];
+          break;
+        case Animation.CHANNEL_TYPE.Rotation:
+          thisKey.rot = [c.frames[i].x, c.frames[i].y, c.frames[i].z, c.frames[i].w];
+          break;
+        case Animation.CHANNEL_TYPE.Scale:
+          thisKey.scl = [c.frames[i].x, c.frames[i].y, c.frames[i].z];
+          break;
       }
     }
   }
