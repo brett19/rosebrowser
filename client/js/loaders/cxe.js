@@ -43,7 +43,7 @@ ConversationSpec.load = function(path, callback) {
     var data = new ConversationSpec();
 
     var magic = rh.readStrLen(8);
-    if (magic !== 'CXE1000\0') {
+    if (magic !== 'CXE1000') {
       throw new Error('Unexpected CXE magic header `' + magic + '` in `' + path + '`.');
     }
 
