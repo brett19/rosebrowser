@@ -188,8 +188,29 @@ Animation.load = function(path, callback) {
         case Animation.CHANNEL_TYPE.Rotation:
           frame = rh.readQuatwxyz();
           break;
+        case Animation.CHANNEL_TYPE.Scale:
+          frame = rh.readVector3();
+          break;
         case Animation.CHANNEL_TYPE.Normal:
           frame = rh.readVector3();
+          break;
+        case Animation.CHANNEL_TYPE.Alpha:
+          frame = rh.readFloat();
+          break;
+        case Animation.CHANNEL_TYPE.Uv1:
+          frame = rh.readVector2();
+          break;
+        case Animation.CHANNEL_TYPE.Uv2:
+          frame = rh.readVector2();
+          break;
+        case Animation.CHANNEL_TYPE.Uv3:
+          frame = rh.readVector2();
+          break;
+        case Animation.CHANNEL_TYPE.Uv4:
+          frame = rh.readVector2();
+          break;
+        case Animation.CHANNEL_TYPE.TexAnim:
+          frame = rh.readFloat();
           break;
         default:
           throw 'Unexpected ZMO channel type ' + data.channels[j].type + ' in ' + path;
