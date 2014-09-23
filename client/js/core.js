@@ -211,6 +211,8 @@ GDM.register('quest_scripts', QuestScriptManager, '3DDATA/STB/LIST_QUESTDATA.STB
 GDM.register('list_zone', DataTable, '3DDATA/STB/LIST_ZONE.STB');
 GDM.register('zone_names', StringTable, '3DDATA/STB/LIST_ZONE_S.STL');
 
+GDM.register('morph_anims', MorphAnimManager, '3DDATA/STB/LIST_MORPH_OBJECT.STB');
+
 GDM.register('char_motiontypes', DataTable, '3DDATA/STB/TYPE_MOTION.STB');
 GDM.register('char_motions', DataTable, '3DDATA/STB/FILE_MOTION.STB');
 
@@ -245,64 +247,3 @@ if (config.isEvoData) {
 GDM.register('itm_back', ModelListManager, '3DDATA/AVATAR/LIST_BACK.ZSC');
 GDM.register('itm_weapon', ModelListManager, '3DDATA/WEAPON/LIST_WEAPON.ZSC');
 GDM.register('itm_subwpn', ModelListManager, '3DDATA/WEAPON/LIST_SUBWPN.ZSC');
-
-
-
-
-function Conversation(spec, lang) {
-  this.state = new ConversationState(spec, lang);
-  this.luaState = eval(lua_load(spec.luaData))();
-  QF_Init(this.luaState);
-}
-
-Conversation.prototype.exec = function() {
-  while (true) {
-    var reqval = this.state.exec();
-    if (reqval === CXECURREQ.LUACONDITION) {
-      var luaRes = lua_tablegetcall(this.luaState, this.state.condParam)[0];
-      this.state.condValue = luaRes;
-    } else if (reqval === CXECURREQ.OPTCONDITION) {
-      console.log('WANTS OPTIONS', this.state);
-      break;
-    } else if (reqval === CXECURREQ.CLOSE) {
-      console.log('WANTS TO CLOSE', this.state);
-      break;
-    } else {
-      console.log('WANTS SOMETHING UNKNOWN', this.state);
-      break;
-    }
-  }
-};
-
-
-
-
-GDM.get('quest_scripts', function(questScripts) {
-
-  ConversationSpec.load('3DDATA/EVENT/EM02-030.cxe', function(convSpec) {
-    var conv = new Conversation(convSpec, 'en');
-    conv.exec();
-  });
-
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

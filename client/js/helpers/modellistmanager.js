@@ -93,7 +93,7 @@ ModelListManager.prototype._createMaterialWithLightmap = function(materialIdx, l
     newMaterial.transparent = true;
   }
   if (zscMat.alphaTestEnabled) {
-    newMaterial.alphaTest = zscMat.alphaRef / 255;
+    newMaterial.alphaTest = zscMat.alphaRef / 256;
   } else {
     newMaterial.alphaTest = 0;
   }
