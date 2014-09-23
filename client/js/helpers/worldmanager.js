@@ -373,7 +373,59 @@ WorldChunk.prototype._createMaterial = function(texId1, texId2) {
   return newMaterial;
 };
 
-WorldChunk.prototype._buildTerrainBlock = function(blockX, blockY, bgbIdx, verts, indices, uv0, uv1, uv2) {
+// Static buffer. This buffer can be the same for all chunks.
+WorldChunk.indicesBuffer = null;
+
+WorldChunk.getIndicesBuffer = function() {
+  // Lazy creation.
+  if (!WorldChunk.indicesBuffer) {
+    var blockCountX = 16;
+    var blockCountY = 16;
+
+    var blockCount = blockCountX * blockCountY;
+
+    var squarePerAxis  = 4;
+    var vertexPerAxis  = squarePerAxis + 1;
+    var squarePerBlock = squarePerAxis * squarePerAxis;
+    var vertexPerBlock = vertexPerAxis * vertexPerAxis;
+
+    var facePerSquare = 2;
+    var indexPerFace  = 3;
+
+    var rawIndicesBuffer = new Uint16Array(blockCount * squarePerBlock*facePerSquare*indexPerFace);
+
+
+    for (var blockY = 0; blockY < blockCountX; ++blockY) {
+      for (var blockX = 0; blockX < blockCountY; ++blockX) {
+        var bgbIndex   = blockY * blockCountY + blockX;
+        var vertBase   = bgbIndex * vertexPerBlock;
+        var squareBase = bgbIndex * squarePerBlock;
+
+        for (var squareY = 0; squareY < squarePerAxis; ++squareY) {
+          for (var squareX = 0; squareX < squarePerAxis; ++squareX) {
+            var vertex1 = vertBase + (squareY + 0) * vertexPerAxis + (squareX + 0);
+            var vertex2 = vertBase + (squareY + 0) * vertexPerAxis + (squareX + 1);
+            var vertex3 = vertBase + (squareY + 1) * vertexPerAxis + (squareX + 0);
+            var vertex4 = vertBase + (squareY + 1) * vertexPerAxis + (squareX + 1);
+
+            var squareIndex = squareBase + (squareY * squarePerAxis + squareX);
+            rawIndicesBuffer[squareIndex*facePerSquare*indexPerFace + 0] = vertex1;
+            rawIndicesBuffer[squareIndex*facePerSquare*indexPerFace + 1] = vertex2;
+            rawIndicesBuffer[squareIndex*facePerSquare*indexPerFace + 2] = vertex3;
+            rawIndicesBuffer[squareIndex*facePerSquare*indexPerFace + 3] = vertex4;
+            rawIndicesBuffer[squareIndex*facePerSquare*indexPerFace + 4] = vertex3;
+            rawIndicesBuffer[squareIndex*facePerSquare*indexPerFace + 5] = vertex2;
+          }
+        }
+      }
+    }
+    WorldChunk.indicesBuffer = new THREE.BufferAttribute(rawIndicesBuffer, 3);
+  }
+
+  return WorldChunk.indicesBuffer;
+};
+
+WorldChunk.prototype._buildTerrainBlock = function(blockX, blockY, bgbIdx, verts, uv0, uv1, uv2) {
   var tile = this._getBlockTile(blockX, blockY);
 
   var vertBase = bgbIdx * 5 * 5;
@@ -394,23 +446,6 @@ WorldChunk.prototype._buildTerrainBlock = function(blockX, blockY, bgbIdx, verts
       uv1[vertIdx*2+1] = 1 - tex2Uv.y;
       uv2[vertIdx*2+0] = (vertX / 64);
       uv2[vertIdx*2+1] = (vertY / 64);
-    }
-  }
-
-  for (var fy = 0; fy < 4; ++fy) {
-    for (var fx = 0; fx < 4; ++fx) {
-      var v1 = vertBase + (fy + 0) * 5 + (fx + 0);
-      var v2 = vertBase + (fy + 0) * 5 + (fx + 1);
-      var v3 = vertBase + (fy + 1) * 5 + (fx + 0);
-      var v4 = vertBase + (fy + 1) * 5 + (fx + 1);
-
-      var faceIdx = indexBase + (fy * 4 + fx);
-      indices[faceIdx*6+0] = v1;
-      indices[faceIdx*6+1] = v2;
-      indices[faceIdx*6+2] = v3;
-      indices[faceIdx*6+3] = v4;
-      indices[faceIdx*6+4] = v3;
-      indices[faceIdx*6+5] = v2;
     }
   }
 };
@@ -461,19 +496,18 @@ WorldChunk.prototype._buildTerrain = function() {
 
     var blockCount = chunkGrp.blocks.length;
     var verts = new Float32Array(blockCount * 5*5*3);
-    var indices = new Uint16Array(blockCount * 4*4*2*3);
     var uv0 = new Float32Array(blockCount * 5*5*2);
     var uv1 = new Float32Array(blockCount * 5*5*2);
     var uv2 = new Float32Array(blockCount * 5*5*2);
 
     for (var j = 0; j < chunkGrp.blocks.length; ++j) {
       var block = chunkGrp.blocks[j];
-      this._buildTerrainBlock(block.x, block.y, j, verts, indices, uv0, uv1, uv2);
+      this._buildTerrainBlock(block.x, block.y, j, verts, uv0, uv1, uv2);
     }
 
     var geometry = new THREE.BufferGeometry();
     geometry.addAttribute('position', new THREE.BufferAttribute(verts, 3));
-    geometry.addAttribute('index', new THREE.BufferAttribute(indices, 3));
+    geometry.addAttribute('index', WorldChunk.getIndicesBuffer());
     geometry.addAttribute('uv', new THREE.BufferAttribute(uv0, 2));
     geometry.addAttribute('uv2', new THREE.BufferAttribute(uv1, 2));
     geometry.addAttribute('uv3', new THREE.BufferAttribute(uv2, 2));
@@ -483,6 +517,7 @@ WorldChunk.prototype._buildTerrain = function() {
     geometry.computeBoundingBox();
     geometry.computeFaceNormals();
     geometry.computeVertexNormals();
+
 
     var chunkGrpMat = materialOverride;
     if (!materialOverride) {
@@ -495,6 +530,8 @@ WorldChunk.prototype._buildTerrain = function() {
         this.position.clone().add(new THREE.Vector3(-80, -80, 0)));
     chunkMesh.updateMatrix();
     chunkMesh.matrixAutoUpdate = false;
+    // Note: count must be the number of indices and not the number of face.
+    chunkMesh.geometry.offsets = [{index: 0, count: blockCount * 4*4*2*3, start: 0}];
     this.rootObj.add(chunkMesh);
     //self.world.octree.add(chunkMesh);
     this.world.terChunks.push(chunkMesh);
