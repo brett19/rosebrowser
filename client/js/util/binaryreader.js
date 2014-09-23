@@ -68,7 +68,11 @@ BinaryReader.prototype.readStr = function() {
 };
 
 BinaryReader.prototype.readStrLen = function(len) {
-  var strArray = this.buffer.subarray(this.pos, this.pos + len);
+  var realStrLen;
+  for (realStrLen = 0; realStrLen < len; realStrLen++) {
+    if (this.buffer[this.pos+realStrLen] === 0) break;
+  }
+  var strArray = this.buffer.subarray(this.pos, this.pos + realStrLen);
   this.pos += len;
   return String.fromCharCode.apply(null, strArray);
 };
