@@ -67,12 +67,23 @@ GameClient.prototype.joinZone = function(posZ, callback) {
     data.curMp = pak.readInt32();
     data.curExp = pak.readUint32();
     data.penalExp = pak.readUint32();
-    // TODO: The rest of this...
-    //   ...GlobalVars
-    //   dwGlobalFlags
-    //   dwWorldTime
-    //   iTeamNo
-    //   nQuestEmote
+    { // VAR_GLOBAL
+      data.globalVars = {};
+      data.globalVars.arenaEnergyReductionRate = pak.readInt32();
+      data.worldProduct = pak.readInt16();
+      data.updateTime = pak.readUint32();
+      data.worldRate = pak.readInt16();
+      data.townRate = pak.readUint8();
+      data.itemRate = [];
+      var MAX_PRICE_TYPE = 11;
+      for (var i = 0; i < MAX_PRICE_TYPE; ++i) {
+        data.itemRate.push(pak.readUint8());
+      }
+    }
+    data.globalFlags = pak.readUint32();
+    data.worldTime = pak.readUint32();
+    data.teamNo = pak.readInt32();
+    data.questEmoticon = pak.readInt16();
     callback(data);
   });
 };
@@ -223,7 +234,7 @@ GameClient._registerHandler(0x724, function(pak, data) {
 GameClient._registerHandler(0x716, function(pak, data) {
   data.result = pak.readUint8();
   data.money = pak.readUint64();
-  var itemCount = pak.readUint16();
+  var itemCount = pak.readUint32();
   data.items = [];
   for (var j = 0; j < itemCount; ++j) {
     data.items.push(pak.readItem());
@@ -234,7 +245,11 @@ GameClient._registerHandler(0x716, function(pak, data) {
 GameClient._registerHandler(0x855, function(pak, data) {
   data.result = pak.readUint8();
   data.dailyQuests = pak.readUint32();
-  data.questCount = pak.readUint32();
+  var questCount = pak.readUint32();
+  data.quests = [];
+  for (var i = 0; i < questCount; ++i) {
+    data.quests.push(pak.readUint32());
+  }
   this._emitPE('quest_completion_data', data);
 });
 
@@ -251,10 +266,56 @@ GameClient._registerHandler(0x723, function(pak, data) {
   this._emitPE('questitem_list', data);
 });
 
+var RESULT_QUEST_DATA_QUESTVAR = 0x00;
+var RESULT_QUEST_DATA_QUESTLOG = 0x01;
+var QUEST_PER_PLAYER = 10;
+var QUEST_VAR_PER_QUEST = 10;
+var QUEST_EPISODE_VAR_CNT = 5;
+var QUEST_JOB_VAR_CNT = 3;
+var QUEST_PLANET_VAR_CNT = 7;
+var QUEST_UNION_VAR_CNT = 10;
+var QUEST_SWITCH_CNT = 512;
 GameClient._registerHandler(0x71b, function(pak, data) {
-  // TODO: This packet...
   data.result = pak.readUint8();
-  this._emitPE('quest_data', data);
+  if (data.result === RESULT_QUEST_DATA_QUESTVAR) {
+    data.episodeVars = [];
+    for (var ie = 0; ie < QUEST_EPISODE_VAR_CNT; ++ie) {
+      data.episodeVars.push(pak.readInt16());
+    }
+    data.jobVars = [];
+    for (var ij = 0; ij < QUEST_JOB_VAR_CNT; ++ij) {
+      data.jobVars.push(pak.readInt16());
+    }
+    data.planetVars = [];
+    for (var ip = 0; ip < QUEST_PLANET_VAR_CNT; ++ip) {
+      data.planetVars.push(pak.readInt16());
+    }
+    data.unionVars = [];
+    for (var iu = 0; iu < QUEST_UNION_VAR_CNT; ++iu) {
+      data.unionVars.push(pak.readInt16());
+    }
+    data.switches = [];
+    for (var is = 0; is < QUEST_SWITCH_CNT / 8; ++is) {
+      data.switches.push(pak.readUint8());
+    }
+    this._emitPE('quest_vars', data);
+  } else if (data.result === RESULT_QUEST_DATA_QUESTLOG) {
+    data.quests = [];
+    for (var i = 0; i < QUEST_PER_PLAYER; ++i) {
+      var quest = {};
+      quest.id = pak.readUint16();
+      quest.expiryTime = pak.readUint32();
+      quest.vars = [];
+      for (var j = 0; j < QUEST_VAR_PER_QUEST; ++j) {
+        quest.vars.push(pak.readInt16());
+      }
+      quest.switches = pak.readUint32();
+      data.quests.push(quest);
+    }
+    this._emitPE('quest_log', data);
+  } else {
+    console.warn('Received unknown quest data result.')
+  }
 });
 
 GameClient._registerHandler(0x71a, function(pak, data) {
@@ -276,7 +337,7 @@ GameClient._registerHandler(0x7ec, function(pak, data) {
   data.curMp = pak.readInt32();
   data.recoveryTickHp = pak.readInt32();
   data.recoveryTickMp = pak.readInt32();
-  /*forceUpdate -- Not sure the size here*/
+  data.forceHpUpdate = pak.readUint8() !== 0;
   this._emitPE('char_hpmp_info', data);
 });
 
