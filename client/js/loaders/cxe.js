@@ -40,7 +40,7 @@ for (var i in CXEINSTYPE) { CXEINSTTYPENAME[CXEINSTYPE[i]] = i; }
 
 ConversationSpec.load = function(path, callback) {
   ROSELoader.load(path, function(rh) {
-    var data = {};
+    var data = new ConversationSpec();
 
     var magic = rh.readStrLen(8);
     if (magic !== 'CXE1000\0') {
@@ -122,7 +122,7 @@ ConversationSpec.load = function(path, callback) {
   });
 };
 
-function Conversation(conversationSpec, langId) {
+function ConversationState(conversationSpec, langId) {
   this.spec = conversationSpec;
   this.nextPc = 0;
   this.message = '';
@@ -132,11 +132,11 @@ function Conversation(conversationSpec, langId) {
   this.langId = langId;
 }
 
-Conversation.prototype._getStringById = function(stringId) {
+ConversationState.prototype._getStringById = function(stringId) {
   return this.spec.strings[this.langId][stringId];
 }
 
-Conversation.prototype.exec = function() {
+ConversationState.prototype.exec = function() {
   this.condParam = '';
 
   while (true) {
