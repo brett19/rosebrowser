@@ -348,6 +348,7 @@ DDS.load = function(path, callback) {
           mipmap.height = Math.max(4, mipmap.height);
           break;
         case THREE.RGBAFormat:
+          byteCount = pixelCount * 4;
           if (shiftR === 0 && shiftG === 8 && shiftB === 16 && shiftA === 24) {
             mipmap.data = rh.readUint8Array(byteCount);
           } else if (shiftR === 24 && shiftG === 16 && shiftB === 8 && shiftA === 0) {
@@ -375,6 +376,7 @@ DDS.load = function(path, callback) {
           }
           break;
         case THREE.RGBFormat:
+          byteCount = pixelCount * 3;
           if (shiftR === 0 && shiftG === 8 && shiftB === 16) {
             mipmap.data = rh.readUint8Array(byteCount);
           } else if (shiftR === 16 && shiftG === 8 && shiftB === 0) {
@@ -401,6 +403,7 @@ DDS.load = function(path, callback) {
 
           break;
         case THREE.LuminanceAlphaFormat:
+          byteCount = pixelCount * 2;
           if (shiftR === 0 && shiftA === 8) {
             mipmap.data = rh.readUint8Array(byteCount);
           } else if (shiftR === 8 && shiftA === 0) {
@@ -425,6 +428,7 @@ DDS.load = function(path, callback) {
           break;
         case THREE.AlphaFormat:
         case THREE.LuminanceFormat:
+          byteCount = pixelCount * 1;
           if (shiftA === 0) {
             mipmap.data = rh.readUint8Array(byteCount);
           } else {
