@@ -49,7 +49,10 @@ MorphAnimManager.prototype._loadOne = function(animIdx, callback) {
       for (var j = 0; j < animData.channels.length; ++j) {
         var channel = animData.channels[j];
         if (channel.type !== Animation.CHANNEL_TYPE.Position) {
-          console.warn('Encountered non-positional channel in morph animation.');
+          // Todo: Need to actually implement normals instead of ignoring.
+          if (channel.type !== Animation.CHANNEL_TYPE.Normal) {
+            console.warn('Encountered non-positional channel in morph animation.');
+          }
           continue;
         }
 

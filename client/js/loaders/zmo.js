@@ -33,7 +33,8 @@ Animation.Channel = function(type, index) {
 Animation.CHANNEL_TYPE = {
   None: 1 << 0,
   Position: 1 << 1,
-  Rotation: 1 << 2
+  Rotation: 1 << 2,
+  Normal: 1 << 3
 };
 
 
