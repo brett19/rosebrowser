@@ -25,6 +25,20 @@ QuestScriptManager.prototype._registerTrigger = function(trigger) {
   this.triggers[trigger.name] = trigger;
 };
 
+function _checkOp(op, left, right) {
+  switch (op) {
+    case 0: return left === right;
+    case 1: return left > right;
+    case 2: return left >= right;
+    case 3: return left < right;
+    case 4: return left <= right;
+    case 10: return left !== right;
+  }
+
+  console.warn('Encountered unknown trigger opcode:', op);
+  return false;
+}
+
 function _checkCond(ins) {
   switch (ins.type) {
     case 0:
