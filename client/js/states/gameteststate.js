@@ -117,7 +117,10 @@ GameTestState.prototype.enter = function() {
 
                   var charData = null;
                   var invData = null;
-
+                  var questLog = null;
+                  var questVars = null;
+                  var questItems = null;
+                  var dailyQuestLog = null;
                   var targetMap = null;
                   netGame.on('char_data', function(data) {
                     charData = data;
@@ -125,9 +128,22 @@ GameTestState.prototype.enter = function() {
                   netGame.on('inventory_data', function(data) {
                     invData = data;
                   });
+                  netGame.on('quest_log', function(data) {
+                    questLog = data;
+                  });
+                  netGame.on('quest_vars', function(data) {
+                    questVars = data;
+                  });
+                  netGame.on('questitem_list', function(data) {
+                    questItems = data;
+                  });
+                  netGame.on('quest_completion_data', function(data) {
+                    dailyQuestLog = data;
+                  });
                   netGame.on('preload_char', function(data) {
                     if (data.state === 2) {
-                      if (!charData || !invData) {
+                      if (!charData || !invData || !questLog ||
+                          !questVars || !questItems || !dailyQuestLog) {
                         waitDialog.setMessage('Got preload 2 without all data.');
                         netWorld.end();
                         netGame.end();
