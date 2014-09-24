@@ -87,12 +87,10 @@ function convertZnzinBlendType(znzin) {
       return THREE.OneMinusDstColorFactor;
     case ZZ_BLEND.SRC_ALPHA_SAT:
       return THREE.SrcAlphaSaturateFactor;
-    case ZZ_BLEND.BOTH_SRC_ALPHA:
-    case ZZ_BLEND.BOTH_INV_SRC_ALPHA:
-    case ZZ_BLEND.BLEND_FACTOR:
-    case ZZ_BLEND.INV_BLEND_FACTOR:
-      throw 'Unsupported znzin blend type ' + znzin;
   }
+
+  console.warn('Encountered unknown d3d blending type:', znzin);
+  return THREE.OneFactor;
 }
 
 var ZZ_BLEND_OP = {
@@ -120,6 +118,11 @@ function convertZnzinBlendOp(znzin) {
       return THREE.MaxEquation;
     }
   } else {
-    return THREE.AddEquation;
+    if (znzin === ZZ_BLEND_OP.MIN || znzin === ZZ_BLEND_OP.MAX) {
+      return THREE.AddEquation;
+    }
   }
+
+  console.warn('Encountered unknown d3d blending op:', znzin);
+  return THREE.AddEquation;
 }
