@@ -164,6 +164,8 @@ if (launchStateName === 'test') {
   launchGameState = gsGameTest;
 } else if (launchStateName === 'particle') {
   launchGameState = gsParticleTest;
+} else if (launchStateName === 'movgen') {
+  launchGameState = gsMovGen;
 } else {
   console.log('Invalid launch state specified.');
 }
