@@ -27,6 +27,12 @@ QuestScriptManager.prototype._registerTrigger = function(trigger) {
 
 var _CHECKOPNAME = [ '==', '>', '>=', '<', '<=', '?', '?', '?', '?', '?', '!=' ];
 function _checkOp(op, left, right) {
+  if (left instanceof Int64) {
+    // Because QSD can only hold 32 bit numbers, we can toNumber and be
+    //   confident that any precision loss would occur outside the comparator
+    //   number range anyways.
+    left = left.toNumber();
+  }
   switch (op) {
     case 0: return left === right;
     case 1: return left > right;
