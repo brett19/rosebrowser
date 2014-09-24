@@ -29,11 +29,22 @@ function debugValidateProps(obj, props) {
       console.trace();
       continue;
     }
-    if (props[i][1] && propVal < props[i][1] ||
-        props[i][1] && propVal > props[i][1]) {
-      console.warn('Expected property', props[i][0], 'to be between', props[i][1], 'and', props[i][1], '(got:' + propVal + ')');
-      console.trace();
-      continue;
+    if (propVal instanceof Int64) {
+      // We can cheat since the check value has to be 32bit anyways.
+      if (propVal.hi !== 0 ||
+        props[i][1] && propVal.lo < props[i][1] ||
+        props[i][1] && propVal.lo > props[i][1]) {
+        console.warn('Expected property', props[i][0], 'to be between', props[i][1], 'and', props[i][1], '(got:0x' + propVal.toString(16) + ')');
+        console.trace();
+        continue;
+      }
+    } else {
+      if (props[i][1] && propVal < props[i][1] ||
+          props[i][1] && propVal > props[i][1]) {
+        console.warn('Expected property', props[i][0], 'to be between', props[i][1], 'and', props[i][1], '(got:' + propVal + ')');
+        console.trace();
+        continue;
+      }
     }
   }
 }
