@@ -35,11 +35,30 @@ function _checkOp(op, left, right) {
     case 10: return left !== right;
   }
 
-  console.warn('Encountered unknown trigger opcode:', op);
+  console.warn('Encountered unknown trigger cond op:', op);
   return false;
 }
 
+function _checkJobMatch(jobIdx, searchJobIdx) {
+  return false;
+}
+
+function _checkAbility(abilType, value, op) {
+  if (abilType === ABILTYPE.CLASS) {
+    // TODO: Actually get the users job...
+    var userJobIdx = 0;
+    return _checkJobMatch(userJobIdx, value);
+  }
+
+  // TODO: Actually get the attribute value
+  // MC.getAbilityValue(abilType)
+  var userValue = 0;
+  return _checkOp(op, userValue, value);
+}
+
 function _checkCond(ins) {
+  console.log('check cond', ins);
+  var wasSuccess = true;
   switch (ins.type) {
     case 0:
       console.log('set quest', ins.questNo);
@@ -47,7 +66,13 @@ function _checkCond(ins) {
     case 3:
       console.group('check abilitys');
       for (var i = 0; i < ins.abils.length; ++i) {
-        console.log(ins.abils[i]);
+        var abilChk = ins.abils[i];
+        console.log(abilChk);
+        if (!_checkAbility(abilChk.type, abilChk.value, abilChk.op)) {
+          console.log('FAILED');
+          wasSuccess = false;
+          break;
+        }
       }
       console.groupEnd();
       break;
@@ -71,8 +96,9 @@ function _checkCond(ins) {
       console.warn('Encountered unhandled condition type:', ins.type);
       break;
   }
-  return true;
+  return wasSuccess;
 }
+
 function _checkTrigger(trigger) {
   console.log('checkTrigger', trigger.name);
   for (var i = 0; i < trigger.conditions.length; ++i) {
