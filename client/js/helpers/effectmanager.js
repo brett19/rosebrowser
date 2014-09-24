@@ -4,7 +4,7 @@ var EffectManager = function()
 
 EffectManager._createEmitter = function(data)
 {
-  var emitter = new ParticleEmitter(data.name);
+  var emitter = new ParticleEmitter();
 
   // Set initial particle properties
   emitter.alignType      = data.alignType;

@@ -219,7 +219,7 @@ ParticleSystem.DRAW_TYPE = { // NOT USED
 ParticleSystem.COORD_TYPE = {
   WORLD: 0,       // Nothing inherited from parent
   LOCAL_WORLD: 1, // Position only inherited from parent
-  LOCAL: 2        // Rotation and position inherited
+  LOCAL: 2        // Start at parent position, do NOT move with it
 };
 
 

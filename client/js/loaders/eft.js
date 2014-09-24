@@ -4,8 +4,8 @@
  * @property {Boolean} soundEnabled
  * @property {String} soundPath
  * @property {Number} loopCount
- * @property {Effect.Particle[]} particles
- * @property {Effect.Animation[]} animations
+ * @property {EffectData.Particle[]} particles
+ * @property {EffectData.Animation[]} animations
  */
 var EffectData = function() {
   this.particles  = [];
@@ -30,7 +30,7 @@ EffectData.AnimationData = function() {
  * @property {String} uid
  * @property {Number} stbIndex
  * @property {String} particlePath
- * @property {Effect.AnimationData} animation
+ * @property {EffectData.AnimationData} animation
  * @property {THREE.Vector3} position
  * @property {THREE.Quaternion} rotation
  * @property {Number} delay
@@ -57,7 +57,7 @@ EffectData.Particle = function() {
  * @property {Number} blendSrc
  * @property {Number} blendDst
  * @property {Number} blendOp
- * @property {Effect.AnimationData} animation
+ * @property {EffectData.AnimationData} animation
  * @property {THREE.Vector3} position
  * @property {THREE.Quaternion} rotation
  * @property {Number} delay
@@ -65,7 +65,7 @@ EffectData.Particle = function() {
  * @property {Boolean} linkRoot
  */
 EffectData.Animation = function() {
-  this.animation = new Effect.AnimationData();
+  this.animation = new EffectData.AnimationData();
 };
 
 
@@ -146,7 +146,7 @@ EffectData.load = function(path, callback) {
       animation.blendOp             = rh.readUint32();
       animation.animation.enabled   = rh.readUint32() !== 0;
       animation.animation.name      = rh.readUint32Str();
-      animation.animation.loopCount = rh.readUint32Str();
+      animation.animation.loopCount = rh.readUint32();
       animation.animation.index     = rh.readUint32();
       animation.position            = rh.readVector3();
       animation.rotation            = rh.readQuat();
