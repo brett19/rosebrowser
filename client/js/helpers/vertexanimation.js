@@ -11,6 +11,13 @@ function VertexAnimation(geom, anim) {
   for (var l = 0; l < anim.channels.length; ++l) {
     var channel = anim.channels[l];
     if (channel.type === Animation.CHANNEL_TYPE.Position) {
+    } else if (channel.type === Animation.CHANNEL_TYPE.Alpha) {
+      if (!this.geom.attributes['alpha']) {
+        var posByteLen = this.geom.attributes['position'].array.byteLength;
+        var vertexCount = posByteLen / 4 / 3;
+        var alphaAttrib = new THREE.BufferAttribute(new Float32Array(vertexCount), 1);
+        this.geom.addAttribute('alpha', alphaAttrib);
+      }
     } else if (channel.type === Animation.CHANNEL_TYPE.Normal) {
     } else if (channel.type === Animation.CHANNEL_TYPE.Uv1) {
     } else {
@@ -48,6 +55,10 @@ VertexAnimation.prototype.update = function(delta) {
       attrib.array[channel.index * 3 + 0] = frame.x;
       attrib.array[channel.index * 3 + 1] = frame.y;
       attrib.array[channel.index * 3 + 2] = frame.z;
+      attrib.needsUpdate = true;
+    } else if (channel.type === Animation.CHANNEL_TYPE.Alpha) {
+      var attrib = this.geom.attributes['alpha'];
+      attrib.array[channel.index] = frame;
       attrib.needsUpdate = true;
     } else if (channel.type === Animation.CHANNEL_TYPE.Uv1) {
       var attrib = this.geom.attributes['uv'];

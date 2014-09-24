@@ -257,19 +257,25 @@ EffectManager.loadEffect = function(path, callback) {
     for (var i = 0; i < effectData.animations.length; ++i) {
       var data = effectData.animations[i];
       var texture = ROSETexLoader.load(data.texturePath);
-      var material = new THREE.MeshBasicMaterial({color:0xffffff, map:texture});
+
+      var material = ShaderManager.get('partmesh').clone();
+      material.uniforms = {
+        texture1: { type: 't', value: texture }
+      };
 
       var animation = new Effect.Animation();
       animation.name = data.name;
 
-      material.transparent = data.alphaEnabled;
+      material.transparent = true;;
 
       if (data.twoSideEnabled) {
         material.side = THREE.DoubleSide;
       }
 
-      if (data.alphaTestEnabled) {
-        material.alphaTest = 0.5;
+      if (data.alphaEnabled) {
+        if (data.alphaTestEnabled) {
+          material.alphaTest = 0.5;
+        }
       }
 
       material.depthTest = data.depthTestEnabled;
@@ -277,8 +283,8 @@ EffectManager.loadEffect = function(path, callback) {
 
       material.blending = THREE.CustomBlending;
       material.blendEquation = convertZnzinBlendOp(data.blendOp);
-      material.blendSrc = convertZnzinBlendType(data.blendDst);
-      material.blendDst = convertZnzinBlendType(data.blendSrc);
+      material.blendSrc = convertZnzinBlendType(data.blendSrc);
+      material.blendDst = convertZnzinBlendType(data.blendDst);
 
       Mesh.load(data.meshPath, function(geom) {
         Animation.load(data.animationPath, function(animData)
@@ -300,21 +306,3 @@ EffectManager.loadEffect = function(path, callback) {
   waitAll.wait(callback);
   return effect;
 };
-
-/*
- animations = rh.readUint32();
- for (i = 0; i < animations; ++i) {
-
-   animation.animation.enabled   = rh.readUint32() !== 0;
-   animation.animation.name      = rh.readUint32Str();
-   animation.animation.loopCount = rh.readUint32Str();
-   animation.animation.index     = rh.readUint32();
-   animation.position            = rh.readVector3();
-   animation.rotation            = rh.readQuat();
-   animation.rotation = D3DXQuaternionRotationYawPitchRoll(animation.rotation.x, animation.rotation.y, animation.rotation.z);
-   animation.delay               = rh.readUint32();
-   animation.loopCount           = rh.readUint32();
-   animation.linkRoot            = rh.readUint32() !== 0;
-   animation.position.multiplyScalar(ZZ_SCALE_IN);
-   data.animations.push(animation);
- */

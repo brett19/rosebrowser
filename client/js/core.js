@@ -192,6 +192,9 @@ ShaderManager.register('particle', 'particle.vert', 'particle.frag', {
   depthWrite: false,
   transparent: true
 });
+ShaderManager.register('partmesh', 'partmesh.vert', 'partmesh.frag', {
+  attributes: {alpha:{}}
+});
 
 if (launchGameState) {
   // Shaders before anything else
