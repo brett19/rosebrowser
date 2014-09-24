@@ -311,6 +311,8 @@ Mesh.load = function(path, callback) {
       mesh = Mesh.loadMesh6(rh);
     }
 
-    callback(mesh.createBufferGeometry());
+    var geometry = mesh.createBufferGeometry();
+    geometry.path = path;
+    callback(geometry);
   });
 };
