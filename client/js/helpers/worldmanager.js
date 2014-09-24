@@ -619,6 +619,24 @@ WorldChunk.prototype._loadObjects = function(callback) {
   waitAll.wait(callback);
 };
 
+WorldChunk.prototype._loadEffects = function(callback) {
+  var waitAll = new MultiWait();
+
+  for (var i = 0; i < this.info.effects.length; ++i) {
+    var data = this.info.effects[i];
+    var effect = EffectManager.loadEffect(data.filePath, waitAll.one());
+    effect.rootObj.position.copy(data.position);
+    effect.rootObj.quaternion.copy(data.rotation);
+    effect.rootObj.scale.copy(data.scale);
+    this.rootObj.add(effect.rootObj);
+    this.rootObj.add(effect.rootObj2);
+    console.log(effect);
+    effect.play();
+  }
+
+  waitAll.wait(callback);
+};
+
 WorldChunk.prototype._loadWater = function(callback) {
   for (var i = 0; i < this.info.waterPlanes.length; ++i) {
     var plane = this.info.waterPlanes[i];
@@ -656,6 +674,7 @@ WorldChunk.prototype.load = function(callback) {
     MapInfo.load(this.world.basePath + this.name + '.IFO', function (info) {
       self.info = info;
       self._loadObjects(waitAll.one());
+      self._loadEffects(waitAll.one());
       self._loadWater(waitAll.one());
 
       waitAll.wait(function () {
