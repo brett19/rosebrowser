@@ -19,7 +19,9 @@ MorphAnimManager.prototype._loadOne = function(animIdx, callback) {
   var animInfo = this.anims[animIdx];
 
   var texture = ROSETexLoader.load(animInfo.texPath);
-  var mat = new THREE.MeshLambertMaterial({color: 0xffffff, map: texture});
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.wrapS = THREE.RepeatWrapping;
+  var mat = new THREE.MeshBasicMaterial({color: 0xffffff, map: texture});
 
   if (animInfo.twoSided) {
     mat.side = THREE.DoubleSide;
@@ -37,35 +39,24 @@ MorphAnimManager.prototype._loadOne = function(animIdx, callback) {
   mat.blendDst = convertZnzinBlendType(animInfo.blendDst);
 
   Mesh.load(animInfo.meshPath, function(geom) {
+    geom.dynamic = true;
+
     Animation.load(animInfo.animPath, function(animData) {
-      var meshPosAttrib = geom.attributes['position'];
-
-      var posFrames = [];
-      for (var i = 0; i < animData.frameCount; ++i) {
-        var newFrame = new Float32Array(meshPosAttrib.array.buffer.slice(0));
-        posFrames.push(newFrame);
-      }
-
-      for (var j = 0; j < animData.channels.length; ++j) {
-        var channel = animData.channels[j];
-        if (channel.type !== Animation.CHANNEL_TYPE.Position) {
-          // Todo: Need to actually implement normals instead of ignoring.
-          if (channel.type !== Animation.CHANNEL_TYPE.Normal) {
-            console.warn('Encountered non-positional channel in morph animation.');
-          }
-          continue;
-        }
-
-        var vertIndex = channel.index;
-        for (var k = 0; k < channel.frames.length; ++k) {
-          posFrames[k][vertIndex * 3 + 0] = channel.frames[k].x;
-          posFrames[k][vertIndex * 3 + 1] = channel.frames[k].y;
-          posFrames[k][vertIndex * 3 + 2] = channel.frames[k].z;
+      // Validate the animation
+      for (var l = 0; l < animData.channels.length; ++l) {
+        var channel = animData.channels[l];
+        if (channel.type === Animation.CHANNEL_TYPE.Position) {
+        } else if (channel.type === Animation.CHANNEL_TYPE.Normal) {
+        } else if (channel.type === Animation.CHANNEL_TYPE.Uv1) {
+        } else {
+          console.warn('Encountered unhandled morph animation channel type:', channel.type);
         }
       }
+
+      console.log(animData);
 
       // Create an animator to tick every frame
-      var anim = new _VertexAnimUpdater(geom, posFrames, animData.fps);
+      var anim = new _VertexAnimUpdater(geom, animData);
       THREE.AnimationHandler.play(anim);
 
       // Force an update now as the mesh does not always match frame 0
@@ -135,10 +126,9 @@ MorphAnimManager.load = function(path, callback) {
   });
 };
 
-function _VertexAnimUpdater(geom, frames, fps) {
+function _VertexAnimUpdater(geom, anim) {
   this.geom = geom;
-  this.frames = frames;
-  this.fps = fps;
+  this.anim = anim;
   this.time = 0;
   this.frame = 0;
 }
@@ -149,17 +139,37 @@ _VertexAnimUpdater.prototype.resetBlendWeights = function() {
 _VertexAnimUpdater.prototype.update = function(delta) {
   this.time += delta;
 
-  var newFrame = Math.floor(this.time * this.fps);
-  while (newFrame >= this.frames.length) {
-    this.time -= this.frames.length / this.fps;
-    newFrame -= this.frames.length;
+  var newFrame = Math.floor(this.time * this.anim.fps);
+  while (newFrame >= this.anim.frameCount) {
+    this.time -= this.anim.frameCount / this.anim.fps;
+    newFrame -= this.anim.frameCount;
   }
   if (newFrame === this.frame) {
     return;
   }
   this.frame = newFrame;
 
+  for (var i = 0; i < this.anim.channels.length; ++i) {
+    var channel = this.anim.channels[i];
+    var frame = channel.frames[this.frame];
+
+    if (channel.type === Animation.CHANNEL_TYPE.Position) {
+      console.log('channel', i, 'frame', this.frame, 'position', frame);
+      var attrib = this.geom.attributes['position'];
+      attrib.array[channel.index * 3 + 0] = frame.x;
+      attrib.array[channel.index * 3 + 1] = frame.y;
+      attrib.array[channel.index * 3 + 2] = frame.z;
+      attrib.needsUpdate = true;
+    } else if (channel.type === Animation.CHANNEL_TYPE.Uv1) {
+      var attrib = this.geom.attributes['uv'];
+      attrib.array[channel.index * 2 + 0] = frame.x;
+      attrib.array[channel.index * 2 + 1] = frame.y;
+      attrib.needsUpdate = true;
+    }
+  }
+  /*
   var posAttrib = this.geom.attributes['position'];
   posAttrib.array = this.frames[this.frame];
   posAttrib.needsUpdate = true;
+  */
 };
