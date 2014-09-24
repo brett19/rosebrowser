@@ -34,6 +34,7 @@ MorphAnimManager.prototype._loadOne = function(animIdx, callback) {
   mat.opacity = animInfo.alpha;
   mat.depthTest = animInfo.depthTest;
   mat.depthWrite = animInfo.depthWrite;
+  mat.blending = THREE.CustomBlending;
   mat.blendEquation = convertZnzinBlendOp(animInfo.blendOp);
   mat.blendSrc = convertZnzinBlendType(animInfo.blendSrc);
   mat.blendDst = convertZnzinBlendType(animInfo.blendDst);
@@ -79,6 +80,7 @@ MorphAnimManager.prototype.create = function(animIdx, callback) {
 
   this.cache.get(animIdx, function(data) {
     var mesh = new THREE.Mesh(data.geom, data.mat);
+    mesh.renderDepth = -99999;
     obj.add(mesh);
 
     if (callback) {
