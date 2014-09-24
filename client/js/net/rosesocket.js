@@ -1,9 +1,9 @@
 'use strict';
 
 function logPacket(text, pak) {
-  console.groupCollapsed(text + ' <Packet ' + pak.cmd.toString(16) + '>');
-  console.log(_ppBuffer(pak.data, pak.dataLength));
-  console.groupEnd();
+  netConsole.groupCollapsed(text + ' <Packet ' + pak.cmd.toString(16) + '>');
+  netConsole.debug(_ppBuffer(pak.data, pak.dataLength));
+  netConsole.groupEnd();
 }
 
 function _checkPacket(pak) {

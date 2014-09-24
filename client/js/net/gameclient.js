@@ -6,10 +6,10 @@ function GameClient() {
   this.socket = new RoseSocket();
   this.socket.name = 'gs';
   this.socket.on('connect', function() {
-    console.log('GameClient connected');
+    netConsole.debug('GameClient connected');
   });
   this.socket.on('end', function() {
-    console.log('GameClient ended');
+    netConsole.debug('GameClient ended');
   });
   var self = this;
   this.socket.on('packet', function(pak) {
@@ -40,7 +40,7 @@ GameClient.prototype.connect = function(host, port, transferKey, password, callb
     this.socket.sendPacket(pak);
     this.son('packet', function(pak) {
       if (pak.cmd !== 0x70c) {
-        console.log('received unexpected preconn packet');
+        console.warn('received unexpected preconn packet');
         return true;
       }
       callback();
@@ -114,7 +114,7 @@ GameClient.prototype.moveTo = function(x, y, z) {
  * @private
  */
 GameClient.prototype._emitPE = function(event, data) {
-  console.log('client:event<'+this.socket.name+'>', event, data);
+  netConsole.debug('client:event<'+this.socket.name+'>', event, data);
   this.emit.call(this, event, data);
 };
 

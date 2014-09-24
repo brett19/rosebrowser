@@ -19,10 +19,10 @@ function LoginClient() {
   this.socket = new RoseSocket();
   this.socket.name = 'ls';
   this.socket.on('connect', function() {
-    console.log('LoginClient connected');
+    netConsole.debug('LoginClient connected');
   });
   this.socket.on('end', function() {
-    console.log('LoginClient ended');
+    netConsole.debug('LoginClient ended');
   });
 }
 
@@ -43,7 +43,7 @@ LoginClient.prototype.connect = function(host, port, callback) {
     this.socket.sendPacket(pak);
     this.son('packet', function(pak) {
       if (pak.cmd !== 0x7ff) {
-        console.log('received unexpected preconn packet');
+        console.warn('received unexpected preconn packet');
         return true;
       }
       callback();
@@ -62,7 +62,7 @@ LoginClient.prototype.login = function(username, password, callback) {
 
   this.son('packet', function(pak) {
     if (pak.cmd !== 0x708) {
-      console.log('received unexpected prelog packet');
+      console.warn('received unexpected prelog packet');
       return true;
     }
 

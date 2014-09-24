@@ -6,10 +6,10 @@ function WorldClient() {
   this.socket = new RoseSocket();
   this.socket.name = 'ws';
   this.socket.on('connect', function() {
-    console.log('WorldClient connected');
+    netConsole.debug('WorldClient connected');
   });
   this.socket.on('end', function() {
-    console.log('WorldClient ended');
+    netConsole.debug('WorldClient ended');
   });
 }
 WorldClient.prototype = new EventEmitter();
@@ -33,7 +33,7 @@ WorldClient.prototype.connect = function(host, port, transferKey, password, call
     this.socket.sendPacket(pak);
     this.son('packet', function(pak) {
       if (pak.cmd !== 0x70c) {
-        console.log('received unexpected preconn packet');
+        console.warn('received unexpected preconn packet');
         return true;
       }
       callback();
