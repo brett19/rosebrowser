@@ -44,16 +44,12 @@ function _checkJobMatch(jobIdx, searchJobIdx) {
 }
 
 function _checkAbility(abilType, value, op) {
-  if (abilType === ABILTYPE.CLASS) {
-    // TODO: Actually get the users job...
-    var userJobIdx = 0;
-    return _checkJobMatch(userJobIdx, value);
+  var userValue = MC.getAbilityValue(abilType);
+  if (abilType !== ABILTYPE.CLASS) {
+    return _checkOp(op, userValue, value);
+  } else {
+    return _checkJobMatch(userValue, value);
   }
-
-  // TODO: Actually get the attribute value
-  // MC.getAbilityValue(abilType)
-  var userValue = 0;
-  return _checkOp(op, userValue, value);
 }
 
 function _checkCond(ins) {

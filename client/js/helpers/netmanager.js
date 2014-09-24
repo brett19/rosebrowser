@@ -45,7 +45,11 @@ _NetManager.prototype.watch = function(wn, gn) {
     char.moveSpeed = data.runSpeed;
     char.setPosition(data.position.x, data.position.y, 10);
     char.gender = data.gender;
+    char.hp = data.hp;
+    char.job = data.job;
+    char.hairColor = data.hairColor;
     char.visParts = data.parts;
+    char.debugValidate();
     char.dropFromSky();
     if (data.command !== 0) {
       char.moveTo(data.posTo.x, data.posTo.y);

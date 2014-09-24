@@ -146,7 +146,7 @@ GameClient._registerHandler(0x715, function(pak, data) {
   { // tagBasicINFO
     data.birthStone = pak.readInt8();
     data.faceIdx = pak.readInt8();
-    data.hairIdx = pak.readInt8();
+    data.hairColor = pak.readInt8();
     data.job = pak.readInt16();
     data.union = pak.readInt8();
     data.rank = pak.readInt8();

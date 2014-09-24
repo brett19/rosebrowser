@@ -21,6 +21,24 @@ if (window.location.hash.length > 1) {
 }
 
 
+function debugValidateProps(obj, props) {
+  for (var i = 0; i < props.length; ++i) {
+    var propVal = eval('obj.' + props[i][0]);
+    if (propVal === undefined) {
+      console.warn('Expected property to be set: ', props[i][0]);
+      console.trace();
+      continue;
+    }
+    if (props[i][1] && propVal < props[i][1] ||
+        props[i][1] && propVal > props[i][1]) {
+      console.warn('Expected property', props[i][0], 'to be between', props[i][1], 'and', props[i][1], '(got:' + propVal + ')');
+      console.trace();
+      continue;
+    }
+  }
+}
+
+
 function normalizePath(path) {
   path = path.replace(/\\/g, '/');
   path = path.replace(/\/\//g, '/');

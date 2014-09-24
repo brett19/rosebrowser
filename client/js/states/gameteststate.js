@@ -170,8 +170,13 @@ GameTestState.prototype.enter = function() {
                           MC.level = charData.level;
                           MC.setPosition(charData.posStart.x, charData.posStart.y, 10);
                           MC.dropFromSky();
+                          MC.mp = charData.mp;
                           MC.gender = charData.gender;
+                          MC.stats = charData.stats;
+                          MC.job = charData.job;
+                          MC.hairColor = charData.hairColor;
                           MC.visParts = charData.parts;
+                          MC.debugValidate();
                           GOM.addObject(MC);
 
                           waitDialog.close();
