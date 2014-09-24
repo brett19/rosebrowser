@@ -2,11 +2,9 @@
 
 /*
   Note that pretty much everything in this file is purpose built for doing
-  vertex animation in such a way that all animations are always running, run
-  in sync, and all copies of the same vertex animated mesh share the same data.
-  This means it is not generalized at all, and abuses various object properties
-  to store state information which would normally be abstracted elsewhere for
-  non-shared animating, or controllable animations (play,pause,rewind).
+  world morph animations such that all animations instantiated are always
+  running and always play in sync (all instances of a morph object share the
+  same underlying geometry.
  */
 
 function MorphAnimManager() {
@@ -40,28 +38,9 @@ MorphAnimManager.prototype._loadOne = function(animIdx, callback) {
   mat.blendDst = convertZnzinBlendType(animInfo.blendDst);
 
   Mesh.load(animInfo.meshPath, function(geom) {
-    geom.dynamic = true;
-
     Animation.load(animInfo.animPath, function(animData) {
-      // Validate the animation
-      for (var l = 0; l < animData.channels.length; ++l) {
-        var channel = animData.channels[l];
-        if (channel.type === Animation.CHANNEL_TYPE.Position) {
-        } else if (channel.type === Animation.CHANNEL_TYPE.Normal) {
-        } else if (channel.type === Animation.CHANNEL_TYPE.Uv1) {
-        } else {
-          console.warn('Encountered unhandled morph animation channel type:', channel.type);
-        }
-      }
-
-      console.log(animData);
-
-      // Create an animator to tick every frame
-      var anim = new _VertexAnimUpdater(geom, animData);
-      THREE.AnimationHandler.play(anim);
-
-      // Force an update now as the mesh does not always match frame 0
-      anim.update(0);
+      var anim = new VertexAnimation(geom, animData);
+      anim.play();
 
       if (callback) {
         callback({
@@ -125,52 +104,4 @@ MorphAnimManager.load = function(path, callback) {
   waitAll.wait(function() {
     callback(data);
   });
-};
-
-function _VertexAnimUpdater(geom, anim) {
-  this.geom = geom;
-  this.anim = anim;
-  this.time = 0;
-  this.frame = 0;
-}
-
-_VertexAnimUpdater.prototype.resetBlendWeights = function() {
-};
-
-_VertexAnimUpdater.prototype.update = function(delta) {
-  this.time += delta;
-
-  var newFrame = Math.floor(this.time * this.anim.fps);
-  while (newFrame >= this.anim.frameCount) {
-    this.time -= this.anim.frameCount / this.anim.fps;
-    newFrame -= this.anim.frameCount;
-  }
-  if (newFrame === this.frame) {
-    return;
-  }
-  this.frame = newFrame;
-
-  for (var i = 0; i < this.anim.channels.length; ++i) {
-    var channel = this.anim.channels[i];
-    var frame = channel.frames[this.frame];
-
-    if (channel.type === Animation.CHANNEL_TYPE.Position) {
-      console.log('channel', i, 'frame', this.frame, 'position', frame);
-      var attrib = this.geom.attributes['position'];
-      attrib.array[channel.index * 3 + 0] = frame.x;
-      attrib.array[channel.index * 3 + 1] = frame.y;
-      attrib.array[channel.index * 3 + 2] = frame.z;
-      attrib.needsUpdate = true;
-    } else if (channel.type === Animation.CHANNEL_TYPE.Uv1) {
-      var attrib = this.geom.attributes['uv'];
-      attrib.array[channel.index * 2 + 0] = frame.x;
-      attrib.array[channel.index * 2 + 1] = frame.y;
-      attrib.needsUpdate = true;
-    }
-  }
-  /*
-  var posAttrib = this.geom.attributes['position'];
-  posAttrib.array = this.frames[this.frame];
-  posAttrib.needsUpdate = true;
-  */
 };
