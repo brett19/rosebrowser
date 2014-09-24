@@ -91,8 +91,9 @@ function QF_Init(luaState) {
   lua_SETFUNC(luaState, 'QF_beginCon');
   lua_SETFUNC(luaState, 'QF_checkQuestCondition', function(triggerName) {
     var questScripts = GDM.getNow('quest_scripts');
+    luaConsole.debug('QF_checkQuestCondition(', triggerName, ')');
     var res = questScripts.checkOnly(triggerName);
-    console.log('checkQuestCondition', triggerName, res);
+    luaConsole.debug('QF_checkQuestCondition Result:', res);
     return [ res ? 1 : 0 ];
   });
   lua_SETFUNC(luaState, 'QF_closeCon');

@@ -25,6 +25,7 @@ QuestScriptManager.prototype._registerTrigger = function(trigger) {
   this.triggers[trigger.name] = trigger;
 };
 
+var _CHECKOPNAME = [ '==', '>', '>=', '<', '<=', '?', '?', '?', '?', '?', '!=' ];
 function _checkOp(op, left, right) {
   switch (op) {
     case 0: return left === right;
@@ -40,11 +41,13 @@ function _checkOp(op, left, right) {
 }
 
 function _checkJobMatch(jobIdx, searchJobIdx) {
+  console.warn('Unimplemented Condition!', 'JobMatch', jobIdx, searchJobIdx);
   return false;
 }
 
 function _checkAbility(abilType, value, op) {
   var userValue = MC.getAbilityValue(abilType);
+  qsdConsole.debug('Check Ability', abilType, '['+enumToName(ABILTYPE,abilType)+']', ':'+userValue, _CHECKOPNAME[op], value)
   if (abilType !== ABILTYPE.CLASS) {
     return _checkOp(op, userValue, value);
   } else {
@@ -53,63 +56,74 @@ function _checkAbility(abilType, value, op) {
 }
 
 function _checkCond(ins) {
-  console.log('check cond', ins);
+  qsdConsole.group('Check Condition', ins);
   var wasSuccess = true;
   switch (ins.type) {
     case 0:
-      console.log('set quest', ins.questNo);
+      qsdConsole.debug('Set Quest', ins.questNo);
       break;
     case 3:
-      console.group('check abilitys');
+      qsdConsole.group('Check Abilitys');
       for (var i = 0; i < ins.abils.length; ++i) {
         var abilChk = ins.abils[i];
-        console.log(abilChk);
         if (!_checkAbility(abilChk.type, abilChk.value, abilChk.op)) {
-          console.log('FAILED');
           wasSuccess = false;
           break;
         }
       }
-      console.groupEnd();
+      qsdConsole.groupEnd();
       break;
     case 4:
-      console.group('check items');
+      qsdConsole.group('Check Quest Items');
       for (var i = 0; i < ins.items.length; ++i) {
-        console.log(ins.items[i]);
+        console.debug(ins.items[i]);
+        console.warn('Unimplemented Condition!', ins);
       }
-      console.groupEnd();
+      qsdConsole.groupEnd();
       break;
     case 9:
-      console.log('skill check', ins.skillNo1, ins.skillNo2, ins.op);
+      qsdConsole.debug('Skill Check', ins.skillNo1, ins.skillNo2, ins.op);
+      console.warn('Unimplemented Condition!', ins);
       break;
     case 13:
-      console.log('set npc', ins.npcNo);
+      qsdConsole.debug('Set NPC', ins.npcNo);
+      console.warn('Unimplemented Condition!', ins);
       break;
     case 31:
-      console.log('quest log activity', ins.questNo, ins.op);
+      qsdConsole.debug('Quest Log Activity', ins.questNo, ins.op);
+      console.warn('Unimplemented Condition!', ins);
       break;
     default:
       console.warn('Encountered unhandled condition type:', ins.type);
       break;
   }
+  qsdConsole.debug( wasSuccess ? 'SUCCESS' : 'FAILED');
+  qsdConsole.groupEnd();
   return wasSuccess;
 }
 
 function _checkTrigger(trigger) {
-  console.log('checkTrigger', trigger.name);
+  var wasSuccess = true;
+  qsdConsole.group('QSD Check Trigger', trigger.name);
   for (var i = 0; i < trigger.conditions.length; ++i) {
     if (!_checkCond(trigger.conditions[i])) {
-      return false;
+      wasSuccess = false;
+      break;
     }
   }
-  return true;
+  qsdConsole.debug( wasSuccess ? 'SUCCESS' : 'FAILED');
+  qsdConsole.groupEnd();
+  return wasSuccess;
 }
 
 QuestScriptManager.prototype.checkOnly = function(triggerName) {
+  var wasSuccess = true;
+  qsdConsole.group('QSD Check Only', triggerName);
   while (true) {
     var trigger = this.triggers[triggerName];
     if (!_checkTrigger(trigger)) {
-      return false;
+      wasSuccess = false;
+      break;
     }
     if (trigger.checkNext) {
       triggerName = trigger.nextTriggerName;
@@ -117,7 +131,9 @@ QuestScriptManager.prototype.checkOnly = function(triggerName) {
       break;
     }
   }
-  return true;
+  qsdConsole.debug( wasSuccess ? 'SUCCESS' : 'FAILED');
+  qsdConsole.groupEnd();
+  return wasSuccess;
 }
 
 /**
