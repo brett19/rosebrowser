@@ -225,6 +225,7 @@ DDS.load = function(path, callback) {
   texture.flipY = false;
   texture.generateMipmaps = false;
   texture.unpackAlignment = 1;
+  texture.path = path;
 
   ROSELoader.load(path, function(/** BinaryReader */rh) {
     var maskR, maskG, maskB, maskA;
