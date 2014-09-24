@@ -37,7 +37,7 @@ DebugLogger.prototype.debug = function() {
   }
 };
 
-var netConsole = new DebugLogger('net', true);
-var gomConsole = new DebugLogger('lua', true);
-var luaConsole = new DebugLogger('lua', true);
-var qsdConsole = new DebugLogger('qsd', true);
+var netConsole = new DebugLogger('net', !config.disableNetLog);
+var gomConsole = new DebugLogger('lua', !config.disableGomLog);
+var luaConsole = new DebugLogger('lua', !config.disableLuaLog);
+var qsdConsole = new DebugLogger('qsd', !config.disableQsdLog);
