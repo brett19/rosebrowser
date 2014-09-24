@@ -11,7 +11,13 @@ function VertexAnimation(geom, anim) {
   for (var l = 0; l < anim.channels.length; ++l) {
     var channel = anim.channels[l];
     if (channel.type === Animation.CHANNEL_TYPE.Position) {
+      if (!this.geom.attributes['position']) {
+        console.warn('Encountered vertex position animation with no attribute on mesh.');
+        this.anim = null;
+        break;
+      }
     } else if (channel.type === Animation.CHANNEL_TYPE.Alpha) {
+      // Alpha doesn't exist on ZMS, so we manually create it when needed.
       if (!this.geom.attributes['alpha']) {
         var posByteLen = this.geom.attributes['position'].array.byteLength;
         var vertexCount = posByteLen / 4 / 3;
@@ -19,7 +25,13 @@ function VertexAnimation(geom, anim) {
         this.geom.addAttribute('alpha', alphaAttrib);
       }
     } else if (channel.type === Animation.CHANNEL_TYPE.Normal) {
+      // Normals are disabled at the moment, so ignore them.
     } else if (channel.type === Animation.CHANNEL_TYPE.Uv1) {
+      if (!this.geom.attributes['uv']) {
+        console.warn('Encountered vertex uv animation with no attribute on mesh.');
+        this.anim = null;
+        break;
+      }
     } else {
       console.warn('Encountered unhandled vertex animation channel type:', channel.type);
     }
@@ -30,7 +42,7 @@ VertexAnimation.prototype.resetBlendWeights = function() {
 };
 
 VertexAnimation.prototype.update = function(delta) {
-  if (!this.playing) {
+  if (!this.playing || !this.anim) {
     return;
   }
 
