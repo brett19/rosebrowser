@@ -511,13 +511,13 @@ WorldChunk.prototype._buildTerrain = function() {
     geometry.addAttribute('uv', new THREE.BufferAttribute(uv0, 2));
     geometry.addAttribute('uv2', new THREE.BufferAttribute(uv1, 2));
     geometry.addAttribute('uv3', new THREE.BufferAttribute(uv2, 2));
+    geometry.offsets = [{index: 0, count: blockCount * 4*4*2*3, start: 0}];
 
     geometry.dynamic = false;
     geometry.computeBoundingSphere();
     geometry.computeBoundingBox();
     geometry.computeFaceNormals();
     geometry.computeVertexNormals();
-
 
     var chunkGrpMat = materialOverride;
     if (!materialOverride) {
@@ -530,16 +530,11 @@ WorldChunk.prototype._buildTerrain = function() {
         this.position.clone().add(new THREE.Vector3(-80, -80, 0)));
     chunkMesh.updateMatrix();
     chunkMesh.matrixAutoUpdate = false;
-    // Note: count must be the number of indices and not the number of face.
-    chunkMesh.geometry.offsets = [{index: 0, count: blockCount * 4*4*2*3, start: 0}];
+
     this.rootObj.add(chunkMesh);
-    //self.world.octree.add(chunkMesh);
     this.world.terChunks.push(chunkMesh);
     this.world.colObjects.push(chunkMesh);
-
-    var ah = new THREE.AxisHelper(20);
-    ah.position.copy(this.position);
-    this.rootObj.add(ah);
+    //this.world.octree.add(chunkMesh);
   }
 };
 
