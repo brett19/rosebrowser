@@ -45,6 +45,10 @@ RosePacket.prototype.setUint16 = function(pos, val) {
 RosePacket.prototype.setUint32 = function(pos, val) {
   this.view.setUint32(pos, val, true);
 };
+RosePacket.prototype.setUint64 = function(pos, val) {
+  this.setUint32(pos, val.lo);
+  this.setUint32(pos+4, val.hi);
+};
 RosePacket.prototype.setFloat = function(pos, val) {
   this.view.setFloat32(pos, val, true);
 };
@@ -72,6 +76,10 @@ RosePacket.prototype.addUint16 = function(val) {
 RosePacket.prototype.addUint32 = function(val) {
   this.view.setUint32(this.dataLength, val, true);
   this.dataLength += 4;
+};
+RosePacket.prototype.addUint64 = function(val) {
+  this.addUint32(val.lo);
+  this.addUint32(val.hi);
 };
 RosePacket.prototype.addFloat = function(val) {
   this.view.setFloat32(this.dataLength, val, true);
