@@ -165,18 +165,22 @@ GameTestState.prototype.enter = function() {
                           NetManager.world = gsGame.worldMgr;
                           NetManager.watch(netWorld, netGame);
 
-                          MC = new MyCharacter(gsGame.worldMgr);
+                          MC = new MyCharacter();
+                          MC.world = gsGame.worldMgr;
                           MC.name = charData.name;
                           MC.level = charData.level;
-                          MC.setPosition(charData.posStart.x, charData.posStart.y, 10);
-                          MC.dropFromSky();
+                          MC.position.x = charData.posStart.x;
+                          MC.position.y = charData.posStart.y;
                           MC.mp = charData.mp;
                           MC.gender = charData.gender;
                           MC.stats = charData.stats;
                           MC.job = charData.job;
                           MC.hairColor = charData.hairColor;
                           MC.visParts = charData.parts;
+                          MC.money = invData.money;
+                          MC.inventory = InventoryData.fromPacketData(invData.items);
                           MC.debugValidate();
+                          MC.dropFromSky();
                           GOM.addObject(MC);
 
                           waitDialog.close();

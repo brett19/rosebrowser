@@ -13,13 +13,14 @@ function MyCharacter(world) {
     con: undefined,
     cha: undefined,
     sen: undefined
-  }
+  };
+  this.inventory = undefined;
+  this.money = undefined;
 }
 MyCharacter.prototype = new CharObject();
 
 MyCharacter.prototype.getAbilityValue = function(abilType) {
   switch(abilType) {
-    // TODO: Implement These!
     case ABILTYPE.STR: return this.stats.str;
     case ABILTYPE.DEX: return this.stats.dex;
     case ABILTYPE.INT: return this.stats.int;
@@ -28,6 +29,7 @@ MyCharacter.prototype.getAbilityValue = function(abilType) {
     case ABILTYPE.SEN: return this.stats.sen;
 
     case ABILTYPE.MP: return this.mp;
+    case ABILTYPE.MONEY: return this.money;
   }
 
   return CharObject.prototype.getAbilityValue.call(this, abilType);
@@ -41,7 +43,9 @@ MyCharacter.prototype.debugValidate = function() {
     ['stats.int', 0, 5000],
     ['stats.con', 0, 5000],
     ['stats.cha', 0, 5000],
-    ['stats.sen', 0, 5000]
+    ['stats.sen', 0, 5000],
+    ['inventory'],
+    ['money', 0]
   ]);
   CharObject.prototype.debugValidate.call(this);
 };
