@@ -123,7 +123,7 @@ var Effect = function(rootObj)
   this.rootObj2 = new THREE.Object3D();
 
   this.particleEffects = [];
-  this.meshAnimations =[];
+  this.animations =[];
 };
 
 Effect.prototype.resetBlendWeights = function() {
@@ -149,11 +149,35 @@ var ParticleEffect = function()
   this.rootObj = new THREE.Object3D();
   this.emitters = [];
   this.startDelay = 0;
+  this.animation = null;
+  this.state = ParticleEffect.STATE.READY_TO_PLAY;
+};
+
+ParticleEffect.STATE = {
+  READY_TO_PLAY: 0,
+  PLAYING: 1,
+  STOPPED: 2
 };
 
 ParticleEffect.prototype.update = function(delta) {
-  for (var i = 0; i < this.emitters.length; ++i) {
-    this.emitters[i].update(delta);
+  if (this.state === ParticleEffect.STATE.READY_TO_PLAY) {
+    this.startDelay -= delta;
+
+    if (this.startDelay < 0) {
+      this.state = ParticleEffect.STATE.PLAYING;
+
+      if (this.animation) {
+        this.animation.play();
+      }
+
+      delta = -this.startDelay;
+    }
+  }
+
+  if (this.state === ParticleEffect.STATE.PLAYING) {
+    for (var i = 0; i < this.emitters.length; ++i) {
+      this.emitters[i].update(delta);
+    }
   }
 };
 
@@ -164,6 +188,7 @@ EffectManager._loadParticleEffect = function(path, callback) {
   ParticleSystem.load(path, function(particleSystem) {
     for (var i = 0; i < particleSystem.emitters.length; ++i) {
       var emitter = EffectManager._createEmitter(particleSystem.emitters[i]);
+      console.log(emitter);
       effect.emitters.push(emitter);
       effect.rootObj.add(emitter.rootObj);
     }
@@ -176,9 +201,15 @@ EffectManager._loadParticleEffect = function(path, callback) {
   return effect;
 };
 
+Effect.Animation = function() {
+
+};
+
+
 EffectManager.loadEffect = function(path, callback) {
   var waitAll = new MultiWait();
   var effect = new Effect();
+  var effectWait = waitAll.one();
 
   EffectData.load(path, function (effectData) {
     effect.path = path;
@@ -193,7 +224,7 @@ EffectManager.loadEffect = function(path, callback) {
       var particle = EffectManager._loadParticleEffect(data.particlePath, waitAll.one());
 
       // Set initial properties
-      particle.startDelay = data.delay;
+      particle.startDelay = data.delay / 1000;
       particle.rootObj.position.copy(data.position);
       particle.rootObj.quaternion.copy(data.rotation);
 
@@ -207,14 +238,63 @@ EffectManager.loadEffect = function(path, callback) {
         // TODO: Effect particle animation
         // Load data.animation.name
         // Apply to emitter.rootObj for loopCount
+        if (data.animation.name && data.animation.name !== "NULL") {
+          (function(_particle, _data) {
+            var particleAnimWait = waitAll.one();
+            Animation.load(data.animation.name, function (animData)
+            {
+              _particle.animation = animData.createForStatic(_data.animation.name, _particle.rootObj);
+              _particle.animationLoopCount = _data.animation.loopCount;
+              particleAnimWait();
+            });
+          })(particle, data);
+        }
       }
 
       effect.particleEffects.push(particle);
     }
 
     for (var i = 0; i < effectData.animations.length; ++i) {
+      var data = effectData.animations[i];
+      var texture = ROSETexLoader.load(data.texturePath);
+      var material = new THREE.MeshBasicMaterial({color:0xffffff, map:texture});
+
+      var animation = new Effect.Animation();
+      animation.name = data.name;
+
+      material.transparent = data.alphaEnabled;
+
+      if (data.twoSideEnabled) {
+        material.side = THREE.DoubleSide;
+      }
+
+      if (data.alphaTestEnabled) {
+        material.alphaTest = 0.5;
+      }
+
+      material.depthTest = data.depthTestEnabled;
+      material.depthWrite = data.depthWriteEnabled;
+
+      material.blending = THREE.CustomBlending;
+      material.blendEquation = convertZnzinBlendOp(data.blendOp);
+      material.blendSrc = convertZnzinBlendType(data.blendDst);
+      material.blendDst = convertZnzinBlendType(data.blendSrc);
+
+      Mesh.load(data.meshPath, function(geom) {
+        Animation.load(data.animationPath, function(animData)
+        {
+          var anim = new VertexAnimation(geom, animData);
+          effect.mesh = new THREE.Mesh(geom, material);
+          effect.rootObj.add(effect.mesh);
+          anim.play();
+        });
+      });
+
       // TODO: Effect mesh animations
+      effect.animations.push(animation);
     }
+
+    effectWait();
   });
 
   waitAll.wait(callback);
@@ -224,21 +304,7 @@ EffectManager.loadEffect = function(path, callback) {
 /*
  animations = rh.readUint32();
  for (i = 0; i < animations; ++i) {
-   var animation = new Effect.Animation();
-   animation.name                = rh.readUint32Str();
-   animation.uid                 = rh.readUint32Str();
-   animation.stbIndex            = rh.readUint32();
-   animation.meshPath            = rh.readUint32Str();
-   animation.animationPath       = rh.readUint32Str();
-   animation.texturePath         = rh.readUint32Str();
-   animation.alphaEnabled        = rh.readUint32() !== 0;
-   animation.twoSideEnabled      = rh.readUint32() !== 0;
-   animation.alphaTestEnabled    = rh.readUint32() !== 0;
-   animation.depthTestEnabled    = rh.readUint32() !== 0;
-   animation.depthWriteEnabled   = rh.readUint32() !== 0;
-   animation.blendSrc            = rh.readUint32();
-   animation.blendDst            = rh.readUint32();
-   animation.blendOp             = rh.readUint32();
+
    animation.animation.enabled   = rh.readUint32() !== 0;
    animation.animation.name      = rh.readUint32Str();
    animation.animation.loopCount = rh.readUint32Str();

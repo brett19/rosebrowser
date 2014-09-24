@@ -48,10 +48,24 @@ ParticleTestState.prototype.spawnBonfire = function() {
   scene.add(bonfire.rootObj);
 };
 
+ParticleTestState.prototype.fuckingMeteors = function() {
+  var rootObj = new THREE.Object3D();
+  var effect;
+  effect = new EffectManager.loadEffect('3Ddata\\EFFECT\\_RUNASTON_01.EFT', function() {
+    effect.play();
+  });
+
+  rootObj.add(effect.rootObj);
+  rootObj.add(effect.rootObj2);
+  rootObj.position.set(5200 + (Math.random() * 20) - 10, 5280 + (Math.random() * 20) - 10, 0);
+  scene.add(rootObj);
+};
+
 ParticleTestState.prototype.enter = function() {
   var self = this;
 
   debugGui.add(this, 'spawnBonfire');
+  debugGui.add(this, 'fuckingMeteors');
 
   //this.playCamAnim('canim_intro');
 
