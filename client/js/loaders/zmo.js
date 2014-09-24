@@ -111,7 +111,7 @@ Animation.prototype.createForStatic = function(name, rootObj) {
     animT.keys.push({
       time: j / this.fps,
       pos: [b.position.x, b.position.y, b.position.z],
-      rot: [b.rotation.x, b.rotation.y, b.rotation.z, b.rotation.w],
+      rot: [b.quaternion.x, b.quaternion.y, b.quaternion.z, b.quaternion.w],
       scl: [b.scale.x, b.scale.y, b.scale.z]
     });
   }
