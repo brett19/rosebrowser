@@ -60,6 +60,9 @@ GameState.prototype.enter = function() {
     console.log('ZONE JOINED');
   });
 
+  InventoryDialog.show();
+  InventoryDialog.bindToData(MC.inventory);
+
   var projector = new THREE.Projector();
   var self = this;
   InputManager.on('mousedown', function(e) {

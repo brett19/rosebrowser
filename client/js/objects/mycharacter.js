@@ -15,7 +15,6 @@ function MyCharacter(world) {
     sen: undefined
   };
   this.inventory = undefined;
-  this.money = undefined;
 }
 MyCharacter.prototype = new CharObject();
 
@@ -29,7 +28,7 @@ MyCharacter.prototype.getAbilityValue = function(abilType) {
     case ABILTYPE.SEN: return this.stats.sen;
 
     case ABILTYPE.MP: return this.mp;
-    case ABILTYPE.MONEY: return this.money;
+    case ABILTYPE.MONEY: return this.inventory.money;
   }
 
   return CharObject.prototype.getAbilityValue.call(this, abilType);
@@ -44,8 +43,7 @@ MyCharacter.prototype.debugValidate = function() {
     ['stats.con', 0, 5000],
     ['stats.cha', 0, 5000],
     ['stats.sen', 0, 5000],
-    ['inventory'],
-    ['money', 0]
+    ['inventory']
   ]);
   CharObject.prototype.debugValidate.call(this);
 };

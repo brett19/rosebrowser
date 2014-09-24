@@ -177,8 +177,7 @@ GameTestState.prototype.enter = function() {
                           MC.job = charData.job;
                           MC.hairColor = charData.hairColor;
                           MC.visParts = charData.parts;
-                          MC.money = invData.money;
-                          MC.inventory = InventoryData.fromPacketData(invData.items);
+                          MC.inventory = InventoryData.fromPacketData(invData);
                           MC.debugValidate();
                           MC.dropFromSky();
                           GOM.addObject(MC);

@@ -111,6 +111,7 @@
 <script src="js/dialogs/login.js"></script>
 <script src="js/dialogs/charsel.js"></script>
 <script src="js/dialogs/msgbox.js"></script>
+<script src="js/dialogs/inventorydialog.js"></script>
 
 <!-- Game Pawns -->
 <script src="js/pawns/npcpawn.js"></script>
@@ -157,7 +158,90 @@
     #dlgCharSel .character.selected {
         background-color: #ccccff;
     }
+
+    .invbtn {
+        position: absolute;
+    }
+
+    .invbtn.selected {
+        text-decoration: underline;
+    }
+
+    .itemslot {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        outline: 1px solid red;
+        font: Tahoma;
+        font-size: 9px;
+        text-align: center;
+    }
 </style>
+
+<div id="dlgInventory" class="gdialog panel panel-default" style="left:10px;top:10px;width:300px;height:500px;display:none;">
+    <div class="panel-heading">Inventory</div>
+    <div class="panel-body" style="position:relative;">
+        <div id="eqp_10" class="itemslot" style="left:10px;top:10px;">Ring</div>
+        <div id="eqp_9" class="itemslot" style="left:10px;top:54px;">Necklace</div>
+        <div id="eqp_11" class="itemslot" style="left:10px;top:98px;">Earring</div>
+
+        <div id="eqp_1" class="itemslot" style="left:81px;top:10px;">Face</div>
+        <div id="eqp_7" class="itemslot" style="left:81px;top:54px;">Weapon</div>
+        <div id="eqp_5" class="itemslot" style="left:81px;top:98px;">Arms</div>
+        <div id="eqp_2" class="itemslot" style="left:125px;top:10px;">Head</div>
+        <div id="eqp_3" class="itemslot" style="left:125px;top:54px;">Body</div>
+        <div id="eqp_6" class="itemslot" style="left:125px;top:98px;">Feet</div>
+        <div id="eqp_4" class="itemslot" style="left:169px;top:10px;">Back</div>
+        <div id="eqp_8" class="itemslot" style="left:169px;top:54px;">Shield</div>
+
+        <div id="sht_0" class="itemslot" style="left:230px;top:10px;">Arrow</div>
+        <div id="sht_1" class="itemslot" style="left:230px;top:54px;">Bullet</div>
+        <div id="sht_2" class="itemslot" style="left:230px;top:98px;">Cannon</div>
+
+        <button class="invbtn" style="left:10px;top:146px">Equipment</button>
+        <button class="invbtn" style="left:110px;top:146px">Consume</button>
+        <button class="invbtn" style="left:204px;top:146px">Material</button>
+
+        <div  id="itm_1" class="itemslot" style="left:10px;top:178px;"></div>
+        <div  id="itm_2" class="itemslot" style="left:54px;top:178px;"></div>
+        <div  id="itm_3" class="itemslot" style="left:98px;top:178px;"></div>
+        <div  id="itm_4" class="itemslot" style="left:142px;top:178px;"></div>
+        <div  id="itm_5" class="itemslot" style="left:186px;top:178px;"></div>
+        <div  id="itm_6" class="itemslot" style="left:230px;top:178px;"></div>
+
+        <div  id="itm_7" class="itemslot" style="left:10px;top:222px;"></div>
+        <div  id="itm_8" class="itemslot" style="left:54px;top:222px;"></div>
+        <div  id="itm_9" class="itemslot" style="left:98px;top:222px;"></div>
+        <div id="itm_10" class="itemslot" style="left:142px;top:222px;"></div>
+        <div id="itm_11" class="itemslot" style="left:186px;top:222px;"></div>
+        <div id="itm_12" class="itemslot" style="left:230px;top:222px;"></div>
+
+        <div id="itm_13" class="itemslot" style="left:10px;top:266px;"></div>
+        <div id="itm_14" class="itemslot" style="left:54px;top:266px;"></div>
+        <div id="itm_15" class="itemslot" style="left:98px;top:266px;"></div>
+        <div id="itm_16" class="itemslot" style="left:142px;top:266px;"></div>
+        <div id="itm_17" class="itemslot" style="left:186px;top:266px;"></div>
+        <div id="itm_18" class="itemslot" style="left:230px;top:266px;"></div>
+
+        <div id="itm_19" class="itemslot" style="left:10px;top:310px;"></div>
+        <div id="itm_20" class="itemslot" style="left:54px;top:310px;"></div>
+        <div id="itm_21" class="itemslot" style="left:98px;top:310px;"></div>
+        <div id="itm_22" class="itemslot" style="left:142px;top:310px;"></div>
+        <div id="itm_23" class="itemslot" style="left:186px;top:310px;"></div>
+        <div id="itm_24" class="itemslot" style="left:230px;top:310px;"></div>
+
+        <div id="itm_25" class="itemslot" style="left:10px;top:354px;"></div>
+        <div id="itm_26" class="itemslot" style="left:54px;top:354px;"></div>
+        <div id="itm_27" class="itemslot" style="left:98px;top:354px;"></div>
+        <div id="itm_28" class="itemslot" style="left:142px;top:354px;"></div>
+        <div id="itm_29" class="itemslot" style="left:186px;top:354px;"></div>
+        <div id="itm_30" class="itemslot" style="left:230px;top:354px;"></div>
+
+        <div style="position: absolute; left: 10px; top: 410px;">
+            <b>Zulie:</b> <span id="moneyVal">Lolz</span>
+        </div>
+    </div>
+</div>
 
 <div id="dlgCharSel" class="gdialog panel panel-default" style="right:5%;top:20%;width:300px;display:none;">
     <div class="panel-heading">Characters</div>

@@ -3,6 +3,10 @@
 // TODO: Make everything handle signed int64 properly...
 
 function Int64(lo, hi) {
+  if (lo === undefined && hi === undefined) {
+    lo = 0;
+    hi = 0;
+  }
   this.lo = lo;
   this.hi = hi;
 }
