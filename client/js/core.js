@@ -184,7 +184,9 @@ ShaderManager.register('terrain_lmonly', 'terrain.vert', 'terrain_lmonly.frag', 
 });
 ShaderManager.register('staticobj', 'staticobj.vert', 'staticobj.frag');
 ShaderManager.register('staticobj_lmonly', 'staticobj.vert', 'staticobj_lmonly.frag');
-ShaderManager.register('water', 'water.vert', 'water.frag');
+ShaderManager.register('water', 'water.vert', 'water.frag', {
+  depthWrite: false
+});
 ShaderManager.register('particle', 'particle.vert', 'particle.frag', {
   attributes: {
     alpha: { type: 'f', value: [] },
