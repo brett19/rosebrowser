@@ -188,7 +188,6 @@ EffectManager._loadParticleEffect = function(path, callback) {
   ParticleSystem.load(path, function(particleSystem) {
     for (var i = 0; i < particleSystem.emitters.length; ++i) {
       var emitter = EffectManager._createEmitter(particleSystem.emitters[i]);
-      console.log(emitter);
       effect.emitters.push(emitter);
       effect.rootObj.add(emitter.rootObj);
     }
