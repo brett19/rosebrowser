@@ -7,7 +7,7 @@
  * @property {Effect.Particle[]} particles
  * @property {Effect.Animation[]} animations
  */
-var Effect = function() {
+var EffectData = function() {
   this.particles  = [];
   this.animations = [];
 };
@@ -20,7 +20,7 @@ var Effect = function() {
  * @property {Number} loopCount
  * @property {Number} index
  */
-Effect.AnimationData = function() {
+EffectData.AnimationData = function() {
 };
 
 
@@ -36,7 +36,7 @@ Effect.AnimationData = function() {
  * @property {Number} delay
  * @property {Boolean} linkRoot
  */
-Effect.Particle = function() {
+EffectData.Particle = function() {
   this.animation = {};
 };
 
@@ -64,7 +64,7 @@ Effect.Particle = function() {
  * @property {Number} loopCount
  * @property {Boolean} linkRoot
  */
-Effect.Animation = function() {
+EffectData.Animation = function() {
   this.animation = new Effect.AnimationData();
 };
 
@@ -97,11 +97,11 @@ function D3DXQuaternionRotationYawPitchRoll(yaw, pitch, roll) {
  * @param {String} path
  * @param {Effect~onLoad} callback
  */
-Effect.load = function(path, callback) {
+EffectData.load = function(path, callback) {
   ROSELoader.load(path, function(rh) {
     var animations, data, i, particles;
 
-    data = new Effect();
+    data = new EffectData();
     data.name         = rh.readUint32Str();
     data.soundEnabled = (rh.readUint32() & 0xff) !== 0;
     data.soundPath    = rh.readUint32Str();
@@ -109,7 +109,7 @@ Effect.load = function(path, callback) {
 
     particles = rh.readUint32();
     for (i = 0; i < particles; ++i) {
-      var particle = new Effect.Particle();
+      var particle = new EffectData.Particle();
       particle.name                 = rh.readUint32Str();
       particle.uid                  = rh.readUint32Str();
       particle.stbIndex             = rh.readUint32();
@@ -129,7 +129,7 @@ Effect.load = function(path, callback) {
 
     animations = rh.readUint32();
     for (i = 0; i < animations; ++i) {
-      var animation = new Effect.Animation();
+      var animation = new EffectData.Animation();
       animation.name                = rh.readUint32Str();
       animation.uid                 = rh.readUint32Str();
       animation.stbIndex            = rh.readUint32();
@@ -150,6 +150,7 @@ Effect.load = function(path, callback) {
       animation.animation.index     = rh.readUint32();
       animation.position            = rh.readVector3();
       animation.rotation            = rh.readQuat();
+      animation.rotation = D3DXQuaternionRotationYawPitchRoll(animation.rotation.x, animation.rotation.y, animation.rotation.z);
       animation.delay               = rh.readUint32();
       animation.loopCount           = rh.readUint32();
       animation.linkRoot            = rh.readUint32() !== 0;

@@ -1,15 +1,8 @@
-attribute float psize;
-attribute float alpha;
-attribute vec3 color;
-
-varying vec3 vColor;
-varying float vAlpha;
+uniform vec2 uvScale;
+uniform vec2 uvOffset;
+varying vec2 vUv1;
 
 void main() {
-    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-
-    vColor = color;
-    vAlpha = alpha;
-    gl_PointSize = psize * ( 200.0 / length( mvPosition.xyz ) );
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+    vUv1 = uv * uvScale + uvOffset;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 }

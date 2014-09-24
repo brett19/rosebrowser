@@ -1,7 +1,5 @@
 'use strict';
 
-var particleEmitters = [];
-
 function ParticleTestState() {
   this.DM = new DataManager();
   this.world = null;
@@ -43,40 +41,17 @@ ParticleTestState.prototype.playCamAnim = function(name, loopCount) {
   });
 };
 
-ParticleTestState.prototype.spawnParticles = function() {
-  Effect.load('3Ddata\\EFFECT\\BONFIRE_01.EFT', function(effect){
-    console.log(effect);
-
-    var rootObj = new THREE.Object3D();
-
-    for (var j = 0; j < effect.particles.length; ++j) {
-      var particle = effect.particles[j];
-
-      ParticleSystem.load(particle.particlePath, function (particleSystem)
-      {
-        console.log(particleSystem);
-
-        for (var i = 0; i < particleSystem.emitters.length; ++i) {
-          var data = particleSystem.emitters[i];
-          var emitter = new ParticleEmitter(data);
-          emitter.rootObj.position.copy(particle.position);
-          emitter.rootObj.quaternion.copy(particle.rotation);
-          particleEmitters.push(emitter);
-
-          rootObj.add(emitter.rootObj);
-        }
-      });
-    }
-
-    rootObj.position.set(5200, 5280, 0);
-    scene.add(rootObj);
-  });
+ParticleTestState.prototype.spawnBonfire = function() {
+  var bonfire = new NpcPawn();
+  bonfire.setModel(801);
+  bonfire.rootObj.position.set(5200 + (Math.random() * 20) - 10, 5280 + (Math.random() * 20) - 10, -5);
+  scene.add(bonfire.rootObj);
 };
 
 ParticleTestState.prototype.enter = function() {
   var self = this;
 
-  debugGui.add(this, 'spawnParticles');
+  debugGui.add(this, 'spawnBonfire');
 
   //this.playCamAnim('canim_intro');
 
@@ -121,7 +96,7 @@ ParticleTestState.prototype.enter = function() {
         anim.play();
       });
     });
-    charObj.rootObj.position.set(5200, 5280, -5);
+    charObj.rootObj.position.set(5205, 5285, -5);
     charObj.rootObj.rotateOnAxis(new THREE.Vector3(0, 0, 1), Math.PI);
     charObj.rootObj.scale.set(1.2, 1.2, 1.2);
     scene.add(charObj.rootObj);
@@ -134,10 +109,6 @@ ParticleTestState.prototype.leave = function() {
 
 ParticleTestState.prototype.update = function(delta) {
   this.controls.update( delta );
-
-  for (var i = 0; i < particleEmitters.length; ++i) {
-    particleEmitters[i].update(delta);
-  }
 
   if (this.world && this.world.isLoaded) {
     this.world.setViewerInfo(camera.position);

@@ -188,10 +188,9 @@ ShaderManager.register('water', 'water.vert', 'water.frag', {
   depthWrite: false
 });
 ShaderManager.register('particle', 'particle.vert', 'particle.frag', {
-  attributes: {
-    alpha: { type: 'f', value: [] },
-    psize: { type: 'f', value: [] }
-  }
+  side: THREE.DoubleSide,
+  depthWrite: false,
+  transparent: true
 });
 
 if (launchGameState) {

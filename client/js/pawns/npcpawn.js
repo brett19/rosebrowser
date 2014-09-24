@@ -53,6 +53,14 @@ NpcPawn.prototype._setModel = function(charData, modelMgr, charIdx) {
       var anim = zmoData.createForSkeleton('test', self.rootObj, charSkel);
       anim.play();
     });
+
+    for (var e = 0; e < char.effects.length; ++e) {
+      var effectPath = charData.effects[char.effects[e].effectIdx];
+      var boneIdx = char.effects[e].boneIdx;
+      var effect = EffectManager.loadEffect(effectPath);
+      charSkel.dummies[boneIdx].add(effect.rootObj);
+      effect.play();
+    }
   });
 };
 
