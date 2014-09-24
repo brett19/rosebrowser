@@ -196,7 +196,6 @@ ParticleEmitter.prototype.update = function(dt)
     break;
   case ParticleSystem.COORD_TYPE.WORLD:
     // Do not move with parent
-    break;
   case ParticleSystem.COORD_TYPE.LOCAL_WORLD:
     // Reverse parent rotation
     var rotate = new THREE.Quaternion();
