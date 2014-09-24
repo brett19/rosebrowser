@@ -11,5 +11,6 @@ ROSETexLoader.load = function(path, callback) {
     }
   });
   tex.minFilter = tex.magFilter = THREE.LinearFilter;
+  tex.path = path;
   return tex;
 };
