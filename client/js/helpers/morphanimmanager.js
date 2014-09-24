@@ -80,7 +80,6 @@ MorphAnimManager.prototype.create = function(animIdx, callback) {
 
   this.cache.get(animIdx, function(data) {
     var mesh = new THREE.Mesh(data.geom, data.mat);
-    mesh.renderDepth = -99999;
     obj.add(mesh);
 
     if (callback) {
@@ -116,7 +115,7 @@ MorphAnimManager.load = function(path, callback) {
           depthTest: parseInt(animInfo[7]) !== 0,
           depthWrite: parseInt(animInfo[8]) !== 0,
           blendSrc: parseInt(animInfo[9]),
-          blendDest: parseInt(animInfo[10]),
+          blendDst: parseInt(animInfo[10]),
           blendOp: parseInt(animInfo[11])
         };
       }
