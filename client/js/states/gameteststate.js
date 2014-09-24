@@ -183,6 +183,8 @@ GameTestState.prototype.enter = function() {
                           MC.dropFromSky();
                           GOM.addObject(MC);
 
+                          console.log('MC Loaded', MC);
+
                           waitDialog.close();
                           gsGameTest.leave();
                           gsGame.enter();

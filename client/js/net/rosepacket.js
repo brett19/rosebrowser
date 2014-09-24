@@ -198,7 +198,7 @@ RosePacket.prototype.readItem = function() {
   item.slotNo = this.readUint32();
   /*pickupTime*/ this.skip(14);
   item.timeRemaining = this.readUint32();
-  item.moveLImits = this.readUint16();
+  item.moveLimits = this.readUint16();
   item.bindOnAcquire = this.readUint8();
   item.bindOnEquipUse = this.readUint8();
   item.money = this.readUint32();
