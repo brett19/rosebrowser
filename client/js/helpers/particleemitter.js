@@ -4,8 +4,6 @@ var ParticleEmitter = function(name)
 {
   this.rootObj = new THREE.Object3D();
 
-  this.name = name;
-
   this.events = [];
   this.particles = [];
 
@@ -15,6 +13,8 @@ var ParticleEmitter = function(name)
 
 ParticleEmitter.Particle = function()
 {
+  this.rootObj = new THREE.Object3D();
+
   this.sprite = 0;
 
   this.age = 0;
@@ -66,14 +66,13 @@ ParticleEmitter.Particle.prototype.update = function(_dt)
     this.rotation += 360;
   }
 
-  this.billboard.position.copy(this.position);
+  this.rootObj.position.copy(this.position);
 
-  this.billboardMesh.scale.x = this.size.x;
-  this.billboardMesh.scale.y = this.size.y;
-  this.billboardMesh.rotation.z = this.rotation * (Math.PI / 180);
-  this.billboardMesh.material.uniforms.vColor.value.setRGB(this.color.r, this.color.g, this.color.b);
-  this.billboardMesh.material.uniforms.vAlpha.value = this.color.a;
-
+  this.mesh.scale.x = this.size.x;
+  this.mesh.scale.y = this.size.y;
+  this.mesh.rotation.z = this.rotation * (Math.PI / 180);
+  this.mesh.material.uniforms.vColor.value.setRGB(this.color.r, this.color.g, this.color.b);
+  this.mesh.material.uniforms.vAlpha.value = this.color.a;
 
   if (this.alignType === ParticleSystem.ALIGN_TYPE.AXIS_ALIGNED) {
     var euler = new THREE.Euler();
@@ -82,9 +81,9 @@ ParticleEmitter.Particle.prototype.update = function(_dt)
     euler.y = 0;
 
     // Rotate to face camera
-    this.billboard.quaternion.setFromEuler(euler);
+    this.rootObj.quaternion.setFromEuler(euler);
   } else if (this.alignType === ParticleSystem.ALIGN_TYPE.BILLBOARD) {
-    this.billboard.quaternion.copy(camera.quaternion);
+    this.rootObj.quaternion.copy(camera.quaternion);
   }
 
   if (this.textureRows > 1 || this.textureColumns > 1) {
@@ -93,8 +92,8 @@ ParticleEmitter.Particle.prototype.update = function(_dt)
     var offsetY = Math.floor(index / this.textureRows);
     offsetX /= this.textureColumns;
     offsetY /= this.textureRows;
-    this.billboardMesh.material.uniforms.uvScale.value.set(1 / this.textureColumns, 1 / this.textureRows);
-    this.billboardMesh.material.uniforms.uvOffset.value.set(offsetX, offsetY);
+    this.mesh.material.uniforms.uvScale.value.set(1 / this.textureColumns, 1 / this.textureRows);
+    this.mesh.material.uniforms.uvOffset.value.set(offsetX, offsetY);
   }
 
   return true;
@@ -105,26 +104,26 @@ ParticleEmitter.prototype.createParticle = function()
   var particle = new ParticleEmitter.Particle();
 
   // Create plane
-  var planeGeom = new THREE.PlaneGeometry(1, 1, 1, 1);
-  var planeMat = this.material.clone();
-  planeMat.uniforms.texture1.value = this.texture;
+  var geometry = new THREE.PlaneBufferGeometry(1, 1, 1, 1);
 
-  for (var i = 0; i < 2; ++i) {
-    for (var j = 0; j < 3; ++j) {
-      planeGeom.faceVertexUvs[0][i][j] = new THREE.Vector2(planeGeom.faceVertexUvs[0][i][j].x, 1 - planeGeom.faceVertexUvs[0][i][j].y);
-    }
+  // Flip uv.y
+  for (var i = 1; i < geometry.attributes.uv.array.length; i += 2) {
+    geometry.attributes.uv.array[i] = 1 - geometry.attributes.uv.array[i];
   }
 
-  particle.billboardMesh = new THREE.Mesh(planeGeom, planeMat);
+  // Create material
+  var material = this.material.clone();
+  material.uniforms.texture1.value = this.texture;
+
+  particle.mesh = new THREE.Mesh(geometry, material);
 
   if (this.alignType === ParticleSystem.ALIGN_TYPE.AXIS_ALIGNED) {
-    particle.billboardMesh.rotation.x = Math.PI / 2;
+    particle.mesh.rotation.x = Math.PI / 2;
   }
 
-  particle.billboard = new THREE.Object3D();
-  particle.billboard.add(particle.billboardMesh);
+  particle.rootObj.add(particle.mesh);
 
-  this.rootObj.add(particle.billboard);
+  this.rootObj.add(particle.rootObj);
   this.totalParticleLives++;
   this.particles.push(particle);
 
@@ -150,8 +149,7 @@ ParticleEmitter.prototype.update = function(dt)
       this.applyEvents(particle);
     } else {
       this.particles.splice(i, 1);
-      this.rootObj.remove(particle.sprite);
-      this.rootObj.remove(particle.billboard);
+      this.rootObj.remove(particle.rootObj);
       --i;
     }
   }
@@ -193,19 +191,19 @@ ParticleEmitter.prototype.update = function(dt)
   var parentObject = this.rootObj.parent;
 
   switch (this.coordType) {
-    case ParticleSystem.COORD_TYPE.LOCAL:
-      // Do nothing
-      break;
-    case ParticleSystem.COORD_TYPE.WORLD:
-    // Reverse all parent transform
-    // TODO: Reverse parent location?!?!
-    case ParticleSystem.COORD_TYPE.LOCAL_WORLD:
-      // Reverse parent rotation
-      var rotate = new THREE.Quaternion();
-      rotate.setFromRotationMatrix(parentObject.matrixWorld);
-      rotate.inverse();
-      this.rootObj.quaternion.copy(rotate);
-      break;
+  case ParticleSystem.COORD_TYPE.LOCAL:
+    // Do nothing
+    break;
+  case ParticleSystem.COORD_TYPE.WORLD:
+    // Do not move with parent
+    break;
+  case ParticleSystem.COORD_TYPE.LOCAL_WORLD:
+    // Reverse parent rotation
+    var rotate = new THREE.Quaternion();
+    rotate.setFromRotationMatrix(parentObject.matrixWorld);
+    rotate.inverse();
+    this.rootObj.quaternion.copy(rotate);
+    break;
   }
 };
 
