@@ -1,6 +1,8 @@
 'use strict';
 
 function GameState() {
+  State.call(this);
+
   this.worldMgr = new WorldManager();
   this.worldMgr.rootObj.position.set(5200, 5200, 0);
   this.gomVisMgr = new GOMVisManager(this.worldMgr);
@@ -9,6 +11,7 @@ function GameState() {
 
   this.pickPosH = new THREE.AxisHelper(2);
 }
+GameState.prototype = new State();
 
 GameState.prototype.setMap = function(mapIdx) {
   this.activeMapIdx = mapIdx;
@@ -116,4 +119,5 @@ GameState.prototype.leave = function() {
   scene.remove(this.worldMgr.rootObj);
 };
 
-var gsGame = new GameState();
+StateManager.register('game', GameState);
+var gsGame = StateManager.get('game');

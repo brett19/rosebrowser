@@ -1,9 +1,12 @@
 'use strict';
 
 function ParticleTestState() {
+  State.call(this);
+
   this.DM = new DataManager();
   this.world = null;
 }
+ParticleTestState.prototype = new State();
 
 ParticleTestState.prototype.prepare = function(callback) {
   this.DM.register('canim_intro', AnimationData, '3DDATA/TITLEIROSE/CAMERA01_INTRO01.ZMO');
@@ -130,4 +133,4 @@ ParticleTestState.prototype.update = function(delta) {
   }
 };
 
-var gsParticleTest = new ParticleTestState();
+StateManager.register('particle', ParticleTestState);

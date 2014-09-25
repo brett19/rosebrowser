@@ -1,9 +1,12 @@
 'use strict';
 
 function TestState() {
+  State.call(this);
+
   this.DM = new DataManager();
   this.world = null;
 }
+TestState.prototype = new State();
 
 TestState.prototype.prepare = function(callback) {
   this.DM.register('canim_intro', AnimationData, '3DDATA/TITLEIROSE/CAMERA01_INTRO01.ZMO');
@@ -157,4 +160,4 @@ TestState.prototype.update = function(delta) {
   }
 };
 
-var gsTest = new TestState();
+StateManager.register('test', TestState);

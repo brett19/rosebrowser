@@ -7,13 +7,7 @@ function LoginState() {
   this.DM = new DataManager();
 }
 
-LoginState._prepareOnceDone = false;
-LoginState.prototype._prepareOnce = function(callback) {
-  if (LoginState._prepareOnceDone) {
-    return callback();
-  }
-  LoginState._prepareOnceDone = true;
-
+LoginState.prototype.prepareOnce = function(callback) {
   this.DM.register('canim_intro', AnimationData, 'CAMERAS/TITLEMAP_LOGIN.ZMO');
   this.DM.register('canim_inselect', AnimationData, 'CAMERAS/TITLEMAP_AVTLIST.ZMO');
   this.DM.register('canim_outselect', AnimationData, 'CAMERAS/TITLEMAP_AVTLIST_RETURN.ZMO');
@@ -38,7 +32,7 @@ LoginState.prototype._prepareOnce = function(callback) {
   });
 };
 
-LoginState.prototype._prepare = function(callback) {
+LoginState.prototype.prepare = function(callback) {
   this.activeCamAnim = null;
   this.world = null;
   this.chars = [];
@@ -46,12 +40,6 @@ LoginState.prototype._prepare = function(callback) {
   this.visChars = [];
 
   callback();
-};
-
-LoginState.prototype.prepare = function(callback) {
-  this._prepareOnce(function() {
-    this._prepare(callback);
-  }.bind(this));
 };
 
 LoginState.prototype._onSelectChar = function(charIdx) {
@@ -104,7 +92,7 @@ LoginState.prototype._onConfirmChar = function() {
 
           // Time to switch states!
           gsGame.setMap(charData.zoneNo);
-          gsGame.prepare(function() {
+          StateManager.prepare('game', function() {
             var startPos = new THREE.Vector3(
                 charData.posStart.x,
                 charData.posStart.y,
@@ -125,9 +113,7 @@ LoginState.prototype._onConfirmChar = function() {
               GOM.addObject(MC);
 
               waitDialog.close();
-              gsLogin.leave();
-              gsGame.enter();
-              activeGameState = gsGame;
+              StateManager.switch('game');
 
             });
           });
@@ -366,4 +352,4 @@ LoginState.prototype.update = function(delta) {
   this.world.update(delta);
 };
 
-var gsLogin = new LoginState();
+StateManager.register('login', LoginState);

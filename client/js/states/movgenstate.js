@@ -1,8 +1,11 @@
 'use strict';
 
 function MovGenState() {
+  State.call(this);
+
   this.world = null;
 }
+MovGenState.prototype = new State();
 
 MovGenState.prototype.prepare = function(callback) {
   callback();
@@ -105,4 +108,4 @@ MovGenState.prototype.update = function(delta) {
   this.controls.update( delta );
 };
 
-var gsMovGen = new MovGenState();
+StateManager.register('movgen', MovGenState);

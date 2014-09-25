@@ -105,8 +105,6 @@ InputManager._handleEvent = function(name, e) {
   }
 };
 
-var activeGameState = null;
-
 // FPS / MS indicator
 var stats = new Stats();
 stats.setMode(1); // 0: FPS, 1: MS
@@ -123,9 +121,7 @@ var renderFrame = function () {
   var delta = clock.getDelta();
   THREE.AnimationHandler.update( delta );
 
-  if (activeGameState) {
-    activeGameState.update(delta);
-  }
+  StateManager.update(delta);
 
   var renderCamera = camera;
   if (debugCamera) {
@@ -152,23 +148,6 @@ renderFrame();
 
 var launchStateName = clientParams.length > 0 ? clientParams[0] : 'test';
 console.log('Launching game with state `' + launchStateName + '`');
-
-var launchGameState = null;
-if (launchStateName === 'test') {
-  launchGameState = gsTest;
-} else if (launchStateName === 'nettest') {
-  launchGameState = gsNetTest;
-} else if (launchStateName === 'login') {
-  launchGameState = gsLogin;
-} else if (launchStateName === 'gametest') {
-  launchGameState = gsGameTest;
-} else if (launchStateName === 'particle') {
-  launchGameState = gsParticleTest;
-} else if (launchStateName === 'movgen') {
-  launchGameState = gsMovGen;
-} else {
-  console.log('Invalid launch state specified.');
-}
 
 if (clientParams.indexOf('lmonly') !== -1) {
   config.lmonly = true;
@@ -198,18 +177,13 @@ ShaderManager.register('partmesh', 'partmesh.vert', 'partmesh.frag', {
   attributes: {alpha:{}}
 });
 
-if (launchGameState) {
-  // Shaders before anything else
-  ShaderManager.init(function() {
-    // Needed for game states that alter UI.
-    $(function() {
-      launchGameState.prepare(function() {
-        launchGameState.enter();
-        activeGameState = launchGameState;
-      });
-    });
+// Shaders before anything else
+ShaderManager.init(function() {
+  // Needed for game states that alter UI.
+  $(function() {
+    StateManager.prepareAndSwitch(launchStateName);
   });
-}
+});
 
 GDM.register('list_event', DataTable, '3DDATA/STB/LIST_EVENT.STB');
 GDM.register('quest_scripts', QuestScriptManager, '3DDATA/STB/LIST_QUESTDATA.STB');

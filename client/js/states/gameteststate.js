@@ -6,7 +6,9 @@ and then jumps you immediately to the GameState state.
  */
 
 function GameTestState() {
+  State.call(this);
 }
+GameTestState.prototype = new State();
 
 GameTestState.prototype.prepare = function(callback) {
   callback();
@@ -154,7 +156,7 @@ GameTestState.prototype.enter = function() {
 
                       // Time to switch states!
                       gsGame.setMap(charData.zoneNo);
-                      gsGame.prepare(function() {
+                      StateManager.prepare('game', function() {
                         var startPos = new THREE.Vector3(
                             charData.posStart.x,
                             charData.posStart.y,
@@ -185,9 +187,7 @@ GameTestState.prototype.enter = function() {
                           console.log('MC Loaded', MC);
 
                           waitDialog.close();
-                          gsGameTest.leave();
-                          gsGame.enter();
-                          activeGameState = gsGame;
+                          StateManager.switch('game');
 
                         });
                       });
@@ -210,4 +210,5 @@ GameTestState.prototype.leave = function() {
 GameTestState.prototype.update = function(delta) {
 };
 
-var gsGameTest = new GameTestState();
+StateManager.register('gametest', GameTestState);
+var gsGameTest = StateManager.get('gametest');
