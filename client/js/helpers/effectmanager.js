@@ -20,7 +20,7 @@ EffectManager._createEmitter = function(data)
   emitter.spriteRows     = data.spriteRows;
 
   // Load texture
-  emitter.texture = RoseTextureManager.load(data.texturePath);
+  emitter.texture = TextureManager.load(data.texturePath);
   emitter.texture.repeat.set(1 / data.spriteCols, 1 / data.spriteRows);
 
   // Set material properties
@@ -255,7 +255,7 @@ EffectManager.loadEffect = function(path, callback) {
 
     for (var i = 0; i < effectData.animations.length; ++i) {
       var data = effectData.animations[i];
-      var texture = ROSETexLoader.load(data.texturePath);
+      var texture = TextureManager.load(data.texturePath);
 
       var material = ShaderManager.get('partmesh').clone();
       material.uniforms = {

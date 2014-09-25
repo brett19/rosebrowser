@@ -16,9 +16,7 @@ function MorphAnimManager() {
 MorphAnimManager.prototype._loadOne = function(animIdx, callback) {
   var animInfo = this.anims[animIdx];
 
-  var texture = ROSETexLoader.load(animInfo.texPath);
-  texture.wrapT = THREE.RepeatWrapping;
-  texture.wrapS = THREE.RepeatWrapping;
+  var texture = TextureManager.load(animInfo.texPath);
   var mat = new THREE.MeshBasicMaterial({color: 0xffffff, map: texture});
 
   if (animInfo.twoSided) {

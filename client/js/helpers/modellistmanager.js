@@ -71,7 +71,7 @@ ModelListManager.prototype._createMaterialLMOnly = function(materialIdx, lmData)
 
 ModelListManager.prototype._createMaterialWithLightmap = function(materialIdx, lmData) {
   var zscMat = this.data.materials[materialIdx];
-  var texture = RoseTextureManager.load(zscMat.texturePath);
+  var texture = TextureManager.load(zscMat.texturePath);
 
   var lmTexture = lmData.texture;
   var objScale = 1 / lmData.objectsPerRow;
@@ -112,7 +112,7 @@ ModelListManager.prototype._createMaterial = function(materialIdx) {
 
   var zscMat = this.data.materials[materialIdx];
 
-  var texture = RoseTextureManager.load(zscMat.texturePath);
+  var texture = TextureManager.load(zscMat.texturePath);
 
   var newMaterial = new THREE.MeshLambertMaterial({color: 0xffffff, map: texture});
   newMaterial.skinning = zscMat.forSkinning;

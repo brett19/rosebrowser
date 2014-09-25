@@ -40,7 +40,7 @@ LightmapManager.prototype._getTexture = function(textureIdx) {
     return foundTexture;
   }
 
-  var newTexture = ROSETexLoader.load(this.data.textures[textureIdx]);
+  var newTexture = TextureManager.load(this.data.textures[textureIdx]);
   this.textures[textureIdx] = newTexture;
   return newTexture;
 };

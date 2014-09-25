@@ -237,7 +237,7 @@ OceanBlock._loadMaterial = function() {
 
     path = '3Ddata\\JUNON\\WATER\\OCEAN01_' + path + '.DDS';
 
-    texture = RoseTextureManager.load(path);
+    texture = TextureManager.load(path);
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     mat.textureList.push(texture);
@@ -344,12 +344,12 @@ WorldChunk.prototype._createLmOnlyMaterial = function() {
 //   once.
 WorldChunk.prototype._createMaterial = function(texId1, texId2) {
   if (!this.textures[texId1]) {
-    this.textures[texId1] = RoseTextureManager.load(this.world.zoneInfo.textures[texId1]);
+    this.textures[texId1] = TextureManager.load(this.world.zoneInfo.textures[texId1]);
   }
   var tex1 = this.textures[texId1];
 
   if (!this.textures[texId2]) {
-    this.textures[texId2] = RoseTextureManager.load(this.world.zoneInfo.textures[texId2]);
+    this.textures[texId2] = TextureManager.load(this.world.zoneInfo.textures[texId2]);
   }
   var tex2 = this.textures[texId2];
 
@@ -536,7 +536,7 @@ WorldChunk.prototype._loadTerrain = function(callback) {
   var himRes = this.name + '_tilemap';
   var tilRes = this.name + '_heightmap';
 
-  this.lightmapTex = RoseTextureManager.load(ddsPath);
+  this.lightmapTex = TextureManager.load(ddsPath);
 
   // TODO: Move the registration into the world manager.
   //   This is so if a chunk is unloaded and loaded again, we don't

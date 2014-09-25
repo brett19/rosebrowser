@@ -3,7 +3,7 @@
 /**
  * @namespace
  */
-var RoseTextureManager = {};
+var TextureManager = {};
 
 /**
  * A listing of all textures that have been loaded and cached.
@@ -11,7 +11,7 @@ var RoseTextureManager = {};
  * @type {Object.<string,THREE.CompressedTexture>}
  * @private
  */
-RoseTextureManager._cachedTextures = {};
+TextureManager._cachedTextures = {};
 
 /**
  * Loads a texture and automatically assignes various properties as
@@ -22,15 +22,15 @@ RoseTextureManager._cachedTextures = {};
  *
  * @param path
  * The path to the DDS file to load.
- * @param callback
+ * @param [callback]
  * Callback to invoke once the texture is fully loaded into
  * memory (but may not yet be uploaded to the GPU).
  * @returns {THREE.CompressedTexture}
  */
-RoseTextureManager.load = function(path, callback) {
+TextureManager.load = function(path, callback) {
   var normPath = normalizePath(path);
 
-  var foundTex = RoseTextureManager._cachedTextures[normPath];
+  var foundTex = TextureManager._cachedTextures[normPath];
   if (foundTex) {
     if (callback) {
       callback();
@@ -40,7 +40,8 @@ RoseTextureManager.load = function(path, callback) {
 
   var newTex = DDS.load(path, callback);
   newTex.minFilter = newTex.magFilter = THREE.LinearFilter;
+  newTex.wrapS = newTex.wrapT = THREE.RepeatWrapping;
 
-  RoseTextureManager._cachedTextures[normPath] = newTex;
+  TextureManager._cachedTextures[normPath] = newTex;
   return newTex;
 };

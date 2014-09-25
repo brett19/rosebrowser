@@ -1,7 +1,7 @@
 'use strict';
 
 function makeZscMaterial(zscMat) {
-  var texture = ROSETexLoader.load(zscMat.texturePath);
+  var texture = TextureManager.load(zscMat.texturePath);
   //texture.anisotropy = 4;
   var material = new THREE.MeshLambertMaterial({color: 0xffffff, map: texture});
   material.skinning = zscMat.forSkinning;
