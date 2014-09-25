@@ -3,32 +3,20 @@
 /**
  * An Animator class for animating Skeleton's based on an AnimationData.
  *
- * Note: Internally makes use of the THREE.Animation class.
- *
  * @param skeleton
  * @param {AnimationData} animationData
  * @constructor
  */
 function SkeletonAnimator(skeleton, animationData) {
-  this.animation =
-      SkeletonAnimator._createThreeAnimation(skeleton, animationData);
+  var animD = SkeletonAnimator._createThreeAnimation(skeleton, animationData);
+
+  // Create the actual animation, we use a dummy root object since we manually
+  //   configure the animated hierarchy below.
+  THREE.Animation.call(this, {children: []}, animD);
+  this.hierarchy = skeleton.bones;
 }
 
-/**
- * @param [startTime]
- */
-SkeletonAnimator.prototype.play = function(startTime) {
-  this.animation.play(startTime);
-};
-
-
-SkeletonAnimator.prototype.pause = function() {
-  this.animation.pause();
-};
-
-SkeletonAnimator.prototype.stop = function() {
-  this.animation.stop();
-};
+SkeletonAnimator.prototype = Object.create( THREE.Animation.prototype );
 
 /**
  * @param skeleton
@@ -78,9 +66,5 @@ SkeletonAnimator._createThreeAnimation = function(skeleton, animationData) {
     }
   }
 
-  // Create the actual animation, we use a dummy root object since we manually
-  //   configure the animated hierarchy below.
-  var anim = new THREE.Animation({children: []}, animD);
-  anim.hierarchy = skeleton.bones;
-  return anim;
+  return animD;
 };
