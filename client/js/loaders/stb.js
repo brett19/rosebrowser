@@ -1,12 +1,35 @@
+'use strict';
+
 /**
  * @constructor
  */
 var DataTable = function() {
-  this.columns = [];
-  this.rows = [];
-  this.rootColumn = [];
+  this.reader = null;
+  this.rowCount = 0;
+  this.columnCount = 0;
+  this.offsets = null;
+  this.rowCache = {};
 };
 
+DataTable.prototype.row = function(rowIdx) {
+  if (this.rowCache[rowIdx]) {
+    return this.rowCache[rowIdx];
+  }
+
+  var rowOffsetIdx = rowIdx * this.columnCount;
+  var row = [];
+  for (var i = 0; i < this.columnCount; ++i) {
+    this.reader.seek(this.offsets[rowOffsetIdx+i]);
+    row.push(this.reader.readUint16Str());
+  }
+
+  this.rowCache[rowIdx] = row;
+  return row;
+};
+
+DataTable.prototype.item = function(rowIdx, columnIdx) {
+  return this.row(rowIdx)[columnIdx];
+};
 
 /**
  * @callback DataTable~onLoad
@@ -19,7 +42,7 @@ var DataTable = function() {
  */
 DataTable.load = function(path, callback) {
   ROSELoader.load(path, function(/** BinaryReader */rh) {
-    var columns, i, j, magic, offset, rows, textDecoder;
+    var columns, i, j, magic, offset, rows;
     var data = new DataTable();
     magic = rh.readStrLen(4);
 
@@ -27,36 +50,23 @@ DataTable.load = function(path, callback) {
       throw 'Unsupported STB magic header ' + magic;
     }
 
-    textDecoder = new TextDecoder('euc-kr');
-
-    function readString() {
-      return textDecoder.decode(rh.readUint8Array(rh.readUint16()));
-    }
-
     offset  = rh.readUint32();
     rows    = rh.readUint32();
     columns = rh.readUint32();
     data.rowHeight = rh.readUint32();
 
-    data.rootColumn.width = rh.readUint16();
-    for (i = 0; i < columns; ++i) {
-      data.columns[i] = { width: rh.readUint16() };
-    }
-
-    data.rootColumn.name = readString();
-    for (i = 0; i < columns; ++i) {
-      data.columns[i].name = readString();
-    }
-
-    for (i = 0; i < rows - 1; ++i) {
-      data.rows[i] = [readString()];
-    }
+    data.reader = rh;
+    data.rowCount = rows - 1;
+    data.columnCount = columns - 1;
 
     rh.seek(offset);
 
-    for (i = 0; i < rows - 1; ++i) {
-      for (j = 0; j < columns - 1; ++j) {
-        data.rows[i][j] = readString();
+    data.offsets = new Uint32Array(data.rowCount * data.columnCount);
+    var offsetIdx = 0;
+    for (i = 0; i < data.rowCount; ++i) {
+      for (j = 0; j < data.columnCount; ++j) {
+        data.offsets[offsetIdx++] = rh.tell();
+        rh.skip(rh.readUint16());
       }
     }
 

@@ -81,8 +81,8 @@ MorphAnimManager.load = function(path, callback) {
   var waitAll = new MultiWait();
   var dataTableWait = waitAll.one();
   DataTable.load(path, function(qdata) {
-    for (var i = 0; i < qdata.rows.length; ++i) {
-      var animInfo = qdata.rows[i];
+    for (var i = 0; i < qdata.rowCount; ++i) {
+      var animInfo = qdata.row(i);
       if (animInfo[1] && animInfo[3]) {
         data.anims[i] = {
           meshPath: animInfo[1],

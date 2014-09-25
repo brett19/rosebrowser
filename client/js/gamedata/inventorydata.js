@@ -32,6 +32,26 @@ var INVEQUIPIDX = {
   MAX: 12
 };
 
+var ITEMTYPE = {
+  FACE_ITEM: 1,
+  HELMET: 2,
+  ARMOR: 3,
+  ARMS: 4,
+  BOOTS: 5,
+  BACK: 6,
+  JEWEL: 7,
+  WEAPON: 8,
+  SHIELD: 9,
+  USE: 10,
+  ETC: 11,
+  GEM: 11,
+  NATURAL: 12,
+  QUEST: 13,
+  RIDE_PART: 14,
+  MOUNT: 15,
+  MAX: 16
+};
+
 function InventoryData() {
   this.items = [];
   this.money = new Int64();

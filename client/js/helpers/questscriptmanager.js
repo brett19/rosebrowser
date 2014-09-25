@@ -154,7 +154,7 @@ QuestScriptManager.load = function(path, callback) {
   var waitAll = new MultiWait();
   var dataTableWait = waitAll.one();
   DataTable.load(path, function(qdata) {
-    for (var i = 0; i < qdata.rows.length; ++i) {
+    for (var i = 0; i < qdata.rowCount; ++i) {
       (function(entryIdx, dataRow) {
         var filePath = normalizePath(dataRow[0]).toUpperCase();
         if (knownServerOnlyQsds.indexOf(filePath) !== -1) {
@@ -178,7 +178,7 @@ QuestScriptManager.load = function(path, callback) {
             questListWait();
           });
         }
-      })(i, qdata.rows[i]);
+      })(i, qdata.row(i));
     }
     dataTableWait();
   });

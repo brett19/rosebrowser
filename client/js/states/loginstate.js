@@ -245,7 +245,7 @@ LoginState.prototype._beginCharSelect = function(charData) {
       self.visChars.push(charObj);
 
       // Add Zone name on behalf of the CharSelDialog
-      var zoneStrKey = listZones.rows[charInfo.zoneNo][26];
+      var zoneStrKey = listZones.item(charInfo.zoneNo, 26);
       charInfo.zoneName = zoneNames.getByKey(zoneStrKey).text;
     })(i, charData.characters[i]);
   }

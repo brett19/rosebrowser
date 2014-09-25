@@ -149,7 +149,7 @@ CharPawn.motionFileCache = new DataCache(Animation);
 CharPawn.prototype._loadMotion = function(motionFileIdx, callback) {
   var self = this;
   GDM.get('char_motions', function(motionTable) {
-    var motionRow = motionTable.rows[motionFileIdx];
+    var motionRow = motionTable.row(motionFileIdx);
     var motionFile = motionRow[MOTION_TABLE.MALE_MOTION + self.gender];
 
     CharPawn.motionFileCache.get(motionFile, function(animData) {
@@ -235,7 +235,7 @@ CharPawn.prototype.setMotion = function(motionIdx, callback) {
   var self = this;
   GDM.get('char_motiontypes', function(motionTypes) {
 
-    var motionFileIdx = motionTypes.rows[motionIdx][1];
+    var motionFileIdx = motionTypes.item(motionIdx, 1);
 
     self.motionCache.get(motionFileIdx, function(anim) {
       // Don't overwrite any newer motion changes.

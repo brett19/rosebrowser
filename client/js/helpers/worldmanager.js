@@ -135,7 +135,7 @@ WorldManager.prototype.setMap = function(mapIdx, callback) {
   self.textures = [];
 
   GDM.get('list_zone', function (zoneTable) {
-    var mapRow = zoneTable.rows[mapIdx];
+    var mapRow = zoneTable.row(mapIdx);
 
     self.DM.register('cnstmdls', ModelListManager, mapRow[ZONE_TABLE.CNST_TABLE]);
     self.DM.register('decomdls', ModelListManager, mapRow[ZONE_TABLE.OBJECT_TABLE]);

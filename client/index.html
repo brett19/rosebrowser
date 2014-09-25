@@ -106,6 +106,7 @@
 <script src="js/helpers/vertexanimation.js"></script>
 <script src="js/helpers/morphanimmanager.js"></script>
 <script src="js/helpers/effectmanager.js"></script>
+<script src="js/helpers/itemdatamanager.js"></script>
 
 <!-- Game Dialogs -->
 <script src="js/dialogs/login.js"></script>
@@ -175,6 +176,16 @@
         font: Tahoma;
         font-size: 9px;
         text-align: center;
+    }
+
+    .ttip {
+        position: absolute;
+        z-index: 2;
+        background-color: rgba(0, 0, 0, 0.6);
+        color: white;
+        padding: 4px;
+        font-size: 12px;
+        pointer-events: none;
     }
 </style>
 

@@ -30,24 +30,59 @@ _InventoryDialog.prototype._getSlot = function(loc, slotNo) {
   }
 };
 
+function GenerateItemToolHtml(itm) {
+  var itemText = '';
+
+  var ItemDb = GDM.getNow('item_data');
+  var itmData = ItemDb.getData(itm.itemType, itm.itemNo);
+  var itmName = ItemDb.getName(itm.itemType, itm.itemNo);
+
+  itemText += '<b>' + itmName + '</b><br />';
+
+
+  return itemText;
+}
+
 _InventoryDialog.prototype._updateData = function() {
   var invData = this.boundInvData;
 
   for (var i = 0; i < INVEQUIPIDX.MAX; ++i) {
-    this.me.find('#eqp_'+i).css('background-color', '#ff0000');
+    this.me.find('#eqp_'+i).css('background-color', '#eeeeee');
   }
   for (var i = 0; i < 30; ++i) {
-    this.me.find('#itm_'+(i+1)).css('background-color', '#ff0000');
+    this.me.find('#itm_'+(i+1)).css('background-color', '#eeeeee');
+  }
+  for (var i = 0; i < AVTSHOTTYPE.Max; ++i) {
+    this.me.find('#sht_'+i).css('background-color', '#eeeeee');
   }
 
   for (var i = 0; i < invData.items.length; ++i) {
     var itm = invData.items[i];
-    var itmSlot = this._getSlot(itm.location, itm.slotNo);
-    console.log(itm, itmSlot);
-    itmSlot.css('background-color', '#00ff00');
-  }
+    var itemText = GenerateItemToolHtml(itm);
 
-  console.log(invData);
+    var itmSlot = this._getSlot(itm.location, itm.slotNo);
+    itmSlot.css('background-color', '#00ff00');
+    var ttip = null;
+    itmSlot.mouseenter(function(itm, itemText, e) {
+      ttip = $('<div class="ttip" />');
+      ttip.html(itemText);
+      ttip.css('left', e.pageX + 'px');
+      ttip.css('top', e.pageY + 'px');
+      $('body').append(ttip);
+    }.bind(this, itm, itemText));
+    itmSlot.mousemove(function(e) {
+      if (ttip) {
+        ttip.css('left', e.pageX + 'px');
+        ttip.css('top', e.pageY + 'px');
+      }
+    });
+    itmSlot.mouseleave(function() {
+      if(ttip) {
+        ttip.remove();
+        ttip = null;
+      }
+    });
+  }
 
   this.me.find('#moneyVal').text(invData.money.toNumber());
 };
