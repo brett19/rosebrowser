@@ -19,13 +19,22 @@ function SkeletonAnimator(skeleton, animationData) {
 SkeletonAnimator.prototype = Object.create( THREE.Animation.prototype );
 
 /**
+ * An index of all created skeleton animators, incrememnted for each
+ * to ensure a unique animation name for all.
+ *
+ * @type {number}
+ * @private
+ */
+SkeletonAnimator._animIdx = 1;
+
+/**
  * @param skeleton
  * @param {AnimationData} animationData
  * @private
  */
 SkeletonAnimator._createThreeAnimation = function(skeleton, animationData) {
   var animD = {
-    name: name,
+    name: 'SkelAnim_' + SkeletonAnimator._animIdx++,
     fps: animationData.fps,
     length: animationData.frameCount / animationData.fps,
     hierarchy: []

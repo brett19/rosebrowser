@@ -31,13 +31,22 @@ ObjectAnimator.prototype.stop = function() {
 };
 
 /**
+ * An index of all created object animators, incrememnted for each
+ * to ensure a unique animation name for all.
+ *
+ * @type {number}
+ * @private
+ */
+ObjectAnimator._animIdx = 1;
+
+/**
  * @param skeleton
  * @param {AnimationData} animationData
  * @private
  */
 ObjectAnimator._createThreeAnimation = function(object, animationData) {
   var animD = {
-    name: name,
+    name: 'ObjAnim_' + ObjectAnimator._animIdx++,
     fps: animationData.fps,
     length: animationData.frameCount / animationData.fps,
     hierarchy: []
