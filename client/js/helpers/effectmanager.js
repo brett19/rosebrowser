@@ -140,16 +140,42 @@ Effect.prototype.resetBlendWeights = function() {
 
 Effect.prototype.play = function() {
   THREE.AnimationHandler.play(this);
+
+  for (var i = 0; i < this.particleEffects.length; ++i) {
+    this.particleEffects[i].play();
+  }
+
+  for (var i = 0; i < this.animations.length; ++i) {
+    this.animations[i].play();
+  }
 };
 
 Effect.prototype.stop = function() {
   THREE.AnimationHandler.stop(this);
+
+  for (var i = 0; i < this.particleEffects.length; ++i) {
+    this.particleEffects[i].stop();
+  }
+
+  for (var i = 0; i < this.animations.length; ++i) {
+    this.animations[i].stop();
+  }
 };
 
 Effect.prototype.update = function(delta) {
   for (var i = 0; i < this.particleEffects.length; ++i) {
     this.particleEffects[i].update(delta);
   }
+
+  for (var i = 0; i < this.animations.length; ++i) {
+    this.animations[i].update(delta);
+  }
+};
+
+Effect.STATE = {
+  READY_TO_PLAY: 0,
+  PLAYING: 1,
+  STOPPED: 2
 };
 
 /**
@@ -161,21 +187,23 @@ var ParticleEffect = function()
   this.emitters = [];
   this.startDelay = 0;
   this.animation = null;
-  this.state = ParticleEffect.STATE.READY_TO_PLAY;
+  this.state = Effect.STATE.READY_TO_PLAY;
 };
 
-ParticleEffect.STATE = {
-  READY_TO_PLAY: 0,
-  PLAYING: 1,
-  STOPPED: 2
+ParticleEffect.prototype.play = function() {
+  // Initialise stuff to play
+};
+
+ParticleEffect.prototype.stop = function() {
+  // Make shit stop
 };
 
 ParticleEffect.prototype.update = function(delta) {
-  if (this.state === ParticleEffect.STATE.READY_TO_PLAY) {
+  if (this.state === Effect.STATE.READY_TO_PLAY) {
     this.startDelay -= delta;
 
     if (this.startDelay < 0) {
-      this.state = ParticleEffect.STATE.PLAYING;
+      this.state = Effect.STATE.PLAYING;
 
       if (this.animation) {
         this.animation.play();
@@ -185,7 +213,7 @@ ParticleEffect.prototype.update = function(delta) {
     }
   }
 
-  if (this.state === ParticleEffect.STATE.PLAYING) {
+  if (this.state === Effect.STATE.PLAYING) {
     for (var i = 0; i < this.emitters.length; ++i) {
       this.emitters[i].update(delta);
     }
@@ -211,13 +239,100 @@ EffectManager._loadParticleEffect = function(path, callback) {
   return effect;
 };
 
+EffectManager._loadMeshAnimation = function(data, callback) {
+  var animation = new Effect.Animation();
+  var texture = TextureManager.load(data.texturePath);
+
+  // Set animation properties
+  animation.name = data.name;
+
+  // Create material
+  var material = ShaderManager.get('partmesh').clone();
+
+  material.uniforms = {
+    texture1: { type: 't', value: texture }
+  };
+
+  material.transparent   = true;
+  material.depthTest     = data.depthTestEnabled;
+  material.depthWrite    = data.depthWriteEnabled;
+  material.blending      = THREE.CustomBlending;
+  material.blendEquation = convertZnzinBlendOp(data.blendOp);
+  material.blendSrc      = convertZnzinBlendType(data.blendSrc);
+  material.blendDst      = convertZnzinBlendType(data.blendDst);
+
+  if (data.twoSideEnabled) {
+    material.side = THREE.DoubleSide;
+  }
+
+  if (data.alphaEnabled) {
+    if (data.alphaTestEnabled) {
+      material.alphaTest = 0.5;
+    }
+  }
+
+  // TODO: Remove this once Three.js properly copies the default attribs.
+  material.defaultAttributeValues['alpha'] = 1;
+
+  Mesh.load(data.meshPath, function(geometry) {
+    animation.mesh = new THREE.Mesh(geometry, animation.material);
+
+    // ROSE, you suck...
+    if (data.animationPath && data.animationPath !== 'NULL') {
+      AnimationData.load(data.animationPath, function (animData) {
+        animation.meshAnimation = new GeometryAnimator(geometry, animData);
+        callback();
+      });
+    } else {
+      callback();
+    }
+  });
+
+  return animation;
+};
+
 /**
  * @constructor
  */
 Effect.Animation = function() {
-
+  this.rootObj = new THREE.Object3D();
+  this.state = Effect.STATE.READY_TO_PLAY;
+  this.startDelay = 0;
+  this.animation = null;
+  this.material = null;
+  this.mesh = null;
+  this.meshAnimation = null;
 };
 
+Effect.Animation.prototype.play = function() {
+  // Initialise stuff to play
+};
+
+Effect.Animation.prototype.stop = function() {
+  // Make shit stop
+};
+
+Effect.Animation.prototype.update = function(delta) {
+  if (this.state === Effect.STATE.READY_TO_PLAY) {
+    this.startDelay -= delta;
+
+    if (this.startDelay < 0) {
+      this.state = Effect.STATE.PLAYING;
+
+      if (this.animation) {
+        this.animation.play();
+      }
+
+      if (this.meshAnimation) {
+        this.meshAnimation.play();
+      }
+
+      delta = -this.startDelay;
+    }
+  }
+
+  // Check loopCount related shit
+};
 
 EffectManager.loadEffect = function(path, callback) {
   var waitAll = new MultiWait();
@@ -248,9 +363,6 @@ EffectManager.loadEffect = function(path, callback) {
       }
 
       if (data.animation.enabled) {
-        // TODO: Effect particle animation
-        // Load data.animation.name
-        // Apply to emitter.rootObj for loopCount
         if (data.animation.name && data.animation.name !== "NULL") {
           (function(_particle, _data) {
             var particleAnimWait = waitAll.one();
@@ -269,56 +381,34 @@ EffectManager.loadEffect = function(path, callback) {
 
     for (var i = 0; i < effectData.animations.length; ++i) {
       var data = effectData.animations[i];
-      var texture = TextureManager.load(data.texturePath);
+      var meshAnimation = EffectManager._loadMeshAnimation(data, waitAll.one());
 
-      var material = ShaderManager.get('partmesh').clone();
-      material.uniforms = {
-        texture1: { type: 't', value: texture }
-      };
+      // Set initial properties
+      meshAnimation.startDelay = data.delay / 1000;
+      meshAnimation.loopCount = data.loopCount;
+      meshAnimation.rootObj.position.copy(data.position);
+      meshAnimation.rootObj.quaternion.copy(data.rotation);
 
-      // TODO: Remove this once Three.js properly copies the default attribs.
-      material.defaultAttributeValues['alpha'] = 1;
-
-      var animation = new Effect.Animation();
-      animation.name = data.name;
-
-      material.transparent = true;;
-
-      if (data.twoSideEnabled) {
-        material.side = THREE.DoubleSide;
+      if (data.linkRoot) {
+        effect.rootObj.add(meshAnimation.rootObj);
+      } else {
+        effect.rootObj2.add(meshAnimation.rootObj);
       }
 
-      if (data.alphaEnabled) {
-        if (data.alphaTestEnabled) {
-          material.alphaTest = 0.5;
+      if (data.animation.enabled) {
+        if (data.animation.name && data.animation.name !== "NULL") {
+          (function(_meshAnimation, _data) {
+            var meshAnimationWait = waitAll.one();
+            AnimationData.load(data.animation.name, function (animData) {
+              _meshAnimation.animation = new ObjectAnimator(_meshAnimation.rootObj, animData);
+              _meshAnimation.animationLoopCount = _data.animation.loopCount;
+              meshAnimationWait();
+            });
+          })(meshAnimation, data);
         }
       }
 
-      material.depthTest = data.depthTestEnabled;
-      material.depthWrite = data.depthWriteEnabled;
-
-      material.blending = THREE.CustomBlending;
-      material.blendEquation = convertZnzinBlendOp(data.blendOp);
-      material.blendSrc = convertZnzinBlendType(data.blendSrc);
-      material.blendDst = convertZnzinBlendType(data.blendDst);
-
-      (function(_data, _effect, _material) {
-        Mesh.load(_data.meshPath, function(geom) {
-          _effect.mesh = new THREE.Mesh(geom, _material);
-          _effect.rootObj.add(_effect.mesh);
-
-          // ROSE, you suck...
-          if (_data.animationPath && _data.animationPath !== 'NULL') {
-            AnimationData.load(_data.animationPath, function (animData) {
-              var anim = new GeometryAnimator(geom, animData);
-              anim.play();
-            });
-          }
-        });
-      })(data, effect, material);
-
-      // TODO: Effect mesh animations
-      effect.animations.push(animation);
+      effect.animations.push(meshAnimation);
     }
 
     effectWait();
