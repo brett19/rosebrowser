@@ -97,10 +97,10 @@ var FAVTPARTTYPES = [
 /**
  * @constructor
  *
+ * @property {IndexedCache.<THREE.Animation>} motionCache
  * Holds a cache of all animations that are actually loaded against
  * this skeleton and can be used immediately (and should not be loaded
  * against the skeleton again).
- * @property {IndexedCache.<THREE.Animation>} motionCache
  */
 function CharPawn(go) {
   this.rootObj = new THREE.Object3D();

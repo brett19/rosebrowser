@@ -4,11 +4,14 @@ ROSE Browser
 #### A browser based version of the ROSE Online MMORPG.
 
 * Current version: 0.0.1-dev
+* Game compatability: ver 528
 
-### Status
+Status
+-----------------------
 Unplayable, but lots of interested things are complete!
 
-### Contributors
+Contributors
+-----------------------
 
 ROSEBrowser is only possible thanks to the co-operation of
 [Gravity Interactive, Inc.](http://warpportal.com/), and the fantastic

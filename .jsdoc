@@ -17,7 +17,7 @@
     "plugins/markdown"
   ],
   "templates": {
-    "systemName": "ROSE Online - Browser Edition",
-    "copyright": "Copyright 2014 ROSEBrowser contributors"
+    "applicationName": "ROSEBrowser",
+    "linenums": true
   }
 }

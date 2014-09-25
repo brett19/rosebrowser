@@ -478,7 +478,10 @@ DDS.load = function(path, callback) {
 
     texture.format = format;
     texture.needsUpdate = true;
-    callback(texture);
+
+    if (callback) {
+      callback(texture);
+    }
   });
 
   return texture;

@@ -8,7 +8,7 @@
  * @property {Float32Array?} faces
  * @property {Float32Array?} skinWeights
  * @property {Float32Array?} skinIndices
- * @property {Float32Array?[]} uv
+ * @property {Float32Array[]?} uv
  */
 var Mesh = function() {
   this.bounds = {};
