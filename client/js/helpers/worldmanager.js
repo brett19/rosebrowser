@@ -67,6 +67,7 @@ function tileRotateUvs(tile, uv) {
 
 function WorldManager() {
   this.rootObj = new THREE.Object3D();
+  this.rootObj.position.set(5200, 5200, 0);
   this.isLoaded = false;
   this.cnstModelMgr = null;
   this.decoModelMgr = null;

@@ -3,9 +3,8 @@
 function GameState() {
   State.call(this);
 
-  this.worldMgr = new WorldManager();
-  this.worldMgr.rootObj.position.set(5200, 5200, 0);
-  this.gomVisMgr = new GOMVisManager(this.worldMgr);
+  this.worldMgr = null;
+  this.gomVisMgr = null;
   this.activeMapIdx = -1;
   this.mcPawnRoot = new THREE.Object3D();
 
@@ -13,25 +12,8 @@ function GameState() {
 }
 GameState.prototype = new State();
 
-GameState.prototype.setMap = function(mapIdx) {
-  this.activeMapIdx = mapIdx;
-};
-
 GameState.prototype.prepare = function(callback) {
-  var waitAll = new MultiWait();
-  this.mapSwitchPrep(waitAll.one());
-  GDM.get('item_data', waitAll.one());
-  waitAll.wait(callback);
-};
-
-/**
- * This is used for initial login as well as map switch.
- * @param callback
- */
-GameState.prototype.mapSwitchPrep = function(callback) {
-  this.worldMgr.setMap(this.activeMapIdx, function() {
-    callback();
-  });
+  GDM.get('item_data', callback);
 };
 
 GameState.prototype.update = function(delta) {
@@ -44,6 +26,9 @@ GameState.prototype.update = function(delta) {
 };
 
 GameState.prototype.enter = function() {
+  this.worldMgr = gameWorld;
+  this.gomVisMgr = new GOMVisManager(gameWorld);
+
   this.worldMgr.addToScene();
   this.gomVisMgr.addToScene();
 

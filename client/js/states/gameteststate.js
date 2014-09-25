@@ -113,85 +113,14 @@ GameTestState.prototype.enter = function() {
               netWorld.selectCharacter(pickCharName, function(data) {
                 waitDialog.setMessage('Character Selected. Connecting to Game Server.');
 
-                netGame = new GameClient();
-                netGame.connect(data.gameIp, data.gamePort, data.transferKey1, rPass, function () {
-                  waitDialog.setMessage('Connected to Game Server; Waiting for character data.');
-
-                  var charData = null;
-                  var invData = null;
-                  var questLog = null;
-                  var questVars = null;
-                  var questItems = null;
-                  var dailyQuestLog = null;
-                  var targetMap = null;
-                  netGame.on('char_data', function(data) {
-                    charData = data;
-                  });
-                  netGame.on('inventory_data', function(data) {
-                    invData = data;
-                  });
-                  netGame.on('quest_log', function(data) {
-                    questLog = data;
-                  });
-                  netGame.on('quest_vars', function(data) {
-                    questVars = data;
-                  });
-                  netGame.on('questitem_list', function(data) {
-                    questItems = data;
-                  });
-                  netGame.on('quest_completion_data', function(data) {
-                    dailyQuestLog = data;
-                  });
-                  netGame.on('preload_char', function(data) {
-                    if (data.state === 2) {
-                      if (!charData || !invData || !questLog ||
-                          !questVars || !questItems || !dailyQuestLog) {
-                        waitDialog.setMessage('Got preload 2 without all data.');
-                        netWorld.end();
-                        netGame.end();
-                        return;
-                      }
-
-                      waitDialog.setMessage('Ready to roll!  Preparing Map!');
-
-                      // Time to switch states!
-                      gsGame.setMap(charData.zoneNo);
-                      StateManager.prepare('game', function() {
-                        var startPos = new THREE.Vector3(
-                            charData.posStart.x,
-                            charData.posStart.y,
-                            0);
-                        gsGame.worldMgr.setViewerInfo(startPos, function() {
-                          gsGame.worldMgr.rootObj.updateMatrixWorld();
-
-                          NetManager.world = gsGame.worldMgr;
-                          NetManager.watch(netWorld, netGame);
-
-                          MC = new MyCharacter();
-                          MC.world = gsGame.worldMgr;
-                          MC.name = charData.name;
-                          MC.level = charData.level;
-                          MC.position.x = charData.posStart.x;
-                          MC.position.y = charData.posStart.y;
-                          MC.mp = charData.mp;
-                          MC.gender = charData.gender;
-                          MC.stats = charData.stats;
-                          MC.job = charData.job;
-                          MC.hairColor = charData.hairColor;
-                          MC.visParts = charData.parts;
-                          MC.inventory = InventoryData.fromPacketData(invData);
-                          MC.debugValidate();
-                          MC.dropFromSky();
-                          GOM.addObject(MC);
-
-                          console.log('MC Loaded', MC);
-
-                          waitDialog.close();
-                          StateManager.switch('game');
-
-                        });
-                      });
-                    }
+                // The pregame state has to be prepared before, if it is not
+                //   able to switch synchronously, we risk loosing events
+                //   related to the character data.
+                StateManager.prepare('pregame', function() {
+                  netGame = new GameClient();
+                  netGame.connect(data.gameIp, data.gamePort, data.transferKey1, rPass, function () {
+                    waitDialog.close();
+                    StateManager.switch('pregame');
                   });
                 });
               });
