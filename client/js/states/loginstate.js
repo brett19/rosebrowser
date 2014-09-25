@@ -14,9 +14,9 @@ LoginState.prototype._prepareOnce = function(callback) {
   }
   LoginState._prepareOnceDone = true;
 
-  this.DM.register('canim_intro', Animation, 'CAMERAS/TITLEMAP_LOGIN.ZMO');
-  this.DM.register('canim_inselect', Animation, 'CAMERAS/TITLEMAP_AVTLIST.ZMO');
-  this.DM.register('canim_outselect', Animation, 'CAMERAS/TITLEMAP_AVTLIST_RETURN.ZMO');
+  this.DM.register('canim_intro', AnimationData, 'CAMERAS/TITLEMAP_LOGIN.ZMO');
+  this.DM.register('canim_inselect', AnimationData, 'CAMERAS/TITLEMAP_AVTLIST.ZMO');
+  this.DM.register('canim_outselect', AnimationData, 'CAMERAS/TITLEMAP_AVTLIST_RETURN.ZMO');
 
   // Start loading this, going to need it later.
   GDM.get('zone_names', 'list_zone');

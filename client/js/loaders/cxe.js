@@ -1,6 +1,6 @@
 'use strict';
 
-function ConversationSpec() {
+function NpcChatData() {
 }
 
 var CXEBLOCKTYPE = {
@@ -38,9 +38,9 @@ var CXECURREQ = {
 var CXEINSTTYPENAME = [];
 for (var i in CXEINSTYPE) { CXEINSTTYPENAME[CXEINSTYPE[i]] = i; }
 
-ConversationSpec.load = function(path, callback) {
+NpcChatData.load = function(path, callback) {
   ROSELoader.load(path, function(rh) {
-    var data = new ConversationSpec();
+    var data = new NpcChatData();
 
     var magic = rh.readStrLen(8);
     if (magic !== 'CXE1000') {

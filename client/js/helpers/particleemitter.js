@@ -74,7 +74,7 @@ ParticleEmitter.Particle.prototype.update = function(_dt)
   this.mesh.material.uniforms.vColor.value.setRGB(this.color.r, this.color.g, this.color.b);
   this.mesh.material.uniforms.vAlpha.value = this.color.a;
 
-  if (this.alignType === ParticleSystem.ALIGN_TYPE.AXIS_ALIGNED) {
+  if (this.alignType === ParticleSystemData.ALIGN_TYPE.AXIS_ALIGNED) {
     var euler = new THREE.Euler();
     euler.setFromQuaternion(camera.quaternion, 'ZXY');
     euler.x = 0;
@@ -82,7 +82,7 @@ ParticleEmitter.Particle.prototype.update = function(_dt)
 
     // Rotate to face camera
     this.rootObj.quaternion.setFromEuler(euler);
-  } else if (this.alignType === ParticleSystem.ALIGN_TYPE.BILLBOARD) {
+  } else if (this.alignType === ParticleSystemData.ALIGN_TYPE.BILLBOARD) {
     this.rootObj.quaternion.copy(camera.quaternion);
   }
 
@@ -117,7 +117,7 @@ ParticleEmitter.prototype.createParticle = function()
 
   particle.mesh = new THREE.Mesh(geometry, material);
 
-  if (this.alignType === ParticleSystem.ALIGN_TYPE.AXIS_ALIGNED) {
+  if (this.alignType === ParticleSystemData.ALIGN_TYPE.AXIS_ALIGNED) {
     particle.mesh.rotation.x = Math.PI / 2;
   }
 
@@ -191,12 +191,12 @@ ParticleEmitter.prototype.update = function(dt)
   var parentObject = this.rootObj.parent;
 
   switch (this.coordType) {
-  case ParticleSystem.COORD_TYPE.LOCAL:
+  case ParticleSystemData.COORD_TYPE.LOCAL:
     // Do nothing
     break;
-  case ParticleSystem.COORD_TYPE.WORLD:
+  case ParticleSystemData.COORD_TYPE.WORLD:
     // Do not move with parent
-  case ParticleSystem.COORD_TYPE.LOCAL_WORLD:
+  case ParticleSystemData.COORD_TYPE.LOCAL_WORLD:
     // Reverse parent rotation
     var rotate = new THREE.Quaternion();
     rotate.setFromRotationMatrix(parentObject.matrixWorld);
@@ -226,7 +226,7 @@ ParticleEmitter.prototype.applyEvents = function(particle)
 
     // Apply events
     switch (event.type) {
-      case ParticleSystem.EVENT_TYPE.SIZE:
+      case ParticleSystemData.EVENT_TYPE.SIZE:
         if (!event.fade) {
           particle.size = event.size.getValueInRange();
         }
@@ -237,7 +237,7 @@ ParticleEmitter.prototype.applyEvents = function(particle)
           particle.sizeStep.y = (next.y - particle.size.y) / dt;
         }
         break;
-      case ParticleSystem.EVENT_TYPE.RED:
+      case ParticleSystemData.EVENT_TYPE.RED:
         if (!event.fade) {
           particle.color.r = event.red.getValueInRange();
         }
@@ -247,7 +247,7 @@ ParticleEmitter.prototype.applyEvents = function(particle)
           particle.colorStep.r = (next - particle.color.r) / dt;
         }
         break;
-      case ParticleSystem.EVENT_TYPE.GREEN:
+      case ParticleSystemData.EVENT_TYPE.GREEN:
         if (!event.fade) {
           particle.color.g = event.green.getValueInRange();
         }
@@ -257,7 +257,7 @@ ParticleEmitter.prototype.applyEvents = function(particle)
           particle.colorStep.g = (next - particle.color.g) / dt;
         }
         break;
-      case ParticleSystem.EVENT_TYPE.BLUE:
+      case ParticleSystemData.EVENT_TYPE.BLUE:
         if (!event.fade) {
           particle.color.b = event.blue.getValueInRange();
         }
@@ -267,7 +267,7 @@ ParticleEmitter.prototype.applyEvents = function(particle)
           particle.colorStep.b = (next - particle.color.b) / dt;
         }
         break;
-      case ParticleSystem.EVENT_TYPE.ALPHA:
+      case ParticleSystemData.EVENT_TYPE.ALPHA:
         if (!event.fade) {
           particle.color.a = event.alpha.getValueInRange();
         }
@@ -277,7 +277,7 @@ ParticleEmitter.prototype.applyEvents = function(particle)
           particle.colorStep.a = (next - particle.color.a) / dt;
         }
         break;
-      case ParticleSystem.EVENT_TYPE.COLOR:
+      case ParticleSystemData.EVENT_TYPE.COLOR:
         if (!event.fade) {
           particle.color = event.color.getValueInRange();
         }
@@ -290,7 +290,7 @@ ParticleEmitter.prototype.applyEvents = function(particle)
           particle.colorStep.a = (next.a - particle.color.a) / dt;
         }
         break;
-      case ParticleSystem.EVENT_TYPE.VELOCITY_X:
+      case ParticleSystemData.EVENT_TYPE.VELOCITY_X:
         if (!event.fade) {
           particle.velocity.x = event.velocityX.getValueInRange();
         }
@@ -300,7 +300,7 @@ ParticleEmitter.prototype.applyEvents = function(particle)
           particle.velocityStep.x = (next - particle.velocity.x) / dt;
         }
         break;
-      case ParticleSystem.EVENT_TYPE.VELOCITY_Y:
+      case ParticleSystemData.EVENT_TYPE.VELOCITY_Y:
         if (!event.fade) {
           particle.velocity.y = event.velocityY.getValueInRange();
         }
@@ -310,7 +310,7 @@ ParticleEmitter.prototype.applyEvents = function(particle)
           particle.velocityStep.y = (next - particle.velocity.y) / dt;
         }
         break;
-      case ParticleSystem.EVENT_TYPE.VELOCITY_Z:
+      case ParticleSystemData.EVENT_TYPE.VELOCITY_Z:
         if (!event.fade) {
           particle.velocity.z = event.velocityZ.getValueInRange();
         }
@@ -320,7 +320,7 @@ ParticleEmitter.prototype.applyEvents = function(particle)
           particle.velocityStep.z = (next - particle.velocity.z) / dt;
         }
         break;
-      case ParticleSystem.EVENT_TYPE.VELOCITY:
+      case ParticleSystemData.EVENT_TYPE.VELOCITY:
         if (!event.fade) {
           particle.velocity = event.velocity.getValueInRange();
         }
@@ -332,7 +332,7 @@ ParticleEmitter.prototype.applyEvents = function(particle)
           particle.velocityStep.z = (next.z - particle.velocity.z) / dt;
         }
         break;
-      case ParticleSystem.EVENT_TYPE.TEXTURE:
+      case ParticleSystemData.EVENT_TYPE.TEXTURE:
         if (!event.fade) {
           particle.textureIndex = event.textureIndex.getValueInRange();
         }
@@ -342,7 +342,7 @@ ParticleEmitter.prototype.applyEvents = function(particle)
           particle.textureIndexStep = (next - particle.textureIndex) / dt;
         }
         break;
-      case ParticleSystem.EVENT_TYPE.ROTATION:
+      case ParticleSystemData.EVENT_TYPE.ROTATION:
         if (!event.fade) {
           particle.rotation = event.rotation.getValueInRange();
         }
@@ -352,7 +352,7 @@ ParticleEmitter.prototype.applyEvents = function(particle)
           particle.rotationStep = (next - particle.rotation) / dt;
         }
         break;
-      case ParticleSystem.EVENT_TYPE.TIMER:
+      case ParticleSystemData.EVENT_TYPE.TIMER:
         particle.eventTimer = event.timer.getValueInRange();
 
         // Find new eventIndex

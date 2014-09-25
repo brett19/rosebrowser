@@ -11,7 +11,7 @@ function LightmapManager(data) {
  * @param callback
  */
 LightmapManager.load = function(path, callback) {
-  Lightmap.load(path, function(data) {
+  LightmapData.load(path, function(data) {
     callback(new LightmapManager(data));
   });
 };

@@ -6,24 +6,24 @@
  * @property {Number}   patchSize
  * @property {Number[]} map
  */
-var Heightmap = function() {
+var HeightmapData = function() {
   this.map = [];
 };
 
 /**
  * @callback Heightmap~onLoad
- * @param {Heightmap} heightmap
+ * @param {HeightmapData} heightmap
  */
 
 /**
  * @param {String} path
  * @param {Heightmap~onLoad} callback
  */
-Heightmap.load = function(path, callback) {
+HeightmapData.load = function(path, callback) {
   ROSELoader.load(path, function(rh) {
     var i, data;
 
-    data = new Heightmap();
+    data = new HeightmapData();
     data.width     = rh.readUint32();
     data.height    = rh.readUint32();
     data.gridCount = rh.readUint32();

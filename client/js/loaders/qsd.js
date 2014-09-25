@@ -1,12 +1,12 @@
 'use strict';
 
-function QuestScriptList() {
+function QuestLogicData() {
 
 }
 
-QuestScriptList.load = function(path, callback) {
+QuestLogicData.load = function(path, callback) {
   ROSELoader.load(path, function(rh) {
-    var data = new QuestScriptList();
+    var data = new QuestLogicData();
 
     var size = rh.readUint32();
     var scriptCount = rh.readUint32();

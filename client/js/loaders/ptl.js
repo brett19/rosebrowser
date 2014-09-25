@@ -1,8 +1,8 @@
 /**
  * @constructor
- * @property {ParticleSystem.Emitter[]} emitters
+ * @property {ParticleSystemData.Emitter[]} emitters
  */
-var ParticleSystem = function() {
+var ParticleSystemData = function() {
   this.emitters = [];
 };
 
@@ -104,7 +104,7 @@ RangeColor4.prototype.getValueInRange = function() {
  * @property {Number} blendSrc
  * @property {Number} blendOp
  */
-ParticleSystem.Emitter = function() {
+ParticleSystemData.Emitter = function() {
   this.events         = [];
   this.lifeTime       = new RangeFloat();
   this.emitRate       = new RangeFloat();
@@ -116,8 +116,8 @@ ParticleSystem.Emitter = function() {
 
 /**
  * @constructor
- * @param {ParticleSystem.EVENT_TYPE} type
- * @property {ParticleSystem.EVENT_TYPE} type
+ * @param {ParticleSystemData.EVENT_TYPE} type
+ * @property {ParticleSystemData.EVENT_TYPE} type
  * @property {RangeFloat} time
  * @property {Boolean} blended
  * @property {RangeVector2} size
@@ -134,7 +134,7 @@ ParticleSystem.Emitter = function() {
  * @property {RangeFloat} textureIndex
  * @property {RangeFloat} rotation
  */
-ParticleSystem.Event = function(type) {
+ParticleSystemData.Event = function(type) {
   this.type = type;
 };
 
@@ -143,7 +143,7 @@ ParticleSystem.Event = function(type) {
  * @enum {Number}
  * @readonly
  */
-ParticleSystem.EVENT_TYPE = {
+ParticleSystemData.EVENT_TYPE = {
   NONE:       0,
   SIZE:       1,
   TIMER:      2,
@@ -165,7 +165,7 @@ ParticleSystem.EVENT_TYPE = {
  * @enum {Number}
  * @readonly
  */
-ParticleSystem.DRAW_TYPE = { // NOT USED
+ParticleSystemData.DRAW_TYPE = { // NOT USED
   POINT_SPRITE: 0,
   BILLBOARD: 1
 };
@@ -175,7 +175,7 @@ ParticleSystem.DRAW_TYPE = { // NOT USED
  * @enum {Number}
  * @readonly
  */
-ParticleSystem.COORD_TYPE = {
+ParticleSystemData.COORD_TYPE = {
   WORLD: 0,       // Nothing inherited from parent
   LOCAL_WORLD: 1, // Position only inherited from parent
   LOCAL: 2        // Start at parent position, do NOT move with it
@@ -186,7 +186,7 @@ ParticleSystem.COORD_TYPE = {
  * @enum {Number}
  * @readonly
  */
-ParticleSystem.ALIGN_TYPE = {
+ParticleSystemData.ALIGN_TYPE = {
   BILLBOARD: 0,   // Faces the camera on xyz
   WORLD_MESH: 1,  // No alignment.
   AXIS_ALIGNED: 2 // This means only Z
@@ -195,10 +195,10 @@ ParticleSystem.ALIGN_TYPE = {
 
 /**
  * @param {BinaryReader} rh
- * @param {ParticleSystem.Event} evt
- * @returns {ParticleSystem.Event}
+ * @param {ParticleSystemData.Event} evt
+ * @returns {ParticleSystemData.Event}
  */
-ParticleSystem.loadSizeEvent = function(rh, evt) {
+ParticleSystemData.loadSizeEvent = function(rh, evt) {
   var min = rh.readVector2().multiplyScalar(ZZ_SCALE_IN);
   var max = rh.readVector2().multiplyScalar(ZZ_SCALE_IN);
   evt.size = new RangeVector2(min, max);
@@ -208,10 +208,10 @@ ParticleSystem.loadSizeEvent = function(rh, evt) {
 
 /**
  * @param {BinaryReader} rh
- * @param {ParticleSystem.Event} evt
- * @returns {ParticleSystem.Event}
+ * @param {ParticleSystemData.Event} evt
+ * @returns {ParticleSystemData.Event}
  */
-ParticleSystem.loadTimerEvent = function(rh, evt) {
+ParticleSystemData.loadTimerEvent = function(rh, evt) {
   var min = rh.readFloat();
   var max = rh.readFloat();
   evt.timer = new RangeFloat(min, max);
@@ -221,10 +221,10 @@ ParticleSystem.loadTimerEvent = function(rh, evt) {
 
 /**
  * @param {BinaryReader} rh
- * @param {ParticleSystem.Event} evt
- * @returns {ParticleSystem.Event}
+ * @param {ParticleSystemData.Event} evt
+ * @returns {ParticleSystemData.Event}
  */
-ParticleSystem.loadRedEvent = function(rh, evt) {
+ParticleSystemData.loadRedEvent = function(rh, evt) {
   var min = rh.readFloat();
   var max = rh.readFloat();
   evt.red = new RangeFloat(min, max);
@@ -234,10 +234,10 @@ ParticleSystem.loadRedEvent = function(rh, evt) {
 
 /**
  * @param {BinaryReader} rh
- * @param {ParticleSystem.Event} evt
- * @returns {ParticleSystem.Event}
+ * @param {ParticleSystemData.Event} evt
+ * @returns {ParticleSystemData.Event}
  */
-ParticleSystem.loadGreenEvent = function(rh, evt) {
+ParticleSystemData.loadGreenEvent = function(rh, evt) {
   var min = rh.readFloat();
   var max = rh.readFloat();
   evt.green = new RangeFloat(min, max);
@@ -247,10 +247,10 @@ ParticleSystem.loadGreenEvent = function(rh, evt) {
 
 /**
  * @param {BinaryReader} rh
- * @param {ParticleSystem.Event} evt
- * @returns {ParticleSystem.Event}
+ * @param {ParticleSystemData.Event} evt
+ * @returns {ParticleSystemData.Event}
  */
-ParticleSystem.loadBlueEvent = function(rh, evt) {
+ParticleSystemData.loadBlueEvent = function(rh, evt) {
   var min = rh.readFloat();
   var max = rh.readFloat();
   evt.blue = new RangeFloat(min, max);
@@ -260,10 +260,10 @@ ParticleSystem.loadBlueEvent = function(rh, evt) {
 
 /**
  * @param {BinaryReader} rh
- * @param {ParticleSystem.Event} evt
- * @returns {ParticleSystem.Event}
+ * @param {ParticleSystemData.Event} evt
+ * @returns {ParticleSystemData.Event}
  */
-ParticleSystem.loadAlphaEvent = function(rh, evt) {
+ParticleSystemData.loadAlphaEvent = function(rh, evt) {
   var min = rh.readFloat();
   var max = rh.readFloat();
   evt.alpha = new RangeFloat(min, max);
@@ -273,10 +273,10 @@ ParticleSystem.loadAlphaEvent = function(rh, evt) {
 
 /**
  * @param {BinaryReader} rh
- * @param {ParticleSystem.Event} evt
- * @returns {ParticleSystem.Event}
+ * @param {ParticleSystemData.Event} evt
+ * @returns {ParticleSystemData.Event}
  */
-ParticleSystem.loadColorEvent = function(rh, evt) {
+ParticleSystemData.loadColorEvent = function(rh, evt) {
   var min = rh.readColor4();
   var max = rh.readColor4();
   evt.color = new RangeColor4(min, max);
@@ -286,10 +286,10 @@ ParticleSystem.loadColorEvent = function(rh, evt) {
 
 /**
  * @param {BinaryReader} rh
- * @param {ParticleSystem.Event} evt
- * @returns {ParticleSystem.Event}
+ * @param {ParticleSystemData.Event} evt
+ * @returns {ParticleSystemData.Event}
  */
-ParticleSystem.loadVelocityXEvent = function(rh, evt) {
+ParticleSystemData.loadVelocityXEvent = function(rh, evt) {
   var min = rh.readFloat() * ZZ_SCALE_IN;
   var max = rh.readFloat() * ZZ_SCALE_IN;
   evt.velocityX = new RangeFloat(min, max);
@@ -299,10 +299,10 @@ ParticleSystem.loadVelocityXEvent = function(rh, evt) {
 
 /**
  * @param {BinaryReader} rh
- * @param {ParticleSystem.Event} evt
- * @returns {ParticleSystem.Event}
+ * @param {ParticleSystemData.Event} evt
+ * @returns {ParticleSystemData.Event}
  */
-ParticleSystem.loadVelocityYEvent = function(rh, evt) {
+ParticleSystemData.loadVelocityYEvent = function(rh, evt) {
   var min = rh.readFloat() * ZZ_SCALE_IN;
   var max = rh.readFloat() * ZZ_SCALE_IN;
   evt.velocityY = new RangeFloat(min, max);
@@ -312,10 +312,10 @@ ParticleSystem.loadVelocityYEvent = function(rh, evt) {
 
 /**
  * @param {BinaryReader} rh
- * @param {ParticleSystem.Event} evt
- * @returns {ParticleSystem.Event}
+ * @param {ParticleSystemData.Event} evt
+ * @returns {ParticleSystemData.Event}
  */
-ParticleSystem.loadVelocityZEvent = function(rh, evt) {
+ParticleSystemData.loadVelocityZEvent = function(rh, evt) {
   var min = rh.readFloat() * ZZ_SCALE_IN;
   var max = rh.readFloat() * ZZ_SCALE_IN;
   evt.velocityZ = new RangeFloat(min, max);
@@ -325,10 +325,10 @@ ParticleSystem.loadVelocityZEvent = function(rh, evt) {
 
 /**
  * @param {BinaryReader} rh
- * @param {ParticleSystem.Event} evt
- * @returns {ParticleSystem.Event}
+ * @param {ParticleSystemData.Event} evt
+ * @returns {ParticleSystemData.Event}
  */
-ParticleSystem.loadVelocityEvent = function(rh, evt) {
+ParticleSystemData.loadVelocityEvent = function(rh, evt) {
   var min = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
   var max = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
   evt.velocity = new RangeVector3(min, max);
@@ -338,10 +338,10 @@ ParticleSystem.loadVelocityEvent = function(rh, evt) {
 
 /**
  * @param {BinaryReader} rh
- * @param {ParticleSystem.Event} evt
- * @returns {ParticleSystem.Event}
+ * @param {ParticleSystemData.Event} evt
+ * @returns {ParticleSystemData.Event}
  */
-ParticleSystem.loadTextureEvent = function(rh, evt) {
+ParticleSystemData.loadTextureEvent = function(rh, evt) {
   var min = rh.readFloat();
   var max = rh.readFloat();
   evt.textureIndex = new RangeFloat(min, max);
@@ -350,10 +350,10 @@ ParticleSystem.loadTextureEvent = function(rh, evt) {
 
 /**
  * @param {BinaryReader} rh
- * @param {ParticleSystem.Event} evt
- * @returns {ParticleSystem.Event}
+ * @param {ParticleSystemData.Event} evt
+ * @returns {ParticleSystemData.Event}
  */
-ParticleSystem.loadRotationEvent = function(rh, evt) {
+ParticleSystemData.loadRotationEvent = function(rh, evt) {
   var min = rh.readFloat();
   var max = rh.readFloat();
   evt.rotation = new RangeFloat(min, max);
@@ -363,57 +363,57 @@ ParticleSystem.loadRotationEvent = function(rh, evt) {
 
 /**
  * @param {BinaryReader} rh
- * @param {ParticleSystem.EVENT_TYPE} type
- * @returns {ParticleSystem.Event}
+ * @param {ParticleSystemData.EVENT_TYPE} type
+ * @returns {ParticleSystemData.Event}
  */
-ParticleSystem.loadEvent = function(rh, type) {
+ParticleSystemData.loadEvent = function(rh, type) {
   var timeMin = rh.readFloat();
   var timeMax = rh.readFloat();
   var blended = !!rh.readUint8();
 
-  var evt      = new ParticleSystem.Event(type);
+  var evt      = new ParticleSystemData.Event(type);
   evt.time     = new RangeFloat(timeMin, timeMax);
   evt.blended  = blended;
 
   switch (type) {
-  case ParticleSystem.EVENT_TYPE.SIZE:
-    evt = ParticleSystem.loadSizeEvent(rh, evt);
+  case ParticleSystemData.EVENT_TYPE.SIZE:
+    evt = ParticleSystemData.loadSizeEvent(rh, evt);
     break;
-  case ParticleSystem.EVENT_TYPE.TIMER:
-    evt = ParticleSystem.loadTimerEvent(rh, evt);
+  case ParticleSystemData.EVENT_TYPE.TIMER:
+    evt = ParticleSystemData.loadTimerEvent(rh, evt);
     break;
-  case ParticleSystem.EVENT_TYPE.RED:
-    evt = ParticleSystem.loadRedEvent(rh, evt);
+  case ParticleSystemData.EVENT_TYPE.RED:
+    evt = ParticleSystemData.loadRedEvent(rh, evt);
     break;
-  case ParticleSystem.EVENT_TYPE.GREEN:
-    evt = ParticleSystem.loadGreenEvent(rh, evt);
+  case ParticleSystemData.EVENT_TYPE.GREEN:
+    evt = ParticleSystemData.loadGreenEvent(rh, evt);
     break;
-  case ParticleSystem.EVENT_TYPE.BLUE:
-    evt = ParticleSystem.loadBlueEvent(rh, evt);
+  case ParticleSystemData.EVENT_TYPE.BLUE:
+    evt = ParticleSystemData.loadBlueEvent(rh, evt);
     break;
-  case ParticleSystem.EVENT_TYPE.ALPHA:
-    evt = ParticleSystem.loadAlphaEvent(rh, evt);
+  case ParticleSystemData.EVENT_TYPE.ALPHA:
+    evt = ParticleSystemData.loadAlphaEvent(rh, evt);
     break;
-  case ParticleSystem.EVENT_TYPE.COLOR:
-    evt = ParticleSystem.loadColorEvent(rh, evt);
+  case ParticleSystemData.EVENT_TYPE.COLOR:
+    evt = ParticleSystemData.loadColorEvent(rh, evt);
     break;
-  case ParticleSystem.EVENT_TYPE.VELOCITY_X:
-    evt = ParticleSystem.loadVelocityXEvent(rh, evt);
+  case ParticleSystemData.EVENT_TYPE.VELOCITY_X:
+    evt = ParticleSystemData.loadVelocityXEvent(rh, evt);
     break;
-  case ParticleSystem.EVENT_TYPE.VELOCITY_Y:
-    evt = ParticleSystem.loadVelocityYEvent(rh, evt);
+  case ParticleSystemData.EVENT_TYPE.VELOCITY_Y:
+    evt = ParticleSystemData.loadVelocityYEvent(rh, evt);
     break;
-  case ParticleSystem.EVENT_TYPE.VELOCITY_Z:
-    evt = ParticleSystem.loadVelocityZEvent(rh, evt);
+  case ParticleSystemData.EVENT_TYPE.VELOCITY_Z:
+    evt = ParticleSystemData.loadVelocityZEvent(rh, evt);
     break;
-  case ParticleSystem.EVENT_TYPE.VELOCITY:
-    evt = ParticleSystem.loadVelocityEvent(rh, evt);
+  case ParticleSystemData.EVENT_TYPE.VELOCITY:
+    evt = ParticleSystemData.loadVelocityEvent(rh, evt);
     break;
-  case ParticleSystem.EVENT_TYPE.TEXTURE:
-    evt = ParticleSystem.loadTextureEvent(rh, evt);
+  case ParticleSystemData.EVENT_TYPE.TEXTURE:
+    evt = ParticleSystemData.loadTextureEvent(rh, evt);
     break;
-  case ParticleSystem.EVENT_TYPE.ROTATION:
-    evt = ParticleSystem.loadRotationEvent(rh, evt);
+  case ParticleSystemData.EVENT_TYPE.ROTATION:
+    evt = ParticleSystemData.loadRotationEvent(rh, evt);
     break;
   default:
     evt = null;
@@ -432,14 +432,14 @@ ParticleSystem.loadEvent = function(rh, type) {
  * @param {String} path
  * @param {Particle~onLoad} callback
  */
-ParticleSystem.load = function(path, callback) {
+ParticleSystemData.load = function(path, callback) {
   ROSELoader.load(path, function(/** BinaryReader */rh) {
     var i, j, events, emitters, evt, type;
-    var data = new ParticleSystem();
+    var data = new ParticleSystemData();
 
     emitters = rh.readUint32();
     for (i = 0; i < emitters; ++i) {
-      var emitter = new ParticleSystem.Emitter();
+      var emitter = new ParticleSystemData.Emitter();
       emitter.name                = rh.readUint32Str();
       emitter.lifeTime.min        = rh.readFloat();
       emitter.lifeTime.max        = rh.readFloat();
@@ -466,7 +466,7 @@ ParticleSystem.load = function(path, callback) {
       events = rh.readUint32();
       for (j = 0; j < events; ++j) {
         type = rh.readUint32();
-        evt  = ParticleSystem.loadEvent(rh, type);
+        evt  = ParticleSystemData.loadEvent(rh, type);
 
         if (evt) {
           emitter.events.push(evt);

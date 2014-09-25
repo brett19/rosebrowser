@@ -170,7 +170,7 @@ ModelListManager.prototype.createForStatic = function(modelIdx, lightmap, lmIdx,
         partMeshs[partIdx] = partMesh;
 
         if (part.animPath) {
-          Animation.load(part.animPath, function(zmoData) {
+          AnimationData.load(part.animPath, function(zmoData) {
             var anim = zmoData.createForStatic(part.animPath, partMeshs[partIdx]);
             anim.play();
           });

@@ -165,7 +165,7 @@ QuestScriptManager.load = function(path, callback) {
         if (dataRow[0] && !dataRow[1]) {
           var questListWait = waitAll.one();
 
-          QuestScriptList.load(dataRow[0], function (qsdData) {
+          QuestLogicData.load(dataRow[0], function (qsdData) {
 
             for (var j = 0; j < qsdData.scripts.length; ++j) {
               var qsdScript = qsdData.scripts[j];

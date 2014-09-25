@@ -24,7 +24,7 @@ NpcPawn.prototype._setModel = function(charData, modelMgr, charIdx) {
 
   var skelPath = charData.skeletons[char.skeletonIdx];
 
-  Skeleton.load(skelPath, function(zmdData) {
+  SkeletonData.load(skelPath, function(zmdData) {
     var charSkel = zmdData.create(self.rootObj);
 
     var charModels = char.models;
@@ -49,7 +49,7 @@ NpcPawn.prototype._setModel = function(charData, modelMgr, charIdx) {
     }
 
     var animPath = charData.animations[char.animations[0]];
-    Animation.load(animPath, function(zmoData) {
+    AnimationData.load(animPath, function(zmoData) {
       var anim = zmoData.createForSkeleton('test', self.rootObj, charSkel);
       anim.play();
     });

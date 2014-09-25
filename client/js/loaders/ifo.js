@@ -1,19 +1,19 @@
 /**
  * @constructor
- * @property {MapInfo.Object[]} objects
- * @property {MapInfo.Npc[]} npcs
- * @property {MapInfo.Building[]} buildings
- * @property {MapInfo.Sound[]} sounds
- * @property {MapInfo.Effect[]} effects
- * @property {MapInfo.Animation[]} animations
- * @property {MapInfo.WaterPatches} waterPatches
- * @property {MapInfo.MonsterSpawn[]} monsterSpawns
- * @property {MapInfo.WaterPlane[]} waterPlanes
- * @property {MapInfo.WarpPoint[]} warps
- * @property {MapInfo.Collision[]} collisions
- * @property {MapInfo.Event[]} events
+ * @property {ZoneChunkData.Object[]} objects
+ * @property {ZoneChunkData.Npc[]} npcs
+ * @property {ZoneChunkData.Building[]} buildings
+ * @property {ZoneChunkData.Sound[]} sounds
+ * @property {ZoneChunkData.Effect[]} effects
+ * @property {ZoneChunkData.Animation[]} animations
+ * @property {ZoneChunkData.WaterPatches} waterPatches
+ * @property {ZoneChunkData.MonsterSpawn[]} monsterSpawns
+ * @property {ZoneChunkData.WaterPlane[]} waterPlanes
+ * @property {ZoneChunkData.WarpPoint[]} warps
+ * @property {ZoneChunkData.Collision[]} collisions
+ * @property {ZoneChunkData.Event[]} events
  */
-var MapInfo = function() {
+var ZoneChunkData = function() {
   this.objects = [];
   this.npcs = [];
   this.buildings = [];
@@ -32,7 +32,7 @@ var MapInfo = function() {
  * @enum {Number}
  * @readonly
  */
-MapInfo.BLOCK_TYPE = {
+ZoneChunkData.BLOCK_TYPE = {
   INFO: 0,
   OBJECT: 1,
   NPC: 2,
@@ -61,72 +61,72 @@ MapInfo.BLOCK_TYPE = {
  * @property {THREE.Vector3} position
  * @property {THREE.Vector3} scale
  */
-MapInfo.MapObject = function() {
+ZoneChunkData.MapObject = function() {
 };
 
 
 /**
  * @constructor
- * @extends {MapInfo.MapObject}
+ * @extends {ZoneChunkData.MapObject}
  */
-MapInfo.Object = function() {
+ZoneChunkData.Object = function() {
 };
 
 
 /**
  * @constructor
- * @extends {MapInfo.MapObject}
+ * @extends {ZoneChunkData.MapObject}
  * @property {Number} aiIndex
  * @property {String} conFilePath
  */
-MapInfo.Npc = function() {
+ZoneChunkData.Npc = function() {
 };
 
 
 /**
  * @constructor
- * @extends {MapInfo.MapObject}
+ * @extends {ZoneChunkData.MapObject}
  */
-MapInfo.Building = function() {
+ZoneChunkData.Building = function() {
 };
 
 
 /**
  * @constructor
- * @extends {MapInfo.MapObject}
+ * @extends {ZoneChunkData.MapObject}
  * @property {String} filePath
  * @property {Number} range
  * @property {Number} interval
  */
-MapInfo.Sound = function() {
+ZoneChunkData.Sound = function() {
 };
 
 
 /**
  * @constructor
- * @extends {MapInfo.MapObject}
+ * @extends {ZoneChunkData.MapObject}
  * @property {String} filePath
  */
-MapInfo.Effect = function() {
+ZoneChunkData.Effect = function() {
 };
 
 
 /**
  * @constructor
- * @extends {MapInfo.MapObject}
+ * @extends {ZoneChunkData.MapObject}
  */
-MapInfo.Animation = function() {
+ZoneChunkData.Animation = function() {
 };
 
 
 /**
  * @constructor
- * @extends {MapInfo.MapObject}
+ * @extends {ZoneChunkData.MapObject}
  * @property {Number} width
  * @property {Number} height
- * @property {MapInfo.WaterPatches.Patch[]} patches
+ * @property {ZoneChunkData.WaterPatches.Patch[]} patches
  */
-MapInfo.WaterPatches = function() {
+ZoneChunkData.WaterPatches = function() {
 };
 
 
@@ -138,22 +138,22 @@ MapInfo.WaterPatches = function() {
  * @property {Number} id
  * @property {Number} unknown
  */
-MapInfo.WaterPatches.Patch = function() {
+ZoneChunkData.WaterPatches.Patch = function() {
 };
 
 
 /**
  * @constructor
- * @extends {MapInfo.MapObject}
+ * @extends {ZoneChunkData.MapObject}
  * @property {String} name
- * @property {MapInfo.MonsterSpawn.Spawn[]} normal
- * @property {MapInfo.MonsterSpawn.Spawn[]} tactical
+ * @property {ZoneChunkData.MonsterSpawn.Spawn[]} normal
+ * @property {ZoneChunkData.MonsterSpawn.Spawn[]} tactical
  * @property {Number} interval
  * @property {Number} limit
  * @property {Number} range
  * @property {Number} tacticalPoints
  */
-MapInfo.MonsterSpawn = function() {
+ZoneChunkData.MonsterSpawn = function() {
   this.normal = [];
   this.tactical = [];
 };
@@ -165,7 +165,7 @@ MapInfo.MonsterSpawn = function() {
  * @property {Number} monster
  * @property {Number} count
  */
-MapInfo.MonsterSpawn.Spawn = function() {
+ZoneChunkData.MonsterSpawn.Spawn = function() {
 };
 
 
@@ -174,33 +174,33 @@ MapInfo.MonsterSpawn.Spawn = function() {
  * @property {THREE.Vector3} start
  * @property {THREE.Vector3} end
  */
-MapInfo.WaterPlane = function() {
+ZoneChunkData.WaterPlane = function() {
 };
 
 
 /**
  * @constructor
- * @extends {MapInfo.MapObject}
+ * @extends {ZoneChunkData.MapObject}
  */
-MapInfo.WarpPoint = function() {
+ZoneChunkData.WarpPoint = function() {
 };
 
 
 /**
  * @constructor
- * @extends {MapInfo.MapObject}
+ * @extends {ZoneChunkData.MapObject}
  */
-MapInfo.Collision = function() {
+ZoneChunkData.Collision = function() {
 };
 
 
 /**
  * @constructor
- * @extends {MapInfo.MapObject}
+ * @extends {ZoneChunkData.MapObject}
  * @property {String} funcName
  * @property {String} conFilePath
  */
-MapInfo.Event = function() {
+ZoneChunkData.Event = function() {
 };
 
 
@@ -209,7 +209,7 @@ MapInfo.Event = function() {
  * @param {Object} object
  * @returns {Object}
  */
-MapInfo.loadMapObject = function(rh, object) {
+ZoneChunkData.loadMapObject = function(rh, object) {
   object.name        = rh.readUint8Str();
   object.warpId      = rh.readUint16();
   object.eventId     = rh.readUint16();
@@ -225,17 +225,17 @@ MapInfo.loadMapObject = function(rh, object) {
 
 /**
  * @callback MapInfo~onLoad
- * @param {MapInfo} mapInfo
+ * @param {ZoneChunkData} mapInfo
  */
 
 /**
  * @param {String} path
  * @param {MapInfo~onLoad} callback
  */
-MapInfo.load = function(path, callback) {
+ZoneChunkData.load = function(path, callback) {
   ROSELoader.load(path, function(/** BinaryReader */rh) {
     var blocks, count, i, j, k, object, offset, pos, type;
-    var data = new MapInfo();
+    var data = new ZoneChunkData();
 
     blocks = rh.readUint32();
     for (i = 0; i < blocks; ++i) {
@@ -244,15 +244,15 @@ MapInfo.load = function(path, callback) {
       pos    = rh.tell();
 
       rh.seek(offset);
-      if (type === MapInfo.BLOCK_TYPE.INFO) {
+      if (type === ZoneChunkData.BLOCK_TYPE.INFO) {
         // Unknown format
-      } else if (type === MapInfo.BLOCK_TYPE.WATER_PATCH) {
-        object = MapInfo.loadMapObject(rh, new MapInfo.WaterPatches());
+      } else if (type === ZoneChunkData.BLOCK_TYPE.WATER_PATCH) {
+        object = ZoneChunkData.loadMapObject(rh, new ZoneChunkData.WaterPatches());
         object.width  = rh.readUint32();
         object.height = rh.readUint32();
 
         for (j = 0; j < object.width * object.height; ++j) {
-          var patch = new MapInfo.WaterPatches.Patch();
+          var patch = new ZoneChunkData.WaterPatches.Patch();
           patch.hasWater = rh.readUint8() !== 0;
           patch.height   = rh.readFloat();
           patch.type     = rh.readUint32();
@@ -263,50 +263,50 @@ MapInfo.load = function(path, callback) {
 
         data.waterPatches = object;
       } else {
-        if (type === MapInfo.BLOCK_TYPE.WATER_PLANE) {
+        if (type === ZoneChunkData.BLOCK_TYPE.WATER_PLANE) {
           data.waterPlanes.waterSize = rh.readFloat();
         }
 
         var objects = rh.readUint32();
         for (j = 0; j < objects; ++j) {
           switch (type) {
-          case MapInfo.BLOCK_TYPE.OBJECT:
-            object = MapInfo.loadMapObject(rh, new MapInfo.Object());
+          case ZoneChunkData.BLOCK_TYPE.OBJECT:
+            object = ZoneChunkData.loadMapObject(rh, new ZoneChunkData.Object());
             data.objects.push(object);
             break;
-          case MapInfo.BLOCK_TYPE.NPC:
-            object = MapInfo.loadMapObject(rh, new MapInfo.Npc());
+          case ZoneChunkData.BLOCK_TYPE.NPC:
+            object = ZoneChunkData.loadMapObject(rh, new ZoneChunkData.Npc());
             object.aiIndex = rh.readUint32();
             object.conFilePath = rh.readUint8Str();
             data.npcs.push(object);
             break;
-          case MapInfo.BLOCK_TYPE.BUILDING:
-            object = MapInfo.loadMapObject(rh, new MapInfo.Building());
+          case ZoneChunkData.BLOCK_TYPE.BUILDING:
+            object = ZoneChunkData.loadMapObject(rh, new ZoneChunkData.Building());
             data.buildings.push(object);
             break;
-          case MapInfo.BLOCK_TYPE.SOUND:
-            object = MapInfo.loadMapObject(rh, new MapInfo.Sound());
+          case ZoneChunkData.BLOCK_TYPE.SOUND:
+            object = ZoneChunkData.loadMapObject(rh, new ZoneChunkData.Sound());
             object.filePath = rh.readUint8Str();
             object.range = rh.readUint32();
             object.interval = rh.readUint32();
             data.sounds.push(object);
             break;
-          case MapInfo.BLOCK_TYPE.EFFECT:
-            object = MapInfo.loadMapObject(rh, new MapInfo.Effect());
+          case ZoneChunkData.BLOCK_TYPE.EFFECT:
+            object = ZoneChunkData.loadMapObject(rh, new ZoneChunkData.Effect());
             object.filePath = rh.readUint8Str();
             data.effects.push(object);
             break;
-          case MapInfo.BLOCK_TYPE.ANIMATION:
-            object = MapInfo.loadMapObject(rh, new MapInfo.Animation());
+          case ZoneChunkData.BLOCK_TYPE.ANIMATION:
+            object = ZoneChunkData.loadMapObject(rh, new ZoneChunkData.Animation());
             data.animations.push(object);
             break;
-          case MapInfo.BLOCK_TYPE.MONSTER_SPAWN:
-            object = MapInfo.loadMapObject(rh, new MapInfo.MonsterSpawn());
+          case ZoneChunkData.BLOCK_TYPE.MONSTER_SPAWN:
+            object = ZoneChunkData.loadMapObject(rh, new ZoneChunkData.MonsterSpawn());
             object.name = rh.readUint8Str();
 
             count = rh.readUint32();
             for (k = 0; k < count; ++k) {
-              var spawn = new MapInfo.MonsterSpawn.Spawn();
+              var spawn = new ZoneChunkData.MonsterSpawn.Spawn();
               spawn.name = rh.readUint8Str();
               spawn.monster = rh.readUint32();
               spawn.count = rh.readUint32();
@@ -315,7 +315,7 @@ MapInfo.load = function(path, callback) {
 
             count = rh.readUint32();
             for (k = 0; k < count; ++k) {
-              var spawn = new MapInfo.MonsterSpawn.Spawn();
+              var spawn = new ZoneChunkData.MonsterSpawn.Spawn();
               spawn.name = rh.readUint8Str();
               spawn.monster = rh.readUint32();
               spawn.count = rh.readUint32();
@@ -328,22 +328,22 @@ MapInfo.load = function(path, callback) {
             object.tacticalPoints = rh.readUint32();
             data.monsterSpawns.push(object);
             break;
-          case MapInfo.BLOCK_TYPE.WATER_PLANE:
-            object = new MapInfo.WaterPlane();
+          case ZoneChunkData.BLOCK_TYPE.WATER_PLANE:
+            object = new ZoneChunkData.WaterPlane();
             object.start = rh.readVector3xzy();
             object.end = rh.readVector3xzy();
             data.waterPlanes.push(object);
             break;
-          case MapInfo.BLOCK_TYPE.WARP_POINT:
-            object = MapInfo.loadMapObject(rh, new MapInfo.WarpPoint());
+          case ZoneChunkData.BLOCK_TYPE.WARP_POINT:
+            object = ZoneChunkData.loadMapObject(rh, new ZoneChunkData.WarpPoint());
             data.warps.push(object);
             break;
-          case MapInfo.BLOCK_TYPE.COLLISION_OBJECT:
-            object = MapInfo.loadMapObject(rh, new MapInfo.Collision());
+          case ZoneChunkData.BLOCK_TYPE.COLLISION_OBJECT:
+            object = ZoneChunkData.loadMapObject(rh, new ZoneChunkData.Collision());
             data.collisions.push(object);
             break;
-          case MapInfo.BLOCK_TYPE.EVENT_OBJECT:
-            object = MapInfo.loadMapObject(rh, new MapInfo.Event());
+          case ZoneChunkData.BLOCK_TYPE.EVENT_OBJECT:
+            object = ZoneChunkData.loadMapObject(rh, new ZoneChunkData.Event());
             object.funcName = rh.readUint8Str();
             object.conFilePath = rh.readUint8Str();
             data.events.push(object);

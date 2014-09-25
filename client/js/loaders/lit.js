@@ -1,9 +1,9 @@
 /**
  * @constructor
- * @property {Object.<number,Lightmap.Object>} objects
+ * @property {Object.<number,LightmapData.Object>} objects
  * @property {String[]} textures
  */
-var Lightmap = function() {
+var LightmapData = function() {
   this.objects = {};
   this.textures = [];
 };
@@ -12,9 +12,9 @@ var Lightmap = function() {
 /**
  * @constructor
  * @property {Number} id
- * @property {Object.<number,Lightmap.Object.Part>} parts
+ * @property {Object.<number,LightmapData.Object.Part>} parts
  */
-Lightmap.Object = function() {
+LightmapData.Object = function() {
   this.parts = {};
 };
 
@@ -29,33 +29,33 @@ Lightmap.Object = function() {
  * @property {Number} objectsPerRow
  * @property {Number} objectIndex
  */
-Lightmap.Object.Part = function() {
+LightmapData.Object.Part = function() {
 };
 
 
 /**
  * @callback Lightmap~onLoad
- * @param {Lightmap} lightmap
+ * @param {LightmapData} lightmap
  */
 
 /**
  * @param {String} path
  * @param {Lightmap~onLoad} callback
  */
-Lightmap.load = function(path, callback) {
+LightmapData.load = function(path, callback) {
   var folderPath = path.substr(0, path.lastIndexOf('/') + 1);
   ROSELoader.load(path, function(/** BinaryReader */rh) {
     var i, j, objects, partsCount, textures;
-    var data = new Lightmap();
+    var data = new LightmapData();
 
     objects = rh.readUint32();
     for (i = 0; i < objects; ++i) {
-      var object = new Lightmap.Object();
+      var object = new LightmapData.Object();
 
       partsCount     = rh.readUint32();
       var objectId = rh.readUint32() - 1;
       for (j = 0; j < partsCount; ++j) {
-        var part = new Lightmap.Object.Part();
+        var part = new LightmapData.Object.Part();
         part.name            = rh.readUint8Str();
         var partId           = rh.readUint32();
         part.filePath        = rh.readUint8Str();

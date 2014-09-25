@@ -2,9 +2,9 @@
  * @constructor
  * @property {Number} fps
  * @property {Number} frameCount
- * @property {Animation.Channel[]} channels
+ * @property {AnimationData.Channel[]} channels
  */
-var Animation = function() {
+var AnimationData = function() {
   this.fps = 0;
   this.frameCount = 0;
   this.channels = [];
@@ -19,7 +19,7 @@ var Animation = function() {
  * @property {Number} index
  * @property {Object[]} frames
  */
-Animation.Channel = function(type, index) {
+AnimationData.Channel = function(type, index) {
   this.type = type;
   this.index = index;
   this.frames = [];
@@ -30,7 +30,7 @@ Animation.Channel = function(type, index) {
  * @enum {Number}
  * @readonly
  */
-Animation.CHANNEL_TYPE = {
+AnimationData.CHANNEL_TYPE = {
   None: 1 << 0,
   Position: 1 << 1,
   Rotation: 1 << 2,
@@ -45,7 +45,7 @@ Animation.CHANNEL_TYPE = {
 };
 
 
-Animation.prototype.createForSkeleton = function(name, rootObj, skel) {
+AnimationData.prototype.createForSkeleton = function(name, rootObj, skel) {
   var animD = {
     name: name,
     fps: this.fps,
@@ -78,10 +78,10 @@ Animation.prototype.createForSkeleton = function(name, rootObj, skel) {
     for (var i = 0; i < this.frameCount; ++i) {
       var thisKey = animD.hierarchy[c.index].keys[i];
       switch (c.type) {
-        case Animation.CHANNEL_TYPE.Position:
+        case AnimationData.CHANNEL_TYPE.Position:
           thisKey.pos = [c.frames[i].x, c.frames[i].y, c.frames[i].z];
           break;
-        case Animation.CHANNEL_TYPE.Rotation:
+        case AnimationData.CHANNEL_TYPE.Rotation:
           thisKey.rot = [c.frames[i].x, c.frames[i].y, c.frames[i].z, c.frames[i].w];
           break;
       }
@@ -94,7 +94,7 @@ Animation.prototype.createForSkeleton = function(name, rootObj, skel) {
   return anim;
 };
 
-Animation.prototype.createForStatic = function(name, rootObj) {
+AnimationData.prototype.createForStatic = function(name, rootObj) {
   var animD = {
     name: name,
     fps: this.fps,
@@ -126,13 +126,13 @@ Animation.prototype.createForStatic = function(name, rootObj) {
       }
       var thisKey = animD.hierarchy[c.index].keys[i];
       switch (c.type) {
-        case Animation.CHANNEL_TYPE.Position:
+        case AnimationData.CHANNEL_TYPE.Position:
           thisKey.pos = [c.frames[i].x, c.frames[i].y, c.frames[i].z];
           break;
-        case Animation.CHANNEL_TYPE.Rotation:
+        case AnimationData.CHANNEL_TYPE.Rotation:
           thisKey.rot = [c.frames[i].x, c.frames[i].y, c.frames[i].z, c.frames[i].w];
           break;
-        case Animation.CHANNEL_TYPE.Scale:
+        case AnimationData.CHANNEL_TYPE.Scale:
           thisKey.scl = [c.frames[i].x, c.frames[i].y, c.frames[i].z];
           break;
       }
@@ -148,17 +148,17 @@ Animation.prototype.createForStatic = function(name, rootObj) {
 
 /**
  * @callback Animation~onLoad
- * @param {Animation} animation
+ * @param {AnimationData} animation
  */
 
 /**
  * @param {String} path
  * @param {Animation~onLoad} callback
  */
-Animation.load = function(path, callback) {
+AnimationData.load = function(path, callback) {
   ROSELoader.load(path, function(/** BinaryReader */rh) {
     var channels, i, j, magic;
-    var data = new Animation();
+    var data = new AnimationData();
 
     magic = rh.readStrLen(7);
     rh.skip(1);
@@ -174,7 +174,7 @@ Animation.load = function(path, callback) {
     for (i = 0; i < channels; ++i) {
       var type  = rh.readUint32();
       var index = rh.readUint32();
-      data.channels.push(new Animation.Channel(type, index));
+      data.channels.push(new AnimationData.Channel(type, index));
     }
 
     for (i = 0; i < data.frameCount; ++i) {
@@ -182,34 +182,34 @@ Animation.load = function(path, callback) {
         var frame;
 
         switch (data.channels[j].type) {
-        case Animation.CHANNEL_TYPE.Position:
+        case AnimationData.CHANNEL_TYPE.Position:
           frame = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
           break;
-        case Animation.CHANNEL_TYPE.Rotation:
+        case AnimationData.CHANNEL_TYPE.Rotation:
           frame = rh.readQuatwxyz();
           break;
-        case Animation.CHANNEL_TYPE.Scale:
+        case AnimationData.CHANNEL_TYPE.Scale:
           frame = rh.readVector3();
           break;
-        case Animation.CHANNEL_TYPE.Normal:
+        case AnimationData.CHANNEL_TYPE.Normal:
           frame = rh.readVector3();
           break;
-        case Animation.CHANNEL_TYPE.Alpha:
+        case AnimationData.CHANNEL_TYPE.Alpha:
           frame = rh.readFloat();
           break;
-        case Animation.CHANNEL_TYPE.Uv1:
+        case AnimationData.CHANNEL_TYPE.Uv1:
           frame = rh.readVector2();
           break;
-        case Animation.CHANNEL_TYPE.Uv2:
+        case AnimationData.CHANNEL_TYPE.Uv2:
           frame = rh.readVector2();
           break;
-        case Animation.CHANNEL_TYPE.Uv3:
+        case AnimationData.CHANNEL_TYPE.Uv3:
           frame = rh.readVector2();
           break;
-        case Animation.CHANNEL_TYPE.Uv4:
+        case AnimationData.CHANNEL_TYPE.Uv4:
           frame = rh.readVector2();
           break;
-        case Animation.CHANNEL_TYPE.TexAnim:
+        case AnimationData.CHANNEL_TYPE.TexAnim:
           frame = rh.readFloat();
           break;
         default:

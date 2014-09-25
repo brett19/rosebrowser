@@ -140,9 +140,9 @@ function CharPawn(go) {
  * Holds a cache of all loaded animation files data.  This is just the data,
  * and not bound to any particular skeleton.
  *
- * @type {DataCache.<Animation>}
+ * @type {DataCache.<AnimationData>}
  */
-CharPawn.motionFileCache = new DataCache(Animation);
+CharPawn.motionFileCache = new DataCache(AnimationData);
 
 // This function should never be called directly, and should only used
 //   by the loadedMotions cache.  Use this.motionCache.get instead.

@@ -6,11 +6,11 @@ function ParticleTestState() {
 }
 
 ParticleTestState.prototype.prepare = function(callback) {
-  this.DM.register('canim_intro', Animation, '3DDATA/TITLEIROSE/CAMERA01_INTRO01.ZMO');
-  this.DM.register('canim_inselect', Animation, '3DDATA/TITLEIROSE/CAMERA01_INSELECT01.ZMO');
-  this.DM.register('canim_ingame', Animation, '3DDATA/TITLEIROSE/CAMERA01_INGAME01.ZMO');
-  this.DM.register('canim_create', Animation, '3DDATA/TITLEIROSE/CAMERA01_CREATE01.ZMO');
-  this.DM.register('canim_outcreate', Animation, '3DDATA/TITLEIROSE/CAMERA01_OUTCREATE01.ZMO');
+  this.DM.register('canim_intro', AnimationData, '3DDATA/TITLEIROSE/CAMERA01_INTRO01.ZMO');
+  this.DM.register('canim_inselect', AnimationData, '3DDATA/TITLEIROSE/CAMERA01_INSELECT01.ZMO');
+  this.DM.register('canim_ingame', AnimationData, '3DDATA/TITLEIROSE/CAMERA01_INGAME01.ZMO');
+  this.DM.register('canim_create', AnimationData, '3DDATA/TITLEIROSE/CAMERA01_CREATE01.ZMO');
+  this.DM.register('canim_outcreate', AnimationData, '3DDATA/TITLEIROSE/CAMERA01_OUTCREATE01.ZMO');
 
   var self = this;
   this.DM.get('canim_intro', function() {
@@ -104,7 +104,7 @@ ParticleTestState.prototype.enter = function() {
       charObj.setModelPart(8, 2);
 
       var animPath = '3DData/Motion/Avatar/EMPTY_STOP1_M1.ZMO';
-      Animation.load(animPath, function (zmoData)
+      AnimationData.load(animPath, function (zmoData)
       {
         var anim = zmoData.createForSkeleton('test', charObj.rootObj, charObj.skel);
         anim.play();

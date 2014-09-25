@@ -10,13 +10,13 @@ function VertexAnimation(geom, anim) {
   // Validate the animation
   for (var l = 0; l < anim.channels.length; ++l) {
     var channel = anim.channels[l];
-    if (channel.type === Animation.CHANNEL_TYPE.Position) {
+    if (channel.type === AnimationData.CHANNEL_TYPE.Position) {
       if (!this.geom.attributes['position']) {
         console.warn('Encountered vertex position animation with no attribute on mesh.');
         this.anim = null;
         break;
       }
-    } else if (channel.type === Animation.CHANNEL_TYPE.Alpha) {
+    } else if (channel.type === AnimationData.CHANNEL_TYPE.Alpha) {
       // Alpha doesn't exist on ZMS, so we manually create it when needed.
       if (!this.geom.attributes['alpha']) {
         var posByteLen = this.geom.attributes['position'].array.byteLength;
@@ -24,9 +24,9 @@ function VertexAnimation(geom, anim) {
         var alphaAttrib = new THREE.BufferAttribute(new Float32Array(vertexCount), 1);
         this.geom.addAttribute('alpha', alphaAttrib);
       }
-    } else if (channel.type === Animation.CHANNEL_TYPE.Normal) {
+    } else if (channel.type === AnimationData.CHANNEL_TYPE.Normal) {
       // Normals are disabled at the moment, so ignore them.
-    } else if (channel.type === Animation.CHANNEL_TYPE.Uv1) {
+    } else if (channel.type === AnimationData.CHANNEL_TYPE.Uv1) {
       if (!this.geom.attributes['uv']) {
         console.warn('Encountered vertex uv animation with no attribute on mesh.');
         this.anim = null;
@@ -62,17 +62,17 @@ VertexAnimation.prototype.update = function(delta) {
     var channel = this.anim.channels[i];
     var frame = channel.frames[this.frame];
 
-    if (channel.type === Animation.CHANNEL_TYPE.Position) {
+    if (channel.type === AnimationData.CHANNEL_TYPE.Position) {
       var attrib = this.geom.attributes['position'];
       attrib.array[channel.index * 3 + 0] = frame.x;
       attrib.array[channel.index * 3 + 1] = frame.y;
       attrib.array[channel.index * 3 + 2] = frame.z;
       attrib.needsUpdate = true;
-    } else if (channel.type === Animation.CHANNEL_TYPE.Alpha) {
+    } else if (channel.type === AnimationData.CHANNEL_TYPE.Alpha) {
       var attrib = this.geom.attributes['alpha'];
       attrib.array[channel.index] = frame;
       attrib.needsUpdate = true;
-    } else if (channel.type === Animation.CHANNEL_TYPE.Uv1) {
+    } else if (channel.type === AnimationData.CHANNEL_TYPE.Uv1) {
       var attrib = this.geom.attributes['uv'];
       attrib.array[channel.index * 2 + 0] = frame.x;
       attrib.array[channel.index * 2 + 1] = frame.y;

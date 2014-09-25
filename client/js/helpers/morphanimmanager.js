@@ -36,7 +36,7 @@ MorphAnimManager.prototype._loadOne = function(animIdx, callback) {
   mat.blendDst = convertZnzinBlendType(animInfo.blendDst);
 
   Mesh.load(animInfo.meshPath, function(geom) {
-    Animation.load(animInfo.animPath, function(animData) {
+    AnimationData.load(animInfo.animPath, function(animData) {
       var anim = new VertexAnimation(geom, animData);
       anim.play();
 

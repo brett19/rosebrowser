@@ -1,9 +1,9 @@
 /**
  * @constructor
- * @property {Skeleton.Bone[]} bones
- * @property {Skeleton.Bone[]} dummies
+ * @property {SkeletonData.Bone[]} bones
+ * @property {SkeletonData.Bone[]} dummies
  */
-var Skeleton = function() {
+var SkeletonData = function() {
   this.bones = [];
   this.dummies = [];
 };
@@ -16,14 +16,14 @@ var Skeleton = function() {
  * @property {THREE.Vector3} position
  * @property {THREE.Quaternion} rotation
  */
-Skeleton.Bone = function() {
+SkeletonData.Bone = function() {
 };
 
 
 /**
  * Creates a skeleton object from this skeleton data.
  */
-Skeleton.prototype.create = function(rootObj) {
+SkeletonData.prototype.create = function(rootObj) {
   var parts = [];
   var bones = [];
   var dummies = [];
@@ -82,17 +82,17 @@ Skeleton.prototype.create = function(rootObj) {
 
 /**
  * @callback Skeleton~onLoad
- * @param {Skeleton} skeleton
+ * @param {SkeletonData} skeleton
  */
 
 /**
  * @param {String} path
  * @param {Skeleton~onLoad} callback
  */
-Skeleton.load = function(path, callback) {
+SkeletonData.load = function(path, callback) {
   ROSELoader.load(path, function(/** BinaryReader */rh) {
     var bones, dummies, i, magic, version;
-    var data = new Skeleton();
+    var data = new SkeletonData();
 
     magic = rh.readStrLen(7);
     if (magic === 'ZMD0002') {
@@ -105,7 +105,7 @@ Skeleton.load = function(path, callback) {
 
     bones = rh.readUint32();
     for (var i = 0; i < bones; ++i) {
-      var bone = new Skeleton.Bone();
+      var bone = new SkeletonData.Bone();
       bone.parent   = rh.readUint32();
       bone.name     = rh.readStr();
       bone.position = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
@@ -120,7 +120,7 @@ Skeleton.load = function(path, callback) {
 
     dummies = rh.readUint32();
     for (i = 0; i < dummies; ++i) {
-      var dummy = new Skeleton.Bone();
+      var dummy = new SkeletonData.Bone();
       dummy.name     = rh.readStr();
       dummy.parent   = rh.readUint32();
       dummy.position = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);

@@ -40,22 +40,22 @@ var ZONE_TABLE = {
 
 function tileRotateUvs(tile, uv) {
   switch(tile.rotation) {
-    case Zone.TILE_ROTATION.FLIP_HORIZONTAL:
+    case ZoneData.TILE_ROTATION.FLIP_HORIZONTAL:
       uv.x = 1.0 - uv.x;
       break;
-    case Zone.TILE_ROTATION.FLIP_VERTICAL:
+    case ZoneData.TILE_ROTATION.FLIP_VERTICAL:
       uv.y = 1.0 - uv.y;
       break;
-    case Zone.TILE_ROTATION.FLIP_BOTH:
+    case ZoneData.TILE_ROTATION.FLIP_BOTH:
       uv.x = 1.0 - uv.x;
       uv.y = 1.0 - uv.y;
       break;
-    case Zone.TILE_ROTATION.CLOCKWISE_90:
+    case ZoneData.TILE_ROTATION.CLOCKWISE_90:
       var tmp = uv.x;
       uv.x = uv.y;
       uv.y = tmp;
       break;
-    case Zone.TILE_ROTATION.COUNTER_CLOCKWISE_90:
+    case ZoneData.TILE_ROTATION.COUNTER_CLOCKWISE_90:
       var tmp = uv.x;
       uv.x = uv.y;
       uv.y = 1.0 - tmp;
@@ -131,7 +131,7 @@ WorldManager.prototype.setMap = function(mapIdx, callback) {
 
     self.DM.register('cnstmdls', ModelListManager, mapRow[ZONE_TABLE.CNST_TABLE]);
     self.DM.register('decomdls', ModelListManager, mapRow[ZONE_TABLE.OBJECT_TABLE]);
-    self.DM.register('zoneinfo', Zone, mapRow[ZONE_TABLE.FILE]);
+    self.DM.register('zoneinfo', ZoneData, mapRow[ZONE_TABLE.FILE]);
     self.DM.get('zoneinfo', 'cnstmdls', 'decomdls',  function(zone, cnstMdls, decoMdls) {
       var lastPathSlash = mapRow[ZONE_TABLE.FILE].lastIndexOf('\\');
       self.basePath = mapRow[ZONE_TABLE.FILE].substr(0, lastPathSlash + 1);
@@ -541,8 +541,8 @@ WorldChunk.prototype._loadTerrain = function(callback) {
   // TODO: Move the registration into the world manager.
   //   This is so if a chunk is unloaded and loaded again, we don't
   //   double register the resource.
-  this.world.DM.register(tilRes, Tilemap, tilPath);
-  this.world.DM.register(himRes, Heightmap, himPath);
+  this.world.DM.register(tilRes, TilemapData, tilPath);
+  this.world.DM.register(himRes, HeightmapData, himPath);
 
   var self = this;
   this.world.DM.get(himRes, tilRes, function(heightmap, tilemap) {
@@ -661,7 +661,7 @@ WorldChunk.prototype.load = function(callback) {
     var waitAll = new MultiWait();
     this._loadTerrain(waitAll.one());
 
-    MapInfo.load(this.world.basePath + this.name + '.IFO', function (info) {
+    ZoneChunkData.load(this.world.basePath + this.name + '.IFO', function (info) {
       self.info = info;
       self._loadObjects(waitAll.one());
       self._loadEffects(waitAll.one());

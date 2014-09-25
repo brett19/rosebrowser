@@ -11,11 +11,11 @@
  * @property {Boolean} underground
  * @property {String} backgroundMusicPath
  * @property {String} skyPath
- * @property {Zone.SpawnPoint[]} spawns
- * @property {Zone.Tile[]} tiles
+ * @property {ZoneData.SpawnPoint[]} spawns
+ * @property {ZoneData.Tile[]} tiles
  * @property {String[]} textures
  */
-var Zone = function() {
+var ZoneData = function() {
   this.spawns = [];
   this.tiles = [];
   this.textures = [];
@@ -27,7 +27,7 @@ var Zone = function() {
  * @property {THREE.Vector3} position
  * @property {String} name
  */
-Zone.SpawnPoint = function() {
+ZoneData.SpawnPoint = function() {
 };
 
 
@@ -38,10 +38,10 @@ Zone.SpawnPoint = function() {
  * @property {Number} offset1
  * @property {Number} offset2
  * @property {Boolean} blend
- * @property {Zone.TILE_ROTATION} rotation
+ * @property {ZoneData.TILE_ROTATION} rotation
  * @property {Number} type
  */
-Zone.Tile = function() {
+ZoneData.Tile = function() {
 };
 
 
@@ -49,7 +49,7 @@ Zone.Tile = function() {
  * @enum {Number}
  * @readonly
  */
-Zone.BLOCK = {
+ZoneData.BLOCK = {
   INFO:         0,
   SPAWN_POINTS: 1,
   TEXTURES:     2,
@@ -62,7 +62,7 @@ Zone.BLOCK = {
  * @enum {Number}
  * @readonly
  */
-Zone.TILE_ROTATION = {
+ZoneData.TILE_ROTATION = {
   NONE:                 0,
   FLIP_HORIZONTAL:      2,
   FLIP_VERTICAL:        3,
@@ -74,17 +74,17 @@ Zone.TILE_ROTATION = {
 
 /**
  * @callback Zone~onLoad
- * @param {Zone} zone
+ * @param {ZoneData} zone
  */
 
 /**
  * @param {String} path
  * @param {Zone~onLoad} callback
  */
-Zone.load = function(path, callback) {
+ZoneData.load = function(path, callback) {
   ROSELoader.load(path, function(/** BinaryReader */rh) {
     var blocks, i, j, data;
-    data = new Zone();
+    data = new ZoneData();
 
     blocks = rh.readUint32();
     for (i = 0; i < blocks; ++i) {
@@ -95,7 +95,7 @@ Zone.load = function(path, callback) {
 
       rh.seek(offset);
       switch(type) {
-      case Zone.BLOCK.INFO:
+      case ZoneData.BLOCK.INFO:
         data.type      = rh.readUint32();
         data.width     = rh.readUint32();
         data.height    = rh.readUint32();
@@ -104,25 +104,25 @@ Zone.load = function(path, callback) {
         data.startX    = rh.readUint32();
         data.startY    = rh.readUint32();
         break;
-      case Zone.BLOCK.SPAWN_POINTS:
+      case ZoneData.BLOCK.SPAWN_POINTS:
         count = rh.readUint32();
         for (j = 0; j < count; ++j) {
-          var spawn = new Zone.SpawnPoint();
+          var spawn = new ZoneData.SpawnPoint();
           spawn.position = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
           spawn.name     = rh.readUint8Str();
           data.spawns.push(spawn);
         }
         break;
-      case Zone.BLOCK.TEXTURES:
+      case ZoneData.BLOCK.TEXTURES:
         count = rh.readUint32();
         for (j = 0; j < count; ++j) {
           data.textures.push(rh.readUint8Str());
         }
         break;
-      case Zone.BLOCK.TILES:
+      case ZoneData.BLOCK.TILES:
         count = rh.readUint32();
         for (j = 0; j < count; ++j) {
-          var tile = new Zone.Tile();
+          var tile = new ZoneData.Tile();
           tile.layer1   = rh.readUint32();
           tile.layer2   = rh.readUint32();
           tile.offset1  = rh.readUint32();
@@ -133,7 +133,7 @@ Zone.load = function(path, callback) {
           data.tiles.push(tile);
         }
         break;
-      case Zone.BLOCK.ECONOMY:
+      case ZoneData.BLOCK.ECONOMY:
         data.name                = rh.readUint8Str();
         data.underground         = rh.readUint32() !== 0;
         data.backgroundMusicPath = rh.readUint8Str();

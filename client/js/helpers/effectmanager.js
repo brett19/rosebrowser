@@ -49,43 +49,43 @@ EffectManager._createEmitter = function(data)
     };
 
     switch (event.type) {
-      case ParticleSystem.EVENT_TYPE.SIZE:
+      case ParticleSystemData.EVENT_TYPE.SIZE:
         event.size = eventData.size;
         break;
-      case ParticleSystem.EVENT_TYPE.TIMER:
+      case ParticleSystemData.EVENT_TYPE.TIMER:
         event.timer = eventData.timer;
         break;
-      case ParticleSystem.EVENT_TYPE.RED:
+      case ParticleSystemData.EVENT_TYPE.RED:
         event.red = eventData.red;
         break;
-      case ParticleSystem.EVENT_TYPE.GREEN:
+      case ParticleSystemData.EVENT_TYPE.GREEN:
         event.green = eventData.green;
         break;
-      case ParticleSystem.EVENT_TYPE.BLUE:
+      case ParticleSystemData.EVENT_TYPE.BLUE:
         event.blue = eventData.blue;
         break;
-      case ParticleSystem.EVENT_TYPE.ALPHA:
+      case ParticleSystemData.EVENT_TYPE.ALPHA:
         event.alpha = eventData.alpha;
         break;
-      case ParticleSystem.EVENT_TYPE.COLOR:
+      case ParticleSystemData.EVENT_TYPE.COLOR:
         event.color = eventData.color;
         break;
-      case ParticleSystem.EVENT_TYPE.VELOCITY_X:
+      case ParticleSystemData.EVENT_TYPE.VELOCITY_X:
         event.velocityX = eventData.velocityX;
         break;
-      case ParticleSystem.EVENT_TYPE.VELOCITY_Y:
+      case ParticleSystemData.EVENT_TYPE.VELOCITY_Y:
         event.velocityY = eventData.velocityY;
         break;
-      case ParticleSystem.EVENT_TYPE.VELOCITY_Z:
+      case ParticleSystemData.EVENT_TYPE.VELOCITY_Z:
         event.velocityZ = eventData.velocityZ;
         break;
-      case ParticleSystem.EVENT_TYPE.VELOCITY:
+      case ParticleSystemData.EVENT_TYPE.VELOCITY:
         event.velocity = eventData.velocity;
         break;
-      case ParticleSystem.EVENT_TYPE.TEXTURE:
+      case ParticleSystemData.EVENT_TYPE.TEXTURE:
         event.textureIndex = eventData.textureIndex;
         break;
-      case ParticleSystem.EVENT_TYPE.ROTATION:
+      case ParticleSystemData.EVENT_TYPE.ROTATION:
         event.rotation = eventData.rotation;
         break;
       default:
@@ -185,7 +185,7 @@ EffectManager._loadParticleEffect = function(path, callback) {
   var effect = new ParticleEffect();
   effect.path = path;
 
-  ParticleSystem.load(path, function(particleSystem) {
+  ParticleSystemData.load(path, function(particleSystem) {
     for (var i = 0; i < particleSystem.emitters.length; ++i) {
       var emitter = EffectManager._createEmitter(particleSystem.emitters[i]);
       effect.emitters.push(emitter);
@@ -240,7 +240,7 @@ EffectManager.loadEffect = function(path, callback) {
         if (data.animation.name && data.animation.name !== "NULL") {
           (function(_particle, _data) {
             var particleAnimWait = waitAll.one();
-            Animation.load(data.animation.name, function (animData)
+            AnimationData.load(data.animation.name, function (animData)
             {
               _particle.animation = animData.createForStatic(_data.animation.name, _particle.rootObj);
               _particle.animationLoopCount = _data.animation.loopCount;
@@ -286,7 +286,7 @@ EffectManager.loadEffect = function(path, callback) {
       material.blendDst = convertZnzinBlendType(data.blendDst);
 
       Mesh.load(data.meshPath, function(geom) {
-        Animation.load(data.animationPath, function(animData)
+        AnimationData.load(data.animationPath, function(animData)
         {
           var anim = new VertexAnimation(geom, animData);
           effect.mesh = new THREE.Mesh(geom, material);
