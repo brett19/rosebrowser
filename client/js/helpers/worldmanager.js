@@ -323,6 +323,7 @@ function WorldChunk(world, chunkX, chunkY) {
   this.loadState = 0;
   this.loadWaiters = [];
   this.rootObj = new THREE.Object3D();
+  this.rootObj.name = 'CHUNK_' + this.name;
 }
 
 WorldChunk.prototype._getBlockTile = function(blockX, blockY) {
