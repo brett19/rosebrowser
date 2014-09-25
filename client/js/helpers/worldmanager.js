@@ -112,6 +112,8 @@ WorldManager.prototype.findHighPoint = function(x, y, fromZ) {
   if (pickInfo) {
     return pickInfo.point.z;
   }
+
+  console.warn('Attempted to find high point in an unloaded chunk.');
   return undefined;
 };
 
