@@ -262,6 +262,9 @@ EffectManager.loadEffect = function(path, callback) {
         texture1: { type: 't', value: texture }
       };
 
+      // TODO: Remove this once Three.js properly copies the default attribs.
+      material.defaultAttributeValues['alpha'] = 1;
+
       var animation = new Effect.Animation();
       animation.name = data.name;
 
@@ -285,15 +288,20 @@ EffectManager.loadEffect = function(path, callback) {
       material.blendSrc = convertZnzinBlendType(data.blendSrc);
       material.blendDst = convertZnzinBlendType(data.blendDst);
 
-      Mesh.load(data.meshPath, function(geom) {
-        AnimationData.load(data.animationPath, function(animData)
-        {
-          var anim = new GeometryAnimator(geom, animData);
-          effect.mesh = new THREE.Mesh(geom, material);
-          effect.rootObj.add(effect.mesh);
-          anim.play();
+      (function(_data, _effect, _material) {
+        Mesh.load(_data.meshPath, function(geom) {
+          _effect.mesh = new THREE.Mesh(geom, _material);
+          _effect.rootObj.add(_effect.mesh);
+
+          // ROSE, you suck...
+          if (_data.animationPath && _data.animationPath !== 'NULL') {
+            AnimationData.load(_data.animationPath, function (animData) {
+              var anim = new GeometryAnimator(geom, animData);
+              anim.play();
+            });
+          }
         });
-      });
+      })(data, effect, material);
 
       // TODO: Effect mesh animations
       effect.animations.push(animation);

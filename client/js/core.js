@@ -174,7 +174,8 @@ ShaderManager.register('particle', 'particle.vert', 'particle.frag', {
   transparent: true
 });
 ShaderManager.register('partmesh', 'partmesh.vert', 'partmesh.frag', {
-  attributes: {alpha:{}}
+  attributes: {alpha:{}},
+  defaultAttributeValues: {'alpha': 1}
 });
 
 // Shaders before anything else
