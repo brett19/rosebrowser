@@ -18,7 +18,7 @@ ROSEBrowser is only possible thanks to the co-operation of
 work of the following contributors:
 
 <table><tbody>
-<tr><th align="left">Brett Lawson</th><td><a href="https://github.com/brett19/">GitHub/brett19</a></td><td><a href="http://twitter.com/brett19">Twitter/@brett19x</a></td></tr>
+<tr><th align="left">Brett Lawson</th><td><a href="https://github.com/brett19/">GitHub/brett19</a></td><td><a href="http://twitter.com/brett19x">Twitter/@brett19x</a></td></tr>
 <tr><th align="left">James Benton</th><td><a href="https://github.com/exjam">GitHub/exjam</a></td><td>-</td></tr>
 <tr><th align="left">Jean Guegant</th><td><a href="https://github.com/Jiwan">GitHub/Jiwan</a></td><td>-</td></tr>
 </tbody></table>
