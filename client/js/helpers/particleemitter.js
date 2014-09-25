@@ -74,6 +74,14 @@ ParticleEmitter.Particle.prototype.update = function(_dt)
   this.mesh.material.uniforms.vColor.value.setRGB(this.color.r, this.color.g, this.color.b);
   this.mesh.material.uniforms.vAlpha.value = this.color.a;
 
+  // Prevent matrix multiplication errors by hiding
+  if (this.size.x === 0 || this.size.y === 0) {
+    this.mesh.visible = false;
+    this.mesh.scale.set(1, 1, 1);
+  } else {
+    this.mesh.visible = true;
+  }
+
   if (this.alignType === ParticleSystemData.ALIGN_TYPE.AXIS_ALIGNED) {
     var euler = new THREE.Euler();
     euler.setFromQuaternion(camera.quaternion, 'ZXY');
