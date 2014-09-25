@@ -39,7 +39,7 @@ DataManager.prototype._cachedGet = function(index, callback) {
  * The name to use for this resource.
  * @param {Loader} loader
  * The loader responsible for loading this resource.
- * @param {string} path
+ * @param {string} [path]
  * The file path for the resource.
  */
 DataManager.prototype.register = function(name, loader, path) {
