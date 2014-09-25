@@ -242,7 +242,7 @@ EffectManager.loadEffect = function(path, callback) {
             var particleAnimWait = waitAll.one();
             AnimationData.load(data.animation.name, function (animData)
             {
-              _particle.animation = animData.createForStatic(_data.animation.name, _particle.rootObj);
+              _particle.animation = new ObjectAnimator(_particle.rootObj, animData);
               _particle.animationLoopCount = _data.animation.loopCount;
               particleAnimWait();
             });

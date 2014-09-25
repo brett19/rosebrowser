@@ -106,7 +106,7 @@ ParticleTestState.prototype.enter = function() {
       var animPath = '3DData/Motion/Avatar/EMPTY_STOP1_M1.ZMO';
       AnimationData.load(animPath, function (zmoData)
       {
-        var anim = zmoData.createForSkeleton('test', charObj.rootObj, charObj.skel);
+        var anim = new SkeletonAnimator(charObj.skel, zmoData);
         anim.play();
       });
     });

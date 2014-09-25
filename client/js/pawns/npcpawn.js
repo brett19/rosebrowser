@@ -50,7 +50,7 @@ NpcPawn.prototype._setModel = function(charData, modelMgr, charIdx) {
 
     var animPath = charData.animations[char.animations[0]];
     AnimationData.load(animPath, function(zmoData) {
-      var anim = zmoData.createForSkeleton('test', self.rootObj, charSkel);
+      var anim = new SkeletonAnimator(charSkel, zmoData);
       anim.play();
     });
 

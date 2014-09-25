@@ -153,7 +153,7 @@ CharPawn.prototype._loadMotion = function(motionFileIdx, callback) {
     var motionFile = motionRow[MOTION_TABLE.MALE_MOTION + self.gender];
 
     CharPawn.motionFileCache.get(motionFile, function(animData) {
-      var anim = animData.createForSkeleton(motionFile, self.rootObj, self.skel);
+      var anim = new SkeletonAnimator(self.skel, animData);
       callback(anim);
     });
   });
