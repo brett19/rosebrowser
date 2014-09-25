@@ -8,7 +8,7 @@ var DataTable = function() {
   this.rowCount = 0;
   this.columnCount = 0;
   this.offsets = null;
-  this.rowCache = {};
+  this.rowCache = null;
 };
 
 DataTable.prototype.row = function(rowIdx) {
@@ -16,10 +16,10 @@ DataTable.prototype.row = function(rowIdx) {
     return this.rowCache[rowIdx];
   }
 
-  var rowOffsetIdx = rowIdx * this.columnCount;
+  this.reader.seek(this.offsets[rowIdx]);
+
   var row = [];
   for (var i = 0; i < this.columnCount; ++i) {
-    this.reader.seek(this.offsets[rowOffsetIdx+i]);
     row.push(this.reader.readUint16Str());
   }
 
@@ -61,11 +61,11 @@ DataTable.load = function(path, callback) {
 
     rh.seek(offset);
 
-    data.offsets = new Uint32Array(data.rowCount * data.columnCount);
-    var offsetIdx = 0;
+    data.rowCache = {};
+    data.offsets = [];
     for (i = 0; i < data.rowCount; ++i) {
+      data.offsets.push(rh.tell());
       for (j = 0; j < data.columnCount; ++j) {
-        data.offsets[offsetIdx++] = rh.tell();
         rh.skip(rh.readUint16());
       }
     }
