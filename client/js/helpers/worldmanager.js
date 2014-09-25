@@ -67,12 +67,6 @@ function tileRotateUvs(tile, uv) {
 
 function WorldManager() {
   this.rootObj = new THREE.Object3D();
-  this.octree = new THREE.Octree({
-    depthMax: Infinity,
-    objectsThreshold: 8,
-    overlapPct: 0.15,
-    undeferred: true
-  });
   this.isLoaded = false;
   this.cnstModelMgr = null;
   this.decoModelMgr = null;
@@ -101,8 +95,6 @@ WorldManager.prototype.removeFromScene = function() {
 
 // Returns the closest picked object.
 WorldManager.prototype.rayPick = function(rayCaster) {
-  //var octreeObjects = this.octree.search( caster.ray.origin, caster.ray.far, true, caster.ray.direction );
-  //var inters = caster.intersectOctreeObjects( octreeObjects );
   var inters = rayCaster.intersectObjects( this.colObjects, true );
   if (inters.length > 0) {
     return inters[0];
@@ -534,7 +526,6 @@ WorldChunk.prototype._buildTerrain = function() {
     this.rootObj.add(chunkMesh);
     this.world.terChunks.push(chunkMesh);
     this.world.colObjects.push(chunkMesh);
-    //this.world.octree.add(chunkMesh);
   }
 };
 
@@ -575,7 +566,6 @@ function _loadChunkObjectGroup(chunk, namePrefix, objList, modelList, lightmap, 
     obj.updateMatrix();
     obj.matrixAutoUpdate = false;
     chunk.rootObj.add(obj);
-    //this.octree.add(obj);
     chunk.world.objects.push(obj);
     chunk.world.colObjects.push(obj);
   }
