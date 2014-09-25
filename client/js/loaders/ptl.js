@@ -14,12 +14,12 @@ var ParticleSystemData = function() {
  * @property {Number} min
  * @property {Number} max
  */
-var RangeFloat = function(min, max) {
+ParticleSystemData.RangeFloat = function(min, max) {
   this.min = min || 0;
   this.max = max || 0;
 };
 
-RangeFloat.prototype.getValueInRange = function() {
+ParticleSystemData.RangeFloat.prototype.getValueInRange = function() {
   return Math.random() * (this.max - this.min) + this.min;
 };
 
@@ -31,12 +31,12 @@ RangeFloat.prototype.getValueInRange = function() {
  * @property {THREE.Vector2} min
  * @property {THREE.Vector2} max
  */
-var RangeVector2 = function(min, max) {
+ParticleSystemData.RangeVector2 = function(min, max) {
   this.min = min || new THREE.Vector2(0, 0);
   this.max = max || new THREE.Vector2(0, 0);
 };
 
-RangeVector2.prototype.getValueInRange = function() {
+ParticleSystemData.RangeVector2.prototype.getValueInRange = function() {
   var x = Math.random() * (this.max.x - this.min.x) + this.min.x;
   var y = Math.random() * (this.max.y - this.min.y) + this.min.y;
   return new THREE.Vector2(x, y);
@@ -50,12 +50,12 @@ RangeVector2.prototype.getValueInRange = function() {
  * @property {THREE.Vector3} min
  * @property {THREE.Vector3} max
  */
-var RangeVector3 = function(min, max) {
+ParticleSystemData.RangeVector3 = function(min, max) {
   this.min = min || new THREE.Vector3(0, 0, 0);
   this.max = max || new THREE.Vector3(0, 0, 0);
 };
 
-RangeVector3.prototype.getValueInRange = function() {
+ParticleSystemData.RangeVector3.prototype.getValueInRange = function() {
   var x = Math.random() * (this.max.x - this.min.x) + this.min.x;
   var y = Math.random() * (this.max.y - this.min.y) + this.min.y;
   var z = Math.random() * (this.max.z - this.min.z) + this.min.z;
@@ -65,17 +65,17 @@ RangeVector3.prototype.getValueInRange = function() {
 
 /**
  * @constructor
- * @param {THREE.Vector3} [min]
- * @param {THREE.Vector3} [max]
- * @property {THREE.Vector3} min
- * @property {THREE.Vector3} max
+ * @param {Color4} [min]
+ * @param {Color4} [max]
+ * @property {Color4} min
+ * @property {Color4} max
  */
-var RangeColor4 = function(min, max) {
+ParticleSystemData.RangeColor4 = function(min, max) {
   this.min = min || new Color4(0, 0, 0, 0);
   this.max = max || new Color4(0, 0, 0, 0);
 };
 
-RangeColor4.prototype.getValueInRange = function() {
+ParticleSystemData.RangeColor4.prototype.getValueInRange = function() {
   var r = Math.random() * (this.max.r - this.min.r) + this.min.r;
   var g = Math.random() * (this.max.g - this.min.g) + this.min.g;
   var b = Math.random() * (this.max.b - this.min.b) + this.min.b;
@@ -87,12 +87,12 @@ RangeColor4.prototype.getValueInRange = function() {
 /**
  * @constructor
  * @property {String} name
- * @property {RangeFloat} lifeTime
- * @property {RangeFloat} emitRate
+ * @property {ParticleSystemData.RangeFloat} lifeTime
+ * @property {ParticleSystemData.RangeFloat} emitRate
  * @property {Number} loopCount
- * @property {RangeVector3} spawnDirection
- * @property {RangeVector3} emitRadius
- * @property {RangeVector3} gravity
+ * @property {ParticleSystemData.RangeVector3} spawnDirection
+ * @property {ParticleSystemData.RangeVector3} emitRadius
+ * @property {ParticleSystemData.RangeVector3} gravity
  * @property {String} texturePath
  * @property {Number} particleCount
  * @property {Number} alignType
@@ -106,11 +106,11 @@ RangeColor4.prototype.getValueInRange = function() {
  */
 ParticleSystemData.Emitter = function() {
   this.events         = [];
-  this.lifeTime       = new RangeFloat();
-  this.emitRate       = new RangeFloat();
-  this.spawnDirection = new RangeVector3();
-  this.emitRadius     = new RangeVector3();
-  this.gravity        = new RangeVector3();
+  this.lifeTime       = new ParticleSystemData.RangeFloat();
+  this.emitRate       = new ParticleSystemData.RangeFloat();
+  this.spawnDirection = new ParticleSystemData.RangeVector3();
+  this.emitRadius     = new ParticleSystemData.RangeVector3();
+  this.gravity        = new ParticleSystemData.RangeVector3();
 };
 
 
@@ -118,21 +118,21 @@ ParticleSystemData.Emitter = function() {
  * @constructor
  * @param {ParticleSystemData.EVENT_TYPE} type
  * @property {ParticleSystemData.EVENT_TYPE} type
- * @property {RangeFloat} time
+ * @property {ParticleSystemData.RangeFloat} time
  * @property {Boolean} blended
- * @property {RangeVector2} size
- * @property {RangeFloat} timer
- * @property {RangeFloat} red
- * @property {RangeFloat} green
- * @property {RangeFloat} blue
- * @property {RangeFloat} alpha
- * @property {RangeColor} color
- * @property {RangeFloat} velocityX
- * @property {RangeFloat} velocityY
- * @property {RangeFloat} velocityZ
- * @property {RangeVector3} velocity
- * @property {RangeFloat} textureIndex
- * @property {RangeFloat} rotation
+ * @property {ParticleSystemData.RangeVector2} size
+ * @property {ParticleSystemData.RangeFloat} timer
+ * @property {ParticleSystemData.RangeFloat} red
+ * @property {ParticleSystemData.RangeFloat} green
+ * @property {ParticleSystemData.RangeFloat} blue
+ * @property {ParticleSystemData.RangeFloat} alpha
+ * @property {ParticleSystemData.RangeColor4} color
+ * @property {ParticleSystemData.RangeFloat} velocityX
+ * @property {ParticleSystemData.RangeFloat} velocityY
+ * @property {ParticleSystemData.RangeFloat} velocityZ
+ * @property {ParticleSystemData.RangeVector3} velocity
+ * @property {ParticleSystemData.RangeFloat} textureIndex
+ * @property {ParticleSystemData.RangeFloat} rotation
  */
 ParticleSystemData.Event = function(type) {
   this.type = type;
@@ -201,7 +201,7 @@ ParticleSystemData.ALIGN_TYPE = {
 ParticleSystemData.loadSizeEvent = function(rh, evt) {
   var min = rh.readVector2().multiplyScalar(ZZ_SCALE_IN);
   var max = rh.readVector2().multiplyScalar(ZZ_SCALE_IN);
-  evt.size = new RangeVector2(min, max);
+  evt.size = new ParticleSystemData.RangeVector2(min, max);
   return evt;
 };
 
@@ -214,7 +214,7 @@ ParticleSystemData.loadSizeEvent = function(rh, evt) {
 ParticleSystemData.loadTimerEvent = function(rh, evt) {
   var min = rh.readFloat();
   var max = rh.readFloat();
-  evt.timer = new RangeFloat(min, max);
+  evt.timer = new ParticleSystemData.RangeFloat(min, max);
   return evt;
 };
 
@@ -227,7 +227,7 @@ ParticleSystemData.loadTimerEvent = function(rh, evt) {
 ParticleSystemData.loadRedEvent = function(rh, evt) {
   var min = rh.readFloat();
   var max = rh.readFloat();
-  evt.red = new RangeFloat(min, max);
+  evt.red = new ParticleSystemData.RangeFloat(min, max);
   return evt;
 };
 
@@ -240,7 +240,7 @@ ParticleSystemData.loadRedEvent = function(rh, evt) {
 ParticleSystemData.loadGreenEvent = function(rh, evt) {
   var min = rh.readFloat();
   var max = rh.readFloat();
-  evt.green = new RangeFloat(min, max);
+  evt.green = new ParticleSystemData.RangeFloat(min, max);
   return evt;
 };
 
@@ -253,7 +253,7 @@ ParticleSystemData.loadGreenEvent = function(rh, evt) {
 ParticleSystemData.loadBlueEvent = function(rh, evt) {
   var min = rh.readFloat();
   var max = rh.readFloat();
-  evt.blue = new RangeFloat(min, max);
+  evt.blue = new ParticleSystemData.RangeFloat(min, max);
   return evt;
 };
 
@@ -266,7 +266,7 @@ ParticleSystemData.loadBlueEvent = function(rh, evt) {
 ParticleSystemData.loadAlphaEvent = function(rh, evt) {
   var min = rh.readFloat();
   var max = rh.readFloat();
-  evt.alpha = new RangeFloat(min, max);
+  evt.alpha = new ParticleSystemData.RangeFloat(min, max);
   return evt;
 };
 
@@ -279,7 +279,7 @@ ParticleSystemData.loadAlphaEvent = function(rh, evt) {
 ParticleSystemData.loadColorEvent = function(rh, evt) {
   var min = rh.readColor4();
   var max = rh.readColor4();
-  evt.color = new RangeColor4(min, max);
+  evt.color = new ParticleSystemData.RangeColor4(min, max);
   return evt;
 };
 
@@ -292,7 +292,7 @@ ParticleSystemData.loadColorEvent = function(rh, evt) {
 ParticleSystemData.loadVelocityXEvent = function(rh, evt) {
   var min = rh.readFloat() * ZZ_SCALE_IN;
   var max = rh.readFloat() * ZZ_SCALE_IN;
-  evt.velocityX = new RangeFloat(min, max);
+  evt.velocityX = new ParticleSystemData.RangeFloat(min, max);
   return evt;
 };
 
@@ -305,7 +305,7 @@ ParticleSystemData.loadVelocityXEvent = function(rh, evt) {
 ParticleSystemData.loadVelocityYEvent = function(rh, evt) {
   var min = rh.readFloat() * ZZ_SCALE_IN;
   var max = rh.readFloat() * ZZ_SCALE_IN;
-  evt.velocityY = new RangeFloat(min, max);
+  evt.velocityY = new ParticleSystemData.RangeFloat(min, max);
   return evt;
 };
 
@@ -318,7 +318,7 @@ ParticleSystemData.loadVelocityYEvent = function(rh, evt) {
 ParticleSystemData.loadVelocityZEvent = function(rh, evt) {
   var min = rh.readFloat() * ZZ_SCALE_IN;
   var max = rh.readFloat() * ZZ_SCALE_IN;
-  evt.velocityZ = new RangeFloat(min, max);
+  evt.velocityZ = new ParticleSystemData.RangeFloat(min, max);
   return evt;
 };
 
@@ -331,7 +331,7 @@ ParticleSystemData.loadVelocityZEvent = function(rh, evt) {
 ParticleSystemData.loadVelocityEvent = function(rh, evt) {
   var min = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
   var max = rh.readVector3().multiplyScalar(ZZ_SCALE_IN);
-  evt.velocity = new RangeVector3(min, max);
+  evt.velocity = new ParticleSystemData.RangeVector3(min, max);
   return evt;
 };
 
@@ -344,7 +344,7 @@ ParticleSystemData.loadVelocityEvent = function(rh, evt) {
 ParticleSystemData.loadTextureEvent = function(rh, evt) {
   var min = rh.readFloat();
   var max = rh.readFloat();
-  evt.textureIndex = new RangeFloat(min, max);
+  evt.textureIndex = new ParticleSystemData.RangeFloat(min, max);
   return evt;
 };
 
@@ -356,7 +356,7 @@ ParticleSystemData.loadTextureEvent = function(rh, evt) {
 ParticleSystemData.loadRotationEvent = function(rh, evt) {
   var min = rh.readFloat();
   var max = rh.readFloat();
-  evt.rotation = new RangeFloat(min, max);
+  evt.rotation = new ParticleSystemData.RangeFloat(min, max);
   return evt;
 };
 
@@ -372,7 +372,7 @@ ParticleSystemData.loadEvent = function(rh, type) {
   var blended = !!rh.readUint8();
 
   var evt      = new ParticleSystemData.Event(type);
-  evt.time     = new RangeFloat(timeMin, timeMax);
+  evt.time     = new ParticleSystemData.RangeFloat(timeMin, timeMax);
   evt.blended  = blended;
 
   switch (type) {
