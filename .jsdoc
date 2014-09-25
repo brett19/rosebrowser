@@ -1,0 +1,23 @@
+{
+  "tags": {
+    "allowUnknownTags": false
+  },
+  "source": {
+    "include": ["./client/", "./README.md"],
+    "includePattern": ".+\\.js(doc)?$",
+    "excludePattern": "(^|\\/|\\\\)_"
+  },
+  "opts": {
+    "template": "../../node_modules/jaguarjs-jsdoc",
+    "destination": "./docs/",
+    "private": true,
+    "recurse": true
+  },
+  "plugins": [
+    "plugins/markdown"
+  ],
+  "templates": {
+    "systemName": "ROSE Online - Browser Edition",
+    "copyright": "Copyright 2014 ROSEBrowser contributors"
+  }
+}
