@@ -31,7 +31,7 @@ ParticleTestState.prototype.fuckingMeteors = function() {
 
   rootObj.add(effect.rootObj);
   rootObj.add(effect.rootObj2);
-  rootObj.position.set(5200 + (Math.random() * 20) - 10, 5280 + (Math.random() * 20) - 10, 0);
+  rootObj.position.set(5200 + (Math.random() * 20) - 10, 5280 + (Math.random() * 20) - 10, -5);
   scene.add(rootObj);
 };
 
