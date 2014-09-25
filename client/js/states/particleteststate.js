@@ -12,39 +12,7 @@ function ParticleTestState() {
 ParticleTestState.prototype = new State();
 
 ParticleTestState.prototype.prepare = function(callback) {
-  this.DM.register('canim_intro', AnimationData, '3DDATA/TITLEIROSE/CAMERA01_INTRO01.ZMO');
-  this.DM.register('canim_inselect', AnimationData, '3DDATA/TITLEIROSE/CAMERA01_INSELECT01.ZMO');
-  this.DM.register('canim_ingame', AnimationData, '3DDATA/TITLEIROSE/CAMERA01_INGAME01.ZMO');
-  this.DM.register('canim_create', AnimationData, '3DDATA/TITLEIROSE/CAMERA01_CREATE01.ZMO');
-  this.DM.register('canim_outcreate', AnimationData, '3DDATA/TITLEIROSE/CAMERA01_OUTCREATE01.ZMO');
-
-  var self = this;
-  this.DM.get('canim_intro', function() {
-    callback();
-
-    // Continue by preloading the rest for now.
-    self.DM.get('canim_inselect');
-    self.DM.get('canim_ingame');
-    self.DM.get('canim_create');
-    self.DM.get('canim_outcreate');
-
-  });
-
-  this.activeCamAnim = null;
-};
-
-ParticleTestState.prototype.playCamAnim = function(name, loopCount) {
-  var self = this;
-  this.DM.get(name, function(zmoData) {
-    if (self.activeCamAnim) {
-      self.activeCamAnim.stop();
-      self.activeCamAnim = null;
-    }
-
-    self.activeCamAnim =
-      new CameraAnimator(camera, zmoData, new THREE.Vector3(5200, 5200, 0));
-    self.activeCamAnim.play(loopCount);
-  });
+  callback();
 };
 
 ParticleTestState.prototype.spawnBonfire = function() {
@@ -72,8 +40,6 @@ ParticleTestState.prototype.enter = function() {
 
   debugGui.add(this, 'spawnBonfire');
   debugGui.add(this, 'fuckingMeteors');
-
-  //this.playCamAnim('canim_intro');
 
   var container = document.createElement( 'div' );
   document.body.appendChild( container );
