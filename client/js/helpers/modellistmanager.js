@@ -1,5 +1,8 @@
 'use strict';
 
+/**
+ * @constructor
+ */
 function ModelListManager(data) {
   this.data = data;
   this.meshes = {};

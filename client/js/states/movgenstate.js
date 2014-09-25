@@ -1,5 +1,8 @@
 'use strict';
 
+/**
+ * @constructor
+ */
 function MovGenState() {
   State.call(this);
 

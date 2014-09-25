@@ -1,5 +1,8 @@
 'use strict';
 
+/**
+ * @constructor
+ */
 function CharObject(world) {
   MoveableObject.call(this, 'char', world);
 

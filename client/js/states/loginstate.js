@@ -3,6 +3,9 @@
 var rUser = null;
 var rPass = null;
 
+/**
+ * @constructor
+ */
 function LoginState() {
   State.call(this);
   

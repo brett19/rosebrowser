@@ -1,5 +1,8 @@
 'use strict';
 
+/**
+ * @constructor
+ */
 var ParticleEmitter = function(name)
 {
   this.rootObj = new THREE.Object3D();
@@ -11,6 +14,9 @@ var ParticleEmitter = function(name)
   this.totalParticleLives = 0;
 };
 
+/**
+ * @constructor
+ */
 ParticleEmitter.Particle = function()
 {
   this.rootObj = new THREE.Object3D();

@@ -12,6 +12,9 @@ function _checkPacket(pak) {
   }
 }
 
+/**
+ * @constructor
+ */
 function RoseSocket() {
   RSocket.call(this);
 

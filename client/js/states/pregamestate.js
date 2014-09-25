@@ -2,6 +2,9 @@
 
 var gameWorld = null;
 
+/**
+ * @constructor
+ */
 function PreGameState() {
   State.call(this);
 

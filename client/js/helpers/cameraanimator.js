@@ -5,13 +5,24 @@ var CAMANIMPLAYSTATE = {
   Playing: 1
 };
 
-function CameraAnimator(camera, zmoData, rootPos) {
+/**
+ * A class for animating a camera object based on AnimationData.
+ *
+ * @constructor
+ * @param {THREE.Camera} camera
+ * The Camera object to animate.
+ * @param {AnimationData} zmoData
+ * The AnimationData to animate against.
+ * @param {THREE.Vector3} [rootPos]
+ * The root position for all animation positions to be relative from.
+ */
+function CameraAnimator(camera, animData, rootPos) {
   EventEmitter.call(this);
 
   this.time = 0;
   this.state = CAMANIMPLAYSTATE.Stopped;
   this.camera = camera;
-  this.data = zmoData;
+  this.data = animData;
   this.loopCount = 0;
   this.timeScale = 1;
   this.rootPos = rootPos ? rootPos : new THREE.Vector3(0, 0, 0);
@@ -22,10 +33,20 @@ function CameraAnimator(camera, zmoData, rootPos) {
 }
 CameraAnimator.prototype = new EventEmitter();
 
+/**
+ * Used by the THREE.AnimationHandler for other kinds of animations.
+ * @private
+ */
 CameraAnimator.prototype.resetBlendWeights = function() {
   // Pointless but neccessary for this version of ThreeJS
 };
 
+/**
+ * Plays this animation
+ *
+ * @param {number} [loopCount]
+ * The number of times to loop this animation.  Default is Infinite.
+ */
 CameraAnimator.prototype.play = function(loopCount) {
   this.loopCount = loopCount !== undefined ? loopCount : -1;
   this.state = CAMANIMPLAYSTATE.Playing;
@@ -35,6 +56,9 @@ CameraAnimator.prototype.play = function(loopCount) {
   this.emit('played');
 };
 
+/**
+ * Stops this animation.
+ */
 CameraAnimator.prototype.stop = function() {
   this.state = CAMANIMPLAYSTATE.Stopped;
 
@@ -57,6 +81,12 @@ function _interpFrame(frames, frameBase, weight) {
   }
   return frames[frame0].clone().lerp(frames[frame1], weight);
 }
+
+/**
+ * Ticks the animations state.
+ * @param {number} delta
+ * @private
+ */
 CameraAnimator.prototype.update = function(delta) {
   if (this.state !== CAMANIMPLAYSTATE.Playing) {
     return;

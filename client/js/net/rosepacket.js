@@ -19,6 +19,9 @@ function ppPak(pak) {
   return out + '>';
 }
 
+/**
+ * @constructor
+ */
 function RosePacket(cmd) {
   this.cmd = cmd;
   this.dataLength = 0;

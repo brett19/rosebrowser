@@ -3,9 +3,11 @@
 /**
  * An Animator class for animating Skeleton's based on an AnimationData.
  *
- * @param skeleton
- * @param {AnimationData} animationData
  * @constructor
+ * @param {THREE.Skeleton} object
+ * The skeleton to animate.
+ * @param {AnimationData} animationData
+ * The AnimationData to animate the geometry with.
  */
 function SkeletonAnimator(skeleton, animationData) {
   var animD = SkeletonAnimator._createThreeAnimation(skeleton, animationData);

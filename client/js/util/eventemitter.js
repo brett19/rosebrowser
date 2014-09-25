@@ -1,5 +1,8 @@
 'use strict';
 
+/**
+ * @constructor
+ */
 function EventEmitter() {
   this.eventHandlers = {};
 }

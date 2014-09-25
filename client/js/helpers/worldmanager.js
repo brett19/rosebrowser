@@ -64,7 +64,9 @@ function tileRotateUvs(tile, uv) {
   return uv;
 }
 
-
+/**
+ * @constructor
+ */
 function WorldManager() {
   this.rootObj = new THREE.Object3D();
   this.rootObj.position.set(5200, 5200, 0);
@@ -203,6 +205,9 @@ WorldManager.prototype.setViewerInfo = function(pos, callback) {
   waitAll.wait(callback);
 };
 
+/**
+ * @constructor
+ */
 var OceanBlock = function(start, end) {
   this.start = start.clone();
   this.end = end.clone();
@@ -311,6 +316,9 @@ OceanBlock.prototype.load = function() {
   return new THREE.Mesh(geometry, OceanBlock._material);
 };
 
+/**
+ * @constructor
+ */
 function WorldChunk(world, chunkX, chunkY) {
   this.world = world;
   this.name = chunkX + '_' + chunkY;

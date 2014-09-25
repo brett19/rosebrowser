@@ -1,5 +1,8 @@
 'use strict';
 
+/**
+ * @constructor
+ */
 function MyCharacter(world) {
   CharObject.call(this, world);
   this.type = 'local';

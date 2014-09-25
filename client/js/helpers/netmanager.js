@@ -1,13 +1,30 @@
 'use strict';
 
-function _NetManager(world) {
-  this.world = world;
+/**
+ * This class handles tying together the networking clients with the
+ * actual game world and GameObjectManager.
+ *
+ * @private
+ */
+function _NetManager() {
+  this.world = null;
 }
 
+/**
+ * @private
+ */
 _NetManager.prototype._destroyWorld = function() {
-
+  throw new Error('Not Yet Supported');
 };
 
+/**
+ * Begins watching a WorldClient and GameClient for events.
+ *
+ * Note: You must set the world property before calling this!
+ *
+ * @param {WorldClient} wn
+ * @param {GameClient} gn
+ */
 _NetManager.prototype.watch = function(wn, gn) {
   var self = this;
   wn.on('end', function() {
@@ -72,4 +89,7 @@ _NetManager.prototype.watch = function(wn, gn) {
   });
 };
 
+/**
+ * @type {_NetManager}
+ */
 var NetManager = new _NetManager();

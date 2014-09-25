@@ -1,5 +1,8 @@
 'use strict';
 
+/**
+ * @constructor
+ */
 function GameState() {
   State.call(this);
 

@@ -2,6 +2,9 @@
 
 // TODO: readIntX using this.buffer
 
+/**
+ * @constructor
+ */
 var BinaryReader = function(arrayBuffer) {
   this.buffer = new Uint8Array(arrayBuffer);
   this.view = new DataView(arrayBuffer);

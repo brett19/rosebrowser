@@ -1,5 +1,8 @@
 'use strict';
 
+/**
+ * @constructor
+ */
 function ParticleTestState() {
   State.call(this);
 

@@ -5,6 +5,9 @@ function mod(x, n) {
   return ((x % n) + n) %n;
 }
 
+/**
+ * @constructor
+ */
 function MoveableObject(type, world) {
   GameObject.call(this, type, world);
 

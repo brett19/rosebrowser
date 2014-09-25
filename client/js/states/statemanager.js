@@ -1,5 +1,10 @@
 'use strict';
 
+/**
+ * A class for managing game states and the transitions between them.
+ *
+ * @constructor
+ */
 function _StateManager() {
   this._states = {};
   this._activeState = null;
@@ -115,4 +120,8 @@ _StateManager.prototype.update = function(delta) {
   }
 };
 
+/**
+ * @global
+ * @type {_StateManager}
+ */
 var StateManager = new _StateManager();

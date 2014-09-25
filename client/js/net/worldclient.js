@@ -1,5 +1,8 @@
 'use strict';
 
+/**
+ * @constructor
+ */
 function WorldClient() {
   EventEmitter.call(this);
 

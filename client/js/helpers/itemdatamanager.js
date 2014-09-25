@@ -33,6 +33,9 @@ IDM_STLS[ITEMTYPE.QUEST] = '3DDATA/STB/LIST_QUESTITEM_S.STL';
 IDM_STLS[ITEMTYPE.RIDE_PART] = '3DDATA/STB/LIST_PAT_S.STL';
 IDM_STLS[ITEMTYPE.MOUNT] = '3DDATA/STB/LIST_MOUNT_S.STL';
 
+/**
+ * @constructor
+ */
 function ItemDataManager() {
   this.data = {};
   this.strings = {};

@@ -1,5 +1,8 @@
 'use strict';
 
+/**
+ * @constructor
+ */
 function _GameObjectManager() {
   EventEmitter.call(this);
 
@@ -38,4 +41,8 @@ _GameObjectManager.prototype.update = function(delta) {
   }
 };
 
+/**
+ * @global
+ * @type {_GameObjectManager}
+ */
 var GOM = new _GameObjectManager();

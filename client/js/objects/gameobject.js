@@ -1,5 +1,8 @@
 'use strict';
 
+/**
+ * @constructor
+ */
 function GameObject(objType, world) {
   EventEmitter.call(this);
 

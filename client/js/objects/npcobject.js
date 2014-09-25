@@ -1,5 +1,8 @@
 'use strict';
 
+/**
+ * @constructor
+ */
 function NpcObject(world) {
   MoveableObject.call(this, 'npc', world);
 

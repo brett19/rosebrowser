@@ -13,6 +13,9 @@ var knownServerOnlyQsds = [
   '3DDATA/QUESTDATA/NPC/QN-2254.QSD'
 ];
 
+/**
+ * @constructor
+ */
 function QuestScriptManager() {
   this.triggers = {};
 }

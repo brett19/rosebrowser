@@ -1,5 +1,8 @@
 'use strict';
 
+/**
+ * @constructor
+ */
 function GOMVisManager(world) {
   this.world = world;
   this.inScene = false;

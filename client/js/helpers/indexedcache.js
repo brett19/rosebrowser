@@ -1,10 +1,28 @@
 'use strict';
 
+/**
+ * An indexed cache allowing you to generically request asynchronously
+ * loaded or created resources by name, and those resources are only loaded
+ * or created once.  Any future requests for the same index will use the
+ * cached value.
+ *
+ * @constructor
+ * @param {Function(index,callback)} getFunc
+ * The function used to load a requested index.
+ */
 function IndexedCache(getFunc) {
   this._items = {};
   this._getFunc = getFunc;
 }
 
+/**
+ * Synchronously returns a value from the cache.  This index must
+ * already have been load prior to this call or an Error will be thrown.
+ *
+ * @param {string} index
+ * The index to retrieve.
+ * @returns {*}
+ */
 IndexedCache.prototype.getNow = function(index) {
   var item = this._items[index];
   if (!item || !item.data) {
@@ -14,6 +32,14 @@ IndexedCache.prototype.getNow = function(index) {
   return item.data;
 };
 
+/**
+ * Retrieves a single resource from the cache, loading it if it has not
+ * already been loaded.
+ *
+ * @param {string} name
+ * The index of the resource to retrieve.
+ * @param {Function} [callback]
+ */
 IndexedCache.prototype.get = function(index, callback) {
   var item = this._items[index];
   if (item) {
@@ -43,11 +69,28 @@ IndexedCache.prototype.get = function(index, callback) {
 };
 
 
-// Little helper for dealing with path based indexes.
+/**
+ * An IndexedCache variant intended for use with a loader and file paths.
+ * Automatically handles normalizing the path as much as possible to ensure
+ * alternate references to the same file still uses the cache.
+ *
+ * @constructor
+ * @param {Loader} loader
+ * The loader to use with this DataCache.
+ */
 function DataCache(loader) {
   this._cache = new IndexedCache(loader.load);
 }
+
+/**
+ * Retrieves a single file from the cache, loading it if it has not
+ * already been loaded.
+ *
+ * @param {string} path
+ * The file to retrieve from the cache.
+ * @param {Function} [callback]
+ */
 DataCache.prototype.get = function(path, callback) {
   var normPath = normalizePath(path);
-  return this._cache.get(normPath, callback);
+  this._cache.get(normPath, callback);
 };

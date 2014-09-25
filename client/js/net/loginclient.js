@@ -15,6 +15,9 @@ var NETLOGINREPLY = {
   OutOfIp: 11
 };
 
+/**
+ * @constructor
+ */
 function LoginClient() {
   this.socket = new RoseSocket();
   this.socket.name = 'ls';

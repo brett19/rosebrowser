@@ -2,6 +2,14 @@
 
 // TODO: Make everything handle signed int64 properly...
 
+/**
+ * A class for wrapping a 64-bit integer in Javascript to avoid loss
+ * of precision issues at high values.
+ *
+ * @constructor
+ * @param {number} lo
+ * @param {number} hi
+ */
 function Int64(lo, hi) {
   if (lo === undefined && hi === undefined) {
     lo = 0;

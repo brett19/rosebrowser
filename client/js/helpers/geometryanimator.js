@@ -1,5 +1,15 @@
 'use strict';
 
+/**
+ * An Animator class for animating a BufferGeometry based on an AnimationData.
+ *
+ * @constructor
+ * @param {THREE.BufferGeometry} geometry
+ * The geometry data to animation.  Note that geometry data will be modified
+ * by this class directly and may affect multiple Mesh instances.
+ * @param {AnimationData} animationData
+ * The AnimationData to animate the geometry with.
+ */
 function GeometryAnimator(geom, anim) {
   this.geom = geom;
   this.anim = anim;
@@ -81,6 +91,10 @@ GeometryAnimator.prototype.update = function(delta) {
   }
 };
 
+/**
+ * Starts playing the animation.
+ * @param {number} [loopCount]
+ */
 GeometryAnimator.prototype.play = function(loopCount) {
   if (this.playing) {
     return;
@@ -90,6 +104,9 @@ GeometryAnimator.prototype.play = function(loopCount) {
   THREE.AnimationHandler.play( this );
 };
 
+/**
+ * Stops the animation
+ */
 GeometryAnimator.prototype.stop = function() {
   if (!this.playing) {
     return;

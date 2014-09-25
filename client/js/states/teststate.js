@@ -1,5 +1,8 @@
 'use strict';
 
+/**
+ * @constructor
+ */
 function TestState() {
   State.call(this);
 

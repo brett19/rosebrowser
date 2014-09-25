@@ -3,6 +3,9 @@
 var iop = io();
 var socketList = [];
 
+/**
+ * @constructor
+ */
 function RSocket() {
   EventEmitter.call(this);
 

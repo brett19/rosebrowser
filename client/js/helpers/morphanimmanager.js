@@ -7,12 +7,22 @@
   same underlying geometry.
  */
 
+/**
+ * Handles the games morph object list and handles the creation and cacheing
+ * of all the related geometry and animations.
+ *
+ * @constructor
+ */
 function MorphAnimManager() {
   this.anims = {};
   this.cache = new IndexedCache(this._loadOne.bind(this));
 }
 
-// Loads one
+/**
+ * @param {number} animIdx
+ * @param {Function} callback
+ * @private
+ */
 MorphAnimManager.prototype._loadOne = function(animIdx, callback) {
   var animInfo = this.anims[animIdx];
 
@@ -49,9 +59,13 @@ MorphAnimManager.prototype._loadOne = function(animIdx, callback) {
       }
     });
   });
-
 };
 
+/**
+ * @param {number} animIdx
+ * @param {Function} callback
+ * @returns {THREE.Object3D}
+ */
 MorphAnimManager.prototype.create = function(animIdx, callback) {
   var obj = new THREE.Object3D();
 
@@ -70,8 +84,9 @@ MorphAnimManager.prototype.create = function(animIdx, callback) {
 /**
  * Load helper so the MorphAnimManager can be controlled by the GDM.
  *
- * @param path Path to STB listing the morph objects
- * @param callback
+ * @param {string} path
+ * Path to STB listing the morph objects
+ * @param {Function} callback
  */
 MorphAnimManager.load = function(path, callback) {
   var data = new MorphAnimManager();

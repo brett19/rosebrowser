@@ -5,6 +5,9 @@ This gamestate fakes the login screen by doing all the networking,
 and then jumps you immediately to the GameState state.
  */
 
+/**
+ * @constructor
+ */
 function GameTestState() {
   State.call(this);
 }

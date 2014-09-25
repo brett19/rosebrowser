@@ -5,9 +5,11 @@
  *
  * Note: Internally makes use of the THREE.Animation class.
  *
- * @param object
- * @param {AnimationData} animationData
  * @constructor
+ * @param {THREE.Object3D} object
+ * The object to animate.
+ * @param {AnimationData} animationData
+ * The AnimationData to animate the geometry with.
  */
 function ObjectAnimator(object, animationData) {
   this.animation =
@@ -15,17 +17,23 @@ function ObjectAnimator(object, animationData) {
 }
 
 /**
- * @param [startTime]
+ * Starts playing the animation.
+ * @param {number} [startTime]
  */
 ObjectAnimator.prototype.play = function(startTime) {
   this.animation.play(startTime);
 };
 
-
+/**
+ * Pauses the animation
+ */
 ObjectAnimator.prototype.pause = function() {
   this.animation.pause();
 };
 
+/**
+ * Stops playing the animation
+ */
 ObjectAnimator.prototype.stop = function() {
   this.animation.stop();
 };

@@ -1,3 +1,8 @@
+'use strict';
+
+/**
+ * @constructor
+ */
 var EffectManager = function()
 {
 };
@@ -117,6 +122,9 @@ EffectManager._createEmitter = function(data)
   return emitter;
 };
 
+/**
+ * @constructor
+ */
 var Effect = function(rootObj)
 {
   this.rootObj  = new THREE.Object3D();
@@ -144,6 +152,9 @@ Effect.prototype.update = function(delta) {
   }
 };
 
+/**
+ * @constructor
+ */
 var ParticleEffect = function()
 {
   this.rootObj = new THREE.Object3D();
@@ -200,6 +211,9 @@ EffectManager._loadParticleEffect = function(path, callback) {
   return effect;
 };
 
+/**
+ * @constructor
+ */
 Effect.Animation = function() {
 
 };

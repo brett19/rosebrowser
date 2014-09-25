@@ -2,6 +2,9 @@
 
 var SHADER_DATA_PATH = 'shaders/';
 
+/**
+ * @private
+ */
 function _ShaderManager() {
   this.shaders = {};
   this.materials = {};
@@ -77,4 +80,8 @@ _ShaderManager.prototype.get = function(name) {
   return this.materials[name];
 };
 
+/**
+ * @global
+ * @type {_ShaderManager}
+ */
 var ShaderManager = new _ShaderManager();
