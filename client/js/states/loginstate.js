@@ -4,8 +4,11 @@ var rUser = null;
 var rPass = null;
 
 function LoginState() {
+  State.call(this);
+  
   this.DM = new DataManager();
 }
+LoginState.prototype = new State();
 
 LoginState.prototype.prepareOnce = function(callback) {
   this.DM.register('canim_intro', AnimationData, 'CAMERAS/TITLEMAP_LOGIN.ZMO');
