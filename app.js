@@ -9,7 +9,6 @@ var mkdirp = require('mkdirp')
 var express = require('express');
 var socketio = require('socket.io');
 var yaml_config = require('node-yaml-config');
-var SshTunnel = require('./sshtunnel');
 
 var config = yaml_config.load(path.normalize(__dirname + '/config.yml'));
 if (!config.client) {
@@ -120,51 +119,26 @@ io.on('connection', function(socket) {
   socket.on('tc', function(sockIdx, host, port) {
     console.log('tc', sockIdx, host, port);
 
-    function doRealConnect(tHost, tPort) {
-      var outSock = net.connect(tPort, tHost);
-      sockets[sockIdx] = outSock;
+    var outSock = net.connect(port, host);
+    sockets[sockIdx] = outSock;
 
-      outSock.on('connect', function() {
-        console.log('Got connection for', sockIdx);
-        socket.emit('tc', sockIdx);
-      });
-      outSock.on('error', function(e) {
-        console.log('Got error from', sockIdx);
-        socket.emit('te', sockIdx, e);
-      });
-      outSock.on('end', function() {
-        console.log('Got end from', sockIdx);
-        socket.emit('tx', sockIdx);
-        sockets[sockIdx] = null;
-      });
-      outSock.on('data', function(data) {
-        console.log('Got data from', sockIdx, data);
-        socket.emit('tp', sockIdx, data);
-      });
-
-      return outSock;
-    }
-
-    if (!config.sshtunnel) {
-      doRealConnect(host, port);
-    } else {
-      var myRandomPort = 10000 + Math.floor(Math.random() * 5000);
-      var tunnelConfig = {
-        remoteHost: host,
-        remotePort: port,
-        localPort: myRandomPort,
-        sshConfig: config.sshtunnel
-      };
-      console.log('Opening SSH Tunnel', host, port, myRandomPort);
-      var tunnel = new SshTunnel(tunnelConfig);
-      tunnel.connect(function () {
-        console.log('New SSH Tunnel Active');
-        var sock = doRealConnect('localhost', myRandomPort);
-        sock.on('end', function() {
-          tunnel.close();
-        });
-      });
-    }
+    outSock.on('connect', function() {
+      console.log('Got connection for', sockIdx);
+      socket.emit('tc', sockIdx);
+    });
+    outSock.on('error', function(e) {
+      console.log('Got error from', sockIdx);
+      socket.emit('te', sockIdx, e);
+    });
+    outSock.on('end', function() {
+      console.log('Got end from', sockIdx);
+      socket.emit('tx', sockIdx);
+      sockets[sockIdx] = null;
+    });
+    outSock.on('data', function(data) {
+      console.log('Got data from', sockIdx, data);
+      socket.emit('tp', sockIdx, data);
+    });
   });
   socket.on('tx', function(sockIdx) {
     var outSock = sockets[sockIdx];
