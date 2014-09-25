@@ -15,7 +15,10 @@ GameState.prototype.setMap = function(mapIdx) {
 };
 
 GameState.prototype.prepare = function(callback) {
-  this.mapSwitchPrep(callback);
+  var waitAll = new MultiWait();
+  this.mapSwitchPrep(waitAll.one());
+  GDM.get('item_data', waitAll.one());
+  waitAll.wait(callback);
 };
 
 /**
