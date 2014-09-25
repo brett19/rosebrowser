@@ -4,7 +4,7 @@ ROSE Browser
 #### A browser based version of the ROSE Online MMORPG.
 
 * Current version: 0.0.1-dev
-* Game compatability: ver 528
+* Game compatibility: ver 528
 
 Status
 -----------------------
