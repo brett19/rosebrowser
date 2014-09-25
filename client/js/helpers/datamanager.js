@@ -1,70 +1,45 @@
 'use strict';
 
 function DataManager() {
-  this.items = {};
+  this._items = {};
+  this._cache = new IndexedCache(this._cachedGet.bind(this));
 }
 
+DataManager.prototype._cachedGet = function(index, callback) {
+  // This assumes all accessors to the cache have validated the resource
+  //   is a valid and registered resource.
+  var item = this._items[index];
+
+  item.loader.load.call(this, item.path, callback);
+};
+
 DataManager.prototype.register = function(name, loader, path) {
-  if (this.items[name]) {
+  if (this._items[name]) {
     console.warn('Attempted to register alread registered data resource.');
     return;
   }
 
-  var newItem = {
+  this._items[name] = {
     loader: loader,
-    path: path,
-    data: null,
-    waiters: []
+    path: path
   };
-  this.items[name] = newItem;
-};
-
-DataManager.prototype.evict = function(name) {
-  var item = this.items[name];
-  if (!item) {
-    throw new Error('Attempted to evict unregistered data resource (' + name + ').');
-  }
-
-  item.data = null;
 };
 
 DataManager.prototype.getNow = function(name) {
-  var item = this.items[name];
-  if (!item) {
+  if (!this._items[name]) {
     throw new Error('Attempted to retrieve unregistered data resource (' + name + ').');
   }
 
-  if (!item.data) {
-    throw new Error('Attempted to getNow an unloaded data resource (' + name + ').');
-  }
-
-  return item.data;
+  return this._cache.getNow(name);
 };
 
-DataManager.prototype.getOne = function(name, callback) {
-  var item = this.items[name];
+DataManager.prototype._getOne = function(name, callback) {
+  var item = this._items[name];
   if (!item) {
     throw new Error('Attempted to retrieve unregistered data resource (' + name + ').');
   }
 
-  if (item.data !== null) {
-    callback(item.data);
-    return true;
-  }
-
-  if (item.waiters.length > 0) {
-    item.waiters.push(callback);
-    return false;
-  }
-
-  item.waiters.push(callback);
-  item.loader.load(item.path, function(data) {
-    item.data = data;
-    for (var i = 0; i < item.waiters.length; ++i) {
-      item.waiters[i](data);
-    }
-    item.waiters = [];
-  });
+  this._cache.get(name, callback);
 };
 
 /**
@@ -72,7 +47,6 @@ DataManager.prototype.getOne = function(name, callback) {
  * @param {function(...)} callback The callback to invoke with all the resources.
  */
 DataManager.prototype.get = function() {
-  var self = this;
   var argsLen = arguments.length;
 
   var callback = arguments[arguments.length - 1];
@@ -82,22 +56,31 @@ DataManager.prototype.get = function() {
     callback = null;
   }
 
-  var resultsNeeded = argsLen;
+  // Fast path if we don't need a callback.
+  if (callback === null) {
+    for (var i = 0; i < argsLen; ++i) {
+      this._getOne(arguments[i]);
+    }
+    return;
+  }
+
+  // Lets aggregate all the resources
   var results = [];
+  function gotOne(resIdx, waitCallback, data) {
+    results[resIdx] = data;
+    waitCallback();
+  }
+
+  var waitAll = new MultiWait();
   for (var i = 0; i < argsLen; ++i) {
     results.push(null);
-    (function(resIdx, resName) {
-      self.getOne(resName, function(res) {
-        results[resIdx] = res;
-        resultsNeeded--;
-        if (resultsNeeded === 0) {
-          if (callback) {
-            callback.apply(this, results);
-          }
-        }
-      });
-    })(i, arguments[i]);
+    this._getOne(arguments[i], gotOne.bind(this, i, waitAll.one()));
   }
+  waitAll.wait(function() {
+    if (callback) {
+      callback.apply(this, results);
+    }
+  });
 };
 
 var GDM = new DataManager();
