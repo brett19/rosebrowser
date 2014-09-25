@@ -288,7 +288,7 @@ EffectManager.loadEffect = function(path, callback) {
       Mesh.load(data.meshPath, function(geom) {
         AnimationData.load(data.animationPath, function(animData)
         {
-          var anim = new VertexAnimation(geom, animData);
+          var anim = new GeometryAnimator(geom, animData);
           effect.mesh = new THREE.Mesh(geom, material);
           effect.rootObj.add(effect.mesh);
           anim.play();

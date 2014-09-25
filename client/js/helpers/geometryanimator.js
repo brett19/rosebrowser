@@ -1,6 +1,6 @@
 'use strict';
 
-function VertexAnimation(geom, anim) {
+function GeometryAnimator(geom, anim) {
   this.geom = geom;
   this.anim = anim;
   this.time = 0;
@@ -38,10 +38,10 @@ function VertexAnimation(geom, anim) {
   }
 }
 
-VertexAnimation.prototype.resetBlendWeights = function() {
+GeometryAnimator.prototype.resetBlendWeights = function() {
 };
 
-VertexAnimation.prototype.update = function(delta) {
+GeometryAnimator.prototype.update = function(delta) {
   if (!this.playing || !this.anim) {
     return;
   }
@@ -81,7 +81,7 @@ VertexAnimation.prototype.update = function(delta) {
   }
 };
 
-VertexAnimation.prototype.play = function(loopCount) {
+GeometryAnimator.prototype.play = function(loopCount) {
   if (this.playing) {
     return;
   }
@@ -90,7 +90,7 @@ VertexAnimation.prototype.play = function(loopCount) {
   THREE.AnimationHandler.play( this );
 };
 
-VertexAnimation.prototype.stop = function() {
+GeometryAnimator.prototype.stop = function() {
   if (!this.playing) {
     return;
   }

@@ -37,7 +37,7 @@ MorphAnimManager.prototype._loadOne = function(animIdx, callback) {
 
   Mesh.load(animInfo.meshPath, function(geom) {
     AnimationData.load(animInfo.animPath, function(animData) {
-      var anim = new VertexAnimation(geom, animData);
+      var anim = new GeometryAnimator(geom, animData);
       anim.play();
 
       if (callback) {
