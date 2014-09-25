@@ -6,11 +6,11 @@ function TestState() {
 }
 
 TestState.prototype.prepare = function(callback) {
-  this.DM.register('canim_intro', Animation, '3DDATA/TITLEIROSE/CAMERA01_INTRO01.ZMO');
-  this.DM.register('canim_inselect', Animation, '3DDATA/TITLEIROSE/CAMERA01_INSELECT01.ZMO');
-  this.DM.register('canim_ingame', Animation, '3DDATA/TITLEIROSE/CAMERA01_INGAME01.ZMO');
-  this.DM.register('canim_create', Animation, '3DDATA/TITLEIROSE/CAMERA01_CREATE01.ZMO');
-  this.DM.register('canim_outcreate', Animation, '3DDATA/TITLEIROSE/CAMERA01_OUTCREATE01.ZMO');
+  this.DM.register('canim_intro', AnimationData, '3DDATA/TITLEIROSE/CAMERA01_INTRO01.ZMO');
+  this.DM.register('canim_inselect', AnimationData, '3DDATA/TITLEIROSE/CAMERA01_INSELECT01.ZMO');
+  this.DM.register('canim_ingame', AnimationData, '3DDATA/TITLEIROSE/CAMERA01_INGAME01.ZMO');
+  this.DM.register('canim_create', AnimationData, '3DDATA/TITLEIROSE/CAMERA01_CREATE01.ZMO');
+  this.DM.register('canim_outcreate', AnimationData, '3DDATA/TITLEIROSE/CAMERA01_OUTCREATE01.ZMO');
 
   var self = this;
   this.DM.get('canim_intro', function() {
@@ -92,7 +92,7 @@ TestState.prototype.enter = function() {
     charObj.setModelPart(8, 2);
 
     var animPath = '3DData/Motion/Avatar/EMPTY_STOP1_M1.ZMO';
-    Animation.load(animPath, function(zmoData) {
+    AnimationData.load(animPath, function(zmoData) {
       var anim = zmoData.createForSkeleton('test', charObj.rootObj, charObj.skel);
       anim.play();
     });
@@ -103,8 +103,8 @@ TestState.prototype.enter = function() {
   scene.add(charObj.rootObj);
 
   Mesh.load('3DDATA/JUNON/SKY/DAY01.ZMS', function(geom) {
-    var texd = ROSETexLoader.load('3DDATA/JUNON/SKY/DAY01.DDS');
-    var texn = ROSETexLoader.load('3DDATA/JUNON/SKY/NIGHT01.DDS');
+    var texd = TextureManager.load('3DDATA/JUNON/SKY/DAY01.DDS');
+    var texn = TextureManager.load('3DDATA/JUNON/SKY/NIGHT01.DDS');
     var mat = ShaderManager.get('skydome').clone();
     mat.uniforms = {
       texture1: { type: 't', value: texd },
@@ -115,7 +115,33 @@ TestState.prototype.enter = function() {
     scene.add(skyObject);
   });
 
-  //LoginDialog.show();
+  var invPak = {"result":1,"money":{"lo":200,"hi":0},"items":[{"itemType":2,"itemNo":222,"charDbId":3435973836,"color":1,"itemKey":{"lo":9532290,"hi":0},"isCrafted":0,"gemOption1":0,"gemOption2":0,"gemOption3":0,"durability":32,"itemLife":1000,"socketCount":0,"isAppraised":0,"refineGrade":0,"quantity":1,"location":1,"slotNo":0,"timeRemaining":0,"moveLimits":0,"bindOnAcquire":0,"bindOnEquipUse":0,"money":0},{"itemType":8,"itemNo":1,"charDbId":3435973836,"color":1,"itemKey":{"lo":9532291,"hi":0},"isCrafted":0,"gemOption1":0,"gemOption2":0,"gemOption3":0,"durability":19,"itemLife":997,"socketCount":0,"isAppraised":0,"refineGrade":0,"quantity":1,"location":2,"slotNo":7,"timeRemaining":0,"moveLimits":0,"bindOnAcquire":0,"bindOnEquipUse":0,"money":0},{"itemType":5,"itemNo":29,"charDbId":3435973836,"color":1,"itemKey":{"lo":9532292,"hi":0},"isCrafted":0,"gemOption1":0,"gemOption2":0,"gemOption3":0,"durability":7,"itemLife":998,"socketCount":0,"isAppraised":0,"refineGrade":0,"quantity":1,"location":2,"slotNo":6,"timeRemaining":0,"moveLimits":0,"bindOnAcquire":0,"bindOnEquipUse":0,"money":0},{"itemType":3,"itemNo":29,"charDbId":3435973836,"color":1,"itemKey":{"lo":9532293,"hi":0},"isCrafted":0,"gemOption1":0,"gemOption2":0,"gemOption3":0,"durability":12,"itemLife":999,"socketCount":0,"isAppraised":0,"refineGrade":0,"quantity":1,"location":2,"slotNo":3,"timeRemaining":0,"moveLimits":0,"bindOnAcquire":0,"bindOnEquipUse":0,"money":0}]};
+  function checkForInt64(val) {
+    if (val instanceof Object) {
+      for (var i in val) {
+        if (Array.isArray(val[i])) {
+          for (var j = 0; j < val[i].length; ++j) {
+            checkForInt64(val[i][j]);
+          }
+        } else if (val[i] instanceof Object) {
+          if (val[i].lo !== undefined && val[i].hi !== undefined) {
+            val[i] = new Int64(val[i].lo, val[i].hi);
+          } else {
+            checkForInt64(val[i]);
+          }
+        }
+      }
+    }
+  }
+  checkForInt64(invPak);
+
+  var dt = new Date();
+  GDM.get('item_data', function() {
+    console.log((new Date()).getTime() - dt.getTime());
+    var invData = InventoryData.fromPacketData(invPak);
+    InventoryDialog.bindToData(invData);
+    InventoryDialog.show();
+  });
 };
 
 TestState.prototype.leave = function() {
@@ -125,7 +151,7 @@ TestState.prototype.leave = function() {
 TestState.prototype.update = function(delta) {
   this.controls.update( delta );
 
-  if (this.world.isLoaded) {
+  if (this.world && this.world.isLoaded) {
     this.world.setViewerInfo(camera.position);
     this.world.update(delta);
   }
