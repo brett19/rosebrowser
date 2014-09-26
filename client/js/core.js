@@ -186,6 +186,7 @@ ShaderManager.init(function() {
   });
 });
 
+GDM.register('file_effect', DataTable, '3DDATA/STB/FILE_EFFECT.STB');
 GDM.register('list_event', DataTable, '3DDATA/STB/LIST_EVENT.STB');
 GDM.register('quest_scripts', QuestScriptManager, '3DDATA/STB/LIST_QUESTDATA.STB');
 GDM.register('item_data', ItemDataManager);

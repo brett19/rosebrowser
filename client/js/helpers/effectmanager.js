@@ -334,10 +334,21 @@ Effect.Animation.prototype.update = function(delta) {
   // Check loopCount related shit
 };
 
-EffectManager.loadEffect = function(path, callback) {
-  var waitAll = new MultiWait();
+EffectManager.loadEffectByIdx = function(index, callback) {
   var effect = new Effect();
+
+  GDM.get('file_effect', function (effectFileTable) {
+    var effectRow = effectFileTable.row(index);
+    EffectManager.loadEffect(effectRow[1], callback, effect);
+  });
+
+  return effect;
+};
+
+EffectManager.loadEffect = function(path, callback, effect) {
+  var waitAll = new MultiWait();
   var effectWait = waitAll.one();
+  effect = effect || new Effect();
 
   EffectData.load(path, function (effectData) {
     effect.path = path;
