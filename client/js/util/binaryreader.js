@@ -150,7 +150,11 @@ BinaryReader.prototype.tell = function() {
 };
 
 BinaryReader.prototype.seek = function(pos) {
-  this.pos = pos;
+  if (pos >= 0) {
+    this.pos = pos;
+  } else {
+    this.pos = this.buffer.byteLength + pos;
+  }
 };
 
 BinaryReader.prototype.skip = function(num) {
