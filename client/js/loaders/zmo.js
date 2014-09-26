@@ -8,6 +8,8 @@ var AnimationData = function() {
   this.fps = 0;
   this.frameCount = 0;
   this.channels = [];
+  this.eventFrames = [];
+  this.interpInterval = 500;
 }
 
 
@@ -75,7 +77,10 @@ AnimationData.load = function(path, callback) {
       data.channels.push(new AnimationData.Channel(type, index));
     }
 
+    data.frameEvents = [];
     for (i = 0; i < data.frameCount; ++i) {
+      data.frameEvents.push(0);
+
       for (j = 0; j < channels; ++j) {
         var frame;
 
@@ -115,6 +120,39 @@ AnimationData.load = function(path, callback) {
         }
 
         data.channels[j].frames.push(frame);
+      }
+    }
+
+    var fileVersion = 1;
+
+    // Look for extended ZMO data
+    rh.seek(-4);
+    var extTag = rh.readStrLen(4);
+    if (extTag === 'EZMO') {
+      fileVersion = 2;
+    } else if (extTag === '3ZMO') {
+      fileVersion = 3;
+    }
+
+    if (fileVersion > 1) {
+      // Seek to the beginning of the extended data
+      rh.seek(-8);
+      var extDataStart = rh.readUint32();
+      rh.seek(extDataStart);
+
+      if (fileVersion >= 2) {
+        var eventFrameCount = rh.readUint16();
+        if (eventFrameCount !== data.frameCount) {
+          console.warn('Encountered extended ZMO with an inconsistent frame count.');
+        }
+
+        for (var i = 0; i < eventFrameCount; ++i) {
+          data.eventFrames[i] = rh.readInt16();
+        }
+      }
+
+      if (fileVersion >= 3) {
+        data.interpInterval = rh.readInt32();
       }
     }
 
