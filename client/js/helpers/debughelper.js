@@ -13,14 +13,14 @@ function _DebugHelper() {
  * Initializes the helper and registeres all the functions.
  */
 _DebugHelper.prototype.init = function() {
-  debugGui.add(this, 'logCameraLocation');
+  debugGui.add(this, 'logCamera');
   debugGui.add(this, 'logScene');
 };
 
 /**
- * Logs the current camera location to the console.
+ * Logs the current camera information to the console.
  */
-_DebugHelper.prototype.logCameraLocation = function() {
+_DebugHelper.prototype.logCamera = function() {
   var worldPos = camera.localToWorld(new THREE.Vector3(0, 0, 0));
   console.log('Camera Location:', worldPos.x, worldPos.y, worldPos.z);
 };
