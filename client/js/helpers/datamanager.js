@@ -71,7 +71,7 @@ DataManager.prototype.getNow = function(name) {
 };
 
 /**
- * Retreives a single resource from the manager.  Loading it if it
+ * Retrieves a single resource from the manager.  Loading it if it
  * has not already been loaded.
  *
  * @param {string} name
@@ -88,7 +88,7 @@ DataManager.prototype._getOne = function(name, callback) {
 };
 
 /**
- * Retrieves the list of resources that were passed as arguemnets and then
+ * Retrieves the list of resources that were passed as arguements and then
  * invokes the callback, passing those resources back in the identical order.
  *
  * @param {...string} resource_list
