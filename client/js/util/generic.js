@@ -15,9 +15,23 @@ function hrTime() {
   return (new Date()).getTime();
 }
 
+// Build a list of parameters passed
 var clientParams = [];
 if (window.location.hash.length > 1) {
   clientParams = window.location.hash.substr(1).split(',');
+}
+
+// Generate option changes based on this.
+for (var i = 0; i < clientParams.length; ++i) {
+  var param = clientParams[i];
+  var paramEqIdx = param.indexOf('=');
+  if (paramEqIdx === -1) {
+    config[param] = true;
+  } else {
+    var paramName = param.substr(0, paramEqIdx);
+    var paramVal = param.substr(paramEqIdx+1);
+    config[paramName] = paramVal;
+  }
 }
 
 

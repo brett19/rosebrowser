@@ -147,12 +147,20 @@ var renderFrame = function () {
 };
 renderFrame();
 
-var launchStateName = clientParams.length > 0 ? clientParams[0] : 'test';
-console.log('Launching game with state `' + launchStateName + '`');
-
-if (clientParams.indexOf('lmonly') !== -1) {
-  config.lmonly = true;
+// A client parameter prefixed with : indicates its the launch state.
+for (var i in config) {
+  if (i[0] === ':') {
+    if (config.state) {
+      console.warn('More than one launch state specified!');
+    }
+    config.state = i.substr(1);
+    delete config[i];
+  }
 }
+
+// Pick the launch state
+var launchStateName = config.state ? config.state : 'login';
+console.info('Launching game with state `' + launchStateName + '`');
 
 ShaderManager.register('skydome', 'skydome.vert', 'skydome.frag', {
   depthWrite: false,
