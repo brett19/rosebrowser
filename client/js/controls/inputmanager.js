@@ -4,29 +4,35 @@ function _InputManager() {
   EventEmitter.call(this);
 
   var self = this;
+  function addElCapture(name, outname) {
+    if (!outname) {
+      outname = name;
+    }
+    $(function() {
+      renderer.domElement.addEventListener(name, function(e) {
+        self._handleEvent(outname, e);
+      }, false );
+    });
+  }
   function addCapture(name, outname) {
     if (!outname) {
       outname = name;
     }
-
-    $(function() {
-      renderer.domElement.addEventListener(name, function(e) {
-        self._handleEvent(name, e);
-      }, false );
-    });
-
+    document.addEventListener(name, function(e) {
+      self._handleEvent(outname, e);
+    }, false );
   }
 
-  addCapture('mousedown');
-  addCapture('mouseup');
-  addCapture('mousemove');
+  addElCapture('mousedown');
+  addElCapture('mouseup');
+  addElCapture('mousemove');
   addCapture('keydown');
   addCapture('keyup');
-  addCapture('touchstart');
-  addCapture('touchend');
-  addCapture('touchmove');
-  addCapture('mousewheel');
-  addCapture('DOMMouseScroll', 'mousewheel');
+  addElCapture('touchstart');
+  addElCapture('touchend');
+  addElCapture('touchmove');
+  addElCapture('mousewheel');
+  addElCapture('DOMMouseScroll', 'mousewheel');
 
   document.addEventListener('contextmenu', function(e) {
     e.preventDefault();
