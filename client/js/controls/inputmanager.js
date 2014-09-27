@@ -9,9 +9,12 @@ function _InputManager() {
       outname = name;
     }
 
-    document.addEventListener(name, function(e) {
-      self._handleEvent(name, e);
-    }, false );
+    $(function() {
+      renderer.domElement.addEventListener(name, function(e) {
+        self._handleEvent(name, e);
+      }, false );
+    });
+
   }
 
   addCapture('mousedown');
