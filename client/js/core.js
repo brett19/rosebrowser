@@ -7,7 +7,7 @@ THREE.ImageUtils.crossOrigin = 'anonymous';
 
 // Set up the renderer
 var renderer = null;
-renderer = new THREE.WebGLRenderer();
+renderer = new THREE.WebGLRenderer({antialias: true});
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 renderer.setClearColor( 0x888888, 1 );
@@ -26,16 +26,17 @@ var skyScene = new THREE.Scene();
 var skyObject = null;
 
 // Set up some basic initial lighting
-var directionalLight = new THREE.DirectionalLight( 0xffffff, 1.1 );
-directionalLight.position.set( 100, 100, 100 );
+var diffuseLevel = new THREE.Color(1.0, 1.0, 1.0);
+var ambientLevel = new THREE.Color(0.86, 0.83, 0.8);
+
+diffuseLevel.multiplyScalar(0.6);
+ambientLevel.multiplyScalar(0.6);
+
+var directionalLight = new THREE.DirectionalLight(diffuseLevel.getHex(), 1.0);
+directionalLight.position.set(.5,.5,.5);
 scene.add( directionalLight );
-
-var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.3 );
-hemiLight.color.setHSL( 0.6, 1, 0.75 );
-hemiLight.groundColor.setHSL( 0.1, 0.8, 0.7 );
-hemiLight.position.z = 500;
-scene.add( hemiLight );
-
+var ambientLight = new THREE.AmbientLight( ambientLevel.getHex() );
+scene.add( ambientLight );
 
 // Set a global camera to work with
 var camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
