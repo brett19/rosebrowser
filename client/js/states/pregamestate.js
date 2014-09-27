@@ -13,9 +13,10 @@ function PreGameState() {
 PreGameState.prototype = new State();
 
 PreGameState.prototype.enter = function() {
+  LoadScreen.show();
+
   // We must immediately begin listening for these events, or we risk loosing
   //   them because of missing the emitted event.
-
   var charData = null;
   var invData = null;
   var questLog = null;
@@ -41,8 +42,10 @@ PreGameState.prototype.enter = function() {
     dailyQuestLog = data;
   });
 
-  this.waitDialog = MsgBoxDialog.create('Downloading Character Data...', false);
-  var waitDialog = this.waitDialog;
+  var waitDialog = GUI.newStatusDialog();
+  waitDialog.setMessage('Downloading Character Data...');
+  this.waitDialog = waitDialog;
+
   netGame.on('preload_char', function(data) {
     if (data.state === 2) {
       if (!charData || !invData || !questLog ||
@@ -98,7 +101,7 @@ PreGameState.prototype.enter = function() {
 };
 
 PreGameState.prototype.leave = function() {
-  this.waitDialog.close();
+  LoadScreen.hide();
 };
 
 

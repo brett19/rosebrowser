@@ -3,6 +3,14 @@
 var rUser = null;
 var rPass = null;
 
+var USE_LIVE_SERVER = true;
+var serverIp = '128.241.92.44';
+var serverName = '!Pegasus';
+if (USE_LIVE_SERVER) {
+  serverIp = '128.241.92.36';
+  serverName = '1Draconis';
+}
+
 /**
  * @constructor
  */
@@ -28,13 +36,6 @@ LoginState.prototype.prepareOnce = function(callback) {
     // Continue by preloading the rest for now.
     self.DM.get('canim_inselect');
     self.DM.get('canim_outselect');
-  });
-
-  CharSelDialog.on('select_char', function(charIdx) {
-    self._onSelectChar(charIdx);
-  });
-  CharSelDialog.on('confirm_char', function() {
-    self._onConfirmChar();
   });
 };
 
@@ -115,7 +116,7 @@ LoginState.prototype.playCamAnim = function(name, loopCount, speed, callback) {
 LoginState.prototype.enter = function() {
   var self = this;
 
-  debugGui.add(this, 'playNextAnim');
+  LoadScreen.hide();
 
   this.world = new WorldManager();
   this.world.rootObj.position.set(5200, 5200, 0);
@@ -128,34 +129,80 @@ LoginState.prototype.enter = function() {
 
   this.playCamAnim('canim_intro');
 
-  LoginDialog.show();
-  LoginDialog.on('loginClicked', function() {
-    self._beginLogin();
+  var loginReq = GUI.requestLogin();
+  loginReq.on('done', function(username, password) {
+    self._doneLogin(username, password);
   });
+};
 
-  // Grab user/pass from local storage
-  var rUser = localStorage.getItem('roseuser');
-  var rPass = localStorage.getItem('rosepass');
+var activePass = null;
 
-  // Help out by setting some initial but blank entries.
-  if (!rUser) {
-    localStorage.setItem('roseuser', '');
-  }
-  if (!rPass) {
-    localStorage.setItem('rosepass', '');
-  }
+LoginState.prototype._doneLogin = function(rUser, rPass) {
+  var self = this;
+  activePass = rPass;
 
-  if (rUser) {
-    LoginDialog.setUsername(rUser);
-  }
-  if (rPass) {
-    LoginDialog.setPassword(rPass);
-  }
+  console.log('Starting Login', rUser);
 
-  // For testing, skip login if local storage is set...
-  if (rUser && rPass) {
-    LoginDialog.emit('loginClicked');
-  }
+  var waitDialog = GUI.newStatusDialog();
+  waitDialog.setMessage('Connecting...');
+
+  netLogin = new LoginClient();
+  netLogin.connect(serverIp, 29000, function(err) {
+    waitDialog.setMessage('Authenticating...');
+
+    netLogin.login(rUser, rPass, function (data) {
+      if ((data.result & 0x7f) !== NETLOGINREPLY.OK) {
+        waitDialog.setMessage('Failed to Login (' + enumToName(NETLOGINREPLY, data.result) + ').');
+        netLogin.end();
+        return;
+      }
+
+      waitDialog.close();
+
+      var srvSelReq = GUI.pickServer(data.servers);
+      srvSelReq.on('done', function(serverId) {
+        self._doneSrvSel(serverId);
+      });
+    });
+  });
+};
+
+LoginState.prototype._doneSrvSel = function(serverId) {
+  var self = this;
+
+  var waitDialog = GUI.newStatusDialog();
+  waitDialog.setMessage('Finding Server...');
+
+  netLogin.channelList(serverId, function (data) {
+    if (data.channels.length !== 1) {
+      waitDialog.setMessage('More than one channel found!');
+      netLogin.end();
+      return;
+    }
+
+    waitDialog.setMessage('Found Server; Preparing to Connect...');
+
+    var channelId = data.channels[0].id;
+    netLogin.selectServer(serverId, channelId, function (data) {
+      waitDialog.setMessage('Prepared; Connecting to Character Server...');
+      netLogin.end();
+
+      netWorld = new WorldClient();
+      netWorld.connect(data.worldIp, data.worldPort, data.transferKey1, activePass, function () {
+        waitDialog.setMessage('Connected to World Server;  Downloading characters...');
+
+        netWorld.characterList(function (data) {
+
+          // need list zone to show character select:
+          GDM.get('zone_names', 'list_zone', function() {
+            waitDialog.close();
+
+            self._beginCharSelect(data);
+          });
+        });
+      });
+    });
+  });
 };
 
 var CHARPOSITION = new THREE.Vector3(5742.0038, 5095.2579, 17.9782);
@@ -197,104 +244,46 @@ LoginState.prototype._beginCharSelect = function(charData) {
     })(i, charData.characters[i]);
   }
 
-  CharSelDialog.setCharacters(this.chars);
-  CharSelDialog.selectCharacter(0);
-
+  var self = this;
   console.log('INSELECT STARTED');
   this.playCamAnim('canim_inselect', 1, 8, function() {
     console.log('INSELECT DONE');
 
-    CharSelDialog.show();
+    var charSelReq = GUI.pickCharacter(charData.characters);
+    charSelReq.on('selectionChanged', function(characterIdx) {
+      for (var i = 0; i < self.visChars.length; ++i) {
+        var visChar = self.visChars[i];
+        if (i === characterIdx) {
+          visChar.rootObj.visible = true;
+        } else {
+          visChar.rootObj.visible = false;
+        }
+      }
+    });
+    charSelReq.on('done', function(characterName) {
+      self._doneCharSel(characterName);
+    });
+
+    // Force a selection so the model becomes visible
+    charSelReq.emit('selectionChanged', 0);
   });
 };
 
-LoginState.prototype._beginLogin = function() {
-  var self = this;
-  rUser = LoginDialog.getUsername();
-  rPass = LoginDialog.getPassword();
+LoginState.prototype._doneCharSel = function(characterName) {
+  var waitDialog = GUI.newStatusDialog();
+  waitDialog.setMessage('Selecting Character...');
 
-  console.log('Starting Login', rUser);
+  netWorld.selectCharacter(characterName, function(data) {
+    waitDialog.setMessage('Character Selected; Connecting to Game Server...');
 
-  LoginDialog.hide();
-
-  var waitDialog = MsgBoxDialog.create('Logging in...', false);
-
-  var serverIp = '128.241.92.44';
-  var serverName = '!Pegasus';
-  var channelName = '1channel1';
-  var USE_LIVE_SERVER = true;
-  if (USE_LIVE_SERVER) {
-    serverIp = '128.241.92.36';
-    serverName = '1Draconis';
-    channelName = 'Channel 1';
-  }
-
-  netLogin = new LoginClient();
-  netLogin.connect(serverIp, 29000, function(err) {
-    waitDialog.setMessage('Connected; Logging In.');
-
-    netLogin.login(rUser, rPass, function (data) {
-      if ((data.result & 0x7f) !== NETLOGINREPLY.OK) {
-        waitDialog.setMessage('Failed to Login (' + enumToName(NETLOGINREPLY, data.result) + ').');
-        netLogin.end();
-        return;
-      }
-      waitDialog.setMessage('Logged In; Finding Server.');
-
-      var serverIdx = -1;
-      for (var i = 0; i < data.servers.length; ++i) {
-        var tServer = data.servers[i];
-        if (tServer.name === serverName) {
-          serverIdx = tServer.id;
-          break;
-        }
-      }
-
-      if (serverIdx < 0) {
-        console.log(data.servers);
-        waitDialog.setMessage('Failed to find a server.');
-        netLogin.end();
-        return;
-      }
-
-      netLogin.channelList(serverIdx, function (data) {
-        waitDialog.setMessage('Found Server; Retrieving endpoint info.');
-
-        var channelIdx = -1;
-        for (var j = 0; j < data.channels.length; ++j) {
-          var tChannel = data.channels[j];
-          if (tChannel.name === channelName) {
-            channelIdx = tChannel.id;
-          }
-        }
-
-        if (channelIdx < 0) {
-          console.log(data.channels);
-          waitDialog.setMessage('Failed to find a channel.');
-          netLogin.end();
-          return;
-        }
-
-        netLogin.selectServer(tServer.id, tChannel.id, function (data) {
-          waitDialog.setMessage('Found Endpoint; Connecting to World Server.');
-          netLogin.end();
-
-          netWorld = new WorldClient();
-          netWorld.connect(data.worldIp, data.worldPort, data.transferKey1, rPass, function () {
-            waitDialog.setMessage('Connected to World Server.  Loading characters.');
-
-            netWorld.characterList(function (data) {
-
-              // need list zone to show character select:
-              GDM.get('zone_names', 'list_zone', function() {
-                waitDialog.close();
-
-                self._beginCharSelect(data);
-              });
-
-            });
-          });
-        });
+    // The pregame state has to be prepared before, if it is not
+    //   able to switch synchronously, we risk loosing events
+    //   related to the character data.
+    StateManager.prepare('pregame', function() {
+      netGame = new GameClient();
+      netGame.connect(data.gameIp, data.gamePort, data.transferKey1, activePass, function () {
+        waitDialog.close();
+        StateManager.switch('pregame');
       });
     });
   });

@@ -19,15 +19,15 @@ GameTestState.prototype.prepare = function(callback) {
 
 GameTestState.prototype.enter = function() {
   // Grab user/pass from local storage
-  var rUser = localStorage.getItem('roseuser');
-  var rPass = localStorage.getItem('rosepass');
+  var rUser = localStorage.getItem('autologin_user');
+  var rPass = localStorage.getItem('autologin_pass');
 
   // Help out by setting some initial but blank entries.
   if (!rUser) {
-    localStorage.setItem('roseuser', '');
+    localStorage.setItem('autologin_user', '');
   }
   if (!rPass) {
-    localStorage.setItem('rosepass', '');
+    localStorage.setItem('autologin_pass', '');
   }
 
   // Make sure we have some user details
@@ -36,7 +36,8 @@ GameTestState.prototype.enter = function() {
     return;
   }
 
-  var waitDialog = MsgBoxDialog.create('Connecting...', false);
+  var waitDialog = GUI.newStatusDialog();
+  waitDialog.setMessage('Connecting...');
 
   var serverIp = '128.241.92.44';
   var serverName = '!Pegasus';

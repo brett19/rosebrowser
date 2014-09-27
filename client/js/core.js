@@ -162,6 +162,11 @@ for (var i in config) {
 var launchStateName = config.state ? config.state : 'login';
 console.info('Launching game with state `' + launchStateName + '`');
 
+// Default the load screen off if state was manually set
+if (config.state) {
+  LoadScreen.hide();
+}
+
 ShaderManager.register('skydome', 'skydome.vert', 'skydome.frag', {
   depthWrite: false,
   depthTest: false
@@ -191,7 +196,9 @@ ShaderManager.register('partmesh', 'partmesh.vert', 'partmesh.frag', {
 ShaderManager.init(function() {
   // Needed for game states that alter UI.
   $(function() {
-    StateManager.prepareAndSwitch(launchStateName);
+    GUI.prepare(function() {
+      StateManager.prepareAndSwitch(launchStateName);
+    });
   });
 });
 

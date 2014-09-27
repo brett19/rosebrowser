@@ -1,0 +1,131 @@
+.itemslot {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    outline: 1px solid red;
+    font: Tahoma;
+    font-size: 9px;
+    text-align: center;
+}
+
+#disclaimer {
+    padding: 3px 6px;
+}
+
+.ttip {
+    position: absolute;
+    z-index: 2;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 4px;
+    font-size: 12px;
+    pointer-events: none;
+}
+
+.gui {
+    z-index: 1;
+    font-size: 12px;
+    color: white;
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: default;
+}
+.gui > div {
+    position: absolute;
+}
+
+.gui button {
+    border-radius: 2px;
+    border: 1px solid #000000;
+    background-color: #333333;
+    padding: 3px 7px 3px 5px;
+    margin: 0px;
+}
+.gui button.selected {
+    outline: 1px solid rgba(250, 128, 20, 0.8);
+
+}
+
+.gui input {
+    padding: 2px;
+    margin: 2px;
+    border: 1px solid #000000;
+    background-color: #eeeeee;
+    color: black;
+}
+
+.gui progress {
+    border: 1px solid #000000;
+    background-color: #eeeeee;
+}
+.gui progress.hp[value]::-webkit-progress-value {
+    background-color: red !important;
+}
+.gui progress.mp[value]::-webkit-progress-value {
+    background-color: blue !important;
+}
+
+.gui .list {
+}
+.gui .list > .item {
+    padding: 3px;
+    margin: 0px 0px 4px 0px;
+}
+.gui .list > .item:hover {
+    background-color: rgba(250, 128, 20, 0.3) !important;
+}
+.gui .list > .item.selected {
+    outline: 1px solid rgba(250, 128, 20, 0.8);
+    background-color: rgba(90, 140, 230, 0.2);
+}
+
+.gwindow {
+    background-color: rgba(30,30,60,0.7);
+    border-radius: 4px;
+    margin-top: 20px;
+    padding: 3px 3px 20px 3px;
+}
+.gwindow .title {
+    font-weight: bold;
+    padding: 0px 2px;
+}
+.gwindow .content {
+    background-color: rgba(0,0,0,0.6);
+    padding: 5px;
+    height:100%;
+    margin-bottom: -17px;
+}
+
+.gpanel {
+    background-color: rgba(0,0,0,0.7);
+    border-radius: 4px;
+    margin-top: 20px;
+    padding: 3px 3px 20px 3px;
+}
+.gpanel .content {
+    background-color: rgba(0,0,0,0.6);
+    padding: 5px;
+    height:100%;
+    margin-bottom: -17px;
+}
+
+.invtab {
+    position: absolute;
+}
+
+.gui .statusdialog {
+    left: 50%;
+    bottom: 10%;
+    margin-left: -200px;
+    width: 400px;
+    text-align: center;
+}
+
+.menulist button {
+    width: 100%;
+}
