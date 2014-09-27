@@ -476,6 +476,15 @@ DDS.load = function(path, callback) {
       texture.mipmaps = mipmaps;
     }
 
+    var isDxt = texture.format == THREE.RGB_S3TC_DXT1_Format ||
+            texture.format == THREE.RGBA_S3TC_DXT3_Format ||
+            texture.format == THREE.RGBA_S3TC_DXT5_Format;
+    var widthIsPow2 = (header.width & (header.width - 1)) == 0;
+    var heightIsPow2 = (header.height & (header.height - 1)) == 0;
+    if (isDxt && widthIsPow2 && heightIsPow2) {
+      texture.minFilter = THREE.LinearMipMapLinearFilter;
+    }
+
     texture.format = format;
     texture.needsUpdate = true;
 
