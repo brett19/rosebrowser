@@ -351,6 +351,7 @@ EffectManager.loadEffect = function(path, callback, effect) {
   effect = effect || new Effect();
 
   EffectData.load(path, function (effectData) {
+    return;
     effect.path = path;
     effect.loopCount = effectData.loopCount;
 
