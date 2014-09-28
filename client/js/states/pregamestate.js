@@ -85,6 +85,10 @@ PreGameState.prototype.enter = function() {
           MC.visParts = charData.parts;
           MC.inventory = InventoryData.fromPacketData(invData);
           MC.debugValidate();
+
+          // TODO: This should be set when the real index is received after
+          //   joining the zone, and addObject should follow that.
+          MC.serverObjectIdx = 9999999;
           MC.dropFromSky();
           GOM.addObject(MC);
 
