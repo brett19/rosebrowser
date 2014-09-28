@@ -74,6 +74,23 @@ _NetManager.prototype.watch = function(wn, gn) {
     GOM.addObject(char);
   });
 
+  gn.on('spawn_mob', function(data) {
+    var mob = new MobObject(self.world);
+    mob.serverObjectIdx = data.objectIdx;
+    if (data.charIdx > 0) {
+      mob.charIdx = data.charIdx;
+    } else {
+      mob.charIdx = -data.charIdx;
+      mob.hidden = true;
+    }
+    mob.setPosition(data.position.x, data.position.y, 10);
+    mob.dropFromSky();
+    if (data.command !== 0) {
+      mob.moveTo(data.posTo.x, data.posTo.y);
+    }
+    GOM.addObject(mob);
+  });
+
   gn.on('obj_remove', function(data) {
     var obj = GOM.findByServerObjectIdx(data.objectIdx);
     if (obj) {

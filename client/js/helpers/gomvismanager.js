@@ -54,6 +54,9 @@ GOMVisManager.prototype._addObjectMovable = function(obj) {
     visObj = new CharPawn(obj);
   } else if (obj instanceof NpcObject) {
     visObj = new NpcPawn(obj);
+  } else if (obj instanceof MobObject) {
+    // TODO: NpcObject should derive NpcObject or vica-versa
+    visObj = new NpcPawn(obj);
   } else {
     return null;
   }

@@ -464,12 +464,23 @@ GameClient._registerHandler(0x793, function(pak, data) {
   this._emitPE('spawn_char', data);
 });
 
-GameClient._registerHandler(0x79a, function(pak, data) {
+function handleMouseCmd(pak, data) {
   data.objectIdx = pak.readUint16();
   data.targetObjectIdx = pak.readUint16();
   data.serverDist = pak.readInt16();
   data.posTo = pak.readVector2().divideScalar(100);
   data.posZ = pak.readInt16();
+}
+function handleMoveCmd(pak, data) {
+  handleMouseCmd(pak, data);
+  data.moveMove = pak.readUint8();
+}
+GameClient._registerHandler(0x79a, function(pak, data) {
+  handleMouseCmd(pak, data);
+  this._emitPE('obj_moveto', data);
+});
+GameClient._registerHandler(0x797, function(pak, data) {
+  handleMoveCmd(pak, data);
   this._emitPE('obj_moveto', data);
 });
 
