@@ -11,22 +11,25 @@ function mod(x, n) {
 function MoveableObject(type, world) {
   GameObject.call(this, type, world);
 
-  this.velocity = new THREE.Vector3(0, 0, 0);
-  this.targetPos = new THREE.Vector3(0, 0, 0);
-  this.targetObj = null;
-  this.targetObjDist = 0;
   this.direction = 0;
-  this.isMoving = false;
   this.moveSpeed = 550;
-  this.useMoveCollision = false;
+  this.activeCmd = null;
+  this.nextCmd = null;
 }
 MoveableObject.prototype = new GameObject();
 
+MoveableObject.prototype._setNextCmd = function(cmd) {
+  if (this.activeCmd) {
+    this.activeCmd.wantInterrupt = true;
+    this.nextCmd = cmd;
+  } else {
+    this.activeCmd = cmd;
+    this.activeCmd.enter();
+  }
+};
+
 MoveableObject.prototype._moveTo = function(x, y) {
-  this.targetPos.set(x, y, 0);
-  this.targetObj = null;
-  this.isMoving = true;
-  this.emit('start_move');
+  this._setNextCmd(new MoveToPosCmd(this, new THREE.Vector2(x, y)));
 };
 MoveableObject.prototype.moveTo = function(x, y, z) {
   this._moveTo(x, y);
@@ -36,15 +39,7 @@ MoveableObject.prototype.moveTo = function(x, y, z) {
 };
 
 MoveableObject.prototype._moveToObj = function(gameObject, distance) {
-  if (distance === undefined) {
-    distance = 0;
-  }
-
-  this.targetPos.copy(gameObject.position);
-  this.targetObj = gameObject;
-  this.targetObjDist = distance;
-  this.isMoving = true;
-  this.emit('start_move');
+  this._setNextCmd(new MoveToObjCmd(this, gameObject, distance));
 };
 
 MoveableObject.prototype.moveToObj = function(gameObject, distance) {
@@ -59,125 +54,17 @@ MoveableObject.prototype.setDirection = function(radians) {
 };
 
 MoveableObject.prototype.update = function(delta) {
-  if (!this.isMoving && this.targetObj) {
-    // If tracking an object, and we stopped moving, but the object has
-    //   since moved away from us, start moving again!
-    var targetDelta = this.targetObj.position.clone().sub(this.position);
-    if (targetDelta.lengthSq() > (this.targetObjDist*this.targetObjDist) + 0.00001) {
-      this.isMoving = true;
-    }
-  }
+  var deltaLeft = delta;
+  while (this.activeCmd && deltaLeft > EPSILON) {
+    deltaLeft = this.activeCmd.update(deltaLeft);
 
-  if (this.isMoving) {
-    if (this.targetObj) {
-      // Distance between us and our target object position
-      var targetDelta = this.targetObj.position.clone().sub(this.position);
-      if (targetDelta.lengthSq() < this.targetObjDist*this.targetObjDist) {
-        // Don't move anywhere if we are already in the target distance
-        this.targetPos.copy(this.position);
-      } else {
-        // The effective target position after accounting for our target distance
-        var realTargetPos = this.targetObj.position.clone();
-        if (this.targetObjDist > 0) {
-          var distTargetDelta = targetDelta.clone().normalize().multiplyScalar(this.targetObjDist);
-          realTargetPos.add(distTargetDelta);
-        }
-
-        this.targetPos.copy(realTargetPos);
+    if (this.activeCmd.isComplete) {
+      this.activeCmd.leave();
+      this.activeCmd = this.nextCmd;
+      this.nextCmd = null;
+      if (this.activeCmd) {
+        this.activeCmd.enter();
       }
-    }
-
-    var frameMoveSpeed = this.moveSpeed * 0.01 * delta;
-
-    this.targetPos.z = this.position.z;
-
-    this.velocity.subVectors(this.targetPos, this.position);
-    if (this.velocity.lengthSq() > frameMoveSpeed*frameMoveSpeed) {
-      this.velocity.normalize();
-      this.velocity.multiplyScalar(frameMoveSpeed);
-    }
-    if (this.velocity.lengthSq() > 0.00001) {
-      var newPosition = this.position.clone().add(this.velocity);
-      var highZ = this.world.findHighPoint(newPosition.x, newPosition.y, newPosition.z + 1);
-      var moveSlope = (highZ - this.position.z) / this.velocity.length();
-
-      // TODO: Readd proper slope checking!
-      if (!this.useMoveCollision || true) {
-        newPosition.z = highZ;
-
-        var newDirection = Math.atan2(this.velocity.y, this.velocity.x) + Math.PI/2;
-
-        newDirection = mod(newDirection, (Math.PI * 2));
-
-        var dirDelta = newDirection - this.direction;
-
-        var dirStep = (Math.PI * 3) * delta;
-
-        // Note: In order to avoid the spins problems, and ease the computations,
-        // the direction is bounded between 0 and 2 * PI.
-
-        if (dirDelta > 0) {
-          // If the newDirection get an angle greater than before.
-          if (dirDelta > Math.PI) {
-            // If the difference of direction is greater than PI.
-            // The shortest path is to rotate backward until we go below 0.
-            if (this.direction - dirStep >= 0) {
-              this.direction -= dirStep;
-            } else {
-              // If the step goes below 0, we must ensure we didn't rotate too much,
-              // as well as applying the direction bounds.
-              var postiveDirect = mod((this.direction - dirStep), (Math.PI * 2));
-              if (postiveDirect > newDirection) {
-                this.direction = postiveDirect;
-              } else {
-                this.direction = newDirection;
-              }
-            }
-          } else {
-            // Otherwise we wimply rotate forward.
-            if (this.direction + dirStep > newDirection) {
-              this.direction = newDirection;
-            } else {
-              this.direction += dirStep;
-            }
-          }
-        } else {
-          // If the newDirection get an angle smaller than before.
-          if (dirDelta < - Math.PI) {
-            // If the difference of direction is greater than PI.
-            // The shortest path is to rotate forward until we go further than 2 * PI.
-            if (this.direction + dirStep < Math.PI * 2) {
-              this.direction += dirStep;
-            } else {
-              // If the step goes over 2 * PI, we must ensure we didn't rotate too much,
-              // as well as applying the direction bounds.
-              var lessthan2piDirect = mod((this.direction + dirStep), (Math.PI * 2));
-              if (lessthan2piDirect < newDirection) {
-                this.direction = lessthan2piDirect;
-              } else {
-                this.direction = newDirection;
-              }
-            }
-          } else {
-            // Otherwise we wimply rotate backward.
-            if (this.direction - dirStep < newDirection) {
-              this.direction = newDirection;
-            } else {
-              this.direction -= dirStep;
-            }            
-          }
-        }
-
-        this.position.copy(newPosition);
-        this.emit('moved');
-      } else {
-        // Bumped into something, just stop for now
-        this.isMoving = false;
-        this.emit('stop_move');
-      }
-    } else {
-      this.isMoving = false;
-      this.emit('stop_move');
     }
   }
 };
