@@ -77,6 +77,8 @@ LightmapManager.prototype._getTexture = function(textureIdx) {
   }
 
   var newTexture = TextureManager.load(this.data.textures[textureIdx]);
+  newTexture.wrapS = THREE.ClampToEdgeWrapping;
+  newTexture.wrapT = THREE.ClampToEdgeWrapping;
   this.textures[textureIdx] = newTexture;
   return newTexture;
 };

@@ -350,20 +350,25 @@ WorldChunk.prototype._createLmOnlyMaterial = function() {
   return newMaterial;
 };
 
+WorldChunk.prototype._getTileTexture = function(texId) {
+  if (this.textures[texId]) {
+    return this.textures[texId];
+  }
+
+  var newTexture = TextureManager.load(this.world.zoneInfo.textures[texId]);
+  newTexture.wrapS = THREE.ClampToEdgeWrapping;
+  newTexture.wrapT = THREE.ClampToEdgeWrapping;
+  this.textures[texId] = newTexture;
+  return newTexture;
+};
+
 // We don't need to cache the materials here as they are generated on a
 //   per-chunk basis.  Additionally, the mesh generator groups all blocks
 //   using the same tiles to the same mesh, so this function only is called
 //   once.
 WorldChunk.prototype._createMaterial = function(texId1, texId2) {
-  if (!this.textures[texId1]) {
-    this.textures[texId1] = TextureManager.load(this.world.zoneInfo.textures[texId1]);
-  }
-  var tex1 = this.textures[texId1];
-
-  if (!this.textures[texId2]) {
-    this.textures[texId2] = TextureManager.load(this.world.zoneInfo.textures[texId2]);
-  }
-  var tex2 = this.textures[texId2];
+  var tex1 = this._getTileTexture(texId1);
+  var tex2 = this._getTileTexture(texId2);
 
   var newMaterial = ShaderManager.get('terrain').clone();
   newMaterial.texId1 = texId1;
@@ -549,6 +554,8 @@ WorldChunk.prototype._loadTerrain = function(callback) {
   var tilRes = this.name + '_heightmap';
 
   this.lightmapTex = TextureManager.load(ddsPath);
+  this.lightmapTex.wrapS = THREE.ClampToEdgeWrapping;
+  this.lightmapTex.wrapT = THREE.ClampToEdgeWrapping;
 
   // TODO: Move the registration into the world manager.
   //   This is so if a chunk is unloaded and loaded again, we don't
