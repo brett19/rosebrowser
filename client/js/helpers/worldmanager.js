@@ -105,9 +105,10 @@ WorldManager.prototype.rayPick = function(rayCaster) {
   return null;
 };
 
+var SKY_HEIGHT = 1000;
 WorldManager.prototype.findHighPoint = function(x, y, fromZ) {
   if (fromZ === undefined) {
-    fromZ = 1000; // From the Sky!!
+    fromZ = SKY_HEIGHT; // From the Sky!!
   }
 
   var caster = new THREE.Raycaster(new THREE.Vector3(x, y, fromZ), new THREE.Vector3(0, 0, -1));
@@ -116,7 +117,16 @@ WorldManager.prototype.findHighPoint = function(x, y, fromZ) {
     return pickInfo.point.z;
   }
 
-  console.warn('Attempted to find high point in an unloaded chunk.');
+  // We found nothing at, lets check from the sky to see if this is an error.
+
+  if (fromZ >= SKY_HEIGHT) {
+    return undefined;
+  }
+
+  var highZ = this.findHighPoint(x, y, SKY_HEIGHT);
+  if (highZ === undefined) {
+    console.warn('Attempted to find high point in an unloaded chunk.');
+  }
   return undefined;
 };
 
