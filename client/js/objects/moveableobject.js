@@ -20,10 +20,16 @@ function MoveableObject(type, world) {
 }
 MoveableObject.prototype = new GameObject();
 
-MoveableObject.prototype.moveTo = function(x, y) {
+MoveableObject.prototype._moveTo = function(x, y) {
   this.targetPos.set(x, y, 0);
   this.isMoving = true;
   this.emit('start_move');
+};
+MoveableObject.prototype.moveTo = function(x, y, z) {
+  this._moveTo(x, y);
+
+  // TODO: This does not properly handle moveTo being called on non-MC
+  netGame.moveTo(x, y, z);
 };
 
 MoveableObject.prototype.setDirection = function(radians) {

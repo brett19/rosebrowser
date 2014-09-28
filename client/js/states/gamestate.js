@@ -95,7 +95,6 @@ GameState.prototype.enter = function() {
 
     if (worldPickInfo) {
       var moveToPos = worldPickInfo.point;
-      netGame.moveTo(moveToPos.x, moveToPos.y, moveToPos.z);
       MC.moveTo(moveToPos.x, moveToPos.y);
       self.pickPosH.position.copy(moveToPos);
     }

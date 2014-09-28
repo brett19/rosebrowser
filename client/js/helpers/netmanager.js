@@ -49,7 +49,7 @@ _NetManager.prototype.watch = function(wn, gn) {
     npc.setDirection(data.modelDir / 180 * Math.PI);
     npc.dropFromSky();
     if (data.command !== 0) {
-      npc.moveTo(data.posTo.x, data.posTo.y);
+      npc._moveTo(data.posTo.x, data.posTo.y);
     }
     GOM.addObject(npc);
   });
@@ -69,7 +69,7 @@ _NetManager.prototype.watch = function(wn, gn) {
     char.debugValidate();
     char.dropFromSky();
     if (data.command !== 0) {
-      char.moveTo(data.posTo.x, data.posTo.y);
+      char._moveTo(data.posTo.x, data.posTo.y);
     }
     GOM.addObject(char);
   });
@@ -86,7 +86,7 @@ _NetManager.prototype.watch = function(wn, gn) {
     mob.setPosition(data.position.x, data.position.y, 10);
     mob.dropFromSky();
     if (data.command !== 0) {
-      mob.moveTo(data.posTo.x, data.posTo.y);
+      mob._moveTo(data.posTo.x, data.posTo.y);
     }
     GOM.addObject(mob);
   });
@@ -101,7 +101,7 @@ _NetManager.prototype.watch = function(wn, gn) {
   gn.on('obj_moveto', function(data) {
     var obj = GOM.findByServerObjectIdx(data.objectIdx);
     if (obj) {
-      obj.moveTo(data.posTo.x, data.posTo.y);
+      obj._moveTo(data.posTo.x, data.posTo.y);
     }
   });
 };
