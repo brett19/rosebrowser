@@ -264,6 +264,10 @@ CharPawn.prototype.setMotion = function(motionIdx, callback) {
       } else {
         self.activeMotion.weight = 1;
       }
+
+      if (callback) {
+        callback();
+      }
     });
   });
 };
