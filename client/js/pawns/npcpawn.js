@@ -150,6 +150,11 @@ NpcPawn.prototype._setModel = function(charData, modelMgr, charIdx) {
     for (var e = 0; e < char.effects.length; ++e) {
       var effectPath = charData.effects[char.effects[e].effectIdx];
       var boneIdx = char.effects[e].boneIdx;
+      if (boneIdx >= charSkel.dummies.length) {
+        console.warn('Attempted to add effect to invalid dummy ', boneIdx, charSkel.bones.length, charSkel.dummies.length);
+        continue;
+      }
+
       var effect = EffectManager.loadEffect(effectPath);
       charSkel.dummies[boneIdx].add(effect.rootObj);
       effect.play();
