@@ -47,8 +47,8 @@ MoveableObject.prototype._moveToObj = function(gameObject, distance) {
   this.emit('start_move');
 };
 
-MoveableObject.prototype.moveToObj = function(gameObject) {
-  this._moveToObj(gameObject);
+MoveableObject.prototype.moveToObj = function(gameObject, distance) {
+  this._moveToObj(gameObject, distance);
 
   // Don't send network event for now...
 };
@@ -59,10 +59,32 @@ MoveableObject.prototype.setDirection = function(radians) {
 };
 
 MoveableObject.prototype.update = function(delta) {
+  if (!this.isMoving && this.targetObj) {
+    // If tracking an object, and we stopped moving, but the object has
+    //   since moved away from us, start moving again!
+    var targetDelta = this.targetObj.position.clone().sub(this.position);
+    if (targetDelta.lengthSq() > (this.targetObjDist*this.targetObjDist) + 0.00001) {
+      this.isMoving = true;
+    }
+  }
+
   if (this.isMoving) {
     if (this.targetObj) {
-      this.targetPos.copy(this.targetObj.position);
-      // TODO: Take into account the target object distance
+      // Distance between us and our target object position
+      var targetDelta = this.targetObj.position.clone().sub(this.position);
+      if (targetDelta.lengthSq() < this.targetObjDist*this.targetObjDist) {
+        // Don't move anywhere if we are already in the target distance
+        this.targetPos.copy(this.position);
+      } else {
+        // The effective target position after accounting for our target distance
+        var realTargetPos = this.targetObj.position.clone();
+        if (this.targetObjDist > 0) {
+          var distTargetDelta = targetDelta.clone().normalize().multiplyScalar(this.targetObjDist);
+          realTargetPos.add(distTargetDelta);
+        }
+
+        this.targetPos.copy(realTargetPos);
+      }
     }
 
     var frameMoveSpeed = this.moveSpeed * 0.01 * delta;
