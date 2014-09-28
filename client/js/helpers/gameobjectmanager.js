@@ -11,6 +11,22 @@ function _GameObjectManager() {
 _GameObjectManager.prototype = new EventEmitter();
 
 _GameObjectManager.prototype.addObject = function(obj) {
+  if (obj.serverObjectIdx <= 0) {
+    console.warn('Attempted to add object with invalid server index.');
+    return;
+  }
+
+  for (var i = 0; i < this.objects.length; ++i) {
+    if (this.objects[i] === obj) {
+      console.warn('Attempted to add same object twice.');
+      return;
+    }
+    if (this.objects[i].serverObjectIdx === obj.serverObjectIdx) {
+      console.warn('Attempted to add object with duplicate server index.');
+      return;
+    }
+  }
+
   this.objects.push(obj);
 
   this.emit('object_added', obj);
