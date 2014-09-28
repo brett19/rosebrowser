@@ -13,6 +13,8 @@ function MoveableObject(type, world) {
 
   this.velocity = new THREE.Vector3(0, 0, 0);
   this.targetPos = new THREE.Vector3(0, 0, 0);
+  this.targetObj = null;
+  this.targetObjDist = 0;
   this.direction = 0;
   this.isMoving = false;
   this.moveSpeed = 550;
@@ -22,6 +24,7 @@ MoveableObject.prototype = new GameObject();
 
 MoveableObject.prototype._moveTo = function(x, y) {
   this.targetPos.set(x, y, 0);
+  this.targetObj = null;
   this.isMoving = true;
   this.emit('start_move');
 };
@@ -32,6 +35,24 @@ MoveableObject.prototype.moveTo = function(x, y, z) {
   netGame.moveTo(x, y, z);
 };
 
+MoveableObject.prototype._moveToObj = function(gameObject, distance) {
+  if (distance === undefined) {
+    distance = 0;
+  }
+
+  this.targetPos.copy(gameObject.position);
+  this.targetObj = gameObject;
+  this.targetObjDist = distance;
+  this.isMoving = true;
+  this.emit('start_move');
+};
+
+MoveableObject.prototype.moveToObj = function(gameObject) {
+  this._moveToObj(gameObject);
+
+  // Don't send network event for now...
+};
+
 MoveableObject.prototype.setDirection = function(radians) {
   this.direction = mod(radians, (Math.PI * 2));
   this.emit('moved');
@@ -39,6 +60,11 @@ MoveableObject.prototype.setDirection = function(radians) {
 
 MoveableObject.prototype.update = function(delta) {
   if (this.isMoving) {
+    if (this.targetObj) {
+      this.targetPos.copy(this.targetObj.position);
+      // TODO: Take into account the target object distance
+    }
+
     var frameMoveSpeed = this.moveSpeed * 0.01 * delta;
 
     this.targetPos.z = this.position.z;

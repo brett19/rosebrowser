@@ -89,7 +89,7 @@ GameState.prototype.enter = function() {
       var pickPawn = self.gomVisMgr.findByMesh(objPickInfo.object);
       if (pickPawn) {
         var pickGo = pickPawn.owner;
-        console.log(pickGo);
+        MC.moveToObj(pickGo);
       }
     }
 
