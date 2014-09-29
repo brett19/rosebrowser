@@ -99,13 +99,20 @@ function _LoginDialog() {
     this._find('.username').val(savedUser);
   }
 
-  this._find('.submit').click(function() {
-    var rUser = this._find('.username').val();
-    var rPass = this._find('.password').val();
-    localStorage.setItem('login_user', rUser);
+  this._find('.submit').click(function(e) {
+    this._login();
+  }.bind(this));
 
-    this.emit('done', rUser, rPass);
-    this._destroy();
+  this._find('.username').keydown(function(e) {
+    if (e.keyCode == 13) {
+      this._login();
+    }
+  }.bind(this));
+
+  this._find('.password').keydown(function(e) {
+    if (e.keyCode == 13) {
+      this._login();
+    }
   }.bind(this));
 
   this._el().show();
@@ -113,6 +120,15 @@ function _LoginDialog() {
 _LoginDialog.prototype = Object.create(TestGui.Dialog.prototype);
 
 _LoginDialog.prototype.cancel = function() {
+  this._destroy();
+};
+
+_LoginDialog.prototype._login = function() {
+  var rUser = this._find('.username').val();
+  var rPass = this._find('.password').val();
+  localStorage.setItem('login_user', rUser);
+
+  this.emit('done', rUser, rPass);
   this._destroy();
 };
 
