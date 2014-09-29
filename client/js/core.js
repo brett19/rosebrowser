@@ -246,6 +246,8 @@ GDM.register('char_motions', DataTable, '3DDATA/STB/FILE_MOTION.STB');
 
 GDM.register('npc_chars', CharacterList, '3DDATA/NPC/LIST_NPC.CHR');
 GDM.register('npc_models', ModelListManager, '3DDATA/NPC/PART_NPC.ZSC');
+GDM.register('list_npc', DataTable, '3DDATA/STB/LIST_NPC.STB');
+GDM.register('npc_names', StringTable, '3DDATA/STB/LIST_NPC_S.STL');
 
 GDM.register('male_skel', SkeletonData, '3DDATA/AVATAR/MALE.ZMD');
 GDM.register('female_skel', SkeletonData, '3DDATA/AVATAR/FEMALE.ZMD');

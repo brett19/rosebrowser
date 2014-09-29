@@ -171,6 +171,52 @@ NpcPawn.prototype.setModel = function(charIdx, callback) {
       callback();
     }
   });
+  GDM.get('list_npc', 'npc_names', function(npcTable, stringTable) {
+    var npcRow = npcTable.row(charIdx);
+    var strKey = npcRow[40];
+    var data = stringTable.getByKey(strKey);
+    self.setName(data.text);
+  });
+};
+
+NpcPawn.prototype.setName = function(name) {
+  if (this.nameTag) {
+    var children = this.nameTag.children.slice();
+    for (var i = 0; i < children.length; ++i) {
+      this.nameTag.remove(children[i]);
+    }
+  } else {
+    this.nameTag = new THREE.Object3D();
+    this.nameTag.position.set(0, 0, 2.0);
+    this.rootObj.add(this.nameTag);
+  }
+
+  this.name = name;
+
+  var idx = name.indexOf(']');
+
+  if (idx !== -1) {
+    var job  = name.substr(0, idx + 1).trim();
+
+    // Create sprite for JOB
+    var texture = createTEXTure(Font.FONT.NORMAL_OUTLINE, job);
+    var material = new THREE.SpriteMaterial({ map: texture, color: 0xffceae, depthWrite: false });
+
+    var sprite = new OrthoSprite(material);
+    sprite.scale.set(texture.image.width, texture.image.height, 1);
+    sprite.offset.set(0, -texture.image.height, 0);
+    this.nameTag.add(sprite);
+
+    name = name.substr(idx + 1).trim();
+  }
+
+  // Create sprite for NAME
+  var texture = createTEXTure(Font.FONT.NORMAL_OUTLINE, name);
+  var material = new THREE.SpriteMaterial({ map: texture, color: 0xe7ffae, depthWrite: false });
+
+  var sprite = new OrthoSprite(material);
+  sprite.scale.set(texture.image.width, texture.image.height, 1);
+  this.nameTag.add(sprite);
 };
 
 NpcPawn.prototype.update = function(delta) {
