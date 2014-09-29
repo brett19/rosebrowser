@@ -525,12 +525,98 @@ _InventoryDialog.prototype._getSlot = function(slotLoc, slotNo) {
 };
 
 
+function _QuestListDialog(data) {
+  TestGui.Dialog.call(this, '#dlgQuestList');
+  this.data = data;
+  this.selectedQuest = undefined;
+  this._update();
+}
+
+_QuestListDialog.prototype = Object.create(TestGui.Dialog.prototype);
+
+_QuestListDialog.prototype._selectQuest = function(index) {
+  var self = this;
+
+  GDM.get('list_quest', 'quest_names', function (questData, questString) {
+    var desc = self._find('.questdesc');
+    desc.empty();
+
+    self.selectedQuest = index;
+
+    if (self.data.quests[index].id > 0) {
+      var questRow = questData.row(self.data.quests[index].id);
+      var questStr = questString.getByKey(questRow[6]);
+      var descText = '';
+      descText += '<b>' + questStr.text + '</b><br />';
+      descText += questStr.comment + '<br /><br />';
+      descText += 'Objective(s): ' + questStr.quest1 + '<br />';
+      descText += questStr.quest2 + '<br />';
+      desc.html(descText);
+
+      // TODO: update timer
+      // TODO: update quest items
+    }
+  });
+};
+
+// TODO: call _update when quest data is updated from server!
+_QuestListDialog.prototype._update = function() {
+  var self = this;
+
+  // TODO: Brett can refactor this however he likes
+  GDM.get('list_quest', 'quest_names', function (questData, questString) {
+    var data = self.data;
+    var list = self._find('.quests');
+    var firstQuest = undefined;
+    list.empty();
+
+    for (var i = 0; i < data.quests.length; ++i) {
+      var quest = data.quests[i];
+
+      if (quest.id > 0) {
+        var questRow = questData.row(quest.id);
+        var questStr = questString.getByKey(questRow[6]);
+        var charHtml = '';
+        charHtml += questStr.text;
+
+        var item = $('<div class="item quest' + i + '" />');
+        item.click(self._selectQuest.bind(self, i));
+        item.html(charHtml);
+        list.append(item);
+
+        if (firstQuest === undefined) {
+          item.addClass('selected');
+          firstQuest = i;
+        }
+      }
+    }
+    TestGui.listify(list);
+
+    self._selectQuest(0);
+  });
+};
+
+_QuestListDialog.prototype.show = function() {
+  this._el().show();
+};
+_QuestListDialog.prototype.hide = function() {
+  this._el().hide();
+};
+_QuestListDialog.prototype.toggle = function() {
+  this._el().toggle();
+};
+
+
 function _MenuDialog(gameUi) {
   TestGui.Dialog.call(this, '#dlgMenu');
 
   this._find('.inventory').click(function() {
     gameUi.inventory.toggle();
-  })
+  });
+
+  this._find('.questlist').click(function() {
+    gameUi.questlist.toggle();
+  });
 
   this._el().show();
 }
@@ -543,6 +629,8 @@ function _GameUi(charData) {
   this.charInfo = new _CharInfoDialog(charData);
   this.inventory = new _InventoryDialog(charData.inventory);
   this.inventory.hide();
+  this.questlist = new _QuestListDialog(charData.quests);
+  this.questlist.hide();
 }
 
 _GameUi.prototype.close = function() {

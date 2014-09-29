@@ -239,6 +239,9 @@ GDM.register('skill_data', SkillDataManager);
 GDM.register('list_zone', DataTable, '3DDATA/STB/LIST_ZONE.STB');
 GDM.register('zone_names', StringTable, '3DDATA/STB/LIST_ZONE_S.STL');
 
+GDM.register('list_quest', DataTable, '3DDATA/STB/LIST_QUEST.STB');
+GDM.register('quest_names', StringTable, '3DDATA/STB/LIST_QUEST_S.STL');
+
 GDM.register('morph_anims', MorphAnimManager, '3DDATA/STB/LIST_MORPH_OBJECT.STB');
 
 GDM.register('char_motiontypes', DataTable, '3DDATA/STB/TYPE_MOTION.STB');
