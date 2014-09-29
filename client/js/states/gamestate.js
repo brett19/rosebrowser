@@ -23,6 +23,7 @@ GameState.prototype.update = function(delta) {
   GOM.update(delta);
 
   this.mcPawnRoot.position.copy(MC.position);
+  this.mcPawnRoot.position.z += 1.6;
   this.worldMgr.setViewerInfo(MC.position);
   this.worldMgr.update(delta);
   this.gomVisMgr.update(delta);
