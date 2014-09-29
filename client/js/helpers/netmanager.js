@@ -103,21 +103,11 @@ _NetManager.prototype.watch = function(wn, gn) {
     if (obj) {
       var targetObj = null;
       if (data.targetObjectIdx) {
-        targetObj = GOM.findByServerObjectIdx(data.targetObjectIdx);
+        targetObj = GOM.getRefByServerObjectIdx(
+            data.targetObjectIdx,
+            new THREE.Vector3(data.posTo.x, data.posTo.y, data.posZ));
       }
       if (targetObj) {
-        // TODO: This may be incorrect in a specific corner case.  See comment.
-        // In the case that the object they are moving to is offscreen, we
-        //   will not receive a targetObj, since we don't have any local data
-        //   about the game object we are approaching.  When this happens, we
-        //   fall back to using the position that is in the packet, however, if
-        //   we later get close enough to see the target, and it has moved away
-        //   from where it was when they were targetted, our internal state
-        //   will not update to target this newly available targetObj.  This
-        //   may cause the object to stop following locally, but continue
-        //   to follow the target remotely.  The official client may not handle
-        //   this appropriately, however the server knows of all game objects
-        //   and will be accurate, we should ensure to match the server here.
         obj._moveToObj(targetObj);
       } else {
         obj._moveTo(data.posTo.x, data.posTo.y);

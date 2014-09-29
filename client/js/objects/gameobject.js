@@ -10,6 +10,7 @@ function GameObject(objType, world) {
   this.type = objType;
   this.serverObjectIdx = -1;
   this.position = new THREE.Vector3(0, 0, 0);
+  this.ref = new GORef(this);
 }
 GameObject.prototype = new EventEmitter();
 
@@ -22,4 +23,7 @@ GameObject.prototype.dropFromSky = function() {
   var highZ = this.world.findHighPoint(this.position.x, this.position.y);
   this.position.z = highZ;
   this.emit('moved');
+};
+
+GameObject.prototype.update = function(delta) {
 };

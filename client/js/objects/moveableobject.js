@@ -5,10 +5,6 @@ function mod(x, n) {
   return ((x % n) + n) %n;
 }
 
-var AVT_CLICK_EVENT_RANGE = 10.00;
-var NPC_CLICK_EVENT_RANGE = 2.50;
-var ITEM_CLICK_EVENT_RANGE = 1.50;
-
 /**
  * @constructor
  */
@@ -42,24 +38,22 @@ MoveableObject.prototype.moveTo = function(x, y, z) {
   netGame.moveTo(x, y, z);
 };
 
-MoveableObject.prototype._moveToObj = function(gameObject, distance) {
-  if (distance === undefined) {
-    // TODO: Make sure this order check npc vs mob when inheritence is set up.
-    // TODO: Handle items here...
-    if (gameObject instanceof NpcObject) {
-      distance = NPC_CLICK_EVENT_RANGE;
-    } else if (gameObject instanceof CharObject) {
-      distance = AVT_CLICK_EVENT_RANGE;
-    /*} else if (gameObject instanceof ItemObject) {
-      distance = ITEM_CLICK_EVENT_RANGE;*/
-    }
+MoveableObject.prototype._moveToObj = function(objectRef, distance) {
+  if (!(objectRef instanceof GORef)) {
+    console.warn('Reference passed to _moveToObj was not a GORef.');
+    return;
   }
 
-  this._setNextCmd(new MoveToObjCmd(this, gameObject, distance));
+  this._setNextCmd(new MoveToObjCmd(this, objectRef, distance));
 };
 
 MoveableObject.prototype.moveToObj = function(gameObject, distance) {
-  this._moveToObj(gameObject, distance);
+  if (!(gameObject instanceof GameObject)) {
+    console.warn('Object passed to moveToObj was not a GameObject.');
+    return;
+  }
+
+  this._moveToObj(gameObject.ref, distance);
 
   // Don't send network event for now...
 };
