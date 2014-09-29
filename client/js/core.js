@@ -50,9 +50,16 @@ camera.position.add(new THREE.Vector3(5200, 5200, 0));
 window.addEventListener('resize', onWindowResize, false);
 
 function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
+  var wW = window.innerWidth;
+  var wH = window.innerHeight;
+  camera.aspect = wW / wH;
   camera.updateProjectionMatrix();
-  renderer.setSize( window.innerWidth, window.innerHeight );
+  spriteCam.left = wW / -2;
+  spriteCam.right = wW / 2;
+  spriteCam.top = wH / 2;
+  spriteCam.bottom = wH / -2;
+  spriteCam.updateProjectionMatrix();
+  renderer.setSize( wW, wH );
 }
 
 // Default material for testing with
