@@ -111,58 +111,11 @@ function CharPawn(go) {
   this.activeMotionIdx = -1;
   this.activeMotion = null;
   this.prevMotion = null;
-
-
-  var text = '* No Name Man *';
-  if (go) {
-    text = go.name;
-  }
-  var div = document.createElement("div");
-  div.innerHTML = text;
-  div.style.position = 'absolute';
-  div.style.top  = '-9999px';
-  div.style.left = '-9999px';
-  div.style.fontFamily = 'Arial';
-  div.style.fontWeight = 'bold';
-  div.style.fontSize = '20px';
-  document.body.appendChild(div);
-  var size = {x:div.offsetWidth, y:div.offsetHeight};
-  document.body.removeChild(div);
-
-  // for stroke!
-  size.x = Math.round((size.x+1) / 2)*2;
-  size.y = Math.round((size.y+1) / 2)*2;
-
-  var bitmap = document.createElement('canvas');
-  var g = bitmap.getContext('2d');
-  bitmap.width = size.x;
-  bitmap.height = size.y;
-  g.font = 'Bold 20px Arial';
-  g.fillStyle = 'black';
-  g.fillText(text, 0, size.y/2+2);
-  g.fillText(text, 1, size.y/2+1);
-  g.fillText(text, 0, size.y/2+1);
-  g.fillText(text, 2, size.y/2+2);
-  g.fillText(text, 1, size.y/2+3);
-  g.fillText(text, 2, size.y/2+3);
-  g.fillStyle = 'white';
-  g.fillText(text, 1, size.y/2+2);
-
-  var texture = new THREE.Texture(bitmap);
-  texture.minFilter = THREE.NearestFilter;
-  texture.magFilter = THREE.NearestFilter;
-  texture.needsUpdate = true;
-
-  var material = new THREE.SpriteMaterial( { map: texture, color: 0xffffff } );
-  material.depthWrite = false;
-  var sprite = new OrthoSprite(material);
-  sprite.position.set(0, 0, 2.0);
-  sprite.scale.set(size.x, size.y, 1);
-  sprite.offset.set(0, size.y/-2, 0);
-  this.rootObj.add( sprite );
+  this.nameTag = null;
 
   if (go) {
     this.owner = go;
+    this.setName(go.name);
 
     var self = this;
     this.rootObj.name = 'CHAR_' + '????';
@@ -331,6 +284,58 @@ CharPawn.prototype.setModelPart = function(partIdx, modelIdx, callback) {
       callback();
     }
   });
+};
+
+CharPawn.prototype.setName = function(name) {
+  var div = document.createElement("div");
+  div.innerHTML = name;
+  div.style.position = 'absolute';
+  div.style.top  = '-9999px';
+  div.style.left = '-9999px';
+  div.style.fontFamily = 'Arial';
+  div.style.fontWeight = 'bold';
+  div.style.fontSize = '20px';
+  document.body.appendChild(div);
+  var size = {x:div.offsetWidth, y:div.offsetHeight};
+  document.body.removeChild(div);
+
+  // for stroke!
+  size.x = Math.round((size.x+1) / 2)*2;
+  size.y = Math.round((size.y+1) / 2)*2;
+
+  var bitmap = document.createElement('canvas');
+  var g = bitmap.getContext('2d');
+  bitmap.width = size.x;
+  bitmap.height = size.y;
+  g.font = 'Bold 20px Arial';
+  g.fillStyle = 'black';
+  g.fillText(name, 0, size.y/2+2);
+  g.fillText(name, 1, size.y/2+1);
+  g.fillText(name, 0, size.y/2+1);
+  g.fillText(name, 2, size.y/2+2);
+  g.fillText(name, 1, size.y/2+3);
+  g.fillText(name, 2, size.y/2+3);
+  g.fillStyle = 'white';
+  g.fillText(name, 1, size.y/2+2);
+
+  var texture = new THREE.Texture(bitmap);
+  texture.minFilter = THREE.NearestFilter;
+  texture.magFilter = THREE.NearestFilter;
+  texture.needsUpdate = true;
+
+  var material = new THREE.SpriteMaterial({ map: texture, color: 0xffffff });
+  material.depthWrite = false;
+  var sprite = new OrthoSprite(material);
+  sprite.position.set(0, 0, 2.0);
+  sprite.scale.set(size.x, size.y, 1);
+  sprite.offset.set(0, size.y/-2, 0);
+
+  if (this.nameTag) {
+    this.rootObj.remove(this.nameTag);
+  }
+
+  this.rootObj.add(sprite);
+  this.nameTag = sprite;
 };
 
 CharPawn.prototype.update = function(delta) {
