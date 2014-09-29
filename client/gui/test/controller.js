@@ -174,9 +174,7 @@ function _SrvSelDialog(serverList) {
     item.html(serverName);
     list.append(item);
 
-    item.dblclick(function(_serverId) {
-      this._selectServer(_serverId);
-    }.bind(this, serverId));
+    item.dblclick(this._selectServer.bind(this, serverId));
 
     if (i === 0) {
       item.addClass('selected');
@@ -242,13 +240,8 @@ function _CharSelDialog(characterList) {
     item.html(charHtml);
     list.append(item);
 
-    item.click(function(_charIdx) {
-      this.emit('selectionChanged', _charIdx);
-    }.bind(this, i));
-    item.dblclick(function(_charName) {
-      this.emit('done', _charName);
-      this._destroy();
-    }.bind(this, char.name));
+    item.click(this._selectCharacter.bind(this, i));
+    item.dblclick(this._playCharacter.bind(this, char.name));
 
     if (i === 0) {
       item.addClass('selected');
@@ -256,12 +249,40 @@ function _CharSelDialog(characterList) {
   }
   TestGui.listify(list);
 
+  this._keyDownCallback = this._onKeyDown.bind(this);
+  InputManager.on('keydown', this._keyDownCallback);
+
   this._el().show();
 }
 _CharSelDialog.prototype = Object.create(TestGui.Dialog.prototype);
 
 _CharSelDialog.prototype.cancel = function() {
   this._destroy();
+};
+
+_CharSelDialog.prototype._selectCharacter = function(characterId) {
+  this.emit('selectionChanged', characterId);
+};
+
+_CharSelDialog.prototype._playCharacter = function(characterName) {
+  this.emit('done', characterName);
+  this._destroy();
+};
+
+_CharSelDialog.prototype._onKeyDown = function(e) {
+  var selected = this._find('.characters').children('.selected');
+  if (e.keyCode === TestGui.KEYS.ENTER) {
+    selected.dblclick();
+  } else if (e.keyCode === TestGui.KEYS.UP_ARROW) {
+    selected.prev().click();
+  } else if (e.keyCode === TestGui.KEYS.DOWN_ARROW) {
+    selected.next().click();
+  }
+};
+
+_CharSelDialog.prototype._destroy = function() {
+  TestGui.Dialog.prototype._destroy.call(this);
+  InputManager.removeEventListener('keydown', this._keyDownCallback);
 };
 
 TestGui.prototype.pickCharacter = function(characterList) {
