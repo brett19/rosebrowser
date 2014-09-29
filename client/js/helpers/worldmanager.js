@@ -663,7 +663,9 @@ WorldChunk.prototype._loadWater = function(callback) {
     this.rootObj.add(block.load());
   }
 
-  callback();
+  if (callback) {
+    callback();
+  }
 };
 
 WorldChunk.prototype.load = function(callback) {
@@ -693,8 +695,8 @@ WorldChunk.prototype.load = function(callback) {
     ZoneChunkData.load(this.world.basePath + this.name + '.IFO', function (info) {
       self.info = info;
       self._loadObjects(waitAll.one());
-      self._loadEffects(waitAll.one());
-      self._loadWater(waitAll.one());
+      self._loadEffects();
+      self._loadWater();
 
       waitAll.wait(function () {
         self.loadState = 2;
