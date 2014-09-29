@@ -5,6 +5,10 @@ function mod(x, n) {
   return ((x % n) + n) %n;
 }
 
+var AVT_CLICK_EVENT_RANGE = 10.00;
+var NPC_CLICK_EVENT_RANGE = 2.50;
+var ITEM_CLICK_EVENT_RANGE = 1.50;
+
 /**
  * @constructor
  */
@@ -39,6 +43,18 @@ MoveableObject.prototype.moveTo = function(x, y, z) {
 };
 
 MoveableObject.prototype._moveToObj = function(gameObject, distance) {
+  if (distance === undefined) {
+    // TODO: Make sure this order check npc vs mob when inheritence is set up.
+    // TODO: Handle items here...
+    if (gameObject instanceof NpcObject) {
+      distance = NPC_CLICK_EVENT_RANGE;
+    } else if (gameObject instanceof CharObject) {
+      distance = AVT_CLICK_EVENT_RANGE;
+    /*} else if (gameObject instanceof ItemObject) {
+      distance = ITEM_CLICK_EVENT_RANGE;*/
+    }
+  }
+
   this._setNextCmd(new MoveToObjCmd(this, gameObject, distance));
 };
 
