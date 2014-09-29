@@ -114,6 +114,32 @@ stats.domElement.style.left = '0px';
 stats.domElement.style.top = '0px';
 document.body.appendChild( stats.domElement );
 
+var wW = renderer.domElement.width;
+var wH = renderer.domElement.height;
+var spriteCam = new THREE.OrthographicCamera( wW/-2, wW/2, wH/2, wH/-2, 0, 1 );
+var spriteScene = new THREE.Scene();
+var spriteProj = new THREE.Projector();
+function _renderSprites() {
+  spriteScene.children = [];
+
+  scene.traverse(function(object) {
+    if (object instanceof OrthoSprite) {
+      var worldPos = object.localToWorld(new THREE.Vector3(0, 0, 0));
+      spriteProj.projectVector(worldPos, camera);
+      spriteProj.unprojectVector(worldPos, spriteCam);
+
+      worldPos.x = Math.round(worldPos.x) + object.offset.x;
+      worldPos.y = Math.round(worldPos.y) - object.offset.y;
+      object.renderSprite.position.copy(worldPos);
+      object.renderSprite.scale.copy(object.scale);
+
+      spriteScene.add(object.renderSprite);
+    }
+  });
+
+  renderer.render(spriteScene, spriteCam);
+}
+
 var clock = new THREE.Clock();
 var renderFrame = function () {
   requestAnimationFrame(renderFrame, renderer.domElement);
@@ -142,6 +168,8 @@ var renderFrame = function () {
     renderer.clear(true, true, false);
   }
   renderer.render(scene, renderCamera);
+
+  _renderSprites();
 
   stats.end();
 };
