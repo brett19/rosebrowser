@@ -180,9 +180,14 @@ function _checkCond(param, ins) {
   var wasSuccess = true;
   switch (ins.type) {
     case QuestScriptManager.CONDITIONS.SET_ACTIVE_QUEST:
-      qsdConsole.debug('Set Active Quest', ins.questID);
-      param.questSlot = MC.quests.findQuestByID(ins.questID);
-      param.questID = ins.questID;
+      qsdConsole.debug('Set Active Quest', ins.questID, MC.quests.findQuestByID(ins.questID));
+      var slot = MC.quests.findQuestByID(ins.questID);
+      if (slot >= 0 && slot < QuestData.QUEST.PLAYER_QUESTS) {
+        param.questSlot = MC.quests.findQuestByID(ins.questID);
+        param.questID = ins.questID;
+      } else {
+        wasSuccess = false;
+      }
       break;
     case QuestScriptManager.CONDITIONS.QUEST_VAR:
     case QuestScriptManager.CONDITIONS.QUEST_DATA:
