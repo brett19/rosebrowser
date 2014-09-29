@@ -106,9 +106,9 @@ function CharPawn(go) {
   this.rootObj = new THREE.Object3D();
   this.rootObj.owner = this;
   this.skel = null;
-  this.gender = 0;
+  this.gender = -1;
   this.motionCache = null;
-  this.activeMotionIdx = -1;
+  this.activeMotionIdx = AVTANI.STOP1;
   this.activeMotion = null;
   this.prevMotion = null;
   this.nameTag = null;
@@ -167,7 +167,7 @@ CharPawn.prototype._setSkeleton = function(skelData) {
   // Reset the loaded motions if the skeleton changed...
   this.motionCache = new IndexedCache(this._loadMotion.bind(this));
 
-  this.setMotion(AVTANI.STOP1);
+  this.setMotion(this.activeMotionIdx);
 };
 
 CharPawn.prototype._setModelPart = function(modelList, partIdx, modelIdx, bindBone, bindDummy) {
@@ -216,6 +216,11 @@ CharPawn.prototype._setModelPart = function(modelList, partIdx, modelIdx, bindBo
 };
 
 CharPawn.prototype.setGender = function(genderIdx, callback) {
+  // Dont waste time doing nothing
+  if (this.gender === genderIdx) {
+    return;
+  }
+
   var self = this;
   this.gender = genderIdx;
 
@@ -233,6 +238,12 @@ CharPawn.prototype.setGender = function(genderIdx, callback) {
 
 CharPawn.prototype.setMotion = function(motionIdx, callback) {
   this.activeMotionIdx = motionIdx;
+
+  // If the skeleton isn't loaded yet, just do nothing and the skeleton
+  //  loader will set it later.
+  if (!this.skel) {
+    return;
+  }
 
   var self = this;
   GDM.get('char_motiontypes', function(motionTypes) {

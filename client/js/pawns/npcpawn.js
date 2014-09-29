@@ -21,7 +21,7 @@ function NpcPawn(go) {
   this.skel = null;
   this.charIdx = 0;
   this.motionCache = new IndexedCache(this._loadMotion.bind(this));
-  this.activeMotionIdx = -1;
+  this.activeMotionIdx = NPCANI.STOP;
   this.activeMotion = null;
   this.prevMotion = null;
 
@@ -72,6 +72,12 @@ NpcPawn.prototype._loadMotion = function(actionIdx, callback) {
 
 NpcPawn.prototype.setMotion = function(actionIdx, callback) {
   this.activeMotionIdx = actionIdx;
+
+  // If the skeleton isn't loaded yet, just do nothing and the skeleton
+  //  loader will set it later.
+  if (!this.skel) {
+    return;
+  }
 
   var self = this;
   this.motionCache.get(actionIdx, function(anim) {
@@ -145,7 +151,7 @@ NpcPawn.prototype._setModel = function(charData, modelMgr, charIdx) {
       }
     }
 
-    self.setMotion(NPCANI.STOP);
+    self.setMotion(self.activeMotionIdx);
 
     for (var e = 0; e < char.effects.length; ++e) {
       var effectPath = charData.effects[char.effects[e].effectIdx];
@@ -171,6 +177,8 @@ NpcPawn.prototype.setModel = function(charIdx, callback) {
       callback();
     }
   });
+
+  // TODO: This should be moved away from the Pawn
   GDM.get('list_npc', 'npc_names', function(npcTable, stringTable) {
     var npcRow = npcTable.row(charIdx);
     var strKey = npcRow[40];
