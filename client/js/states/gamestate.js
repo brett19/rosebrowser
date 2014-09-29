@@ -29,6 +29,73 @@ GameState.prototype.update = function(delta) {
   this.gomVisMgr.update(delta);
 };
 
+function Conversation(spec, lang) {
+  EventEmitter.call(this);
+
+  this._state = new ConversationState(spec, lang);
+  this._luaState = eval(lua_load(spec.luaData))();
+  QF_Init(this._luaState);
+
+  this.message = '';
+  this.options = {};
+  this.dialog = null;
+}
+Conversation.prototype = Object.create(EventEmitter.prototype);
+
+Conversation.prototype._ensureDialog = function() {
+  if (!this.dialog) {
+    this.dialog = GUI.newNpcChatDialog(this);
+  }
+};
+
+Conversation.prototype.close = function() {
+  this.emit('closed');
+};
+
+Conversation.prototype.pickOption = function(optionId) {
+  this._state.condValue = optionId;
+  this._go();
+};
+
+Conversation.prototype._go = function() {
+  while (true) {
+    var reqval = this._state.exec();
+    if (reqval === CXECURREQ.LUACONDITION) {
+      var luaRes = lua_tablegetcall(this._luaState, this._state.condParam)[0];
+      this._state.condValue = luaRes;
+    } else if (reqval === CXECURREQ.OPTCONDITION) {
+      this.message = this._state.message;
+      this.options = this._state.options;
+      this.emit('changed');
+      this._ensureDialog();
+      break;
+    } else if (reqval === CXECURREQ.CLOSE) {
+      this.emit('closed');
+      break;
+    } else {
+      console.warn('Received unknown request from ConversationState.');
+      break;
+    }
+  }
+};
+
+GameState.prototype._startNpcTalk = function(npcObj) {
+  GDM.get('list_event', 'quest_scripts', function(eventList) {
+    var eventData = eventList.row(npcObj.eventIdx);
+    if (!eventData) {
+      console.log('Tried to start talking to an NPC with an invalid event.');
+      return;
+    }
+
+    // TODO: Cache all this stuff
+    NpcChatData.load(eventData[3], function(convSpec) {
+      var conv = new Conversation(convSpec, 'en');
+      conv._go();
+    });
+
+  });
+};
+
 GameState.prototype.enter = function() {
   this.worldMgr = gameWorld;
   this.gomVisMgr = new GOMVisManager(gameWorld);
@@ -90,7 +157,12 @@ GameState.prototype.enter = function() {
       var pickPawn = self.gomVisMgr.findByMesh(objPickInfo.object);
       if (pickPawn) {
         var pickGo = pickPawn.owner;
-        MC.moveToObj(pickGo);
+        var moveCmd = MC.moveToObj(pickGo);
+        moveCmd.on('finish', function() {
+          if (pickGo instanceof NpcObject) {
+            self._startNpcTalk(pickGo);
+          }
+        });
       }
     }
 

@@ -45,6 +45,7 @@ _NetManager.prototype.watch = function(wn, gn) {
       npc.charIdx = -data.charIdx;
       npc.hidden = true;
     }
+    npc.eventIdx = data.eventIdx;
     npc.setPosition(data.position.x, data.position.y, 10);
     npc.setDirection(data.modelDir / 180 * Math.PI);
     npc.dropFromSky();

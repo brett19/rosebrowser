@@ -363,7 +363,7 @@ function handleAddChar(pak, data) {
 function handleAddMob(pak, data) {
   handleAddChar(pak, data);
   data.charIdx = pak.readInt16();
-  data.questIdx = pak.readInt16();
+  data.eventIdx = pak.readInt16();
 }
 function handleAddNpc(pak, data) {
   handleAddMob(pak, data);

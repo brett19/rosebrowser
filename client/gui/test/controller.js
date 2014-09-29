@@ -237,7 +237,7 @@ function _CharSelDialog(characterList) {
     charHtml += 'Location: ' + char.zoneName;
 
     var item = $('<div class="item" />');
-    item.html(charHtml);
+    item.text(charHtml);
     list.append(item);
 
     item.click(this._selectCharacter.bind(this, i));
@@ -313,6 +313,62 @@ TestGui.prototype.newStatusDialog = function(initialMessage) {
     newDialog.setMessage(initialMessage);
   }
   return newDialog;
+};
+
+
+function _NpcChatDialog(conversation) {
+  TestGui.Dialog.call(this, '#dlgNpcChat');
+
+  this.convo = conversation;
+
+  var self = this;
+  this.convo.on('changed', function() {
+    self._update();
+  });
+  this.convo.on('closed', function() {
+    self._destroy();
+  });
+
+  this._update();
+  this._el().show();
+}
+_NpcChatDialog.prototype = Object.create(TestGui.Dialog.prototype);
+
+_NpcChatDialog.prototype._selectOption = function(optionId) {
+  if (optionId === 0) {
+    this.convo.close();
+  } else {
+    this.convo.pickOption(optionId);
+  }
+};
+
+_NpcChatDialog.prototype._update = function() {
+  this._find('.message').text(this.convo.message);
+
+  var options = this.convo.options;
+  var list = this._find('.options');
+  list.empty();
+  var optionNum = 1;
+  for (var i in options) {
+    if (options.hasOwnProperty(i)) {
+      var thisOptionNum = optionNum++;
+      var item = $('<div class="item" />');
+      item.text(thisOptionNum + '. ' + options[i]);
+      list.append(item);
+
+      item.click(this._selectOption.bind(this, parseInt(i)));
+    }
+  }
+  { // Add an option to close
+    var item = $('<div class="item" />');
+    item.text('0. Close');
+    list.append(item);
+    item.click(this._selectOption.bind(this, 0));
+  }
+};
+
+TestGui.prototype.newNpcChatDialog = function(conversation) {
+  return new _NpcChatDialog(conversation);
 };
 
 

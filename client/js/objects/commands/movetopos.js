@@ -2,6 +2,17 @@
 
 var EPSILON = 0.0001;
 
+/**
+ * MoveableObject command for handling moving to a position.
+ *
+ * @event enter When this command enters.
+ * @event leave When this command leaves.
+ * @event finish When we reach our target position.
+ *
+ * @param object
+ * @param pos
+ * @constructor
+ */
 function MoveToPosCmd(object, pos) {
   MoCommand.call(this, object);
   this.targetPos = pos;
@@ -111,6 +122,14 @@ MoveToPosCmd.prototype.update = function(delta) {
       }
 
       thisObj.setPosition(newPosition.x, newPosition.y, newPosition.z);
+
+      // Check if we have reached our target?
+      var targetDelta = thisObj.position.clone().sub(this.targetPos);
+      if (targetDelta.lengthSq() <= EPSILON) {
+        this.isComplete = true;
+        this.emit('finish');
+      }
+
       return deltaLeft;
     } else {
       // Bumped into something, just stop for now
@@ -119,6 +138,7 @@ MoveToPosCmd.prototype.update = function(delta) {
     }
   } else {
     this.isComplete = true;
+    this.emit('finish');
     return delta;
   }
 };

@@ -19,23 +19,29 @@ function MoveableObject(type, world) {
 MoveableObject.prototype = new GameObject();
 
 MoveableObject.prototype._setNextCmd = function(cmd) {
+  // We do not enter the newly submitted command immediately from here
+  //   to allow callers of this function to assign event handlers for
+  //   start or finish first.
+
   if (this.activeCmd) {
     this.activeCmd.wantInterrupt = true;
-    this.nextCmd = cmd;
-  } else {
-    this.activeCmd = cmd;
-    this.activeCmd.enter();
   }
+
+  this.nextCmd = cmd;
+
+  return cmd;
 };
 
 MoveableObject.prototype._moveTo = function(x, y) {
-  this._setNextCmd(new MoveToPosCmd(this, new THREE.Vector2(x, y)));
+  return this._setNextCmd(new MoveToPosCmd(this, new THREE.Vector2(x, y)));
 };
 MoveableObject.prototype.moveTo = function(x, y, z) {
-  this._moveTo(x, y);
+  var cmd = this._moveTo(x, y);
 
   // TODO: This does not properly handle moveTo being called on non-MC
   netGame.moveTo(x, y, z);
+
+  return cmd;
 };
 
 MoveableObject.prototype._moveToObj = function(objectRef, distance) {
@@ -44,7 +50,7 @@ MoveableObject.prototype._moveToObj = function(objectRef, distance) {
     return;
   }
 
-  this._setNextCmd(new MoveToObjCmd(this, objectRef, distance));
+  return this._setNextCmd(new MoveToObjCmd(this, objectRef, distance));
 };
 
 MoveableObject.prototype.moveToObj = function(gameObject, distance) {
@@ -53,9 +59,11 @@ MoveableObject.prototype.moveToObj = function(gameObject, distance) {
     return;
   }
 
-  this._moveToObj(gameObject.ref, distance);
+  var cmd = this._moveToObj(gameObject.ref, distance);
 
   // Don't send network event for now...
+
+  return cmd;
 };
 
 MoveableObject.prototype.setDirection = function(radians) {
@@ -65,16 +73,22 @@ MoveableObject.prototype.setDirection = function(radians) {
 
 MoveableObject.prototype.update = function(delta) {
   var deltaLeft = delta;
-  while (this.activeCmd && deltaLeft > EPSILON) {
+  while (deltaLeft > EPSILON) {
+    if (!this.activeCmd) {
+      if (this.nextCmd) {
+        this.activeCmd = this.nextCmd;
+        this.nextCmd = null;
+        this.activeCmd._enter();
+      } else {
+        break;
+      }
+    }
+
     deltaLeft = this.activeCmd.update(deltaLeft);
 
     if (this.activeCmd.isComplete) {
-      this.activeCmd.leave();
-      this.activeCmd = this.nextCmd;
-      this.nextCmd = null;
-      if (this.activeCmd) {
-        this.activeCmd.enter();
-      }
+      this.activeCmd._leave();
+      this.activeCmd = null;
     }
   }
 };

@@ -53,6 +53,7 @@ MoveToObjCmd.prototype.update = function(delta) {
     return MoveToPosCmd.prototype.update.call(this, delta);
   } else {
     this.isComplete = true;
+    this.emit('finish');
     return delta;
   }
 };

@@ -99,9 +99,15 @@ function QF_Init(luaState) {
   lua_SETFUNC(luaState, 'QF_closeCon');
   lua_SETFUNC(luaState, 'QF_deleteQuest');
   lua_SETFUNC(luaState, 'QF_doQuestTrigger');
-  lua_SETFUNC(luaState, 'QF_findQuest');
+  lua_SETFUNC(luaState, 'QF_findQuest', function(questId) {
+    // TODO: Actually look for the quest...
+    return [ -1 ];
+  });
   lua_SETFUNC(luaState, 'QF_getClanVAR');
-  lua_SETFUNC(luaState, 'QF_getEpisodeVAR');
+  lua_SETFUNC(luaState, 'QF_getEpisodeVAR', function(varNo) {
+    // TODO: Actually retrieve the episode var...
+    return [ 0 ];
+  });
   lua_SETFUNC(luaState, 'QF_getEventOwner');
   lua_SETFUNC(luaState, 'QF_getJobVAR');
   lua_SETFUNC(luaState, 'QF_getNpcQuestZeroVal');
