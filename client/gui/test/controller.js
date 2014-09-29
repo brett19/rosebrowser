@@ -175,8 +175,7 @@ function _SrvSelDialog(serverList) {
     list.append(item);
 
     item.dblclick(function(_serverId) {
-      this.emit('done', _serverId);
-      this._destroy();
+      this._selectServer(_serverId);
     }.bind(this, serverId));
 
     if (i === 0) {
@@ -185,6 +184,9 @@ function _SrvSelDialog(serverList) {
   }
   TestGui.listify(list);
 
+  this._keyDownCallback = this._onKeyDown.bind(this);
+  InputManager.on('keydown', this._keyDownCallback);
+
   this._el().show();
 }
 _SrvSelDialog.prototype = Object.create(TestGui.Dialog.prototype);
@@ -192,6 +194,28 @@ _SrvSelDialog.prototype = Object.create(TestGui.Dialog.prototype);
 _SrvSelDialog.prototype.cancel = function() {
   this._destroy();
 };
+
+_SrvSelDialog.prototype._selectServer = function(serverId) {
+  this.emit('done', serverId);
+  this._destroy();
+};
+
+_SrvSelDialog.prototype._onKeyDown = function(e) {
+  var selected = this._find('.servers').children('.selected');
+  if (e.keyCode === TestGui.KEYS.ENTER) {
+    selected.dblclick();
+  } else if (e.keyCode === TestGui.KEYS.UP_ARROW) {
+    selected.prev().click();
+  } else if (e.keyCode === TestGui.KEYS.DOWN_ARROW) {
+    selected.next().click();
+  }
+};
+
+_SrvSelDialog.prototype._destroy = function() {
+  TestGui.Dialog.prototype._destroy.call(this);
+  InputManager.removeEventListener('keydown', this._keyDownCallback);
+};
+
 
 TestGui.prototype.pickServer = function(serverList) {
   return new _SrvSelDialog(serverList);
