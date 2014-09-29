@@ -122,7 +122,7 @@ var spriteProj = new THREE.Projector();
 function _renderSprites() {
   spriteScene.children = [];
 
-  scene.traverse(function(object) {
+  scene.traverseVisible(function(object) {
     if (object instanceof OrthoSprite) {
       var worldPos = object.localToWorld(new THREE.Vector3(0, 0, 0));
       spriteProj.projectVector(worldPos, camera);
