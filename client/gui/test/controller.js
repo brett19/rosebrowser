@@ -237,7 +237,7 @@ function _CharSelDialog(characterList) {
     charHtml += 'Location: ' + char.zoneName;
 
     var item = $('<div class="item" />');
-    item.text(charHtml);
+    item.html(charHtml);
     list.append(item);
 
     item.click(this._selectCharacter.bind(this, i));
