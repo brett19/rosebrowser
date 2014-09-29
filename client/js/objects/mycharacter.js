@@ -18,6 +18,7 @@ function MyCharacter(world) {
     sen: undefined
   };
   this.inventory = undefined;
+  this.quests = undefined;
 }
 MyCharacter.prototype = new CharObject();
 

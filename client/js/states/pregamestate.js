@@ -29,6 +29,8 @@ PreGameState.prototype.enter = function() {
   netGame.on('inventory_data', function(data) {
     invData = data;
   });
+
+  // TODO: Maybe remove these from here - they can be sent any time, not only on login
   netGame.on('quest_log', function(data) {
     questLog = data;
   });
@@ -84,6 +86,7 @@ PreGameState.prototype.enter = function() {
           MC.hairColor = charData.hairColor;
           MC.visParts = charData.parts;
           MC.inventory = InventoryData.fromPacketData(invData);
+          MC.quests = QuestData.fromPacketData(questLog.quests, questVars.vars, questItems.items, dailyQuestLog.dailyLog);
           MC.debugValidate();
 
           // TODO: This should be set when the real index is received after

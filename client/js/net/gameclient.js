@@ -110,6 +110,25 @@ GameClient.prototype.moveTo = function(x, y, z) {
   */
 };
 
+var TYPE_QUEST_REQ_ADD = 0x01;
+var TYPE_QUEST_REQ_DEL = 0x02;
+var TYPE_QUEST_REQ_DO_TRIGGER = 0x03;
+
+GameClient.prototype.questRequest = function(type, slot, id, trigger)
+{
+  var opak = new RosePacket(0x730);
+  opak.addUint8(type);
+  opak.addUint8(slot);
+
+  if (trigger && trigger.length > 0) {
+    opak.addUint32(StrToHashKey(trigger));
+  } else {
+    opak.addUint32(id);
+  }
+
+  this.socket.sendPacket(opak);
+};
+
 /**
  * Little helper to emit packet events that can be logged.
  * @param {string} event
@@ -245,76 +264,109 @@ GameClient._registerHandler(0x716, function(pak, data) {
   this._emitPE('inventory_data', data);
 });
 
-GameClient._registerHandler(0x855, function(pak, data) {
+var RESULT_QUEST_REPLY_ADD_SUCCESS = 0x01;
+var RESULT_QUEST_REPLY_ADD_FAILED = 0x02;
+var RESULT_QUEST_REPLY_DEL_SUCCESS = 0x03;
+var RESULT_QUEST_REPLY_DEL_FAILED = 0x04;
+var RESULT_QUEST_REPLY_TRIGGER_SUCCESS = 0x05;
+var RESULT_QUEST_REPLY_TRIGGER_FAILED = 0x06;
+var RESULT_QUEST_REPLY_UPDATE = 0x07;
+var RESULT_QUEST_REPLY_COMPLETE = 0x08;
+var RESULT_QUEST_REPLY_RESET = 0x09;
+var RESULT_QUEST_REPLY_DAILY_RESET = 0x0a;
+
+GameClient._registerHandler(0x730, function(pak, data) {
   data.result = pak.readUint8();
+  data.questSlot = pak.readUint8();
   data.dailyQuests = pak.readUint32();
+  data.quest = pak.readUint32();
+  this._emitPE('quest_reply', data);
+});
+
+GameClient._registerHandler(0x855, function(pak, data) {
+  data.dailyLog = new QuestData.DailyLog();
+
+  data.result = pak.readUint8();
+  data.dailyLog.dailyQuests = pak.readUint32();
+
   var questCount = pak.readUint32();
-  data.quests = [];
   for (var i = 0; i < questCount; ++i) {
-    data.quests.push(pak.readUint32());
+    data.dailyLog.quests.push(pak.readUint32());
   }
+
   this._emitPE('quest_completion_data', data);
 });
 
 GameClient._registerHandler(0x723, function(pak, data) {
-  data.result = pak.readUint8();
-  var qitemCount = pak.readUint16();
+  var count = 0;
+
   data.items = [];
-  for (var k = 0; k < qitemCount; ++k) {
-    var questNo = pak.readInt32();
-    var qitem = pak.readItem();
-    qitem.questNo = questNo;
-    data.items.push(qitem);
+  data.result = pak.readUint8();
+  count = pak.readUint16();
+
+  for (var i = 0; i < count; ++i) {
+    var item = new QuestData.Item();
+    item.quest = pak.readInt32();
+    item.item = pak.readItem();
+    data.items.push(item);
   }
+
   this._emitPE('questitem_list', data);
 });
 
 var RESULT_QUEST_DATA_QUESTVAR = 0x00;
 var RESULT_QUEST_DATA_QUESTLOG = 0x01;
-var QUEST_PER_PLAYER = 10;
-var QUEST_VAR_PER_QUEST = 10;
-var QUEST_EPISODE_VAR_CNT = 5;
-var QUEST_JOB_VAR_CNT = 3;
-var QUEST_PLANET_VAR_CNT = 7;
-var QUEST_UNION_VAR_CNT = 10;
-var QUEST_SWITCH_CNT = 512;
+
 GameClient._registerHandler(0x71b, function(pak, data) {
+  var i, j;
+
   data.result = pak.readUint8();
+
   if (data.result === RESULT_QUEST_DATA_QUESTVAR) {
-    data.episodeVars = [];
-    for (var ie = 0; ie < QUEST_EPISODE_VAR_CNT; ++ie) {
-      data.episodeVars.push(pak.readInt16());
+    var vars = new QuestData.Variables();
+
+    for (i = 0; i < QuestData.QUEST.EPISODE_VARS; ++i) {
+      vars.episode.push(pak.readInt16());
     }
-    data.jobVars = [];
-    for (var ij = 0; ij < QUEST_JOB_VAR_CNT; ++ij) {
-      data.jobVars.push(pak.readInt16());
+
+    for (i = 0; i < QuestData.QUEST.JOB_VARS; ++i) {
+      vars.job.push(pak.readInt16());
     }
-    data.planetVars = [];
-    for (var ip = 0; ip < QUEST_PLANET_VAR_CNT; ++ip) {
-      data.planetVars.push(pak.readInt16());
+
+    for (i = 0; i < QuestData.QUEST.PLANET_VARS; ++i) {
+      vars.planet.push(pak.readInt16());
     }
-    data.unionVars = [];
-    for (var iu = 0; iu < QUEST_UNION_VAR_CNT; ++iu) {
-      data.unionVars.push(pak.readInt16());
+
+    for (i = 0; i < QuestData.QUEST.UNION_VARS; ++i) {
+      vars.union.push(pak.readInt16());
     }
-    data.switches = [];
-    for (var is = 0; is < QUEST_SWITCH_CNT / 8; ++is) {
-      data.switches.push(pak.readUint8());
+
+    for (i = 0; i < QuestData.QUEST.USER_SWITCHES / 8; ++i) {
+      vars.switches.push(pak.readUint8());
     }
+
+    data.vars = vars;
     this._emitPE('quest_vars', data);
   } else if (data.result === RESULT_QUEST_DATA_QUESTLOG) {
     data.quests = [];
-    for (var i = 0; i < QUEST_PER_PLAYER; ++i) {
-      var quest = {};
+
+    for (i = 0; i < QuestData.QUEST.PLAYER_QUESTS; ++i) {
+      var quest = new QuestData.Quest();
       quest.id = pak.readUint16();
       quest.expiryTime = pak.readUint32();
       quest.vars = [];
-      for (var j = 0; j < QUEST_VAR_PER_QUEST; ++j) {
+
+      for (j = 0; j < QuestData.QUEST.QUEST_VARS; ++j) {
         quest.vars.push(pak.readInt16());
       }
-      quest.switches = pak.readUint32();
+
+      for (j = 0; j < QuestData.QUEST.QUEST_SWITCHES / 8; ++j) {
+        quest.switches.push(pak.readUint8());
+      }
+
       data.quests.push(quest);
     }
+
     this._emitPE('quest_log', data);
   } else {
     console.warn('Received unknown quest data result.')

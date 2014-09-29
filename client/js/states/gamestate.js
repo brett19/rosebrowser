@@ -172,6 +172,40 @@ GameState.prototype.enter = function() {
       self.pickPosH.position.copy(moveToPos);
     }
   });
+
+  // TODO: @brett19 maybe move these somewhere else?
+  netGame.on('quest_log', function(data) {
+    MC.quests.setQuests(data.quests);
+  });
+
+  netGame.on('quest_vars', function(data) {
+    MC.quests.setVars(data.vars);
+  });
+
+  netGame.on('questitem_list', function(data) {
+    MC.quests.setItems(data.items);
+  });
+
+  netGame.on('quest_completion_data', function(data) {
+    MC.quests.setDailyLog(data.dailyLog);
+  });
+
+  netGame.on('quest_reply', function(data) {
+    switch(data.result) {
+      case RESULT_QUEST_REPLY_ADD_SUCCESS:
+      case RESULT_QUEST_REPLY_ADD_FAILED:
+      case RESULT_QUEST_REPLY_DEL_SUCCESS:
+      case RESULT_QUEST_REPLY_DEL_FAILED:
+      case RESULT_QUEST_REPLY_TRIGGER_SUCCESS:
+      case RESULT_QUEST_REPLY_TRIGGER_FAILED:
+      case RESULT_QUEST_REPLY_UPDATE:
+      case RESULT_QUEST_REPLY_COMPLETE:
+      case RESULT_QUEST_REPLY_RESET:
+      case RESULT_QUEST_REPLY_DAILY_RESET:
+      default:
+        console.warn('Unimplemented quest reply result ' + data.result);
+    }
+  });
 };
 
 GameState.prototype.leave = function() {

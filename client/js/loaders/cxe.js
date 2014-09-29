@@ -140,7 +140,6 @@ ConversationState.prototype.exec = function() {
   this.condParam = '';
 
   while (true) {
-
     var currentPc = this.nextPc++;
     var ins = this.spec.instructions[currentPc];
 
