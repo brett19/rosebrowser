@@ -3,6 +3,29 @@
 function TestGui() {
 }
 
+TestGui.KEYS = {
+  BACKSPACE: 8,
+  TAB: 9,
+  ENTER: 13,
+  SHIFT: 16,
+  CTRL: 17,
+  ALT: 18,
+  PAUSE: 19,
+  CAPS_LOCK: 20,
+  ESCAPE: 27,
+  SPACE: 32,
+  PAGE_UP: 33,
+  PAGE_DOWN: 34,
+  END: 45,
+  HOME: 46,
+  LEFT_ARROW: 37,
+  UP_ARROW: 38,
+  RIGHT_ARROW: 39,
+  DOWN_ARROW: 40,
+  INSERT: 45,
+  DELETE: 46
+};
+
 TestGui._highZ = 1;
 TestGui.tpls = null;
 
@@ -104,13 +127,13 @@ function _LoginDialog() {
   }.bind(this));
 
   this._find('.username').keydown(function(e) {
-    if (e.keyCode == 13) {
+    if (e.keyCode === TestGui.KEYS.ENTER) {
       this._login();
     }
   }.bind(this));
 
   this._find('.password').keydown(function(e) {
-    if (e.keyCode == 13) {
+    if (e.keyCode === TestGui.KEYS.ENTER) {
       this._login();
     }
   }.bind(this));
