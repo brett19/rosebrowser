@@ -58,23 +58,39 @@ Conversation.prototype.pickOption = function(optionId) {
 };
 
 Conversation.prototype._go = function() {
-  while (true) {
+  var running = true;
+  while (running) {
     var reqval = this._state.exec();
-    if (reqval === CXECURREQ.LUACONDITION) {
-      var luaRes = lua_tablegetcall(this._luaState, this._state.condParam)[0];
-      this._state.condValue = luaRes;
-    } else if (reqval === CXECURREQ.OPTCONDITION) {
+
+    switch(reqval) {
+    case CXECURREQ.CLOSE:
+      this.emit('closed');
+      running = false;
+      break;
+    case CXECURREQ.OPTCONDITION:
       this.message = this._state.message;
       this.options = this._state.options;
       this.emit('changed');
       this._ensureDialog();
+      running = false;
       break;
-    } else if (reqval === CXECURREQ.CLOSE) {
-      this.emit('closed');
+    case CXECURREQ.LUACONDITION:
+      var result = lua_tablegetcall(this._luaState, this._state.condParam);
+      this._state.condValue = result[0];
       break;
-    } else {
+    case CXECURREQ.LUAACTION:
+      lua_tablegetcall(this._luaState, this._state.condParam);
+      break;
+    case CXECURREQ.QSDCONDITION:
+      var result = QF_checkQuestCondition(this._state.condParam);
+      this._state.condValue = result[0];
+      break;
+    case CXECURREQ.QSDACTION:
+      QF_doQuestTrigger(this._state.condParam);
+      break;
+    default:
       console.warn('Received unknown request from ConversationState.');
-      break;
+      running = false;
     }
   }
 };

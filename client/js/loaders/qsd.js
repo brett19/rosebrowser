@@ -73,7 +73,7 @@ QuestLogicData.load = function(path, callback) {
           switch (ins.type) {
             // Quest Selection
             case 0:
-              ins.questNo = rh.readUint32();
+              ins.questID = rh.readUint32();
               break;
             // Quest Variable/Switch/Timer Check
             case 1:
@@ -156,7 +156,7 @@ QuestLogicData.load = function(path, callback) {
               break;
             // Check Quest Switch (Character)
             case 14:
-              ins.questNo = rh.readInt16();
+              ins.id = rh.readInt16();
               ins.op = rh.readUint8();
               /* padding */ rh.skip(1);
               break;

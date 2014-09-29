@@ -71,6 +71,23 @@ function GF_Init(luaState) {
   lua_SETFUNC(luaState, 'GF_zoomCamera');
 }
 
+function QF_checkQuestCondition(triggerName) {
+  var questScripts = GDM.getNow('quest_scripts');
+  luaConsole.debug('QF_checkQuestCondition(', triggerName, ')');
+  var res = questScripts.checkOnly(triggerName);
+  luaConsole.debug('QF_checkQuestCondition Result:', res);
+  return [ res ? 1 : 0 ];
+}
+
+function QF_doQuestTrigger(triggerName) {
+  if (QF_checkQuestCondition(triggerName)[0] <= 0) {
+    return [ 0 ];
+  }
+
+  netGame.questRequest(TYPE_QUEST_REQ_DO_TRIGGER, 0, 0, triggerName);
+  return [ 1 ];
+}
+
 function QF_Init(luaState) {
   GF_Init(luaState);
 
@@ -89,36 +106,47 @@ function QF_Init(luaState) {
   lua_SETFUNC(luaState, 'QF_NpcView');
   lua_SETFUNC(luaState, 'QF_appendQuest');
   lua_SETFUNC(luaState, 'QF_beginCon');
-  lua_SETFUNC(luaState, 'QF_checkQuestCondition', function(triggerName) {
-    var questScripts = GDM.getNow('quest_scripts');
-    luaConsole.debug('QF_checkQuestCondition(', triggerName, ')');
-    var res = questScripts.checkOnly(triggerName);
-    luaConsole.debug('QF_checkQuestCondition Result:', res);
-    return [ res ? 1 : 0 ];
-  });
+  lua_SETFUNC(luaState, 'QF_checkQuestCondition', QF_checkQuestCondition);
   lua_SETFUNC(luaState, 'QF_closeCon');
   lua_SETFUNC(luaState, 'QF_deleteQuest');
-  lua_SETFUNC(luaState, 'QF_doQuestTrigger');
-  lua_SETFUNC(luaState, 'QF_findQuest', function(questId) {
-    // TODO: Actually look for the quest...
-    return [ -1 ];
-  });
+  lua_SETFUNC(luaState, 'QF_doQuestTrigger', QF_doQuestTrigger);
   lua_SETFUNC(luaState, 'QF_getClanVAR');
   lua_SETFUNC(luaState, 'QF_getEpisodeVAR', function(varNo) {
-    // TODO: Actually retrieve the episode var...
-    return [ 0 ];
+    return [ MC.quests.getEpisodeVar(varNo) ];
+  });
+  lua_SETFUNC(luaState, 'QF_getJobVAR', function(varNo) {
+    return [ MC.quests.getJobVar(varNo) ];
+  });
+  lua_SETFUNC(luaState, 'QF_getPlanetVAR', function(varNo) {
+    return [ MC.quests.getPlanetVar(varNo) ];
+  });
+  lua_SETFUNC(luaState, 'QF_getUnionVAR', function(varNo) {
+    return [ MC.quests.getUnionVar(varNo) ];
+  });
+  lua_SETFUNC(luaState, 'QF_getUserSwitch', function(switchId) {
+    return [ MC.quests.getSwitch(switchId) ];
+  });
+  lua_SETFUNC(luaState, 'QF_getQuestCount', function() {
+    return [ MC.quests.getQuestCount() ];
+  });
+  lua_SETFUNC(luaState, 'QF_findQuest', function(id) {
+    return [ MC.quests.findQuestByID(id) ];
+  });
+  lua_SETFUNC(luaState, 'QF_getQuestID', function(questNo) {
+    return [ MC.quests.getQuestId(questNo) ];
+  });
+  lua_SETFUNC(luaState, 'QF_getQuestItemQuantity', function(questID, itemNo) {
+    return [ MC.quests.getQuestItemQuantity(questID, Math.floor(itemNo / 1000), itemNo % 1000) ];
+  });;
+  lua_SETFUNC(luaState, 'QF_getQuestSwitch', function(questNo, id) {
+    return [ MC.quests.getQuestSwitch(questNo, id) ];
+  });
+  lua_SETFUNC(luaState, 'QF_getQuestVar', function(questNo, id) {
+    return [ MC.quests.getQuestVar(questNo, id) ];
   });
   lua_SETFUNC(luaState, 'QF_getEventOwner');
-  lua_SETFUNC(luaState, 'QF_getJobVAR');
   lua_SETFUNC(luaState, 'QF_getNpcQuestZeroVal');
-  lua_SETFUNC(luaState, 'QF_getQuestCount');
-  lua_SETFUNC(luaState, 'QF_getQuestID');
-  lua_SETFUNC(luaState, 'QF_getQuestItemQuantity');
-  lua_SETFUNC(luaState, 'QF_getQuestSwitch');
-  lua_SETFUNC(luaState, 'QF_getQuestVar');
   lua_SETFUNC(luaState, 'QF_getSkillLevel');
-  lua_SETFUNC(luaState, 'QF_getUnionVAR');
-  lua_SETFUNC(luaState, 'QF_getUserSwitch');
   lua_SETFUNC(luaState, 'QF_givePoint');
   lua_SETFUNC(luaState, 'QF_gotoCon');
 }
