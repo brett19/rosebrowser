@@ -57,6 +57,30 @@ Conversation.prototype.pickOption = function(optionId) {
   this._go();
 };
 
+Conversation.prototype._formatString = function(string) {
+  var search = /<[A-Z_]*>/g;
+  var match;
+
+  while(match = search.exec(string)) {
+    var prefix = string.substr(0, match.index);
+    var suffix = string.substr(match.index + match[0].length);
+    var content = match[0].substr(1, match[0].length - 2);
+
+    // https://github.com/brett19/RoseOnlineEvo/blob/master/Game/Client/Event/CEvent.cpp#L553-L585
+    if (content === 'NAME') {
+      content = MC.name;
+    } else if (content === 'LEVEL') {
+      content = MC.level;
+    } else {
+      content = match[0];
+    }
+
+    string = prefix + content + suffix;
+  }
+
+  return string;
+};
+
 Conversation.prototype._go = function() {
   var running = true;
   while (running) {
@@ -68,8 +92,11 @@ Conversation.prototype._go = function() {
       running = false;
       break;
     case CXECURREQ.OPTCONDITION:
-      this.message = this._state.message;
+      this.message = this._formatString(this._state.message);
       this.options = this._state.options;
+      for (var i = 0; i < this.options; ++i) {
+        this.options[i] = this._formatString(this.options[i]);
+      }
       this.emit('changed');
       this._ensureDialog();
       running = false;
