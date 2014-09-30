@@ -47,7 +47,8 @@ MyCharacter.prototype.debugValidate = function() {
     ['stats.con', 0, 5000],
     ['stats.cha', 0, 5000],
     ['stats.sen', 0, 5000],
-    ['inventory']
+    ['inventory'],
+    ['quests']
   ]);
   CharObject.prototype.debugValidate.call(this);
 };

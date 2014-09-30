@@ -6,13 +6,13 @@
 function CharObject(world) {
   MoveableObject.call(this, 'char', world);
 
-  this.name = '';
-  this.level = 0;
-  this.job = 0;
-  this.gender = 0;
-  this.hairColor = 0;
-  this.hp = 0;
-  this.visParts = null;
+  this.name = undefined;
+  this.level = undefined;
+  this.job = undefined;
+  this.gender = undefined;
+  this.hairColor = undefined;
+  this.hp = undefined;
+  this.visParts = undefined;
 }
 CharObject.prototype = new MoveableObject();
 

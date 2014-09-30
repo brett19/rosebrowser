@@ -6,6 +6,6 @@
 function MobObject(world) {
   MoveableObject.call(this, 'mob', world);
 
-  this.charIdx = 0;
+  this.charIdx = undefined;
 }
 MobObject.prototype = new MoveableObject();

@@ -6,7 +6,7 @@
 function NpcObject(world) {
   MoveableObject.call(this, 'npc', world);
 
-  this.charIdx = 0;
-  this.eventIdx = 0;
+  this.charIdx = undefined;
+  this.eventIdx = undefined;
 }
 NpcObject.prototype = new MoveableObject();
