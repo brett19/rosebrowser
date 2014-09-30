@@ -69,6 +69,8 @@ _NetManager.prototype.watch = function(wn, gn) {
     char.hairColor = data.hairColor;
     char.visParts = data.parts;
     char.stats = new CharStats(char);
+    char.stats.attackSpeed = data.attackSpeed;
+    char.stats.attackSpeedBase = data.attackSpeedBase;
     char.debugValidate();
     char.dropFromSky();
     if (data.command !== 0) {

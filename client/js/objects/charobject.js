@@ -1,5 +1,7 @@
 'use strict';
 
+var DEFAULT_ATTACK_DISTANCE = 0.7;
+
 /**
  * @constructor
  */

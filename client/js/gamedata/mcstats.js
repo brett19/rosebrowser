@@ -24,10 +24,30 @@ McStats.prototype.debugValidate = function() {
   ]);
 };
 
-McStats.prototype.getAttackSpeed = function() {
+CharStats.prototype._getEquipData = function(equipIdx) {
+  var itemData = GDM.getNow('item_data');
+  var item = this.object.inventory.findByLocSlot(ITEMLOC.EQUIPPED_EQUIP, equipIdx);
+  if (!item) {
+    // Empty Slot
+    return null;
+  }
+  var equipItemType = ITMPARTTOTYPE[equipIdx];
+  if (item.itemType !== equipItemType) {
+    console.warn('Item found in incorret equipment slot.');
+    return null;
+  }
+  return itemData.getData(item.itemType, item.itemNo);
+};
 
+McStats.prototype.getAttackSpeed = function() {
+  // TODO: Implement this properly!
+  return 1;
 };
 
 McStats.prototype.getAttackDistance = function() {
-
+  var weaponData = this._getEquipData(INVEQUIPIDX.WEAPON);
+  if (!weaponData) {
+    return DEFAULT_ATTACK_DISTANCE;
+  }
+  return weaponData[WEAPON_DATA.RANGE];
 };
