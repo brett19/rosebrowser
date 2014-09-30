@@ -72,6 +72,11 @@ GOMVisManager.prototype._addObjectItem = function(obj) {
 GOMVisManager.prototype._addObject = function(obj) {
   console.log('GOMVis::_addObject', obj);
 
+  if (obj instanceof MyCharacter) {
+    // Local objects are instantiated automagically elsewhere.
+    return null;
+  }
+
   var visObj = null;
   if (obj instanceof MoveableObject) {
     visObj = this._addObjectMovable(obj);
