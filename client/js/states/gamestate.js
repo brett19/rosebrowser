@@ -162,6 +162,13 @@ GameState.prototype.enter = function() {
   controls.damping = 0.2;
 
   netGame.joinZone(MC.position.z, function() {
+    // TODO: Read the actual serverObjectIdx
+    MC.hp = 1;
+    MC.serverObjectIdx = 9999999;
+    MC.debugValidate();
+    MC.dropFromSky();
+    GOM.addObject(MC);
+
     console.log('ZONE JOINED');
   });
 

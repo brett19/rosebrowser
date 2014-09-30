@@ -8,5 +8,6 @@ function NpcObject(world) {
 
   this.charIdx = undefined;
   this.eventIdx = undefined;
+  this.stats = undefined;
 }
 NpcObject.prototype = new MoveableObject();

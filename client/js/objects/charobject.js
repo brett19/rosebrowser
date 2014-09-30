@@ -13,6 +13,7 @@ function CharObject(world) {
   this.hairColor = undefined;
   this.hp = undefined;
   this.visParts = undefined;
+  this.stats = undefined;
 }
 CharObject.prototype = new MoveableObject();
 
@@ -36,6 +37,10 @@ CharObject.prototype.debugValidate = function() {
     ['gender', 0, 1],
     ['hairColor', 0],
     ['hp', 0, 999999],
-    ['visParts']
+    ['visParts'],
+    ['stats']
   ]);
+  if (this.stats) {
+    this.stats.debugValidate();
+  }
 };

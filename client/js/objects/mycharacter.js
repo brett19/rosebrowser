@@ -9,14 +9,6 @@ function MyCharacter(world) {
   this.useMoveCollision = true;
 
   this.mp = undefined;
-  this.stats = {
-    str: undefined,
-    dex: undefined,
-    int: undefined,
-    con: undefined,
-    cha: undefined,
-    sen: undefined
-  };
   this.inventory = undefined;
   this.quests = undefined;
 }
@@ -41,12 +33,6 @@ MyCharacter.prototype.getAbilityValue = function(abilType) {
 MyCharacter.prototype.debugValidate = function() {
   debugValidateProps(this, [
     ['mp', 0, 999999],
-    ['stats.str', 0, 5000],
-    ['stats.dex', 0, 5000],
-    ['stats.int', 0, 5000],
-    ['stats.con', 0, 5000],
-    ['stats.cha', 0, 5000],
-    ['stats.sen', 0, 5000],
     ['inventory'],
     ['quests']
   ]);

@@ -46,6 +46,7 @@ _NetManager.prototype.watch = function(wn, gn) {
       npc.hidden = true;
     }
     npc.eventIdx = data.eventIdx;
+    npc.stats = new NpcStats(npc);
     npc.setPosition(data.position.x, data.position.y, 10);
     npc.setDirection(data.modelDir / 180 * Math.PI);
     npc.dropFromSky();
@@ -67,6 +68,7 @@ _NetManager.prototype.watch = function(wn, gn) {
     char.job = data.job;
     char.hairColor = data.hairColor;
     char.visParts = data.parts;
+    char.stats = new CharStats(char);
     char.debugValidate();
     char.dropFromSky();
     if (data.command !== 0) {
@@ -84,6 +86,7 @@ _NetManager.prototype.watch = function(wn, gn) {
       mob.charIdx = -data.charIdx;
       mob.hidden = true;
     }
+    mob.stats = new NpcStats(mob);
     mob.setPosition(data.position.x, data.position.y, 10);
     mob.dropFromSky();
     if (data.command !== 0) {

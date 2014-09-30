@@ -81,19 +81,19 @@ PreGameState.prototype.enter = function() {
           MC.position.y = charData.posStart.y;
           MC.mp = charData.mp;
           MC.gender = charData.gender;
-          MC.stats = charData.stats;
           MC.job = charData.job;
           MC.hairColor = charData.hairColor;
           MC.visParts = charData.parts;
+          MC.stats = new McStats(MC);
+          MC.stats.str = charData.stats.str;
+          MC.stats.dex = charData.stats.dex;
+          MC.stats.int = charData.stats.int;
+          MC.stats.con = charData.stats.con;
+          MC.stats.cha = charData.stats.cha;
+          MC.stats.sen = charData.stats.sen;
           MC.inventory = InventoryData.fromPacketData(invData);
           MC.quests = QuestData.fromPacketData(questLog.quests, questVars.vars, questItems.items, dailyQuestLog.dailyLog);
-          MC.debugValidate();
-
-          // TODO: This should be set when the real index is received after
-          //   joining the zone, and addObject should follow that.
-          MC.serverObjectIdx = 9999999;
-          MC.dropFromSky();
-          GOM.addObject(MC);
+          // MC validation and GOM addition defered to after JOIN_ZONE.
 
           console.log('MC Loaded', MC);
 
