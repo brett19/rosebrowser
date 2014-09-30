@@ -7,8 +7,8 @@
  * of precision issues at high values.
  *
  * @constructor
- * @param {number} lo
- * @param {number} hi
+ * @param {number} [lo]
+ * @param {number} [hi]
  */
 function Int64(lo, hi) {
   if (lo === undefined && hi === undefined) {
