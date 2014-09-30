@@ -63,3 +63,13 @@ InventoryData.fromPacketData = function(itemData) {
   inv.money = itemData.money;
   return inv;
 };
+
+InventoryData.prototype.findByLocSlot = function(location, slotNo) {
+  for (var i = 0; i < this.items.length; ++i) {
+    var item = this.items[i];
+    if (item.location === location && item.slotNo === slotNo) {
+      return item;
+    }
+  }
+  return null;
+};
