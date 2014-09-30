@@ -1,9 +1,19 @@
 'use strict';
 
 function logPacket(text, pak) {
-  netConsole.groupCollapsed(text + ' <Packet ' + pak.cmd.toString(16) + '>');
-  netConsole.debug(_ppBuffer(pak.data, pak.dataLength));
-  netConsole.groupEnd();
+  if (!config.fullPacketData) {
+    var pakDataStr = '';
+    if (pak.dataLength > 32) {
+      pakDataStr = _ppBuffer(pak.data, 32) + ' ...';
+    } else {
+      pakDataStr = _ppBuffer(pak.data, pak.dataLength);
+    }
+    netConsole.debug(text + ' <Packet ' + pak.cmd.toString(16) + ' ' + pakDataStr + '>');
+  } else {
+    netConsole.groupCollapsed(text + ' <Packet ' + pak.cmd.toString(16) + '>');
+    netConsole.debug(_ppBuffer(pak.data, pak.dataLength));
+    netConsole.groupEnd();
+  }
 }
 
 function _checkPacket(pak) {
