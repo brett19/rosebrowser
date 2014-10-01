@@ -1,5 +1,19 @@
 'use strict';
 
+var OBJECT_COMMAND = {
+    STOP: 0,
+    ATTACK: 1,
+    SIT: 2,
+    STAND: 3,
+    MOVE: 4,
+    DIE: 5,
+    TOGGLE: 6,
+    Skill2SELF: 7,
+    Skill2OBJ: 8,
+    Skill2POS: 9,
+    MAX: 10
+};
+
 /**
  * This class handles tying together the networking clients with the
  * actual game world and GameObjectManager.
@@ -50,7 +64,7 @@ _NetManager.prototype.watch = function(wn, gn) {
     npc.setPosition(data.position.x, data.position.y, 10);
     npc.setDirection(data.modelDir / 180 * Math.PI);
     npc.dropFromSky();
-    if (data.command !== 0) {
+    if (data.command === OBJECT_COMMAND.MOVE) {
       npc._moveTo(data.posTo.x, data.posTo.y);
     }
     GOM.addObject(npc);
@@ -73,7 +87,7 @@ _NetManager.prototype.watch = function(wn, gn) {
     char.stats.attackSpeedBase = data.attackSpeedBase;
     char.debugValidate();
     char.dropFromSky();
-    if (data.command !== 0) {
+    if (data.command === OBJECT_COMMAND.MOVE) {
       char._moveTo(data.posTo.x, data.posTo.y);
     }
     GOM.addObject(char);
@@ -91,7 +105,7 @@ _NetManager.prototype.watch = function(wn, gn) {
     mob.stats = new NpcStats(mob);
     mob.setPosition(data.position.x, data.position.y, 10);
     mob.dropFromSky();
-    if (data.command !== 0) {
+    if (data.command === OBJECT_COMMAND.MOVE) {
       mob._moveTo(data.posTo.x, data.posTo.y);
     }
     GOM.addObject(mob);
