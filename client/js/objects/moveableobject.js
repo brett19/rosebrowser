@@ -66,6 +66,28 @@ MoveableObject.prototype.moveToObj = function(gameObject, distance) {
   return cmd;
 };
 
+MoveableObject.prototype._attackObj = function(objectRef) {
+  if (!(objectRef instanceof GORef)) {
+    console.warn('Reference passed to _attackObj was not a GORef.');
+    return;
+  }
+
+  return this._setNextCmd(new AttackCmd(this, objectRef));
+};
+
+MoveableObject.prototype.attackObj = function(gameObject) {
+  if (!(gameObject instanceof GameObject)) {
+    console.warn('Object passed to attackObj was not a GameObject.');
+    return;
+  }
+
+  var cmd = this._attackObj(gameObject.ref);
+
+  // Don't send network event for now...
+
+  return cmd;
+};
+
 MoveableObject.prototype.setDirection = function(radians) {
   this.direction = mod(radians, (Math.PI * 2));
   this.emit('moved');

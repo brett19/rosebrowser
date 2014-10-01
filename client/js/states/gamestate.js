@@ -207,12 +207,19 @@ GameState.prototype.enter = function() {
       var pickPawn = self.gomVisMgr.findByMesh(objPickInfo.object);
       if (pickPawn) {
         var pickGo = pickPawn.owner;
-        var moveCmd = MC.moveToObj(pickGo);
-        moveCmd.on('finish', function() {
-          if (pickGo instanceof NpcObject) {
-            self._startNpcTalk(pickGo);
-          }
-        });
+        if (pickGo instanceof MobObject) {
+          var atkCmd = MC.attackObj(pickGo);
+          atkCmd.on('finish', function() {
+            console.log('Finished Attacking!');
+          });
+        } else {
+          var moveCmd = MC.moveToObj(pickGo);
+          moveCmd.on('finish', function () {
+            if (pickGo instanceof NpcObject) {
+              self._startNpcTalk(pickGo);
+            }
+          });
+        }
       }
     }
 

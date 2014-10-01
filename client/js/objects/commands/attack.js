@@ -1,0 +1,90 @@
+'use strict';
+
+function _AttackCmd(object, targetObjRef) {
+  MoCommand.call(this, object);
+  this.target = targetObjRef;
+
+  this.__attackDone = this._attackDone.bind(this);
+}
+_AttackCmd.prototype = Object.create(MoCommand.prototype);
+
+_AttackCmd.prototype.enter = function() {
+  this.object.once('attack_done', this.__attackDone);
+  this.object.emit('attack');
+};
+
+_AttackCmd.prototype._attackDone = function() {
+  console.log('attack done!');
+  this.isComplete = true;
+  this.emit('finish');
+};
+
+_AttackCmd.prototype.leave = function() {
+};
+
+_AttackCmd.prototype.update = function(delta) {
+  return 0;
+};
+
+
+function AttackCmd(object, targetObjRef) {
+  MoCommand.call(this, object);
+  this.target = targetObjRef;
+  this.activeCmd = null;
+}
+AttackCmd.prototype = Object.create(MoCommand.prototype);
+
+AttackCmd.prototype.enter = function() {
+  this._goOnce();
+};
+
+AttackCmd.prototype.leave = function() {
+  if (this.activeCmd) {
+    this.activeCmd._leave();
+    this.activeCmd = null;
+  }
+};
+
+AttackCmd.prototype._goOnce = function() {
+  console.log('ATTACK DISTANCE:', this.object.stats.getAttackDistance());
+
+  // Interupt here, as you cannot interupt in the middle of attack animation.
+  if (this.wantInterrupt) {
+    this.isComplete = true;
+    return;
+  }
+
+  this.activeCmd = new MoveToObjCmd(this.object, this.target, this.object.stats.getAttackDistance());
+  this.activeCmd.on('finish', function() {
+    this.activeCmd._leave();
+    this.activeCmd = new _AttackCmd(this.object, this.target);
+    this.activeCmd.on('finish', function() {
+      this.activeCmd._leave();
+      this.activeCmd = null;
+      this._goOnce();
+    }.bind(this));
+    this.activeCmd._enter();
+  }.bind(this));
+  this.activeCmd._enter();
+};
+
+AttackCmd.prototype.update = function(delta) {
+  if (this.wantInterrupt && !(this.activeCmd instanceof _AttackCmd)) {
+    this.isComplete = true;
+    return delta;
+  }
+
+  // If object went offscreen or died, stop attacking!
+  if (!this.target.object) {
+    this.isComplete = true;
+    return delta;
+  }
+
+  if (!this.activeCmd) {
+    // This is really an error condition, we eat the delta to make sure
+    //   we don't loop forever in the caller loop.
+    return 0;
+  }
+
+  return this.activeCmd.update(delta);
+};

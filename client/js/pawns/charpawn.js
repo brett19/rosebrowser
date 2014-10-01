@@ -130,6 +130,15 @@ function CharPawn(go) {
     go.on('stop_move', function() {
       self.setMotion(AVTANI.STOP1);
     });
+    go.on('attack', function() {
+      self.setMotion(AVTANI.ATTACK, function(anim) {
+        anim.loop = false;
+        anim.once('finish', function() {
+          self.setMotion(AVTANI.STOP1);
+          go.emit('attack_done');
+        });
+      });
+    });
     go.on('moved', function () {
       self.rootObj.position.copy(go.position);
       self.rootObj.rotation.z = go.direction;
@@ -239,7 +248,7 @@ CharPawn.prototype.setGender = function(genderIdx, callback) {
   });
 };
 
-CharPawn.prototype.setMotion = function(motionIdx, callback) {
+CharPawn.prototype.setMotion = function(motionIdx, animCallback) {
   // Don't do anything if this motion is already playing...
   if (motionIdx === this.activeMotionIdx) {
     return;
@@ -253,6 +262,16 @@ CharPawn.prototype.setMotion = function(motionIdx, callback) {
       // This animation is already in our playing motion list!
       this.activeMotions.splice(i, 1);
       this.activeMotions.unshift(motion);
+
+      // Make sure this is playing in case its a one-time animation
+      if (!motion.anim.isPlaying) {
+        motion.anim.play(0, motion.anim.weight);
+      }
+
+      if (animCallback) {
+        animCallback(motion.anim);
+      }
+
       return;
     }
   }
@@ -271,6 +290,10 @@ CharPawn.prototype.setMotion = function(motionIdx, callback) {
     var motionFileIdx = motionTypes.item(motionIdx, 1);
 
     self.motionCache.get(motionFileIdx, function(anim) {
+      if (animCallback) {
+        animCallback(anim);
+      }
+
       // Don't overwrite any newer motion sets.
       if (motionIdx !== self.activeMotionIdx) {
         return;
@@ -292,10 +315,6 @@ CharPawn.prototype.setMotion = function(motionIdx, callback) {
         anim.weight = 1;
       } else {
         anim.weight = 0;
-      }
-
-      if (callback) {
-        callback();
       }
     });
   });
@@ -346,7 +365,7 @@ CharPawn.prototype.update = function(delta) {
     for (var i = 1; i < this.activeMotions.length; ++i) {
       var motion = this.activeMotions[i].anim;
       motion.weight -= blendWeightDelta;
-      if (motion.weight <= 0) {
+      if (!motion.isPlaying || motion.weight <= 0) {
         motion.stop();
         this.activeMotions.splice(i, 1);
         --i;
