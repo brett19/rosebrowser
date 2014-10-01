@@ -8,6 +8,7 @@ var fs = require('fs');
 var mkdirp = require('mkdirp')
 var express = require('express');
 var socketio = require('socket.io');
+var less = require('less');
 var yaml_config = require('node-yaml-config');
 
 var config = yaml_config.load(path.normalize(__dirname + '/config.yml'));
@@ -75,6 +76,21 @@ var app = express();
 
 app.get('/config', function(req, resp, next) {
   resp.send('var config = ' + JSON.stringify(config.client) + ';');
+});
+
+// Less automatic compilation
+app.get('*.less', function(req, res, next) {
+  fs.readFile('client' + req.path, {encoding: 'utf8'}, function(err, data) {
+    if (err) {
+      return res.send(err);
+    }
+    less.render(data, function(err, css) {
+      if (err) {
+        return res.send(err);
+      }
+      res.send(css);
+    });
+  });
 });
 
 // Static Client Data

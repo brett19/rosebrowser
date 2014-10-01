@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "dependencies": {
     "express": "~4.9.0",
+    "less": "~1.7.5",
     "mkdirp": "~0.5.0",
     "node-yaml-config": "0.0.2",
     "socket.io": "~1.1.0"
