@@ -17,5 +17,5 @@ NpcStats.getAttackSpeed = function() {
 };
 
 NpcStats.getAttackDistance = function() {
-  return this.data[NPC_DATA.ATK_DISTANCE];
+  return this.data[NPC_DATA.ATK_DISTANCE] / 100;
 };

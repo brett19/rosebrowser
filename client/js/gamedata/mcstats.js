@@ -49,5 +49,5 @@ McStats.prototype.getAttackDistance = function() {
   if (!weaponData) {
     return DEFAULT_ATTACK_DISTANCE;
   }
-  return weaponData[WEAPON_DATA.RANGE];
+  return weaponData[WEAPON_DATA.RANGE] / 100;
 };
