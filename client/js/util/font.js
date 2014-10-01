@@ -155,8 +155,6 @@ function createTEXTure(fontID, text)
   g.fillText(text, 1, size.y/2+2);
 
   var texture = new THREE.Texture(bitmap);
-  texture.minFilter = THREE.NearestFilter;
-  texture.magFilter = THREE.NearestFilter;
   texture.needsUpdate = true;
   return texture;
 }
