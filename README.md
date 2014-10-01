@@ -6,9 +6,11 @@ ROSE Browser
 * Current version: 0.0.1-dev
 * Game compatibility: ver 528
 
+
 Status
 -----------------------
 Unplayable, but lots of interested things are complete!
+
 
 Contributors
 -----------------------
@@ -24,9 +26,10 @@ work of the following contributors:
 </tbody></table>
 
 
-The Official Game
+The Official Client
 -----------------------
-Looking for the official ROSE Online game?  Check out
+
+Looking for the official ROSE Online game client?  Check out
 [http://roseonlinegame.com/](http://roseonlinegame.com/) or visit 
 [http://warpportal.com/](http://warpportal.com/) to get started!
 
