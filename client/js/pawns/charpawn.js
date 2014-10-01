@@ -109,6 +109,7 @@ function CharPawn(go) {
   this.gender = -1;
   this.motionCache = null;
   this.activeMotionIdx = AVTANI.STOP1;
+  this.prevMotionIdx = -1;
   this.activeMotion = null;
   this.prevMotion = null;
   this.nameTag = null;
@@ -237,6 +238,22 @@ CharPawn.prototype.setGender = function(genderIdx, callback) {
 };
 
 CharPawn.prototype.setMotion = function(motionIdx, callback) {
+  // Don't do anything if this motion is already playing...
+  if (motionIdx === this.activeMotionIdx) {
+    return;
+  }
+
+  // Shortcut when we blend back to an animation we are still blending out of.
+  if (motionIdx === this.prevMotionIdx) {
+    this.prevMotionIdx = this.activeMotionIdx;
+    this.activeMotionIdx = motionIdx;
+    var originalMotion = this.prevMotion;
+    this.prevMotion = this.activeMotion;
+    this.activeMotion = originalMotion;
+    return;
+  }
+
+  this.prevMotionIdx = this.activeMotionIdx;
   this.activeMotionIdx = motionIdx;
 
   // If the skeleton isn't loaded yet, just do nothing and the skeleton
@@ -245,13 +262,15 @@ CharPawn.prototype.setMotion = function(motionIdx, callback) {
     return;
   }
 
+  // TODO: Make the handling of motion changes with variable load delays
+  //  more reliable.
   var self = this;
   GDM.get('char_motiontypes', function(motionTypes) {
 
     var motionFileIdx = motionTypes.item(motionIdx, 1);
 
     self.motionCache.get(motionFileIdx, function(anim) {
-      // Don't overwrite any newer motion changes.
+      // Don't overwrite any newer motion sets.
       if (motionIdx !== self.activeMotionIdx) {
         return;
       }
@@ -328,6 +347,7 @@ CharPawn.prototype.update = function(delta) {
     if (this.activeMotion.weight >= 1.0) {
       this.activeMotion.weight = 1.0;
       this.prevMotion.stop();
+      this.prevMotionIdx = -1;
       this.prevMotion = null;
     }
   }
