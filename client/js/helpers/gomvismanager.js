@@ -71,7 +71,11 @@ GOMVisManager.prototype._addObjectItem = function(obj) {
 
 GOMVisManager.prototype._addObject = function(obj) {
   console.log('GOMVis::_addObject', obj);
-  
+
+  if (obj instanceof ProxyObject) {
+    return;
+  }
+
   var visObj = null;
   if (obj instanceof MoveableObject) {
     visObj = this._addObjectMovable(obj);
