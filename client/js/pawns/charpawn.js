@@ -109,9 +109,7 @@ function CharPawn(go) {
   this.gender = -1;
   this.motionCache = null;
   this.activeMotionIdx = AVTANI.STOP1;
-  this.prevMotionIdx = -1;
-  this.activeMotion = null;
-  this.prevMotion = null;
+  this.activeMotions = [];
   this.nameTag = null;
 
   if (go) {
@@ -167,8 +165,12 @@ CharPawn.prototype._setSkeleton = function(skelData) {
 
   // Reset the loaded motions if the skeleton changed...
   this.motionCache = new IndexedCache(this._loadMotion.bind(this));
+  this.activeMotions = [];
 
-  this.setMotion(this.activeMotionIdx);
+  // We do this to share the same code.
+  var motionIdx = this.activeMotionIdx;
+  this.activeMotionIdx = -1;
+  this.setMotion(motionIdx);
 };
 
 CharPawn.prototype._setModelPart = function(modelList, partIdx, modelIdx, bindBone, bindDummy) {
@@ -243,18 +245,17 @@ CharPawn.prototype.setMotion = function(motionIdx, callback) {
     return;
   }
 
-  // Shortcut when we blend back to an animation we are still blending out of.
-  if (motionIdx === this.prevMotionIdx) {
-    this.prevMotionIdx = this.activeMotionIdx;
-    this.activeMotionIdx = motionIdx;
-    var originalMotion = this.prevMotion;
-    this.prevMotion = this.activeMotion;
-    this.activeMotion = originalMotion;
-    return;
-  }
-
-  this.prevMotionIdx = this.activeMotionIdx;
   this.activeMotionIdx = motionIdx;
+
+  for (var i = 0; i < this.activeMotions.length; ++i) {
+    var motion = this.activeMotions[i];
+    if (motion.idx === motionIdx) {
+      // This animation is already in our playing motion list!
+      this.activeMotions.splice(i, 1);
+      this.activeMotions.unshift(motion);
+      return;
+    }
+  }
 
   // If the skeleton isn't loaded yet, just do nothing and the skeleton
   //  loader will set it later.
@@ -275,26 +276,22 @@ CharPawn.prototype.setMotion = function(motionIdx, callback) {
         return;
       }
 
-      if (self.activeMotion === anim) {
-        // Already playing this animation!
-        return;
-      }
-
-      self.prevMotion = self.activeMotion;
-
-      self.activeMotion = anim;
-
       // TODO: Accessing owner like this is unsafe for non-GO based pawns.
       if (self.owner) {
         var moveAnimScale = (self.owner.moveSpeed + 180) / 600;
         anim.timeScale = moveAnimScale;
       }
 
+      self.activeMotions.unshift({
+          idx: motionIdx,
+          anim: anim
+      });
+
       anim.play();
-      if (self.prevMotion) {
-        self.activeMotion.weight = 1 - self.prevMotion.weight;
+      if (self.activeMotions.length === 1) {
+        anim.weight = 1;
       } else {
-        self.activeMotion.weight = 1;
+        anim.weight = 0;
       }
 
       if (callback) {
@@ -340,15 +337,20 @@ CharPawn.prototype.setName = function(name) {
 CharPawn.prototype.update = function(delta) {
   var blendWeightDelta = 6 * delta;
 
-  if (this.prevMotion && this.activeMotion) {
-    this.prevMotion.weight -= blendWeightDelta;
-    this.activeMotion.weight += blendWeightDelta;
+  if (this.activeMotions.length >= 1) {
+    var activeMotion = this.activeMotions[0].anim;
+    if (activeMotion.weight < 1) {
+      activeMotion.weight += blendWeightDelta;
+    }
 
-    if (this.activeMotion.weight >= 1.0) {
-      this.activeMotion.weight = 1.0;
-      this.prevMotion.stop();
-      this.prevMotionIdx = -1;
-      this.prevMotion = null;
+    for (var i = 1; i < this.activeMotions.length; ++i) {
+      var motion = this.activeMotions[i].anim;
+      motion.weight -= blendWeightDelta;
+      if (motion.weight <= 0) {
+        motion.stop();
+        this.activeMotions.splice(i, 1);
+        --i;
+      }
     }
   }
 };
