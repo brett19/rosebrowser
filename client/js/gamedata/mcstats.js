@@ -24,7 +24,7 @@ McStats.prototype.debugValidate = function() {
   ]);
 };
 
-CharStats.prototype._getEquipData = function(equipIdx) {
+McStats.prototype._getEquipData = function(equipIdx) {
   var itemData = GDM.getNow('item_data');
   var item = this.object.inventory.findByLocSlot(ITEMLOC.EQUIPPED_EQUIP, equipIdx);
   if (!item) {
