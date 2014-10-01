@@ -39,9 +39,21 @@ function NpcPawn(go) {
     go.on('stop_move', function() {
       self.setMotion(NPCANI.STOP);
     });
+    go.on('attack', function() {
+      self.setMotion(NPCANI.ATTACK, function(anim) {
+        anim.loop = false;
+        anim.once('finish', function() {
+          self.setMotion(NPCANI.STOP);
+          go.emit('attack_done');
+        });
+      });
+    });
     go.on('moved', function () {
       self.rootObj.position.copy(go.position);
       self.rootObj.rotation.z = go.direction;
+    });
+    go.on('damage', function(amount) {
+      self.newDamage(amount);
     });
   }
 }
@@ -70,7 +82,7 @@ NpcPawn.prototype._loadMotion = function(actionIdx, callback) {
   });
 };
 
-NpcPawn.prototype.setMotion = function(actionIdx, callback) {
+NpcPawn.prototype.setMotion = function(actionIdx, animCallback) {
   this.activeMotionIdx = actionIdx;
 
   // If the skeleton isn't loaded yet, just do nothing and the skeleton
@@ -81,6 +93,10 @@ NpcPawn.prototype.setMotion = function(actionIdx, callback) {
 
   var self = this;
   this.motionCache.get(actionIdx, function(anim) {
+    if (animCallback) {
+      animCallback(anim);
+    }
+
     // Don't overwrite any newer motion changes.
     if (actionIdx !== self.activeMotionIdx) {
       return;
@@ -106,10 +122,6 @@ NpcPawn.prototype.setMotion = function(actionIdx, callback) {
       self.activeMotion.weight = 1 - self.prevMotion.weight;
     } else {
       self.activeMotion.weight = 1;
-    }
-
-    if (callback) {
-      callback();
     }
   });
 };

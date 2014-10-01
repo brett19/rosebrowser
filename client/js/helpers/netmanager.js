@@ -120,7 +120,7 @@ _NetManager.prototype.watch = function(wn, gn) {
 
   gn.on('obj_moveto', function(data) {
     var obj = GOM.findByServerObjectIdx(data.objectIdx);
-    if (obj) {
+    if (obj && !(obj instanceof ProxyObject)) {
       var targetObj = null;
       if (data.targetObjectIdx) {
         targetObj = GOM.getRefByServerObjectIdx(
@@ -131,6 +131,29 @@ _NetManager.prototype.watch = function(wn, gn) {
         obj._moveToObj(targetObj);
       } else {
         obj._moveTo(data.posTo.x, data.posTo.y);
+      }
+    }
+  });
+
+  gn.on('obj_attack', function(data) {
+    var attackerObj = GOM.findByServerObjectIdx(data.attackerObjectIdx);
+    if (attackerObj && !(attackerObj instanceof ProxyObject)) {
+      var defenderObj = GOM.getRefByServerObjectIdx(
+          data.defenderObjectIdx,
+          new THREE.Vector3(data.posTo.x, data.posTo.y, 0));
+      attackerObj._attackObj(defenderObj);
+      console.log('obj_attack', data);
+    }
+  });
+
+  gn.on('damage', function(data) {
+    var defenderObj = GOM.findByServerObjectIdx(data.defenderObjectIdx);
+    if (defenderObj && !(defenderObj instanceof ProxyObject)) {
+      defenderObj.emit('damage', data.amount);
+
+      if (data.flags & 16) {
+        defenderObj.emit('died');
+        GOM.removeObject(defenderObj);
       }
     }
   });

@@ -207,6 +207,15 @@ RosePacket.prototype.readItem = function() {
   item.money = this.readUint32();
   return item;
 };
+RosePacket.prototype.readDropItem = function() {
+  var item = {};
+  item.position = this.readVector2();
+  item.item = this.readItem();
+  item.objectIdx = this.readUint16();
+  item.ownerObjectIdx = this.readUint16();
+  item.remainTime = this.readUint32();
+  return item;
+};
 RosePacket.prototype.readString = function() {
   var startPos = this.readPos;
   while (this.readUint8());

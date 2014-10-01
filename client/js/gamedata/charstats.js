@@ -17,7 +17,8 @@ CharStats.prototype.debugValidate = function() {
 CharStats.prototype._getEquipData = function(equipIdx) {
   var itemData = GDM.getNow('item_data');
   var equipItemType = ITMPARTTOTYPE[equipIdx];
-  var item = this.object.visParts[equipIdx];
+  var visPartIdx = ITMPARTTOVISPART[equipIdx];
+  var item = this.object.visParts[visPartIdx];
   if (item.itemType === 0) {
     // Empty Slot
     return null;

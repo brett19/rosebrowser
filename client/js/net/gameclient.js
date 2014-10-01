@@ -129,6 +129,12 @@ GameClient.prototype.questRequest = function(type, slot, id, trigger)
   this.socket.sendPacket(opak);
 };
 
+GameClient.prototype.attackObj = function(objectIdx) {
+  var opak = new RosePacket(0x798);
+  opak.addUint16(objectIdx);
+  this.socket.sendPacket(opak);
+};
+
 /**
  * Little helper to emit packet events that can be logged.
  * @param {string} event
@@ -541,6 +547,26 @@ GameClient._registerHandler(0x794, function(pak, data) {
     data.objectIdx = pak.readUint16();
     this._emitPE('obj_remove', data);
   }
+});
+
+GameClient._registerHandler(0x798, function(pak, data) {
+  data.attackerObjectIdx = pak.readUint16();
+  data.defenderObjectIdx = pak.readUint16();
+  data.serverDist = pak.readInt16();
+  data.posTo = pak.readVector2().divideScalar(100);
+  this._emitPE('obj_attack', data);
+});
+
+GameClient._registerHandler(0x799, function(pak, data) {
+  data.attackerObjectIdx = pak.readUint16();
+  data.defenderObjectIdx = pak.readUint16();
+  data.amount = pak.readUint32();
+  data.flags = pak.readUint32();
+  data.items = [];
+  while(!pak.isReadEof()) {
+    data.items.push(pak.readDropItem());
+  }
+  this._emitPE('damage', data);
 });
 
 var netGame = null;

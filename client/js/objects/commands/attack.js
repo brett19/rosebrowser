@@ -14,7 +14,6 @@ _AttackCmd.prototype.enter = function() {
 };
 
 _AttackCmd.prototype._attackDone = function() {
-  console.log('attack done!');
   this.isComplete = true;
   this.emit('finish');
 };
@@ -46,8 +45,6 @@ AttackCmd.prototype.leave = function() {
 };
 
 AttackCmd.prototype._goOnce = function() {
-  console.log('ATTACK DISTANCE:', this.object.stats.getAttackDistance());
-
   // Interupt here, as you cannot interupt in the middle of attack animation.
   if (this.wantInterrupt) {
     this.isComplete = true;
@@ -56,9 +53,15 @@ AttackCmd.prototype._goOnce = function() {
 
   this.activeCmd = new MoveToObjCmd(this.object, this.target, this.object.stats.getAttackDistance());
   this.activeCmd.on('finish', function() {
+    if (!this.activeCmd) {
+      return;
+    }
     this.activeCmd._leave();
     this.activeCmd = new _AttackCmd(this.object, this.target);
     this.activeCmd.on('finish', function() {
+      if (!this.activeCmd) {
+        return;
+      }
       this.activeCmd._leave();
       this.activeCmd = null;
       this._goOnce();

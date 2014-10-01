@@ -143,6 +143,9 @@ function CharPawn(go) {
       self.rootObj.position.copy(go.position);
       self.rootObj.rotation.z = go.direction;
     });
+    go.on('damage', function(amount) {
+      self.newDamage(amount);
+    });
   }
 }
 

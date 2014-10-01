@@ -83,7 +83,7 @@ MoveableObject.prototype.attackObj = function(gameObject) {
 
   var cmd = this._attackObj(gameObject.ref);
 
-  // Don't send network event for now...
+  netGame.attackObj(gameObject.serverObjectIdx);
 
   return cmd;
 };
