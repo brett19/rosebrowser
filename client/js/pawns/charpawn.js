@@ -332,6 +332,11 @@ CharPawn.prototype.setModelPart = function(partIdx, modelIdx, callback) {
   });
 };
 
+CharPawn.prototype.newDamage = function(amount) {
+  DamageRender.add(amount,
+      this.rootObj.localToWorld(new THREE.Vector3(0, 0, 2.4)));
+};
+
 CharPawn.prototype.setName = function(name) {
   this.name = name;
 

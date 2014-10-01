@@ -187,6 +187,11 @@ NpcPawn.prototype.setModel = function(charIdx, callback) {
   });
 };
 
+NpcPawn.prototype.newDamage = function(amount) {
+  DamageRender.add(amount,
+      this.rootObj.localToWorld(new THREE.Vector3(0, 0, 2.4)));
+};
+
 NpcPawn.prototype.setName = function(name) {
   if (this.nameTag) {
     var children = this.nameTag.children.slice();
