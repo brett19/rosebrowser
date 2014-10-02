@@ -6,7 +6,7 @@ var DEFAULT_ATTACK_DISTANCE = 0.7;
  * @constructor
  */
 function CharObject(world) {
-  MoveableObject.call(this, 'char', world);
+  ActorObject.call(this, 'char', world);
 
   this.name = undefined;
   this.level = undefined;
@@ -17,7 +17,7 @@ function CharObject(world) {
   this.visParts = undefined;
   this.stats = undefined;
 }
-CharObject.prototype = new MoveableObject();
+CharObject.prototype = new ActorObject();
 
 CharObject.prototype.getAbilityValue = function(abilType) {
   switch(abilType) {

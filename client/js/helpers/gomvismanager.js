@@ -77,7 +77,7 @@ GOMVisManager.prototype._addObject = function(obj) {
   }
 
   var visObj = null;
-  if (obj instanceof MoveableObject) {
+  if (obj instanceof ActorObject) {
     visObj = this._addObjectMovable(obj);
   } else if (obj instanceof ItemObject) {
     visObj = this._addObjectItem(obj);

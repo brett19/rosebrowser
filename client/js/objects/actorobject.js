@@ -8,7 +8,7 @@ function mod(x, n) {
 /**
  * @constructor
  */
-function MoveableObject(type, world) {
+function ActorObject(type, world) {
   GameObject.call(this, type, world);
 
   this.direction = 0;
@@ -16,9 +16,9 @@ function MoveableObject(type, world) {
   this.activeCmd = null;
   this.nextCmd = null;
 }
-MoveableObject.prototype = new GameObject();
+ActorObject.prototype = new GameObject();
 
-MoveableObject.prototype._setNextCmd = function(cmd) {
+ActorObject.prototype._setNextCmd = function(cmd) {
   // We do not enter the newly submitted command immediately from here
   //   to allow callers of this function to assign event handlers for
   //   start or finish first.
@@ -32,10 +32,10 @@ MoveableObject.prototype._setNextCmd = function(cmd) {
   return cmd;
 };
 
-MoveableObject.prototype._moveTo = function(x, y) {
+ActorObject.prototype._moveTo = function(x, y) {
   return this._setNextCmd(new MoveToPosCmd(this, new THREE.Vector2(x, y)));
 };
-MoveableObject.prototype.moveTo = function(x, y, z) {
+ActorObject.prototype.moveTo = function(x, y, z) {
   var cmd = this._moveTo(x, y);
 
   // TODO: This does not properly handle moveTo being called on non-MC
@@ -44,7 +44,7 @@ MoveableObject.prototype.moveTo = function(x, y, z) {
   return cmd;
 };
 
-MoveableObject.prototype._moveToObj = function(objectRef, distance) {
+ActorObject.prototype._moveToObj = function(objectRef, distance) {
   if (!(objectRef instanceof GORef)) {
     console.warn('Reference passed to _moveToObj was not a GORef.');
     return;
@@ -53,7 +53,7 @@ MoveableObject.prototype._moveToObj = function(objectRef, distance) {
   return this._setNextCmd(new MoveToObjCmd(this, objectRef, distance));
 };
 
-MoveableObject.prototype.moveToObj = function(gameObject, distance) {
+ActorObject.prototype.moveToObj = function(gameObject, distance) {
   if (!(gameObject instanceof GameObject)) {
     console.warn('Object passed to moveToObj was not a GameObject.');
     return;
@@ -66,7 +66,7 @@ MoveableObject.prototype.moveToObj = function(gameObject, distance) {
   return cmd;
 };
 
-MoveableObject.prototype._attackObj = function(objectRef) {
+ActorObject.prototype._attackObj = function(objectRef) {
   if (!(objectRef instanceof GORef)) {
     console.warn('Reference passed to _attackObj was not a GORef.');
     return;
@@ -75,7 +75,7 @@ MoveableObject.prototype._attackObj = function(objectRef) {
   return this._setNextCmd(new AttackCmd(this, objectRef));
 };
 
-MoveableObject.prototype.attackObj = function(gameObject) {
+ActorObject.prototype.attackObj = function(gameObject) {
   if (!(gameObject instanceof GameObject)) {
     console.warn('Object passed to attackObj was not a GameObject.');
     return;
@@ -88,12 +88,12 @@ MoveableObject.prototype.attackObj = function(gameObject) {
   return cmd;
 };
 
-MoveableObject.prototype.setDirection = function(radians) {
+ActorObject.prototype.setDirection = function(radians) {
   this.direction = mod(radians, (Math.PI * 2));
   this.emit('moved');
 };
 
-MoveableObject.prototype.update = function(delta) {
+ActorObject.prototype.update = function(delta) {
   var deltaLeft = delta;
   while (deltaLeft > EPSILON) {
     if (!this.activeCmd) {

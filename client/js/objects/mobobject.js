@@ -4,9 +4,9 @@
  * @constructor
  */
 function MobObject(world) {
-  MoveableObject.call(this, 'mob', world);
+  ActorObject.call(this, 'mob', world);
 
   this.charIdx = undefined;
   this.stats = undefined;
 }
-MobObject.prototype = new MoveableObject();
+MobObject.prototype = new ActorObject();

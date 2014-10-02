@@ -3,7 +3,7 @@
 var EPSILON = 0.0001;
 
 /**
- * MoveableObject command for handling moving to a position.
+ * ActorObject command for handling moving to a position.
  *
  * @event enter When this command enters.
  * @event leave When this command leaves.
