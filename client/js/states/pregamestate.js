@@ -27,7 +27,11 @@ PreGameState.prototype.enter = function() {
     charData = data;
   });
   netGame.on('inventory_data', function(data) {
-    invData = data;
+    if (data.result === 0x1) {
+      invData = data;
+    } else {
+      invData.items = invData.items.concat(data.items);
+    }
   });
 
   // TODO: Maybe remove these from here - they can be sent any time, not only on login
