@@ -37,6 +37,18 @@ DebugLogger.prototype.debug = function() {
   }
 };
 
+DebugLogger.prototype.warn = function() {
+  if (this.enabled) {
+    console.warn.apply(console, arguments);
+  }
+};
+
+DebugLogger.prototype.error = function() {
+  if (this.enabled) {
+    console.error.apply(console, arguments);
+  }
+};
+
 var netConsole = new DebugLogger('net', !config.disableNetLog);
 var gomConsole = new DebugLogger('lua', !config.disableGomLog);
 var luaConsole = new DebugLogger('lua', !config.disableLuaLog);
