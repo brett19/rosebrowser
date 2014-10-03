@@ -30,19 +30,25 @@ GameState.prototype.update = function(delta) {
 };
 
 GameState.prototype._startNpcTalk = function(npcObj) {
+  if (npcObj.eventIdx === 0) {
+    return;
+  }
+
   GDM.get('list_event', 'quest_scripts', function(eventList) {
     var eventData = eventList.row(npcObj.eventIdx);
+
     if (!eventData) {
       console.log('Tried to start talking to an NPC with an invalid event.');
       return;
     }
 
-    // TODO: Cache all this stuff
-    NpcChatData.load(eventData[3], function(convSpec) {
-      var conv = new Conversation(npcObj, convSpec, 'en');
-      conv.start();
-    });
-
+    if (eventData[3]) {
+      // TODO: Cache all this stuff
+      NpcChatData.load(eventData[3], function(convSpec) {
+        var conv = new Conversation(npcObj, convSpec, 'en');
+        conv.start();
+      });
+    }
   });
 };
 
