@@ -179,7 +179,7 @@ GameState.prototype.enter = function() {
   InputManager.on('mousedown', function(e) {
     e.preventDefault();
 
-    if ( event.button !== 0 ) {
+    if ( e.button !== 0 ) {
       return;
     }
 
