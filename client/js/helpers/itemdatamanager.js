@@ -51,6 +51,12 @@ ItemDataManager.prototype.getName = function(itemType, itemNo) {
   return this.strings[itemType].getByKey(itemKey).text;
 };
 
+ItemDataManager.prototype.getDescription = function(itemType, itemNo) {
+  var typeData = this.data[itemType];
+  var itemKey = typeData.item(itemNo, typeData.columnCount - 1);
+  return this.strings[itemType].getByKey(itemKey).comment;
+};
+
 /**
  * Load helper so the ItemDataManager can be controlled by the GDM.
  *

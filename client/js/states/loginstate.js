@@ -129,8 +129,7 @@ LoginState.prototype.enter = function() {
 
   this.playCamAnim('canim_intro');
 
-  var loginReq = GUI.requestLogin();
-  loginReq.on('done', function(username, password) {
+  ui.loginDialog().on('done', function(username, password) {
     self._doneLogin(username, password);
   });
 };
@@ -143,7 +142,7 @@ LoginState.prototype._doneLogin = function(rUser, rPass) {
 
   console.log('Starting Login', rUser);
 
-  var waitDialog = GUI.newStatusDialog();
+  var waitDialog = ui.statusDialog();
   waitDialog.setMessage('Connecting...');
 
   netLogin = new LoginClient();
@@ -159,7 +158,7 @@ LoginState.prototype._doneLogin = function(rUser, rPass) {
 
       waitDialog.close();
 
-      var srvSelReq = GUI.pickServer(data.servers);
+      var srvSelReq = ui.serverSelectDialog(data.servers);
       srvSelReq.on('done', function(serverId) {
         self._doneSrvSel(serverId);
       });
@@ -170,7 +169,7 @@ LoginState.prototype._doneLogin = function(rUser, rPass) {
 LoginState.prototype._doneSrvSel = function(serverId) {
   var self = this;
 
-  var waitDialog = GUI.newStatusDialog();
+  var waitDialog = ui.statusDialog();
   waitDialog.setMessage('Finding Server...');
 
   netLogin.channelList(serverId, function (data) {
@@ -250,7 +249,7 @@ LoginState.prototype._beginCharSelect = function(charData) {
   this.playCamAnim('canim_inselect', 1, 8, function() {
     console.log('INSELECT DONE');
 
-    var charSelReq = GUI.pickCharacter(charData.characters);
+    var charSelReq = ui.characterSelectDialog(charData.characters);
     charSelReq.on('selectionChanged', function(characterIdx) {
       for (var i = 0; i < self.visChars.length; ++i) {
         var visChar = self.visChars[i];
@@ -271,7 +270,7 @@ LoginState.prototype._beginCharSelect = function(charData) {
 };
 
 LoginState.prototype._doneCharSel = function(characterName) {
-  var waitDialog = GUI.newStatusDialog();
+  var waitDialog = ui.statusDialog();
   waitDialog.setMessage('Selecting Character...');
 
   netWorld.selectCharacter(characterName, function(data) {

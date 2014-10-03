@@ -44,7 +44,7 @@ Conversation.prototype = Object.create(EventEmitter.prototype);
 
 Conversation.prototype._ensureDialog = function() {
   if (!this.dialog) {
-    this.dialog = GUI.newNpcChatDialog(this);
+    this.dialog = ui.npcChatDialog(this);
   }
 };
 
@@ -172,7 +172,7 @@ GameState.prototype.enter = function() {
     console.log('ZONE JOINED');
   });
 
-  GUI.showGameUi(MC);
+  ui.gameUI(MC);
 
   var projector = new THREE.Projector();
   var self = this;

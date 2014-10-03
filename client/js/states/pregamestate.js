@@ -48,7 +48,7 @@ PreGameState.prototype.enter = function() {
     dailyQuestLog = data;
   });
 
-  var waitDialog = GUI.newStatusDialog();
+  var waitDialog = ui.statusDialog();
   waitDialog.setMessage('Downloading Character Data...');
   this.waitDialog = waitDialog;
 

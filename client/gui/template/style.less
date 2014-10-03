@@ -1,0 +1,427 @@
+body {
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  overflow: hidden;
+}
+
+.ui {
+  color: white;
+  font-family: 'Tahoma';
+  font-size: small;
+  cursor: default;
+  z-index: 0;
+
+  /* Generic UI panel */
+  .panel {
+    background-color: rgba(40, 40, 40, 0.4);
+    border: 1px solid #777;
+    box-shadow: inset 0px 0px 3px #000;
+    border-radius: 5px;
+    padding: 5px 5px 5px 5px;
+    box-sizing: border-box;
+  }
+
+  /* Dialog */
+  .dialog {
+    .panel;
+    position: absolute;
+    background-color: rgba(50, 50, 50, 0.7);
+    border: 1px solid #000;
+    box-shadow: inset 0px 0px 3px #ffffff, 0px 0px 8px #000;
+  }
+
+  /* Button element */
+  .button {
+    background: linear-gradient(to bottom, rgb(140, 88, 69) 0%, rgb(140, 88, 69) 49%, rgb(105, 40, 20) 51%, rgb(105, 40, 20) 100%);
+    border-radius: 5px;
+    border: 1px solid #252525;
+    box-shadow: inset 0px 0px 3px #c0a59b;
+    box-sizing: border-box;
+    height: 22px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 19px;
+    cursor: pointer;
+
+    &:hover {
+      background: linear-gradient(to bottom, rgb(145, 80, 69) 0%, rgb(145, 80, 6) 49%, rgb(135, 40, 10) 51%, rgb(135, 40, 10) 100%);
+      box-shadow: inset 0px 0px 5px rgb(215, 130, 105), 0px 0px 3px rgb(150, 45, 20);
+      border: 1px solid rgb(190, 105, 100);
+    }
+
+    &:active {
+      background: linear-gradient(to bottom, rgb(120, 70, 60) 0%, rgb(130, 75, 60) 49%, rgb(102, 25, 1) 51%, rgb(140, 40, 10) 100%);
+      box-shadow: inset 0px 0px 10px rgb(180, 35, 10), 0px 0px 5px rgb(150, 45, 40);
+      border: 1px solid rgb(210, 120, 105);
+    }
+  }
+
+  /* Styles text like the title of a dialog */
+  .titleText {
+    width: 100%;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+  }
+
+  /* Dialog title element */
+  .dialog > .title {
+    .titleText;
+    width: 100%;
+    height: 1.4em;
+    border-bottom: 1px solid #aaa;
+    margin-bottom: 5px;
+    margin-left: -5px;
+    padding-left: 8px;
+    height: 20px;
+    margin-top: 2px;
+  }
+
+  /* Adds some space between elements */
+  .seperator {
+    height: 5px;
+    clear: both;
+  }
+
+  /* Tabs Element */
+  .tabpanel {
+    .header {
+      width: 100%;
+
+      div {
+        margin-left: 1px;
+        border-bottom-right-radius: 0px;
+        border-bottom-left-radius: 0px;
+        border-bottom: 0px;
+        display: inline-block;
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      .button {
+        margin-left: 1px;
+        border-bottom-right-radius: 0px;
+        border-bottom-left-radius: 0px;
+        border-bottom: 0px;
+        display: inline-block;
+
+        &.active {
+          background: linear-gradient(to bottom, rgb(120, 70, 60) 0%, rgb(130, 75, 60) 49%, rgb(102, 25, 1) 51%, rgb(140, 40, 10) 100%);
+          box-shadow: inset 0px 0px 10px rgb(180, 35, 10), 0px 0px 5px rgb(150, 45, 40);
+          border: 1px solid rgb(210, 120, 105);
+        }
+      }
+    }
+
+    .tab {
+      .panel;
+      width: 100%;
+      border-top-right-radius: 0px;
+      border-top-left-radius: 0px;
+      margin-top: -1px;
+    }
+  }
+
+  /* Item/Skill Slot Element */
+  .slot {
+    .panel;
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    padding: 0 0 0 0;
+    margin: 2px 2px 2px 2px;
+  }
+
+  .slot > div {
+    position: absolute;
+    margin-top: -1px;
+    margin-left: -1px;
+    width: 40px;
+    height: 40px;
+  }
+
+  /* Dialog close button */
+  .close {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Add vertical scrollbars to a div */
+  .vertical-scroll {
+    overflow-y: auto;
+  }
+
+  /* List Element */
+  .list {
+    .panel;
+    overflow-y: auto;
+
+    .selected {
+      color: yellow;
+      background: rgba(40, 40, 40, 0.65);
+    }
+
+    div {
+      padding: 3px 3px 3px 3px;
+      margin-bottom: 3px;
+    }
+
+    div:hover {
+      .selected;
+    }
+  }
+
+  /* Progressbar Element */
+  .progressbar {
+    height: 1.5em;
+    line-height: 1.5em;
+    border-radius: 2px;
+    border: 1px solid #252525;
+    box-shadow: inset 0px 0px 4px rgba(255, 255, 255, 0.6);
+    background: linear-gradient(to bottom,
+      rgba(120, 120, 120, 0.7) 0%, rgba(100, 100, 100, 0.7) 49%,
+      rgba(80, 80, 80, 0.7) 51%, rgba(60, 60, 60, 0.7) 100%);
+  }
+
+  .progressbar > div {
+    display: inline-block;
+  }
+
+  .progressbar > .bar {
+    box-shadow: inset 0px 0px 4px rgba(255, 255, 255, 0.6);
+    height: 100%;
+    top: 0;
+    left: 0;
+    display: inline;
+    float: left;
+    margin-right: -100%;
+  }
+
+  .progressbar > .percent:before {
+    content: '|';
+  }
+
+  .progressbar > .percent {
+    display: inline-block;
+    float: right;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .progressbar > .absolute {
+    display: inline-block;
+    float: right;
+  }
+
+  /* Checkbox Element */
+  .checkbox:before {
+    content: '';
+    display: inline-block;
+    background: linear-gradient(to bottom,
+      rgba(120, 120, 120, 0.7) 0%, rgba(100, 100, 100, 0.7) 49%,
+      rgba(80, 80, 80, 0.7) 51%, rgba(60, 60, 60, 0.7) 100%);
+      border-radius: 5px;
+      border: 1px solid #252525;
+      box-shadow: inset 0px 0px 3px #c0a59b;
+      box-sizing: border-box;
+      width: 20px;
+      height: 20px;
+      text-align: center;
+      vertical-align: middle;
+      line-height: 18px;
+      margin-right: 5px;
+  }
+
+  .checkbox:hover:before {
+    background: linear-gradient(to bottom,
+      rgba(160, 160, 160, 0.7) 0%, rgba(140, 140, 140, 0.7) 49%,
+      rgba(120, 120, 120, 0.7) 51%, rgba(100, 100, 100, 0.7) 100%);
+  }
+
+  .checkbox:active:before {
+    background: linear-gradient(to bottom,
+      rgba(100, 100, 100, 0.7) 0%, rgba(80, 80, 80, 0.7) 49%,
+      rgba(60, 60, 60, 0.7) 51%, rgba(40, 40, 40, 0.7) 100%);
+  }
+
+  .checkbox.checked:before {
+    content: 'X';
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+    color: white;
+  }
+
+  /* dlgStatus */
+  .dialog.status {
+    left: 50%;
+    bottom: 10%;
+    margin-left: -200px;
+    width: 400px;
+    text-align: center;
+  }
+
+  /* dlgLogin */
+  .dialog.login {
+    left: 50%;
+    top: 50%;
+    margin-top: -133px;
+    margin-left: -133px;
+    width: 266px;
+
+    label {
+      width: 60px;
+      display: inline-block;
+    }
+
+    .checkbox.remember {
+      margin: 0 auto;
+      width: 120px;
+    }
+  }
+
+  /* dlgServerSelect */
+  .dialog.server-select {
+    left: 50%;
+    top: 50%;
+    margin-left: -125px;
+    margin-top: -160px;
+    width: 250px;
+
+    .list.servers {
+      height: 300px;
+      width: 100%;
+    }
+  }
+
+  /* dlgCharacterSelect */
+  .dialog.character-select {
+    top: 10%;
+    right: 10%;
+    height: 80%;
+    width: 250px;
+
+    .list.characters {
+      width: 100%;
+      height: ~"calc(100% - 29px)";
+    }
+  }
+
+  /* dlgMenu */
+  .dialog.menu {
+    right: 30px;
+    bottom: 30px;
+    width: 100px;
+  }
+
+  /* dlgCharacterStatus */
+  .dialog.character-status {
+    top: 10px;
+    left: 10px;
+
+    .label.name {
+      .titleText;
+      padding-bottom: 3px;
+    }
+
+    .progressbar.health {
+      width: 200px;
+    }
+
+    .progressbar.mana {
+      width: 200px;
+    }
+
+    .progressbar.exp {
+      width: 200px;
+      height: 0.5em;
+
+      border-radius: 2px;
+      background-size: 10% 100%;
+      background-position: 1px 0px;
+      background-image: linear-gradient(to right,
+        rgba(150, 150, 100, 0.4) 90%,
+        rgba(0, 0, 0, .5) 10%);
+    }
+
+    .progressbar.health > .bar {
+      background: rgba(255, 0, 0, 0.5);
+    }
+
+    .progressbar.mana > .bar {
+      background: rgba(0, 0, 255, 0.5);
+    }
+
+    .progressbar.exp > .bar {
+      background: rgba(200, 200, 0, 0.45);
+    }
+  }
+
+  /* dlgQuestList */
+  .dialog.quest-list {
+    width: 300px;
+
+    .label.count {
+      width: 50%;
+    }
+
+    .label.daily {
+      width: 50%;
+    }
+
+    .list.quests {
+      height: 100px;
+    }
+
+    .items {
+      width: 40px;
+      float: left;
+    }
+
+    .label.description {
+      .panel;
+      .vertical-scroll;
+      height: 257px;
+      width: ~"calc(100% - 48px)";
+      float: right;
+    }
+
+    .footer {
+      float: right;
+      margin-top: 6px;
+      width: ~"calc(100% - 48px)";
+    }
+
+    .label.timer {
+      float: left;
+      display: inline;
+      text-align: center;
+      width: 50%
+    }
+
+    .button.abandon {
+      float: right;
+      display: inline;
+      width: 50%;
+    }
+  }
+
+  /* dlgNpcChat */
+  .dialog.npcchat {
+    width: 450px;
+
+    .label.message {
+      .panel;
+      min-height: 80px;
+    }
+
+    .list.options > div {
+      cursor: pointer;
+    }
+  }
+}

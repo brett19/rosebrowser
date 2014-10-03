@@ -1,0 +1,141 @@
+<div id="dlgStatus" class="status dialog">
+  <div class="label status">Hello world</div>
+</div>
+
+<div id="dlgLogin" class="login dialog">
+  <div class="title nodrag">Login</div>
+  <div class="panel">
+    <label>Username:</label>
+    <input type="text" class="username" />
+    <div class="seperator"></div>
+
+    <label>Password:</label>
+    <input type="password" class="password" />
+    <div class="seperator"></div>
+
+    <div class="checkbox remember">Remember Me</div>
+    <div class="seperator"></div>
+
+    <div class="button submit">Login</div>
+  </div>
+</div>
+
+<div id="dlgServerSelect" class="dialog server-select">
+  <div class="title nodrag">Server Select</div>
+  <div class="list servers"></div>
+</div>
+
+<div id="dlgCharacterSelect" class="dialog character-select">
+  <div class="title nodrag">Character Select</div>
+  <div class="list characters"></div>
+</div>
+
+<div id="dlgMenu" class="dialog menu">
+  <div class="button inventory">Inventory</div>
+  <div class="seperator"></div>
+  <div class="button quest-list">Quest List</div>
+</div>
+
+<div id="dlgCharacterStatus" class="dialog character-status">
+  <div class="label name"></div>
+  <div class="progressbar health">
+    <div class="label percent">100%</div>
+    <div class="label absolute">75 / 100</div>
+  </div>
+  <div class="progressbar mana">
+    <div class="label percent">100%</div>
+    <div class="label absolute">75 / 100</div>
+  </div>
+  <div class="progressbar exp"></div>
+</div>
+
+<div id="dlgQuestList" class="dialog quest-list" style="left: 100px; top: 100px;">
+  <div class="title">Quests</div>
+  <div class="close button">X</div>
+  <div class="panel">
+    <span class="label count">Quests 1 / 10</span>
+    <span class="label daily">Daily  0 / 15</span>
+  </div>
+  <div class="seperator"></div>
+  <div class="list quests"></div>
+  <div class="seperator"></div>
+  <span class="items">
+    <div class="quest-slot-1 slot"></div>
+    <div class="seperator"></div>
+    <div class="quest-slot-2 slot"></div>
+    <div class="seperator"></div>
+    <div class="quest-slot-3 slot"></div>
+    <div class="seperator"></div>
+    <div class="quest-slot-4 slot"></div>
+    <div class="seperator"></div>
+    <div class="quest-slot-5 slot"></div>
+    <div class="seperator"></div>
+    <div class="quest-slot-6 slot"></div>
+  </span>
+  <span class="label description"></span>
+  <span class="footer">
+    <span class="label timer">5 seconds</span>
+    <span class="button abandon">Abandon</span>
+  </span>
+</div>
+
+<div id="dlgInventory" class="dialog inventory" style="top: 200px; left: 200px">
+  <div class="title">Inventory</div>
+  <div class="close button">X</div>
+  <div class="tabpanel page">
+    <div class="header">
+      <div class="button">Avatar</div>
+      <div class="button">Costume</div>
+      <div class="button">PAT</div>
+    </div>
+    <div class="tab equipped">
+      <div style="float: left;">
+        <div class="equip-slot-10 slot accepts-item"></div><br />
+        <div class="equip-slot-9 slot accepts-item"></div><br />
+        <div class="equip-slot-11 slot accepts-item"></div>
+      </div>
+      <div style="float: right">
+        <div class="ammo-slot-0 slot accepts-item"></div><br />
+        <div class="ammo-slot-1 slot accepts-item"></div><br />
+        <div class="ammo-slot-2 slot accepts-item"></div><br />
+      </div>
+      <div style="margin: 0 auto; width: 135px">
+        <div style="float: left">
+          <div class="equip-slot-1 slot accepts-item"></div><br />
+          <div class="equip-slot-7 slot accepts-item"></div><br />
+          <div class="equip-slot-5 slot accepts-item"></div>
+        </div>
+        <div style="float: left">
+          <div class="equip-slot-2 slot accepts-item"></div><br />
+          <div class="equip-slot-3 slot accepts-item"></div><br />
+          <div class="equip-slot-6 slot accepts-item"></div>
+        </div>
+        <div style="float: left">
+          <div class="equip-slot-4 slot accepts-item"></div><br />
+          <div class="equip-slot-8 slot accepts-item"></div><br />
+        </div>
+      </div>
+      <div class="seperator"></div>
+      <div class="tabpanel inventory">
+        <div class="header">
+          <div class="button">Equipment</div>
+          <div class="button">Consume</div>
+          <div class="button">Material</div>
+        </div>
+        <div class="tab" id="equipment"></div>
+        <div class="tab" id="consume"></div>
+        <div class="tab" id="material"></div>
+      </div>
+    </div>
+    <div class="tab">Costume tab.</div>
+    <div class="tab">PAT tab.</div>
+  </div>
+</div>
+
+<div id="dlgNpcChat" class="dialog npcchat" style="top: 30%; left: 40%">
+  <div class="title">Conversation</div>
+  <div class="close button">X</div>
+  <div class="label message">Message</div>
+  <div class="seperator"></div>
+  <div class="list options"></div>
+</div>

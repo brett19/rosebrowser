@@ -36,9 +36,7 @@ GameTestState.prototype.enter = function() {
     return;
   }
 
-  var waitDialog = GUI.newStatusDialog();
-  waitDialog.setMessage('Connecting...');
-
+  var waitDialog = ui.statusDialog('Connecting...');
   var serverIp = '128.241.92.44';
   var serverName = '!Pegasus';
   var channelName = '1channel1';
