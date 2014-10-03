@@ -11,7 +11,8 @@ function MyCharacter(world) {
   this.mp = undefined;
   this.inventory = undefined;
   this.quests = undefined;
-}
+};
+
 MyCharacter.prototype = Object.create( CharObject.prototype );
 
 MyCharacter.prototype.getAbilityValue = function(abilType) {
@@ -24,7 +25,12 @@ MyCharacter.prototype.getAbilityValue = function(abilType) {
     case ABILTYPE.SEN: return this.stats.sen;
 
     case ABILTYPE.MP: return this.mp;
+    case ABILTYPE.EXP: return this.xp;
     case ABILTYPE.MONEY: return this.inventory.money;
+    case ABILTYPE.BIRTH: return this.birthStone;
+    case ABILTYPE.UNION: return this.union;
+    case ABILTYPE.RANK: return this.rank;
+    case ABILTYPE.FAME: return this.fame;
   }
 
   return CharObject.prototype.getAbilityValue.call(this, abilType);
