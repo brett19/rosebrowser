@@ -122,17 +122,18 @@ GameState.prototype.enter = function() {
       var pickPawn = self.gomVisMgr.findByMesh(objPickInfo.object);
       if (pickPawn) {
         var pickGo = pickPawn.owner;
-        if (pickGo instanceof MobObject) {
+        if (pickGo instanceof CharObject) {
+          GC.moveToObj(pickGo);
+        } else if (pickGo instanceof NpcObject) {
+          var moveCmd = GC.moveToObj(pickGo);
+          moveCmd.on('finish', function () {
+            console.log('Finished walk-to-object!');
+            self._startNpcTalk(pickGo);
+          });
+        } else if (pickGo instanceof MobObject) {
           var atkCmd = GC.attackObj(pickGo);
           atkCmd.on('finish', function() {
             console.log('Finished Attacking!');
-          });
-        } else {
-          var moveCmd = GC.moveToObj(pickGo);
-          moveCmd.on('finish', function () {
-            if (pickGo instanceof NpcObject) {
-              self._startNpcTalk(pickGo);
-            }
           });
         }
       }

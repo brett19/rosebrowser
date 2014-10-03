@@ -123,6 +123,9 @@ _NetManager.prototype.watch = function(wn, gn) {
 
   gn.on('obj_moveto', function(data) {
     var obj = GOM.findByServerObjectIdx(data.objectIdx);
+    if (obj instanceof MyCharacter) {
+      return;
+    }
     if (obj && !(obj instanceof ProxyObject)) {
       var targetObj = null;
       if (data.targetObjectIdx) {
@@ -140,6 +143,9 @@ _NetManager.prototype.watch = function(wn, gn) {
 
   gn.on('obj_attack', function(data) {
     var attackerObj = GOM.findByServerObjectIdx(data.attackerObjectIdx);
+    if (attackerObj instanceof MyCharacter) {
+      return;
+    }
     if (attackerObj && !(attackerObj instanceof ProxyObject)) {
       var defenderObj = GOM.getRefByServerObjectIdx(
           data.defenderObjectIdx,

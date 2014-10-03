@@ -30,7 +30,7 @@ _GameControl.prototype.attackObj = function(gameObject) {
   }
 
   netGame.attackObj(gameObject.serverObjectIdx);
-  return this._attackObj(gameObject.ref);
+  return MC._attackObj(gameObject.ref);
 };
 
 var GC = new _GameControl();
