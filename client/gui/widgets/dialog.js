@@ -11,6 +11,11 @@ ui.Dialog = function(template) {
 
 ui.Dialog.prototype = Object.create(ui.Widget.prototype);
 
+ui.Dialog.prototype.show = function() {
+  ui.bringToTop(this);
+  ui.Widget.prototype.show.call(this);
+};
+
 ui.Dialog.prototype.close = function() {
   ui.removeDialog(this);
 };
