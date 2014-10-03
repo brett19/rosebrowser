@@ -29,13 +29,14 @@ GameState.prototype.update = function(delta) {
   this.gomVisMgr.update(delta);
 };
 
-function Conversation(spec, lang) {
+function Conversation(npcObj, spec, lang) {
   EventEmitter.call(this);
 
   this._state = new ConversationState(spec, lang);
   this._luaState = eval(lua_load(spec.luaData))();
   luaFunctions.init(this._luaState);
 
+  this.npc = npcObj;
   this.message = '';
   this.options = {};
   this.dialog = null;
@@ -102,11 +103,11 @@ Conversation.prototype._go = function() {
       running = false;
       break;
     case CXECURREQ.LUACONDITION:
-      var result = lua_tablegetcall(this._luaState, this._state.condParam);
+      var result = lua_tablegetcall(this._luaState, this._state.condParam, [this]);
       this._state.condValue = result[0];
       break;
     case CXECURREQ.LUAACTION:
-      lua_tablegetcall(this._luaState, this._state.condParam);
+      lua_tablegetcall(this._luaState, this._state.condParam, [this]);
       break;
     case CXECURREQ.QSDCONDITION:
       var result = QF_checkQuestCondition(this._state.condParam);
@@ -132,7 +133,7 @@ GameState.prototype._startNpcTalk = function(npcObj) {
 
     // TODO: Cache all this stuff
     NpcChatData.load(eventData[3], function(convSpec) {
-      var conv = new Conversation(convSpec, 'en');
+      var conv = new Conversation(npcObj, convSpec, 'en');
       conv._go();
     });
 
