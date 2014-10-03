@@ -47,6 +47,9 @@ GameTestState.prototype.enter = function() {
     channelName = 'Channel 1';
   }
 
+  // TODO: Move somewhere nice as this is loaded in loginstate
+  GDM.get('zone_names', 'list_zone');
+
   netLogin = new LoginClient();
   netLogin.connect(serverIp, 29000, function(err) {
     waitDialog.setMessage('Connected; Logging In.');
