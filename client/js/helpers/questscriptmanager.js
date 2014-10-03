@@ -293,11 +293,18 @@ QuestScriptManager.prototype.checkOnly = function(triggerName) {
   var wasSuccess = true;
   qsdConsole.group('QSD Check Only', triggerName);
   while (true) {
+    if (!(triggerName in this.triggers)) {
+      qsdConsole.warn('Could not find triggerName in this.triggers', triggername);
+      wasSuccess = false;
+      break;
+    }
+
     var trigger = this.triggers[triggerName];
     if (!_checkTrigger(param, trigger)) {
       wasSuccess = false;
       break;
     }
+
     if (trigger.checkNext) {
       triggerName = trigger.nextTriggerName;
     } else {
