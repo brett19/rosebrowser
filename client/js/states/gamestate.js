@@ -123,12 +123,12 @@ GameState.prototype.enter = function() {
       if (pickPawn) {
         var pickGo = pickPawn.owner;
         if (pickGo instanceof MobObject) {
-          var atkCmd = MC.attackObj(pickGo);
+          var atkCmd = GC.attackObj(pickGo);
           atkCmd.on('finish', function() {
             console.log('Finished Attacking!');
           });
         } else {
-          var moveCmd = MC.moveToObj(pickGo);
+          var moveCmd = GC.moveToObj(pickGo);
           moveCmd.on('finish', function () {
             if (pickGo instanceof NpcObject) {
               self._startNpcTalk(pickGo);
@@ -140,7 +140,7 @@ GameState.prototype.enter = function() {
 
     if (worldPickInfo) {
       var moveToPos = worldPickInfo.point;
-      MC.moveTo(moveToPos.x, moveToPos.y);
+      GC.moveTo(moveToPos.x, moveToPos.y);
       self.pickPosH.position.copy(moveToPos);
     }
   });

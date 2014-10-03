@@ -71,6 +71,12 @@ function normalizePath(path) {
 }
 
 
+// http://javascript.about.com/od/problemsolving/a/modulobug.htm
+function mod(x, n) {
+  return ((x % n) + n) %n;
+}
+
+
 function slerp1d(a, b) {
   var targetDir = mod(a, Math.PI * 2);
   var thisDir = mod(b, Math.PI * 2);

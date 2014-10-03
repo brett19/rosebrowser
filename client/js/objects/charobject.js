@@ -16,7 +16,6 @@ function CharObject(world) {
   this.hp = undefined;
   this.visParts = undefined;
   this.stats = undefined;
-  this.pawn = undefined;
 
   this.isRunning = true;
   this.isSitting = false;
@@ -34,11 +33,6 @@ CharObject.prototype.getAbilityValue = function(abilType) {
 
   console.warn('Attempted to retrieve unknown ability value:', abilType);
   return 0;
-};
-
-CharObject.prototype.update = function(delta) {
-  ActorObject.prototype.update.call(this, delta);
-  this.pawn.update(delta);
 };
 
 CharObject.prototype.debugValidate = function() {

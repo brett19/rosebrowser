@@ -1,10 +1,5 @@
 'use strict';
 
-// http://javascript.about.com/od/problemsolving/a/modulobug.htm
-function mod(x, n) {
-  return ((x % n) + n) %n;
-}
-
 /**
  * @constructor
  */
@@ -16,6 +11,7 @@ function ActorObject(type, world) {
   this.moveSpeed = 550;
   this.activeCmd = null;
   this.nextCmd = null;
+  this.pawn = undefined;
 }
 ActorObject.prototype = new GameObject();
 
@@ -36,12 +32,6 @@ ActorObject.prototype._setNextCmd = function(cmd) {
 ActorObject.prototype._moveTo = function(x, y) {
   return this._setNextCmd(new MoveToPosCmd(this, new THREE.Vector2(x, y)));
 };
-ActorObject.prototype.moveTo = function(x, y, z) {
-  var cmd = this._moveTo(x, y);
-  // TODO: This does not properly handle moveTo being called on non-MC
-  netGame.moveTo(x, y, z);
-  return cmd;
-};
 
 ActorObject.prototype._moveToObj = function(objectRef, distance) {
   if (!(objectRef instanceof GORef)) {
@@ -49,16 +39,6 @@ ActorObject.prototype._moveToObj = function(objectRef, distance) {
     return;
   }
   return this._setNextCmd(new MoveToObjCmd(this, objectRef, distance));
-};
-
-ActorObject.prototype.moveToObj = function(gameObject, distance) {
-  if (!(gameObject instanceof GameObject)) {
-    console.warn('Object passed to moveToObj was not a GameObject.');
-    return;
-  }
-  var cmd = this._moveToObj(gameObject.ref, distance);
-  netGame.moveTo(gameObject.position.x, gameObject.position.y, gameObject.position.z, gameObject.serverObjectIdx);
-  return cmd;
 };
 
 ActorObject.prototype._attackObj = function(objectRef) {
@@ -69,18 +49,8 @@ ActorObject.prototype._attackObj = function(objectRef) {
   return this._setNextCmd(new AttackCmd(this, objectRef));
 };
 
-ActorObject.prototype.attackObj = function(gameObject) {
-  if (!(gameObject instanceof GameObject)) {
-    console.warn('Object passed to attackObj was not a GameObject.');
-    return;
-  }
-  var cmd = this._attackObj(gameObject.ref);
-  netGame.attackObj(gameObject.serverObjectIdx);
-  return cmd;
-};
-
 ActorObject.prototype.setDirection = function(radians) {
-  this.direction = mod(radians, (Math.PI * 2));
+  this.direction = radians;
   this.emit('moved');
 };
 
@@ -103,5 +73,9 @@ ActorObject.prototype.update = function(delta) {
       this.activeCmd._leave();
       this.activeCmd = null;
     }
+  }
+
+  if (this.pawn) {
+    this.pawn.update(delta);
   }
 };
