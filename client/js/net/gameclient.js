@@ -91,9 +91,13 @@ GameClient.prototype.joinZone = function(posZ, callback) {
   });
 };
 
-GameClient.prototype.moveTo = function(x, y, z) {
+GameClient.prototype.moveTo = function(x, y, z, targetObjectIdx) {
+  if (targetObjectIdx === undefined) {
+    targetObjectIdx = 0;
+  }
+
   var opak = new RosePacket(0x79a);
-  opak.addUint16(0);
+  opak.addUint16(targetObjectIdx);
   opak.addFloat(x * 100);
   opak.addFloat(y * 100);
   opak.addInt16(z * 100);

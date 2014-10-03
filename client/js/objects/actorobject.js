@@ -57,7 +57,7 @@ ActorObject.prototype.moveToObj = function(gameObject, distance) {
     return;
   }
   var cmd = this._moveToObj(gameObject.ref, distance);
-  // Don't send network event for now...
+  netGame.moveTo(gameObject.position.x, gameObject.position.y, gameObject.position.z, gameObject.serverObjectIdx);
   return cmd;
 };
 
