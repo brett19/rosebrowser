@@ -39,6 +39,9 @@ McStats.prototype._getEquipData = function(equipIdx) {
   return itemData.getData(item.itemType, item.itemNo);
 };
 
+McStats.prototype.getMaxHp = function() { return 12337; };
+McStats.prototype.getMaxMp = function() { return 12337; };
+
 McStats.prototype.getAttackSpeed = function() {
   // TODO: Implement this properly!
   return 1;

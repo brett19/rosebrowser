@@ -17,7 +17,7 @@ function CharObject(world) {
   this.visParts = undefined;
   this.stats = undefined;
 }
-CharObject.prototype = new ActorObject();
+CharObject.prototype = Object.create( ActorObject.prototype );
 
 CharObject.prototype.getAbilityValue = function(abilType) {
   switch(abilType) {

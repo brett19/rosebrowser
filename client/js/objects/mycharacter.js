@@ -12,7 +12,7 @@ function MyCharacter(world) {
   this.inventory = undefined;
   this.quests = undefined;
 }
-MyCharacter.prototype = new CharObject();
+MyCharacter.prototype = Object.create( CharObject.prototype );
 
 MyCharacter.prototype.getAbilityValue = function(abilType) {
   switch(abilType) {

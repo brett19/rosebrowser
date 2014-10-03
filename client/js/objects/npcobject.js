@@ -10,4 +10,4 @@ function NpcObject(world) {
   this.eventIdx = undefined;
   this.stats = undefined;
 }
-NpcObject.prototype = new ActorObject();
+NpcObject.prototype = Object.create( ActorObject.prototype );

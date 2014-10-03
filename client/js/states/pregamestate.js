@@ -83,6 +83,7 @@ PreGameState.prototype.enter = function() {
           MC.level = charData.level;
           MC.position.x = charData.posStart.x;
           MC.position.y = charData.posStart.y;
+          MC.hp = charData.hp;
           MC.mp = charData.mp;
           MC.gender = charData.gender;
           MC.job = charData.job;

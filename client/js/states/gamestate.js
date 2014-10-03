@@ -161,10 +161,10 @@ GameState.prototype.enter = function() {
   var controls = new THREE.OrbitControls(camera);
   controls.damping = 0.2;
 
-  netGame.joinZone(MC.position.z, function() {
+  netGame.joinZone(MC.position.z, function(data) {
     // TODO: Read the actual serverObjectIdx
-    MC.hp = 1;
-    MC.serverObjectIdx = 9999999;
+    MC.hp = data.curHp;
+    MC.mp = data.curMp;
     MC.debugValidate();
     MC.dropFromSky();
     GOM.addObject(MC);
