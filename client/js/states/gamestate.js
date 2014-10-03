@@ -72,6 +72,8 @@ Conversation.prototype._formatString = function(string) {
       content = MC.name;
     } else if (content === 'LEVEL') {
       content = MC.level;
+    } else if (content === 'REVIVE_ZONE') {
+      content = GF_getReviveZoneName();
     } else {
       content = match[0];
     }
