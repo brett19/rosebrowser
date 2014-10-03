@@ -110,6 +110,10 @@ GameClient.prototype.moveTo = function(x, y, z) {
   */
 };
 
+GameClient.prototype.setRevivePosition = function() {
+  this.socket.sendPacket(new RosePacket(0x756));
+};
+
 var TYPE_QUEST_REQ_ADD = 0x01;
 var TYPE_QUEST_REQ_DEL = 0x02;
 var TYPE_QUEST_REQ_DO_TRIGGER = 0x03;
