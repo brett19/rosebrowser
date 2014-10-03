@@ -34,7 +34,7 @@ function Conversation(spec, lang) {
 
   this._state = new ConversationState(spec, lang);
   this._luaState = eval(lua_load(spec.luaData))();
-  QF_Init(this._luaState);
+  luaFunctions.init(this._luaState);
 
   this.message = '';
   this.options = {};

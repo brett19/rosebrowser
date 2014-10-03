@@ -1,152 +1,125 @@
 'use strict';
 
-function lua_SETFUNC(luaState, name, func) {
+var LuaFunctions = function() {
+};
+
+LuaFunctions.prototype._lua = null;
+
+LuaFunctions.prototype.init = function(lua) {
+  this._lua = lua;
+  this.GF_Init();
+  this.QF_Init();
+}
+
+LuaFunctions.prototype.setFunc = function(name, func) {
   if (!func) {
     func = function() {
       console.error('LUA called unimplemented function `' + name + '`.');
       return [];
-    }
-  }
-  lua_tableset(luaState, name, func);
-}
-
-function GF_Init(luaState) {
-  lua_SETFUNC(luaState, 'GF_ChangeState');
-  lua_SETFUNC(luaState, 'GF_DeleteEffectFromObject');
-  lua_SETFUNC(luaState, 'GF_EffectOnObject');
-  lua_SETFUNC(luaState, 'GF_GetEffectUseFile');
-  lua_SETFUNC(luaState, 'GF_GetEffectUseIndex');
-  lua_SETFUNC(luaState, 'GF_GetMotionUseFile');
-  lua_SETFUNC(luaState, 'GF_GetTarget');
-  lua_SETFUNC(luaState, 'GF_LogString');
-  lua_SETFUNC(luaState, 'GF_Random');
-  lua_SETFUNC(luaState, 'GF_SetMotion');
-  lua_SETFUNC(luaState, 'GF_WeatherEffectOnObject');
-  lua_SETFUNC(luaState, 'GF_addUserMoney');
-  lua_SETFUNC(luaState, 'GF_appraisal');
-  lua_SETFUNC(luaState, 'GF_checkNumOfInvItem');
-  lua_SETFUNC(luaState, 'GF_checkTownItem');
-  lua_SETFUNC(luaState, 'GF_checkUserMoney');
-  lua_SETFUNC(luaState, 'GF_disorganizeClan');
-  lua_SETFUNC(luaState, 'GF_error');
-  lua_SETFUNC(luaState, 'GF_getDate');
-  lua_SETFUNC(luaState, 'GF_getGameVersion');
-  lua_SETFUNC(luaState, 'GF_getIDXOfInvItem');
-  lua_SETFUNC(luaState, 'GF_getItemRate');
-  lua_SETFUNC(luaState, 'GF_getName');
-  lua_SETFUNC(luaState, 'GF_getReviveZoneName');
-  lua_SETFUNC(luaState, 'GF_getTownRate');
-  lua_SETFUNC(luaState, 'GF_getTownVar');
-  lua_SETFUNC(luaState, 'GF_getVariable');
-  lua_SETFUNC(luaState, 'GF_getWorldRate');
-  lua_SETFUNC(luaState, 'GF_getZone');
-  lua_SETFUNC(luaState, 'GF_giveEquipItemIntoInv');
-  lua_SETFUNC(luaState, 'GF_giveUsableItemIntoInv');
-  lua_SETFUNC(luaState, 'GF_log');
-  lua_SETFUNC(luaState, 'GF_movableXY');
-  lua_SETFUNC(luaState, 'GF_moveEvent');
-  lua_SETFUNC(luaState, 'GF_moveXY');
-  lua_SETFUNC(luaState, 'GF_openBank');
-  lua_SETFUNC(luaState, 'GF_openDeliveryStore');
-  lua_SETFUNC(luaState, 'GF_openSeparate');
-  lua_SETFUNC(luaState, 'GF_openStore');
-  lua_SETFUNC(luaState, 'GF_openUpgrade');
-  lua_SETFUNC(luaState, 'GF_organizeClan');
-  lua_SETFUNC(luaState, 'GF_playEffect');
-  lua_SETFUNC(luaState, 'GF_playSound');
-  lua_SETFUNC(luaState, 'GF_putoffItem');
-  lua_SETFUNC(luaState, 'GF_putonItem');
-  lua_SETFUNC(luaState, 'GF_repair');
-  lua_SETFUNC(luaState, 'GF_rotateCamera');
-  lua_SETFUNC(luaState, 'GF_setEquipedItem');
-  lua_SETFUNC(luaState, 'GF_setRevivePosition');
-  lua_SETFUNC(luaState, 'GF_setTownRate');
-  lua_SETFUNC(luaState, 'GF_setVariable');
-  lua_SETFUNC(luaState, 'GF_setWorldRate');
-  lua_SETFUNC(luaState, 'GF_spawnMonAtEvent');
-  lua_SETFUNC(luaState, 'GF_spawnMonXY');
-  lua_SETFUNC(luaState, 'GF_takeItemFromInv');
-  lua_SETFUNC(luaState, 'GF_takeUserMoney');
-  lua_SETFUNC(luaState, 'GF_warp');
-  lua_SETFUNC(luaState, 'GF_zoomCamera');
-}
-
-function QF_checkQuestCondition(triggerName) {
-  var questScripts = GDM.getNow('quest_scripts');
-  luaConsole.debug('QF_checkQuestCondition(', triggerName, ')');
-  var res = questScripts.checkOnly(triggerName);
-  luaConsole.debug('QF_checkQuestCondition Result:', res);
-  return [ res ? 1 : 0 ];
-}
-
-function QF_doQuestTrigger(triggerName) {
-  if (QF_checkQuestCondition(triggerName)[0] <= 0) {
-    return [ 0 ];
+    };
   }
 
-  netGame.questRequest(TYPE_QUEST_REQ_DO_TRIGGER, 0, 0, triggerName);
-  return [ 1 ];
+  lua_tableset(this._lua, name, func);
+};
+
+LuaFunctions.prototype.GF_Init = function() {
+  this.setFunc('GF_ChangeState');
+  this.setFunc('GF_DeleteEffectFromObject');
+  this.setFunc('GF_EffectOnObject');
+  this.setFunc('GF_GetEffectUseFile');
+  this.setFunc('GF_GetEffectUseIndex');
+  this.setFunc('GF_GetMotionUseFile');
+  this.setFunc('GF_GetTarget');
+  this.setFunc('GF_LogString');
+  this.setFunc('GF_Random');
+  this.setFunc('GF_SetMotion');
+  this.setFunc('GF_WeatherEffectOnObject');
+  this.setFunc('GF_addUserMoney');
+  this.setFunc('GF_appraisal');
+  this.setFunc('GF_checkNumOfInvItem');
+  this.setFunc('GF_checkTownItem');
+  this.setFunc('GF_checkUserMoney');
+  this.setFunc('GF_disorganizeClan');
+  this.setFunc('GF_error');
+  this.setFunc('GF_getDate');
+  this.setFunc('GF_getGameVersion');
+  this.setFunc('GF_getIDXOfInvItem');
+  this.setFunc('GF_getItemRate');
+  this.setFunc('GF_getName', GF_getName);
+  this.setFunc('GF_getReviveZoneName', GF_getReviveZoneName);
+  this.setFunc('GF_getTownRate');
+  this.setFunc('GF_getTownVar');
+  this.setFunc('GF_getVariable', GF_getVariable);
+  this.setFunc('GF_getWorldRate');
+  this.setFunc('GF_getZone');
+  this.setFunc('GF_giveEquipItemIntoInv');
+  this.setFunc('GF_giveUsableItemIntoInv');
+  this.setFunc('GF_log');
+  this.setFunc('GF_movableXY');
+  this.setFunc('GF_moveEvent');
+  this.setFunc('GF_moveXY');
+  this.setFunc('GF_openBank');
+  this.setFunc('GF_openDeliveryStore');
+  this.setFunc('GF_openSeparate');
+  this.setFunc('GF_openStore');
+  this.setFunc('GF_openUpgrade');
+  this.setFunc('GF_organizeClan');
+  this.setFunc('GF_playEffect');
+  this.setFunc('GF_playSound');
+  this.setFunc('GF_putoffItem');
+  this.setFunc('GF_putonItem');
+  this.setFunc('GF_repair');
+  this.setFunc('GF_rotateCamera');
+  this.setFunc('GF_setEquipedItem');
+  this.setFunc('GF_setRevivePosition', GF_setRevivePosition);
+  this.setFunc('GF_setTownRate');
+  this.setFunc('GF_setVariable');
+  this.setFunc('GF_setWorldRate');
+  this.setFunc('GF_spawnMonAtEvent');
+  this.setFunc('GF_spawnMonXY');
+  this.setFunc('GF_takeItemFromInv');
+  this.setFunc('GF_takeUserMoney');
+  this.setFunc('GF_warp');
+  this.setFunc('GF_zoomCamera');
 }
 
-function QF_Init(luaState) {
-  GF_Init(luaState);
+LuaFunctions.prototype.QF_Init = function() {
+  this.setFunc('QF_CameraworkingNpc');
+  this.setFunc('QF_CameraworkingPoint');
+  this.setFunc('QF_CameraworkingSelf');
+  this.setFunc('QF_ChangetalkImage');
+  this.setFunc('QF_ChangetalkName');
+  this.setFunc('QF_EffectCallNpc');
+  this.setFunc('QF_EffectCallSelf');
+  this.setFunc('QF_MotionCallNpc');
+  this.setFunc('QF_MotionCallSelf');
+  this.setFunc('QF_NpcHide');
+  this.setFunc('QF_NpcTalkinterfaceHide');
+  this.setFunc('QF_NpcTalkinterfaceView');
+  this.setFunc('QF_NpcView');
+  this.setFunc('QF_appendQuest');
+  this.setFunc('QF_beginCon');
+  this.setFunc('QF_checkQuestCondition', QF_checkQuestCondition);
+  this.setFunc('QF_closeCon');
+  this.setFunc('QF_deleteQuest');
+  this.setFunc('QF_doQuestTrigger', QF_doQuestTrigger);
+  this.setFunc('QF_getClanVAR');
+  this.setFunc('QF_getEpisodeVAR', QF_getEpisodeVAR);
+  this.setFunc('QF_getJobVAR', QF_getJobVAR);
+  this.setFunc('QF_getPlanetVAR', QF_getPlanetVAR);
+  this.setFunc('QF_getUnionVAR', QF_getUnionVAR);
+  this.setFunc('QF_getUserSwitch', QF_getUserSwitch);
+  this.setFunc('QF_getQuestCount', QF_getQuestCount);
+  this.setFunc('QF_findQuest', QF_findQuest);
+  this.setFunc('QF_getQuestID', QF_getQuestID);
+  this.setFunc('QF_getQuestItemQuantity', QF_getQuestItemQuantity);
+  this.setFunc('QF_getQuestSwitch', QF_getQuestSwitch);
+  this.setFunc('QF_getQuestVar', QF_getQuestVar);
+  this.setFunc('QF_getEventOwner', QF_getEventOwner);
+  this.setFunc('QF_getNpcQuestZeroVal');
+  this.setFunc('QF_getSkillLevel');
+  this.setFunc('QF_givePoint');
+  this.setFunc('QF_gotoCon');
+};
 
-  lua_SETFUNC(luaState, 'QF_CameraworkingNpc');
-  lua_SETFUNC(luaState, 'QF_CameraworkingPoint');
-  lua_SETFUNC(luaState, 'QF_CameraworkingSelf');
-  lua_SETFUNC(luaState, 'QF_ChangetalkImage');
-  lua_SETFUNC(luaState, 'QF_ChangetalkName');
-  lua_SETFUNC(luaState, 'QF_EffectCallNpc');
-  lua_SETFUNC(luaState, 'QF_EffectCallSelf');
-  lua_SETFUNC(luaState, 'QF_MotionCallNpc');
-  lua_SETFUNC(luaState, 'QF_MotionCallSelf');
-  lua_SETFUNC(luaState, 'QF_NpcHide');
-  lua_SETFUNC(luaState, 'QF_NpcTalkinterfaceHide');
-  lua_SETFUNC(luaState, 'QF_NpcTalkinterfaceView');
-  lua_SETFUNC(luaState, 'QF_NpcView');
-  lua_SETFUNC(luaState, 'QF_appendQuest');
-  lua_SETFUNC(luaState, 'QF_beginCon');
-  lua_SETFUNC(luaState, 'QF_checkQuestCondition', QF_checkQuestCondition);
-  lua_SETFUNC(luaState, 'QF_closeCon');
-  lua_SETFUNC(luaState, 'QF_deleteQuest');
-  lua_SETFUNC(luaState, 'QF_doQuestTrigger', QF_doQuestTrigger);
-  lua_SETFUNC(luaState, 'QF_getClanVAR');
-  lua_SETFUNC(luaState, 'QF_getEpisodeVAR', function(varNo) {
-    return [ MC.quests.getEpisodeVar(varNo) ];
-  });
-  lua_SETFUNC(luaState, 'QF_getJobVAR', function(varNo) {
-    return [ MC.quests.getJobVar(varNo) ];
-  });
-  lua_SETFUNC(luaState, 'QF_getPlanetVAR', function(varNo) {
-    return [ MC.quests.getPlanetVar(varNo) ];
-  });
-  lua_SETFUNC(luaState, 'QF_getUnionVAR', function(varNo) {
-    return [ MC.quests.getUnionVar(varNo) ];
-  });
-  lua_SETFUNC(luaState, 'QF_getUserSwitch', function(switchId) {
-    return [ MC.quests.getSwitch(switchId) ];
-  });
-  lua_SETFUNC(luaState, 'QF_getQuestCount', function() {
-    return [ MC.quests.getQuestCount() ];
-  });
-  lua_SETFUNC(luaState, 'QF_findQuest', function(id) {
-    return [ MC.quests.findQuestByID(id) ];
-  });
-  lua_SETFUNC(luaState, 'QF_getQuestID', function(questNo) {
-    return [ MC.quests.getQuestId(questNo) ];
-  });
-  lua_SETFUNC(luaState, 'QF_getQuestItemQuantity', function(questID, itemNo) {
-    return [ MC.quests.getQuestItemQuantity(questID, Math.floor(itemNo / 1000), itemNo % 1000) ];
-  });;
-  lua_SETFUNC(luaState, 'QF_getQuestSwitch', function(questNo, id) {
-    return [ MC.quests.getQuestSwitch(questNo, id) ];
-  });
-  lua_SETFUNC(luaState, 'QF_getQuestVar', function(questNo, id) {
-    return [ MC.quests.getQuestVar(questNo, id) ];
-  });
-  lua_SETFUNC(luaState, 'QF_getEventOwner');
-  lua_SETFUNC(luaState, 'QF_getNpcQuestZeroVal');
-  lua_SETFUNC(luaState, 'QF_getSkillLevel');
-  lua_SETFUNC(luaState, 'QF_givePoint');
-  lua_SETFUNC(luaState, 'QF_gotoCon');
-}
+var luaFunctions = new LuaFunctions();
