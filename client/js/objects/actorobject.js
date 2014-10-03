@@ -12,6 +12,7 @@ function ActorObject(type, world) {
   GameObject.call(this, type, world);
 
   this.direction = 0;
+  this.speed = 0;
   this.moveSpeed = 550;
   this.activeCmd = null;
   this.nextCmd = null;
@@ -37,10 +38,8 @@ ActorObject.prototype._moveTo = function(x, y) {
 };
 ActorObject.prototype.moveTo = function(x, y, z) {
   var cmd = this._moveTo(x, y);
-
   // TODO: This does not properly handle moveTo being called on non-MC
   netGame.moveTo(x, y, z);
-
   return cmd;
 };
 
@@ -49,7 +48,6 @@ ActorObject.prototype._moveToObj = function(objectRef, distance) {
     console.warn('Reference passed to _moveToObj was not a GORef.');
     return;
   }
-
   return this._setNextCmd(new MoveToObjCmd(this, objectRef, distance));
 };
 
@@ -58,11 +56,8 @@ ActorObject.prototype.moveToObj = function(gameObject, distance) {
     console.warn('Object passed to moveToObj was not a GameObject.');
     return;
   }
-
   var cmd = this._moveToObj(gameObject.ref, distance);
-
   // Don't send network event for now...
-
   return cmd;
 };
 
@@ -71,7 +66,6 @@ ActorObject.prototype._attackObj = function(objectRef) {
     console.warn('Reference passed to _attackObj was not a GORef.');
     return;
   }
-
   return this._setNextCmd(new AttackCmd(this, objectRef));
 };
 
@@ -80,11 +74,8 @@ ActorObject.prototype.attackObj = function(gameObject) {
     console.warn('Object passed to attackObj was not a GameObject.');
     return;
   }
-
   var cmd = this._attackObj(gameObject.ref);
-
   netGame.attackObj(gameObject.serverObjectIdx);
-
   return cmd;
 };
 

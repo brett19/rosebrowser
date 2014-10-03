@@ -13,7 +13,7 @@ function NpcStats(npcObj) {
 }
 
 NpcStats.prototype.getAttackSpeed = function() {
-  return this.data[NPC_DATA.ATK_SPEED];
+  return this.data[NPC_DATA.ATK_SPEED] / 10;
 };
 
 NpcStats.prototype.getAttackDistance = function() {

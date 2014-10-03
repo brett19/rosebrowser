@@ -97,7 +97,7 @@ var FAVTPARTTYPES = [
 /**
  * @constructor
  *
- * @property {IndexedCache.<THREE.Animation>} motionCache
+ * @property {Object.<string,SkeletonAnimator>} motionCache
  * Holds a cache of all animations that are actually loaded against
  * this skeleton and can be used immediately (and should not be loaded
  * against the skeleton again).
@@ -105,11 +105,12 @@ var FAVTPARTTYPES = [
 function CharPawn(go) {
   this.rootObj = new THREE.Object3D();
   this.rootObj.owner = this;
-  this.skel = null;
   this.gender = -1;
+  this.skel = null;
+  this.skelWaiters = [];
   this.motionCache = null;
-  this.activeMotionIdx = AVTANI.STOP1;
   this.activeMotions = [];
+  this.defaultMotionIdx = -1;
   this.nameTag = null;
 
   if (go) {
@@ -124,29 +125,12 @@ function CharPawn(go) {
       }
     });
 
-    go.on('start_move', function() {
-      self.setMotion(AVTANI.RUN);
-    });
-    go.on('stop_move', function() {
-      self.setMotion(AVTANI.STOP1);
-    });
-    go.on('attack', function() {
-      self.setMotion(AVTANI.ATTACK, function(anim) {
-        anim.loop = false;
-        anim.once('finish', function() {
-          self.setMotion(AVTANI.STOP1);
-          go.emit('attack_done');
-        });
-      });
-    });
-    go.on('moved', function () {
-      self.rootObj.position.copy(go.position);
-      self.rootObj.rotation.z = go.direction;
-    });
     go.on('damage', function(amount) {
       self.newDamage(amount);
     });
   }
+
+  this.playDefaultMotion();
 }
 
 /**
@@ -157,32 +141,51 @@ function CharPawn(go) {
  */
 CharPawn.motionFileCache = new DataCache(AnimationData);
 
-// This function should never be called directly, and should only used
-//   by the loadedMotions cache.  Use this.motionCache.get instead.
-CharPawn.prototype._loadMotion = function(motionFileIdx, callback) {
-  var self = this;
-  GDM.get('char_motions', function(motionTable) {
-    var motionRow = motionTable.row(motionFileIdx);
-    var motionFile = motionRow[MOTION_TABLE.MALE_MOTION + self.gender];
-
-    CharPawn.motionFileCache.get(motionFile, function(animData) {
-      var anim = new SkeletonAnimator(self.skel, animData);
-      callback(anim);
-    });
-  });
-};
-
 CharPawn.prototype._setSkeleton = function(skelData) {
   this.skel = skelData.create(this.rootObj);
 
   // Reset the loaded motions if the skeleton changed...
-  this.motionCache = new IndexedCache(this._loadMotion.bind(this));
+  this.motionCache = {};
   this.activeMotions = [];
 
-  // We do this to share the same code.
-  var motionIdx = this.activeMotionIdx;
-  this.activeMotionIdx = -1;
-  this.setMotion(motionIdx);
+  // Let everyone waiting know!
+  for (var i = 0; i < this.skelWaiters.length; ++i) {
+    this.skelWaiters[i]();
+  }
+  this.skelWaiters = [];
+};
+
+CharPawn.prototype._waitSkeleton = function(callback) {
+  if (this.gender !== 0 && this.gender !== 1) {
+    throw new Error('Cannot wait on a skeleton that is not loading.');
+  }
+
+  if (this.skel) {
+    callback();
+  } else {
+    this.skelWaiters.push(callback);
+  }
+};
+
+CharPawn.prototype.setGender = function(genderIdx, callback) {
+  // Dont waste time doing nothing
+  if (this.gender === genderIdx) {
+    return;
+  }
+
+  var self = this;
+  this.gender = genderIdx;
+
+  var skelName = GENDERSKELNAMES[genderIdx];
+  if (!skelName) {
+    throw new Error('Invalid gender specified (' + genderIdx + ')');
+  }
+  GDM.get(skelName, function(skelData) {
+    self._setSkeleton(skelData);
+    if (callback) {
+      callback();
+    }
+  });
 };
 
 CharPawn.prototype._setModelPart = function(modelList, partIdx, modelIdx, bindBone, bindDummy) {
@@ -230,99 +233,6 @@ CharPawn.prototype._setModelPart = function(modelList, partIdx, modelIdx, bindBo
   }
 };
 
-CharPawn.prototype.setGender = function(genderIdx, callback) {
-  // Dont waste time doing nothing
-  if (this.gender === genderIdx) {
-    return;
-  }
-
-  var self = this;
-  this.gender = genderIdx;
-
-  var skelName = GENDERSKELNAMES[genderIdx];
-  if (!skelName) {
-    throw new Error('Invalid gender specified (' + genderIdx + ')');
-  }
-  GDM.get(skelName, function(skelData) {
-    self._setSkeleton(skelData);
-    if (callback) {
-      callback();
-    }
-  });
-};
-
-CharPawn.prototype.setMotion = function(motionIdx, animCallback) {
-  // Don't do anything if this motion is already playing...
-  if (motionIdx === this.activeMotionIdx) {
-    return;
-  }
-
-  this.activeMotionIdx = motionIdx;
-
-  for (var i = 0; i < this.activeMotions.length; ++i) {
-    var motion = this.activeMotions[i];
-    if (motion.idx === motionIdx) {
-      // This animation is already in our playing motion list!
-      this.activeMotions.splice(i, 1);
-      this.activeMotions.unshift(motion);
-
-      // Make sure this is playing in case its a one-time animation
-      if (!motion.anim.isPlaying) {
-        motion.anim.play(0, motion.anim.weight);
-      }
-
-      if (animCallback) {
-        animCallback(motion.anim);
-      }
-
-      return;
-    }
-  }
-
-  // If the skeleton isn't loaded yet, just do nothing and the skeleton
-  //  loader will set it later.
-  if (!this.skel) {
-    return;
-  }
-
-  // TODO: Make the handling of motion changes with variable load delays
-  //  more reliable.
-  var self = this;
-  GDM.get('char_motiontypes', function(motionTypes) {
-
-    var motionFileIdx = motionTypes.item(motionIdx, 1);
-
-    self.motionCache.get(motionFileIdx, function(anim) {
-      if (animCallback) {
-        animCallback(anim);
-      }
-
-      // Don't overwrite any newer motion sets.
-      if (motionIdx !== self.activeMotionIdx) {
-        return;
-      }
-
-      // TODO: Accessing owner like this is unsafe for non-GO based pawns.
-      if (self.owner) {
-        var moveAnimScale = (self.owner.moveSpeed + 180) / 600;
-        anim.timeScale = moveAnimScale;
-      }
-
-      self.activeMotions.unshift({
-          idx: motionIdx,
-          anim: anim
-      });
-
-      anim.play();
-      if (self.activeMotions.length === 1) {
-        anim.weight = 1;
-      } else {
-        anim.weight = 0;
-      }
-    });
-  });
-};
-
 CharPawn.prototype.setModelPart = function(partIdx, modelIdx, callback) {
   var self = this;
   var partType = MAVTPARTTYPES[partIdx];
@@ -332,6 +242,104 @@ CharPawn.prototype.setModelPart = function(partIdx, modelIdx, callback) {
     if (callback) {
       callback();
     }
+  });
+};
+
+CharPawn.prototype._getMotionData = function(motionIdx, callback) {
+  GDM.get('char_motiontypes', 'char_motions', function(motionTypes, charMotions) {
+    this._waitSkeleton(function() {
+      var motionFileIdx = motionTypes.item(motionIdx, 1);
+      var motionRow = charMotions.row(motionFileIdx);
+      var motionFile = motionRow[MOTION_TABLE.MALE_MOTION + this.gender];
+      CharPawn.motionFileCache.get(motionFile, function (animData) {
+        if (callback) {
+          callback(animData);
+        }
+      });
+    }.bind(this));
+  }.bind(this));
+};
+
+CharPawn.prototype._getMotion = function(motionIdx, callback) {
+  // We check the cache after the getMotionData to avoid synchronization
+  //   issues from calling this method twice in a row for the same motion.
+  this._getMotionData(motionIdx, function(animData) {
+    if (this.motionCache[motionIdx]) {
+      callback(this.motionCache[motionIdx]);
+      return;
+    }
+    var anim = new SkeletonAnimator(this.skel, animData);
+    this.motionCache[motionIdx] = anim;
+    callback(anim);
+  }.bind(this));
+};
+
+CharPawn.prototype._playMotion = function(motionIdx, timeScale, loop, callback) {
+  this._getMotion(motionIdx, function(anim) {
+    var activeIdx = this.activeMotions.indexOf(anim);
+    if (activeIdx !== -1) {
+      this.activeMotions.splice(activeIdx, 1);
+    }
+
+    anim.timeScale = timeScale;
+    anim.loop = loop;
+    if (!anim.isPlaying) {
+      anim.play(0, 0);
+    }
+
+    // If no motions were previously playing, immediately activate this one.
+    if (this.activeMotions.length === 0) {
+      anim.weight = 1;
+    }
+
+    this.activeMotions.unshift(anim);
+
+    if (callback) {
+      callback(anim);
+    }
+  }.bind(this));
+};
+
+CharPawn.prototype.playDefaultMotion = function() {
+  var timeScale = 1.0;
+  var newIdleMotion = AVTANI.STOP1;
+  if (this.owner) {
+    if (this.owner.isSitting) {
+      newIdleMotion = AVTANI.SITTING;
+    } else if (this.owner.speed > 0) {
+      if (this.owner.isRunning) {
+        timeScale = (this.owner.moveSpeed + 180) / 600;
+        newIdleMotion = AVTANI.RUN;
+      } else {
+        newIdleMotion = AVTANI.WALK;
+      }
+    }
+  }
+
+  if (newIdleMotion === this.defaultMotionIdx) {
+    return;
+  }
+
+  this._playMotion(newIdleMotion, timeScale, true);
+  this.defaultMotionIdx = newIdleMotion
+};
+
+CharPawn.prototype.playMotion = function(motionIdx, timeScale, loop, callback) {
+  this._playMotion(motionIdx, timeScale, loop, callback);
+  this.defaultMotionIdx = -1;
+};
+
+CharPawn.prototype.playAttackMotion = function(onFinish) {
+  var timeScale = this.owner.stats.getAttackSpeed() / 100;
+  var motionIdx = AVTANI.ATTACK;
+  var animNum = Math.floor(Math.random() * 3);
+  if (animNum === 1) {
+    motionIdx = AVTANI.ATTACK2;
+  } else if (animNum === 2) {
+    motionIdx = AVTANI.ATTACK3;
+  }
+  this.playMotion(motionIdx, timeScale, false, function(anim) {
+    anim.once('finish', onFinish);
   });
 };
 
@@ -362,16 +370,16 @@ CharPawn.prototype.setName = function(name) {
 };
 
 CharPawn.prototype.update = function(delta) {
+  // Update Animation Blending
   var blendWeightDelta = 6 * delta;
-
   if (this.activeMotions.length >= 1) {
-    var activeMotion = this.activeMotions[0].anim;
+    var activeMotion = this.activeMotions[0];
     if (activeMotion.weight < 1) {
       activeMotion.weight += blendWeightDelta;
     }
 
     for (var i = 1; i < this.activeMotions.length; ++i) {
-      var motion = this.activeMotions[i].anim;
+      var motion = this.activeMotions[i];
       motion.weight -= blendWeightDelta;
       if (!motion.isPlaying || motion.weight <= 0) {
         motion.stop();
@@ -379,5 +387,32 @@ CharPawn.prototype.update = function(delta) {
         --i;
       }
     }
+
+    if (!this.activeMotions[0].isPlaying) {
+      this.playDefaultMotion();
+    }
+  }
+
+  // Update stuff
+  if (this.owner) {
+    var self = this;
+    var dirStep = (Math.PI * 3) * delta;
+    var deltaDir = slerp1d(this.owner.direction, self.rootObj.rotation.z);
+
+    if (deltaDir > dirStep || deltaDir < -dirStep) {
+      if (deltaDir < 0) {
+        self.rootObj.rotation.z -= dirStep;
+      } else {
+        self.rootObj.rotation.z += dirStep;
+      }
+    } else {
+      self.rootObj.rotation.z = this.owner.direction;
+    }
+
+    self.rootObj.position.copy(this.owner.position);
+  }
+
+  if (this.defaultMotionIdx !== -1) {
+    this.playDefaultMotion();
   }
 };

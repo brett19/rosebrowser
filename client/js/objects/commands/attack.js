@@ -2,15 +2,13 @@
 
 function _AttackCmd(object, targetObjRef) {
   MoCommand.call(this, object);
+  this.pawn = this.object.pawn;
   this.target = targetObjRef;
-
-  this.__attackDone = this._attackDone.bind(this);
 }
 _AttackCmd.prototype = Object.create(MoCommand.prototype);
 
 _AttackCmd.prototype.enter = function() {
-  this.object.once('attack_done', this.__attackDone);
-  this.object.emit('attack');
+  this.pawn.playAttackMotion(this._attackDone.bind(this));
 };
 
 _AttackCmd.prototype._attackDone = function() {

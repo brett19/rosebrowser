@@ -51,12 +51,12 @@ GOMVisManager.prototype.findByObject = function(obj) {
 GOMVisManager.prototype._addObjectMovable = function(obj) {
   var visObj = null;
   if (obj instanceof CharObject) {
-    visObj = new CharPawn(obj);
+    visObj = obj.pawn;
   } else if (obj instanceof NpcObject) {
-    visObj = new NpcPawn(obj);
+    visObj = obj.pawn;
   } else if (obj instanceof MobObject) {
     // TODO: NpcObject should derive NpcObject or vica-versa
-    visObj = new NpcPawn(obj);
+    visObj = obj.pawn;
   } else {
     return null;
   }
@@ -131,7 +131,7 @@ GOMVisManager.prototype.addToScene = function() {
 
 GOMVisManager.prototype.update = function(delta) {
   for (var i = 0; i < this.visObjects.length; ++i) {
-    this.visObjects[i].update(delta);
+    //this.visObjects[i].update(delta);
   }
 };
 

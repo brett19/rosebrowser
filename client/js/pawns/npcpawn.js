@@ -18,44 +18,28 @@ var NPCANI = {
 function NpcPawn(go) {
   this.rootObj = new THREE.Object3D();
   this.rootObj.owner = this;
-  this.skel = null;
   this.charIdx = 0;
-  this.motionCache = new IndexedCache(this._loadMotion.bind(this));
-  this.activeMotionIdx = NPCANI.STOP;
-  this.activeMotion = null;
-  this.prevMotion = null;
+  this.skel = null;
+  this.skelWaiters = [];
+  this.motionCache = null;
+  this.activeMotions = [];
+  this.defaultMotionIdx = -1;
 
   if (go) {
     this.owner = go;
 
     var self = this;
     this.rootObj.name = 'NPC_' + go.serverObjectIdx + '_' + go.charIdx;
+    this.rootObj.position.copy(go.position);
     this.rootObj.rotation.z = go.direction;
     this.setModel(go.charIdx);
 
-    go.on('start_move', function() {
-      self.setMotion(NPCANI.MOVE);
-    });
-    go.on('stop_move', function() {
-      self.setMotion(NPCANI.STOP);
-    });
-    go.on('attack', function() {
-      self.setMotion(NPCANI.ATTACK, function(anim) {
-        anim.loop = false;
-        anim.once('finish', function() {
-          self.setMotion(NPCANI.STOP);
-          go.emit('attack_done');
-        });
-      });
-    });
-    go.on('moved', function () {
-      self.rootObj.position.copy(go.position);
-      self.rootObj.rotation.z = go.direction;
-    });
     go.on('damage', function(amount) {
       self.newDamage(amount);
     });
   }
+
+  this.playDefaultMotion();
 }
 
 /**
@@ -66,63 +50,107 @@ function NpcPawn(go) {
  */
 NpcPawn.motionFileCache = new DataCache(AnimationData);
 
-// This function should never be called directly, and should only used
-//   by the loadedMotions cache.  Use this.motionCache.get instead.
-NpcPawn.prototype._loadMotion = function(actionIdx, callback) {
+NpcPawn.prototype._setSkeleton = function(skelData) {
+  this.skel = skelData.create(this.rootObj);
+
+  // Reset the loaded motions if the skeleton changed...
+  this.motionCache = {};
+  this.activeMotions = [];
+
+  // Let everyone waiting know!
+  for (var i = 0; i < this.skelWaiters.length; ++i) {
+    this.skelWaiters[i]();
+  }
+  this.skelWaiters = [];
+};
+
+NpcPawn.prototype._waitSkeleton = function(callback) {
+  if (this.skel) {
+    callback();
+  } else {
+    this.skelWaiters.push(callback);
+  }
+};
+
+NpcPawn.prototype._getMotionData = function(motionIdx, callback) {
   var self = this;
   GDM.get('npc_chars', function(charData) {
-    var char = charData.characters[self.charIdx];
-    var animIdx = char.animations[actionIdx];
-    var motionFile = charData.animations[animIdx];
-
-    NpcPawn.motionFileCache.get(motionFile, function(animData) {
-      var anim = new SkeletonAnimator(self.skel, animData);
-      callback(anim);
+    self._waitSkeleton(function() {
+      var char = charData.characters[self.charIdx];
+      var animIdx = char.animations[motionIdx];
+      var motionFile = charData.animations[animIdx];
+      NpcPawn.motionFileCache.get(motionFile, function (animData) {
+        if (callback) {
+          callback(animData);
+        }
+      });
     });
   });
 };
 
-NpcPawn.prototype.setMotion = function(actionIdx, animCallback) {
-  this.activeMotionIdx = actionIdx;
+NpcPawn.prototype._getMotion = function(motionIdx, callback) {
+  // We check the cache after the getMotionData to avoid synchronization
+  //   issues from calling this method twice in a row for the same motion.
+  this._getMotionData(motionIdx, function(animData) {
+    if (this.motionCache[motionIdx]) {
+      callback(this.motionCache[motionIdx]);
+      return;
+    }
+    var anim = new SkeletonAnimator(this.skel, animData);
+    this.motionCache[motionIdx] = anim;
+    callback(anim);
+  }.bind(this));
+};
 
-  // If the skeleton isn't loaded yet, just do nothing and the skeleton
-  //  loader will set it later.
-  if (!this.skel) {
+NpcPawn.prototype._playMotion = function(motionIdx, timeScale, loop, callback) {
+  this._getMotion(motionIdx, function(anim) {
+    var activeIdx = this.activeMotions.indexOf(anim);
+    if (activeIdx !== -1) {
+      this.activeMotions.splice(activeIdx, 1);
+    }
+
+    anim.timeScale = timeScale;
+    anim.loop = loop;
+    if (!anim.isPlaying) {
+      anim.play(0, 0);
+    }
+
+    // If no motions were previously playing, immediately activate this one.
+    if (this.activeMotions.length === 0) {
+      anim.weight = 1;
+    }
+
+    this.activeMotions.unshift(anim);
+
+    if (callback) {
+      callback(anim);
+    }
+  }.bind(this));
+};
+
+NpcPawn.prototype.playDefaultMotion = function() {
+  var newIdleMotion = NPCANI.STOP;
+  if (this.owner.speed > 0) {
+    newIdleMotion = NPCANI.RUN;
+  }
+
+  if (newIdleMotion === this.defaultMotionIdx) {
     return;
   }
 
-  var self = this;
-  this.motionCache.get(actionIdx, function(anim) {
-    if (animCallback) {
-      animCallback(anim);
-    }
+  this._playMotion(newIdleMotion, 1.0, true);
+  this.defaultMotionIdx = newIdleMotion
+};
 
-    // Don't overwrite any newer motion changes.
-    if (actionIdx !== self.activeMotionIdx) {
-      return;
-    }
+NpcPawn.prototype.playMotion = function(motionIdx, timeScale, loop, callback) {
+  this._playMotion(motionIdx, timeScale, loop, callback);
+  this.defaultMotionIdx = -1;
+};
 
-    if (self.activeMotion === anim) {
-      // Already playing this animation!
-      return;
-    }
-
-    self.prevMotion = self.activeMotion;
-
-    self.activeMotion = anim;
-
-    // TODO: Accessing owner like this is unsafe for non-GO based pawns.
-    if (self.owner) {
-      var moveAnimScale = (self.owner.moveSpeed + 180) / 600;
-      anim.timeScale = moveAnimScale;
-    }
-
-    anim.play();
-    if (self.prevMotion) {
-      self.activeMotion.weight = 1 - self.prevMotion.weight;
-    } else {
-      self.activeMotion.weight = 1;
-    }
+NpcPawn.prototype.playAttackMotion = function(onFinish) {
+  var timeScale = this.owner.stats.getAttackSpeed() / 100;
+  this.playMotion(NPCANI.ATTACK, timeScale, false, function(anim) {
+    anim.once('finish', onFinish);
   });
 };
 
@@ -138,8 +166,8 @@ NpcPawn.prototype._setModel = function(charData, modelMgr, charIdx) {
   var skelPath = charData.skeletons[char.skeletonIdx];
 
   SkeletonData.load(skelPath, function(zmdData) {
-    var charSkel = zmdData.create(self.rootObj);
-    self.skel = charSkel;
+    self._setSkeleton(zmdData);
+    var charSkel = self.skel;
 
     var charModels = char.models;
     for (var i = 0; i < charModels.length; ++i) {
@@ -162,8 +190,6 @@ NpcPawn.prototype._setModel = function(charData, modelMgr, charIdx) {
         })(model.parts[j]);
       }
     }
-
-    self.setMotion(self.activeMotionIdx);
 
     for (var e = 0; e < char.effects.length; ++e) {
       var effectPath = charData.effects[char.effects[e].effectIdx];
@@ -245,16 +271,49 @@ NpcPawn.prototype.setName = function(name) {
 };
 
 NpcPawn.prototype.update = function(delta) {
+// Update Animation Blending
   var blendWeightDelta = 6 * delta;
-
-  if (this.prevMotion && this.activeMotion) {
-    this.prevMotion.weight -= blendWeightDelta;
-    this.activeMotion.weight += blendWeightDelta;
-
-    if (this.activeMotion.weight >= 1.0) {
-      this.activeMotion.weight = 1.0;
-      this.prevMotion.stop();
-      this.prevMotion = null;
+  if (this.activeMotions.length >= 1) {
+    var activeMotion = this.activeMotions[0];
+    if (activeMotion.weight < 1) {
+      activeMotion.weight += blendWeightDelta;
     }
+
+    for (var i = 1; i < this.activeMotions.length; ++i) {
+      var motion = this.activeMotions[i];
+      motion.weight -= blendWeightDelta;
+      if (!motion.isPlaying || motion.weight <= 0) {
+        motion.stop();
+        this.activeMotions.splice(i, 1);
+        --i;
+      }
+    }
+
+    if (!this.activeMotions[0].isPlaying) {
+      this.playDefaultMotion();
+    }
+  }
+
+  // Update stuff
+  if (this.owner) {
+    var self = this;
+    var dirStep = (Math.PI * 3) * delta;
+    var deltaDir = slerp1d(this.owner.direction, self.rootObj.rotation.z);
+
+    if (deltaDir > dirStep || deltaDir < -dirStep) {
+      if (deltaDir < 0) {
+        self.rootObj.rotation.z -= dirStep;
+      } else {
+        self.rootObj.rotation.z += dirStep;
+      }
+    } else {
+      self.rootObj.rotation.z = this.owner.direction;
+    }
+
+    self.rootObj.position.copy(this.owner.position);
+  }
+
+  if (this.defaultMotionIdx !== -1) {
+    this.playDefaultMotion();
   }
 };

@@ -16,6 +16,10 @@ function CharObject(world) {
   this.hp = undefined;
   this.visParts = undefined;
   this.stats = undefined;
+  this.pawn = undefined;
+
+  this.isRunning = true;
+  this.isSitting = false;
 }
 CharObject.prototype = Object.create( ActorObject.prototype );
 
@@ -32,6 +36,11 @@ CharObject.prototype.getAbilityValue = function(abilType) {
   return 0;
 };
 
+CharObject.prototype.update = function(delta) {
+  ActorObject.prototype.update.call(this, delta);
+  this.pawn.update(delta);
+};
+
 CharObject.prototype.debugValidate = function() {
   debugValidateProps(this, [
     ['name'],
@@ -40,7 +49,8 @@ CharObject.prototype.debugValidate = function() {
     ['hairColor', 0],
     ['hp', 0, 999999],
     ['visParts'],
-    ['stats']
+    ['stats'],
+    ['pawn']
   ]);
   if (this.stats) {
     this.stats.debugValidate();

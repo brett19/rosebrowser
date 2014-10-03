@@ -71,6 +71,19 @@ function normalizePath(path) {
 }
 
 
+function slerp1d(a, b) {
+  var targetDir = mod(a, Math.PI * 2);
+  var thisDir = mod(b, Math.PI * 2);
+  var deltaDir = targetDir - thisDir;
+  var absDeltaDir = Math.abs(deltaDir);
+  var signDeltaDir = absDeltaDir === deltaDir ? +1 : -1;
+  if (absDeltaDir > Math.PI) {
+    deltaDir = signDeltaDir * (2 * Math.PI - absDeltaDir) * -1;
+  }
+  return deltaDir;
+}
+
+
 function MultiWait() {
   this.count = 0;
   this.callback = null;

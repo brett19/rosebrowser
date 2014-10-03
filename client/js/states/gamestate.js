@@ -165,6 +165,8 @@ GameState.prototype.enter = function() {
     // TODO: Read the actual serverObjectIdx
     MC.hp = data.curHp;
     MC.mp = data.curMp;
+    MC.serverObjectIdx = data.objectIdx;
+    MC.pawn = new CharPawn(MC);
     MC.debugValidate();
     MC.dropFromSky();
     GOM.addObject(MC);

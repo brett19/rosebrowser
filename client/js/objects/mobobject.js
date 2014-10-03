@@ -8,5 +8,11 @@ function MobObject(world) {
 
   this.charIdx = undefined;
   this.stats = undefined;
+  this.pawn = undefined;
 }
-MobObject.prototype = new ActorObject();
+MobObject.prototype = Object.create( ActorObject.prototype );
+
+MobObject.prototype.update = function(delta) {
+  ActorObject.prototype.update.call(this, delta);
+  this.pawn.update(delta);
+};

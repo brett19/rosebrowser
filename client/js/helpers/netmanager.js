@@ -63,6 +63,7 @@ _NetManager.prototype.watch = function(wn, gn) {
     npc.stats = new NpcStats(npc);
     npc.setPosition(data.position.x, data.position.y, 10);
     npc.setDirection(data.modelDir / 180 * Math.PI);
+    npc.pawn = new NpcPawn(npc);
     npc.dropFromSky();
     if (data.command === OBJECT_COMMAND.MOVE) {
       npc._moveTo(data.posTo.x, data.posTo.y);
@@ -85,6 +86,7 @@ _NetManager.prototype.watch = function(wn, gn) {
     char.stats = new CharStats(char);
     char.stats.attackSpeed = data.attackSpeed;
     char.stats.attackSpeedBase = data.attackSpeedBase;
+    char.pawn = new CharPawn(char);
     char.debugValidate();
     char.dropFromSky();
     if (data.command === OBJECT_COMMAND.MOVE) {
@@ -104,6 +106,7 @@ _NetManager.prototype.watch = function(wn, gn) {
     }
     mob.stats = new NpcStats(mob);
     mob.setPosition(data.position.x, data.position.y, 10);
+    mob.pawn = new NpcPawn(mob);
     mob.dropFromSky();
     if (data.command === OBJECT_COMMAND.MOVE) {
       mob._moveTo(data.posTo.x, data.posTo.y);

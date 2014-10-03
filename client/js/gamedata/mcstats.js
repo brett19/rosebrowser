@@ -44,7 +44,7 @@ McStats.prototype.getMaxMp = function() { return 12337; };
 
 McStats.prototype.getAttackSpeed = function() {
   // TODO: Implement this properly!
-  return 1;
+  return 100;
 };
 
 McStats.prototype.getAttackDistance = function() {

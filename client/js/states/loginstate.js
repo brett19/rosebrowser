@@ -222,13 +222,10 @@ LoginState.prototype._beginCharSelect = function(charData) {
       console.log('Char', charIdx, charInfo);
 
       var charObj = new CharPawn();
-      charObj.setName(charInfo.name);
       charObj.setGender(0, function() {
         for (var j = 0; j < AVTBODYPART.Max; ++j) {
           charObj.setModelPart(j, charInfo.parts[j].itemNo);
         }
-
-        charObj.setMotion(AVTANI.STOP1);
       });
 
       charObj.rootObj.position.copy(CHARPOSITION);
@@ -300,6 +297,9 @@ LoginState.prototype.leave = function() {
 
 LoginState.prototype.update = function(delta) {
   this.world.update(delta);
+  for (var i = 0; i < this.visChars.length; ++i) {
+    this.visChars[i].update(delta);
+  }
 };
 
 StateManager.register('login', LoginState);
