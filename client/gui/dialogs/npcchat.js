@@ -17,7 +17,7 @@ ui.NpcChatDialog.prototype = Object.create(ui.Dialog.prototype);
 
 ui.NpcChatDialog.prototype._selectOption = function(index) {
   if (index === 0) {
-    this.conversation.close();
+    this.conversation.end();
   } else {
     this.conversation.pickOption(index);
   }
