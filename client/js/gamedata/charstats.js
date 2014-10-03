@@ -27,7 +27,7 @@ CharStats.prototype._getEquipData = function(equipIdx) {
 };
 
 CharStats.prototype.getAttackSpeed = function() {
-  return this.attackSpeed;
+  return this.attackSpeed / 10;
 };
 
 CharStats.prototype.getAttackDistance = function() {
