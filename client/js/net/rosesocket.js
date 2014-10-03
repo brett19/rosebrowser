@@ -84,8 +84,10 @@ RoseSocket.prototype.sendPacket = function(pak) {
   var buf = pak.toBuffer();
   buf[2] ^= 0x61;
   buf[3] ^= 0x61;
-  for (var i = 6; i < buf.length - 2; ++i) {
-    buf[i] ^= 0x61;
+  if (pak.dataLength > 0) {
+    for (var i = 4; i < buf.length - 2; ++i) {
+      buf[i] ^= 0x61;
+    }
   }
   this.send(buf.buffer);
 };

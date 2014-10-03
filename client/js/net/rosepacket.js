@@ -232,11 +232,7 @@ RosePacket.prototype.toBuffer = function() {
   var outView = new DataView(outBuf.buffer);
   outView.setUint16(0, outBuf.length, true);
   outView.setUint16(2, this.cmd, true);
-  if (this.cmd === 0x703 || this.cmd === 0x712) {
-    outView.setUint16(4, 0x58d1, true);
-  } else {
-    outView.setUint16(4, 0x39b0, true);
-  }
+  outView.setUint16(4, 0x58d1, true);
   for (var i = 0; i < this.dataLength; ++i) {
     outBuf[6+i] = this.data[i];
   }
