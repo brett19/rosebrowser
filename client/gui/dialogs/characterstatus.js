@@ -22,20 +22,14 @@ ui.CharacterStatusDialog.prototype.setCharacter = function(character) {
 ui.CharacterStatusDialog.prototype._update = function() {
   this.name.text(this._character.name);
 
-  // TODO: real hp values
-  this.hp.min(0);
   this.hp.max(this._character.stats.getMaxHp());
   this.hp.value(this._character.hp);
 
-  // TODO real mp values
-  this.mp.min(0);
   this.mp.max(this._character.stats.getMaxMp());
   this.mp.value(this._character.mp);
 
-  // TODO real xp values
-  this.xp.min(0);
-  this.xp.max(100);
-  this.xp.value(10);
+  this.xp.max(1000); // TODO: Real max xp
+  this.xp.value(this._character.xp);
 };
 
 ui.characterStatusDialog = function(character) {
