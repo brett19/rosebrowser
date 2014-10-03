@@ -150,7 +150,11 @@ var ABILTYPE = {
   HOBBY_LEVEL: 167,
   HOBBY_POINT: 168,
 
+  // TODO: Maybe move MAX?
   MAX: 169,
+
+  // Unofficial Values
+  BIRTH: 1000
 };
 
 var CHARFLAGSLO = {
