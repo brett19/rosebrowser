@@ -130,10 +130,12 @@ NpcPawn.prototype._playMotion = function(motionIdx, timeScale, loop, callback) {
 
 NpcPawn.prototype.playDefaultMotion = function() {
   var newIdleMotion = NPCANI.STOP;
-  if (this.owner.speed > 0) {
-    newIdleMotion = NPCANI.RUN;
+  if (this.owner) {
+    if (this.owner.speed > 0) {
+      newIdleMotion = NPCANI.RUN;
+    }
   }
-
+  
   if (newIdleMotion === this.defaultMotionIdx) {
     return;
   }
