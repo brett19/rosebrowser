@@ -98,9 +98,27 @@ MapManager.prototype.removeFromScene = function() {
 
 // Returns the closest picked object.
 MapManager.prototype.rayPick = function(rayCaster) {
-  var inters = rayCaster.intersectObjects( this.colObjects, true );
-  if (inters.length > 0) {
-    return inters[0];
+  function __descSort( a, b ) {
+    return a.distance - b.distance;
+  };
+  function __rayIntersect(object, raycaster, intersects) {
+    if (object.collisionMode === ModelList.Model.Part.COLLISION_MODE.NONE) {
+      return;
+    }
+    object.raycast( raycaster, intersects );
+    var children = object.children;
+    for ( var i = 0, l = children.length; i < l; i ++ ) {
+      __rayIntersect( children[i], raycaster, intersects );
+    }
+  }
+  var intersects = [];
+  for (var i = 0; i < this.colObjects.length; ++i) {
+    __rayIntersect(this.colObjects[i], rayCaster, intersects);
+  }
+  intersects.sort(__descSort);
+
+  if (intersects.length > 0) {
+    return intersects[0];
   }
   return null;
 };

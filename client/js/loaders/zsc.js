@@ -99,6 +99,24 @@ ModelList.PROPERTY_TYPE = {
 
 
 /**
+ * @enum {Number}
+ * @readonly
+ * Flags for the collision mode.
+ */
+ModelList.Model.Part.COLLISION_MODE = {
+  NONE: 0,
+  BOUNDING_SPHERE: 1,
+  AXIS_ALIGNED_BOUNDING_BOX: 1 << 1,
+  ORIENTED_BOUNDING_BOX: 1 << 1,
+  POLYGON: 1 << 2,
+  NOT_MOVEABLE: 1 << 3,
+  NOT_PICKABLE: 1 << 4,
+  HEIGHT_ONLY: 1 << 5,
+  NO_CAMERA_COLLISION: 1 << 6
+};
+
+
+/**
  * @callback ModelList~onLoad
  * @param {ModelList} modelList
  */
