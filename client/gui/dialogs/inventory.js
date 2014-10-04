@@ -38,6 +38,7 @@ ui.InventoryDialog = function(template, inventory) {
   }
 
   this._data = inventory;
+  this._data.on('changed', this._update.bind(this));
   this._update();
 };
 

@@ -5,7 +5,9 @@ ui.CharacterStatusDialog = function(template, _data) {
   this.hp = ui.progressbar(this, '.progressbar.health');
   this.mp = ui.progressbar(this, '.progressbar.mana');
   this.xp = ui.progressbar(this, '.progressbar.exp');
+
   this._data = _data;
+  this._data.on('changed', this._update.bind(this));
   this._update();
 }
 

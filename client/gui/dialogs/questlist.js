@@ -12,6 +12,7 @@ ui.QuestListDialog = function(template, questData) {
   ui.button(this, '.button.abandon').on('clicked', this._abandonQuest.bind(this));
 
   this._data = questData;
+  this._data.on('changed', this._update.bind(this));
   this._update();
 }
 
