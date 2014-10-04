@@ -379,24 +379,29 @@ EffectManager.loadEffect = function(path, callback, effect) {
       particle.rootObj.position.copy(data.position);
       particle.rootObj.quaternion.copy(data.rotation);
 
-      if (data.linkRoot) {
-        effect.rootObj.add(particle.rootObj);
-      } else {
-        effect.rootObj2.add(particle.rootObj);
-      }
-
+      var particleRoot = particle.rootObj;
       if (data.animation.enabled) {
         if (data.animation.name && data.animation.name !== "NULL") {
+          particle.animRootObj = new THREE.Object3D();
+          particle.animRootObj.add(particle.rootObj);
+          particleRoot = particle.animRootObj;
+
           (function(_particle, _data) {
             var particleAnimWait = waitAll.one();
             AnimationData.load(data.animation.name, function (animData)
             {
-              _particle.animation = new ObjectAnimator(_particle.rootObj, animData);
+              _particle.animation = new ObjectAnimator(_particle.animRootObj, animData);
               _particle.animationLoopCount = _data.animation.loopCount;
               particleAnimWait();
             });
           })(particle, data);
         }
+      }
+
+      if (data.linkRoot) {
+        effect.rootObj.add(particleRoot);
+      } else {
+        effect.rootObj2.add(particleRoot);
       }
 
       effect.particleEffects.push(particle);
