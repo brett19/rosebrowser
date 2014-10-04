@@ -79,6 +79,7 @@ ChatManager.prototype.whisper = function(message) {
     return false;
   }
 
+  this.addGameMessage(MSG_TYPE.WHISPER, match[2], 'To ' + match[1], null);
   netGame.chatWhisper(match[1], match[2]);
   return true;
 };
