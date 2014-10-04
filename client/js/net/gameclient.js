@@ -143,6 +143,25 @@ GameClient.prototype.attackObj = function(objectIdx) {
   this.socket.sendPacket(opak);
 };
 
+GameClient.prototype.chatSay = function(message) {
+  var opak = new RosePacket(0x783);
+  opak.addString(message);
+  this.socket.sendPacket(opak);
+};
+
+GameClient.prototype.chatShout = function(message) {
+  var opak = new RosePacket(0x785);
+  opak.addString(message);
+  this.socket.sendPacket(opak);
+};
+
+GameClient.prototype.chatWhisper = function(targetName, message) {
+  var opak = new RosePacket(0x784);
+  opak.addString(targetName);
+  opak.addString(message);
+  this.socket.sendPacket(opak);
+};
+
 /**
  * Little helper to emit packet events that can be logged.
  * @param {string} event
@@ -575,6 +594,24 @@ GameClient._registerHandler(0x799, function(pak, data) {
     data.items.push(pak.readDropItem());
   }
   this._emitPE('damage', data);
+});
+
+GameClient._registerHandler(0x783, function(pak, data) {
+  data.senderObjectIdx = pak.readUint16();
+  data.message = pak.readString();
+  this._emitPE('chat_say', data);
+});
+
+GameClient._registerHandler(0x784, function(pak, data) {
+  data.senderName = pak.readString();
+  data.message = pak.readString();
+  this._emitPE('chat_whisper', data);
+});
+
+GameClient._registerHandler(0x785, function(pak, data) {
+  data.senderName = pak.readString();
+  data.message = pak.readString();
+  this._emitPE('chat_shout', data);
 });
 
 var netGame = null;
