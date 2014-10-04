@@ -51,11 +51,11 @@ _NetManager.prototype.watch = function(wn, gn) {
   });
 
   gn.on('inventory_data', function(data) {
-    MC.inventory.money = data.money;
+    MC.inventory.setMoney(data.money);
     if (data.result === 0x1) {
-      MC.inventory.items = data.items;
+      MC.inventory.setItems(data.items);
     } else if (data.result === 0x2) {
-      MC.inventory.items = MC.inventory.items.concat(data.items);
+      MC.inventory.appendItems(data.items);
     } else {
       console.warn('Received unexpected inventory_data result.')
     }

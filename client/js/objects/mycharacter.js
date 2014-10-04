@@ -15,6 +15,10 @@ function MyCharacter(world) {
 
 MyCharacter.prototype = Object.create( CharObject.prototype );
 
+MyCharacter.prototype.changed = function() {
+  this.emit('changed');
+};
+
 MyCharacter.prototype.getAbilityValue = function(abilType) {
   switch(abilType) {
     case ABILTYPE.STR: return this.stats.str;
