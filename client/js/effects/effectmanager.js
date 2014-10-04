@@ -351,7 +351,11 @@ EffectManager.loadEffect = function(path, callback, effect) {
   effect = effect || new Effect();
 
   EffectData.load(path, function (effectData) {
-    return;
+    if (config.noeffects) {
+      // Don't load effects if they are disabled by configuration.
+      return;
+    }
+
     effect.path = path;
     effect.loopCount = effectData.loopCount;
 

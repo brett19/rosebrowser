@@ -9,9 +9,28 @@ var ParticleEmitter = function(name)
 
   this.events = [];
   this.particles = [];
+  this.particleCache = [];
 
   this.newParticleCounter = 0;
   this.totalParticleLives = 0;
+};
+
+ParticleEmitter._sharedGeometry = null;
+ParticleEmitter._getSharedGeometry = function() {
+  if (ParticleEmitter._sharedGeometry) {
+    return ParticleEmitter._sharedGeometry;
+  }
+
+  // Create plane
+  var geometry = new THREE.PlaneBufferGeometry(1, 1, 1, 1);
+
+  // Flip uv.y
+  for (var i = 1; i < geometry.attributes.uv.array.length; i += 2) {
+    geometry.attributes.uv.array[i] = 1 - geometry.attributes.uv.array[i];
+  }
+
+  ParticleEmitter._sharedGeometry = geometry;
+  return geometry;
 };
 
 /**
@@ -20,9 +39,10 @@ var ParticleEmitter = function(name)
 ParticleEmitter.Particle = function()
 {
   this.rootObj = new THREE.Object3D();
+  this.reset();
+};
 
-  this.sprite = 0;
-
+ParticleEmitter.Particle.prototype.reset = function() {
   this.age = 0;
   this.lifetime = 1;
   this.eventIndex = 0;
@@ -115,27 +135,29 @@ ParticleEmitter.Particle.prototype.update = function(_dt)
 
 ParticleEmitter.prototype.createParticle = function()
 {
-  var particle = new ParticleEmitter.Particle();
+  var particle = null;
 
-  // Create plane
-  var geometry = new THREE.PlaneBufferGeometry(1, 1, 1, 1);
+  if (this.particleCache.length > 0) {
+    particle = this.particleCache.pop();
+    particle.reset();
+  } else {
+    particle = new ParticleEmitter.Particle();
 
-  // Flip uv.y
-  for (var i = 1; i < geometry.attributes.uv.array.length; i += 2) {
-    geometry.attributes.uv.array[i] = 1 - geometry.attributes.uv.array[i];
+    // Get the geometry
+    var sharedGeometry = ParticleEmitter._getSharedGeometry();
+
+    // Create material
+    var material = this.material.clone();
+    material.uniforms.texture1.value = this.texture;
+
+    particle.mesh = new THREE.Mesh(sharedGeometry, material);
+
+    if (this.alignType === ParticleSystemData.ALIGN_TYPE.AXIS_ALIGNED) {
+      particle.mesh.rotation.x = Math.PI / 2;
+    }
+
+    particle.rootObj.add(particle.mesh);
   }
-
-  // Create material
-  var material = this.material.clone();
-  material.uniforms.texture1.value = this.texture;
-
-  particle.mesh = new THREE.Mesh(geometry, material);
-
-  if (this.alignType === ParticleSystemData.ALIGN_TYPE.AXIS_ALIGNED) {
-    particle.mesh.rotation.x = Math.PI / 2;
-  }
-
-  particle.rootObj.add(particle.mesh);
 
   this.rootObj.add(particle.rootObj);
   this.totalParticleLives++;
@@ -163,6 +185,7 @@ ParticleEmitter.prototype.update = function(dt)
       this.applyEvents(particle);
     } else {
       this.particles.splice(i, 1);
+      this.particleCache.push(particle);
       this.rootObj.remove(particle.rootObj);
       --i;
     }
