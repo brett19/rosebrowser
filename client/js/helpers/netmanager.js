@@ -70,6 +70,18 @@ _NetManager.prototype.watch = function(wn, gn) {
   gn.on('questitem_list', function(data) {
     MC.quests.setItems(data.items);
   });
+  gn.on('questitem_reward', function(data) {
+    var itemData = GDM.getNow('item_data');
+    var item = data.questItem.item;
+    var name = itemData.getName(item.itemType, item.itemNo);
+
+    // We don't actually update MC.quests here because server sends questitem_list anyway.
+    if (data.result === RESULT_QUEST_REWARD_ADD_ITEM) {
+      GCM.questReward('You have earned ' + name + ' (' + item.quantity + ').');
+    } else if (data.result === RESULT_QUEST_REWARD_REMOVE_ITEM) {
+      GCM.questReward('You have lost ' + name + ' (' + item.quantity + ').');
+    }
+  });
   gn.on('quest_completion_data', function(data) {
     MC.quests.setDailyLog(data.dailyLog);
   });
@@ -185,6 +197,34 @@ _NetManager.prototype.watch = function(wn, gn) {
         defenderObj.emit('died');
         GZM.removeObject(defenderObj);
       }
+    }
+  });
+
+  gn.on('set_xp', function(data) {
+    var fromObj = GZM.findByServerObjectIdx(data.fromObjectIdx);
+
+    GCM.system('You have earned ' + (data.xp - MC.xp) + ' experience points.');
+    MC.xp = data.xp;
+    MC.stamina = data.stamina;
+    MC.changed();
+
+    if (fromObj && !(fromObj instanceof ProxyObject)) {
+      GCM.system('You have defeated ' + fromObj.pawn.name + '.');
+    }
+  });
+
+  gn.on('level_up', function(data) {
+    var obj = GZM.findByServerObjectIdx(data.objectIdx);
+
+    if ((obj instanceof MyCharacter) && data.level) {
+      GCM.system('You are now level ' + data.level + '!');
+      MC.level = data.level;
+      MC.xp = data.xp;
+      MC.statPoints = data.statPoints;
+      MC.skillPoints = data.skillPoints;
+      MC.changed();
+    } else {
+      // Play level up effect on obj!
     }
   });
 

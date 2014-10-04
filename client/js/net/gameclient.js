@@ -297,6 +297,24 @@ GameClient._registerHandler(0x716, function(pak, data) {
   this._emitPE('inventory_data', data);
 });
 
+GameClient._registerHandler(0x79b, function(pak, data) {
+  data.xp = pak.readUint32();
+  data.stamina = pak.readUint16();
+  data.fromObjectIdx = pak.readUint16();
+  this._emitPE('set_xp', data);
+});
+
+GameClient._registerHandler(0x79e, function(pak, data) {
+  data.objectIdx = pak.readUint16();
+  if (!pak.isReadEof()) {
+    data.level = pak.readUint16();
+    data.xp = pak.readUint32();
+    data.statPoints = pak.readUint16();
+    data.skillPoints = pak.readUint16();
+  }
+  this._emitPE('level_up', data);
+});
+
 var RESULT_QUEST_REPLY_ADD_SUCCESS = 0x01;
 var RESULT_QUEST_REPLY_ADD_FAILED = 0x02;
 var RESULT_QUEST_REPLY_DEL_SUCCESS = 0x03;
@@ -345,6 +363,18 @@ GameClient._registerHandler(0x723, function(pak, data) {
   }
 
   this._emitPE('questitem_list', data);
+});
+
+var RESULT_QUEST_REWARD_ADD_ITEM = 0x01;
+var RESULT_QUEST_REWARD_REMOVE_ITEM = 0x02;
+
+GameClient._registerHandler(0x7f9, function(pak, data) {
+  data.questItem = new QuestData.Item();
+  data.result = pak.readUint8();
+  data.questNo = pak.readUint8();
+  data.questItem.quest = pak.readInt32();
+  data.questItem.item = pak.readItem();
+  this._emitPE('questitem_reward', data);
 });
 
 var RESULT_QUEST_DATA_QUESTVAR = 0x00;
