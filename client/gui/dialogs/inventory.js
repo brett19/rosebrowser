@@ -119,15 +119,10 @@ ui.InventoryDialog.prototype._update = function() {
   var itemData = GDM.getNow('item_data');
   for (var i = 0; i < this._data.items.length; ++i) {
     var item = this._data.items[i];
-    var data = itemData.getData(item.itemType, item.itemNo);
-    var name = itemData.getName(item.itemType, item.itemNo);
-    var desc = itemData.getDescription(item.itemType, item.itemNo);
-    var icon = iconManager.getItemIcon(data[9]);
     var slot = this._getItemSlot(item.location, item.slotNo);
 
     if (slot) {
-      // TODO: Generate tooltip
-      slot.setIcon(icon);
+      slot.setItem(item);
     }
   }
 };

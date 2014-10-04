@@ -14,9 +14,41 @@ ui.IconSlot.prototype.getIcon = function(icon) {
   return this._icon;
 };
 
+ui.IconSlot.prototype.clear = function() {
+  this._icon = null;
+  this._update();
+};
+
+ui.IconSlot.prototype.setItem = function(item) {
+  var itemData = GDM.getNow('item_data');
+  var data = itemData.getData(item.itemType, item.itemNo);
+  var name = itemData.getName(item.itemType, item.itemNo);
+  var desc = itemData.getDescription(item.itemType, item.itemNo);
+  var icon = iconManager.getItemIcon(data[9]);
+
+  // TODO: Tooltip generation
+  // TODO: Sockets & gem
+  if (item.itemType === ITEMTYPE.USE ||
+      item.itemType === ITEMTYPE.ETC ||
+      item.itemType === ITEMTYPE.NATURAL ||
+      item.itemType === ITEMTYPE.QUEST) {
+    icon.quantity = item.quantity;
+  }
+
+  this.setIcon(icon);
+};
+
 ui.IconSlot.prototype.setIcon = function(icon) {
   this._icon = icon;
   this._update();
+};
+
+ui.IconSlot.prototype.acceptsSkill = function() {
+  return this._element.hasClass('accepts-skill');
+};
+
+ui.IconSlot.prototype.acceptsItem = function() {
+  return this._element.hasClass('accepts-item');
 };
 
 ui.IconSlot.prototype.setAccepts = function(accepts) {
@@ -90,7 +122,7 @@ ui.IconSlot.prototype._update = function() {
   this._element.html('');
 
   if (icon) {
-    var html = '<div style="';
+    var html = '<div class="icon" style="';
     html += 'background: url(' + icon.url + '); ';
     html += 'background-position: ' + icon.x + 'px ' + icon.y + 'px; ';
     html += '"></div>';
@@ -99,6 +131,11 @@ ui.IconSlot.prototype._update = function() {
     icon._element.mousedown(this._onMouseDown.bind(this));
     icon._element.dblclick(this._onSwap.bind(this, 'equip'));
     this._element.append(icon._element);
+
+    if (icon.quantity) {
+      html = '<div class="quantity">' + icon.quantity + '</div>';
+      this._element.append($(html));
+    }
   }
 };
 
