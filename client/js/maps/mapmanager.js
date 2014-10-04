@@ -648,7 +648,6 @@ WorldChunk.prototype._loadEffects = function(callback) {
     effect.rootObj.scale.copy(data.scale);
     this.rootObj.add(effect.rootObj);
     this.rootObj.add(effect.rootObj2);
-    console.log(effect);
     effect.play();
   }
 

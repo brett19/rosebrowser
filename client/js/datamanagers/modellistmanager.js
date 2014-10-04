@@ -187,12 +187,21 @@ ModelListManager.prototype.createForStatic = function(modelIdx, lightmap, lmIdx,
   waitAll.wait(function() {
     for (var i = 0; i < model.effects.length; ++i) {
       var effectData = model.effects[i];
+      /* types are:
+      POINT_EFFECT_NORMAL = 0,
+       POINT_EFFECT_DAYNNIGHT = 1,
+       POINT_LIGHT_CONTAINER = 2,
+      */
       var effectPath = self.data.effects[effectData.effectIdx];
       var effect = EffectManager.loadEffect(effectPath);
       effect.rootObj.position.copy(effectData.position);
       effect.rootObj.quaternion.copy(effectData.rotation);
       effect.rootObj.scale.copy(effectData.scale);
-      partMeshs[effectData.parent - 1].add(effect.rootObj);
+      if (effectData.parent === 0) {
+        modelObj.add(effect.rootObj);
+      } else {
+        partMeshs[effectData.parent - 1].add(effect.rootObj);
+      }
       effect.play();
     }
 
