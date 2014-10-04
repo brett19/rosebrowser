@@ -242,6 +242,7 @@ GDM.register('list_event', DataTable, '3DDATA/STB/LIST_EVENT.STB');
 GDM.register('quest_scripts', QuestScriptManager, '3DDATA/STB/LIST_QUESTDATA.STB');
 GDM.register('item_data', ItemDataManager);
 GDM.register('skill_data', SkillDataManager);
+GDM.register('list_class', DataTable, '3DDATA/STB/LIST_CLASS.STB');
 
 GDM.register('list_zone', DataTable, '3DDATA/STB/LIST_ZONE.STB');
 GDM.register('zone_names', StringTable, '3DDATA/STB/LIST_ZONE_S.STL');

@@ -12,7 +12,7 @@ function GameState() {
 GameState.prototype = new State();
 
 GameState.prototype.prepare = function(callback) {
-  GDM.get('item_data', 'list_npc', callback);
+  GDM.get('item_data', 'list_npc', 'list_class', callback);
 };
 
 GameState.prototype.update = function(delta) {
