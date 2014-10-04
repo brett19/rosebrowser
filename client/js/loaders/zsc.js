@@ -205,8 +205,8 @@ ModelList.load = function(path, callback) {
         effects = rh.readUint16();
         for (j = 0; j < effects; ++j) {
           var effect = new ModelList.Model.Effect();
-          effect.type = rh.readUint16();
           effect.effectIdx = rh.readUint16();
+          effect.type = rh.readUint16();
 
           while ((type = rh.readUint8()) != 0) {
             size = rh.readUint8();
