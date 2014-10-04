@@ -88,8 +88,20 @@ function _checkOp(op, left, right) {
   return false;
 }
 
-function _checkJobMatch(jobIdx, searchJobIdx) {
-  console.warn('Unimplemented Condition!', 'JobMatch', jobIdx, searchJobIdx);
+function _checkJobMatch(classIdx, jobIdx) {
+  var jobData = GDM.getNow('list_class');
+  var jobRow = jobData.row(jobIdx);
+
+  if (jobRow[2] === 0) {
+    return true;
+  }
+
+  for (var i = 2; i < 10; ++i) {
+    if (jobRow[i] === classIdx) {
+      return true;
+    }
+  }
+
   return false;
 }
 
