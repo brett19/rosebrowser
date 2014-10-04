@@ -85,7 +85,7 @@ ParticleTestState.prototype.enter = function() {
     charObj.rootObj.position.set(5205, 5285, -5);
     charObj.rootObj.rotateOnAxis(new THREE.Vector3(0, 0, 1), Math.PI);
     charObj.rootObj.scale.set(1.2, 1.2, 1.2);
-    EffectManager.loadEffectByIdx(302, function(effect) {
+    var effect = EffectManager.loadEffectByIdx(302, function() {
       effect.play();
       charObj.rootObj.add(effect.rootObj);
     });
