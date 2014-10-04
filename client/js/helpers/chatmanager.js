@@ -120,27 +120,27 @@ ChatManager.prototype.allied = function(message) {
 };
 
 ChatManager.prototype.system = function(message) {
-  this.addSystemMessage('system', message);
+  this.addSystemMessage(MSG_TYPE.SYSTEM, message);
   return true;
 };
 
 ChatManager.prototype.notice = function(message) {
-  this.addSystemMessage('notice', message);
+  this.addSystemMessage(MSG_TYPE.NOTICE, message);
   return true;
 };
 
 ChatManager.prototype.error = function(message) {
-  this.addSystemMessage('error', message);
+  this.addSystemMessage(MSG_TYPE.ERROR, message);
   return true;
 };
 
 ChatManager.prototype.quest = function(message) {
-  this.addSystemMessage('quest', message);
+  this.addSystemMessage(MSG_TYPE.QUEST, message);
   return true;
 };
 
 ChatManager.prototype.questReward = function(message) {
-  this.addSystemMessage('quest-reward', message);
+  this.addSystemMessage(MSG_TYPE.QUEST_REWARD, message);
   return true;
 };
 
