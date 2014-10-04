@@ -1,3 +1,5 @@
+'use strict';
+
 ui.ChatBox = function(template) {
   ui.Dialog.call(this, template);
 
@@ -63,7 +65,7 @@ ui.ChatBox.prototype._sendMessage = function() {
     }
     break;
   case '~':
-    sent = GCM.allied(message.substr(1));
+    sent = GCM.ally(message.substr(1));
     break;
   default:
     sent = GCM.say(message);

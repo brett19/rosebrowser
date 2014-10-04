@@ -110,12 +110,12 @@ ChatManager.prototype.clan = function(message) {
   return true;
 };
 
-ChatManager.prototype.allied = function(message) {
+ChatManager.prototype.ally = function(message) {
   if (!message) {
     return false;
   }
 
-  netGame.chatAllied(message);
+  netGame.chatAlly(message);
   return true;
 };
 
