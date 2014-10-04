@@ -1,4 +1,6 @@
 var QuestData = function() {
+  EventEmitter.call(this);
+
   this.quests = null;
   this.dailyLog = null;
   this.vars = null;
@@ -43,20 +45,26 @@ QuestData.Quest = function() {
   this.switches = [];
 };
 
+QuestData.prototype = Object.create(EventEmitter.prototype);
+
 QuestData.prototype.setQuests = function(quests) {
   this.quests = quests;
+  this.emit("changed");
 };
 
 QuestData.prototype.setVars = function(vars) {
   this.vars = vars;
+  this.emit("changed");
 };
 
 QuestData.prototype.setItems = function(items) {
   this.items = items;
+  this.emit("changed");
 };
 
 QuestData.prototype.setDailyLog = function(log) {
   this.dailyLog = log;
+  this.emit("changed");
 };
 
 QuestData.prototype.getSwitch = function(id) {
@@ -164,9 +172,11 @@ QuestData.prototype.getQuestItemQuantity = function(questID, type, id) {
   var count = 0;
 
   for (var i = 0; i < this.items.length; ++i) {
-    var item = this.items[i];
+    var questItem = this.items[i];
 
-    if (item.quest === questID) {
+    if (questItem.quest === questID) {
+      var item = questItem.item;
+
       if (item.itemNo === id && item.itemType === type) {
         count += item.quantity;
       }

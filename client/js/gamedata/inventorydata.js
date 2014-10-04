@@ -96,10 +96,28 @@ ITMPARTTOTYPE[INVEQUIPIDX.NECKLACE] = ITEMTYPE.NECKLACE;
 ITMPARTTOTYPE[INVEQUIPIDX.RING] = ITEMTYPE.RING;
 ITMPARTTOTYPE[INVEQUIPIDX.EARRING] = ITEMTYPE.EARRING;
 
-function InventoryData() {
+var InventoryData = function() {
+  EventEmitter.call(this);
   this.items = [];
   this.money = new Int64();
-}
+};
+
+InventoryData.prototype = Object.create(EventEmitter.prototype);
+
+InventoryData.prototype.setMoney = function(money) {
+  this.money = money;
+  this.emit('changed');
+};
+
+InventoryData.prototype.setItems = function(items) {
+  this.items = items;
+  this.emit('changed');
+};
+
+InventoryData.prototype.appendItems = function(items) {
+  this.items = this.items.concat(items);
+  this.emit('changed');
+};
 
 InventoryData.prototype.findByLocSlot = function(location, slotNo) {
   for (var i = 0; i < this.items.length; ++i) {
