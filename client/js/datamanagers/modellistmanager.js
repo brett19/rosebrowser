@@ -187,6 +187,10 @@ ModelListManager.prototype.createForStatic = function(modelIdx, lightmap, lmIdx,
   waitAll.wait(function() {
     for (var i = 0; i < model.effects.length; ++i) {
       var effectData = model.effects[i];
+      if (effectData.effectIdx < 0 || effectData.effectIdx > self.data.effects.length) {
+        console.log('Warning, model effect had invalid effectIdx ' + effectData.effectIdx);
+        continue;
+      }
       /* types are:
       POINT_EFFECT_NORMAL = 0,
        POINT_EFFECT_DAYNNIGHT = 1,
