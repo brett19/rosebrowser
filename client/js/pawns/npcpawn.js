@@ -135,7 +135,7 @@ NpcPawn.prototype.playDefaultMotion = function() {
       newIdleMotion = NPCANI.RUN;
     }
   }
-  
+
   if (newIdleMotion === this.defaultMotionIdx) {
     return;
   }
@@ -224,12 +224,18 @@ NpcPawn.prototype.setModel = function(charIdx, callback) {
     var strKey = npcRow[40];
     var data = stringTable.getByKey(strKey);
     self.setName(data.text);
+    self.setScale(npcRow[4]);
   });
 };
 
 NpcPawn.prototype.newDamage = function(amount) {
   DamageRender.add(amount,
       this.rootObj.localToWorld(new THREE.Vector3(0, 0, 2.4)));
+};
+
+NpcPawn.prototype.setScale = function(scale) {
+  scale = scale * ZZ_SCALE_IN;
+  this.rootObj.scale.set(scale, scale, scale);
 };
 
 NpcPawn.prototype.setName = function(name) {
