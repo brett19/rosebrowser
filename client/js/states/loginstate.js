@@ -257,14 +257,68 @@ LoginState.prototype._beginCharSelect = function(charData) {
         }
       }
     });
-    charSelReq.on('done', function(characterName) {
-      self._doneCharSel(characterName);
+    charSelReq.on('done', self._doneCharSel.bind(self));
+    charSelReq.on('create', function() {
+      charSelReq.hide();
+      self._startCharacterCreate(charSelReq);
     });
 
     // Force a selection so the model becomes visible
     charSelReq.emit('selectionChanged', 0);
   });
 };
+
+LoginState.prototype._startCharacterCreate = function (charSelReq) {
+  var visibleCharacter = null;
+  // Hide all select characters
+  for (var i = 0; i < this.visChars.length; ++i) {
+    if (this.visChars[i].rootObj.visible) {
+      visibleCharacter = this.visChars[i].rootObj;
+    }
+    this.visChars[i].rootObj.visible = false;
+  }
+
+  // Create our dummy character
+  var charObj = new CharPawn();
+  charObj.setGender(0, function() {
+    for (var j = 0; j < AVTBODYPART.Max; ++j) {
+      charObj.setModelPart(j, 0);
+    }
+  });
+
+  charObj.rootObj.position.copy(CHARPOSITION);
+  charObj.rootObj.rotateOnAxis(new THREE.Vector3(0,0,1), CHARDIRECTION/180*Math.PI);
+  charObj.rootObj.scale.set(CHARSCALE, CHARSCALE, CHARSCALE);
+  charObj.rootObj.visible = true;
+  scene.add(charObj.rootObj);
+
+  // Create our dialog
+  var dialog = ui.characterCreateDialog();
+  dialog.on('change_gender', function(gender) {
+    charObj.setGender(gender);
+  });
+
+  dialog.on('change_face', function(face) {
+    charObj.setModelPart(AVTBODYPART.Face, face);
+  });
+
+  dialog.on('change_hair_style', function(style) {
+    charObj.setModelPart(AVTBODYPART.Hair, style);
+  });
+
+  dialog.on('change_hair_color', function(color) {
+  });
+
+  dialog.on('create', function(name, gender, face, hair, color) {
+    console.log('Create Character', name, gender, face, hair, color);
+  });
+
+  dialog.on('cancel', function() {
+    charSelReq.show();
+    scene.remove(charObj.rootObj);
+    visibleCharacter.visible = true;
+  });
+}
 
 LoginState.prototype._doneCharSel = function(characterName) {
   var waitDialog = ui.statusDialog();

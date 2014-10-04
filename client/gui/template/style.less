@@ -83,8 +83,18 @@ body {
 
   /* Adds some space between elements */
   .seperator {
-    height: 5px;
     clear: both;
+    height: 5px;
+  }
+
+  .seperator10 {
+    clear: both;
+    height: 10px;
+  }
+
+  .seperator15 {
+    clear: both;
+    height: 15px;
   }
 
   /* Tabs Element */
@@ -325,6 +335,41 @@ body {
       margin-left: 15%;
     }
   }
+
+  /* dlgCharacterCreate */
+  .dialog.character-create {
+    top: 20%;
+    right: 10%;
+    width: 250px;
+
+    .input.name {
+      width: 100%;
+    }
+
+    .label.category {
+      margin-bottom: 2px;
+      margin-top: 5px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .button.prev {
+      float: left;
+      width: 30px;
+    }
+
+    .button.next {
+      float: right;
+      width: 30px;
+    }
+
+    .label.gender, .label.face, .label.hair-style, .label.hair-color {
+      .panel;
+      padding-top: 2px;
+      margin-left: 40px;
+      margin-right: 40px;
+      text-align: center;
+      height: 22px;
     }
   }
 
