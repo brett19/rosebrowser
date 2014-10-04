@@ -67,7 +67,7 @@ function tileRotateUvs(tile, uv) {
 /**
  * @constructor
  */
-function WorldManager() {
+function MapManager() {
   this.rootObj = new THREE.Object3D();
   this.rootObj.position.set(5200, 5200, 0);
   this.isLoaded = false;
@@ -83,21 +83,21 @@ function WorldManager() {
   this.DM = new DataManager();
 }
 
-WorldManager.prototype.update = function(delta) {
+MapManager.prototype.update = function(delta) {
   OceanBlock.update(delta);
 };
 
-WorldManager.prototype.addToScene = function() {
+MapManager.prototype.addToScene = function() {
   scene.add(this.rootObj);
   this.rootObj.updateMatrixWorld(true);
 };
 
-WorldManager.prototype.removeFromScene = function() {
+MapManager.prototype.removeFromScene = function() {
   scene.remove(this.rootObj);
 };
 
 // Returns the closest picked object.
-WorldManager.prototype.rayPick = function(rayCaster) {
+MapManager.prototype.rayPick = function(rayCaster) {
   var inters = rayCaster.intersectObjects( this.colObjects, true );
   if (inters.length > 0) {
     return inters[0];
@@ -106,7 +106,7 @@ WorldManager.prototype.rayPick = function(rayCaster) {
 };
 
 var SKY_HEIGHT = 1000;
-WorldManager.prototype.findHighPoint = function(x, y, fromZ) {
+MapManager.prototype.findHighPoint = function(x, y, fromZ) {
   if (fromZ === undefined) {
     fromZ = SKY_HEIGHT; // From the Sky!!
   }
@@ -136,7 +136,7 @@ function getMapBounds(mapBasePath) {
   boundsName = boundsName.replace('\\', '/');
   return MAP_BOUNDS[boundsName];
 }
-WorldManager.prototype.setMap = function(mapIdx, callback) {
+MapManager.prototype.setMap = function(mapIdx, callback) {
   var self = this;
   self.textures = [];
 
@@ -179,7 +179,7 @@ WorldManager.prototype.setMap = function(mapIdx, callback) {
  * @param {THREE.Vector3|null} pos The position of the viewer, or null to load the whole map
  * @param {Function} [callback] Callback to invoke when all close chunks are loaded
  */
-WorldManager.prototype.setViewerInfo = function(pos, callback) {
+MapManager.prototype.setViewerInfo = function(pos, callback) {
   if (!this.isLoaded) {
     console.warn('Attempted to load chunks before map was finished loading.');
     if (callback) {

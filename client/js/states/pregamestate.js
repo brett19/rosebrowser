@@ -1,7 +1,5 @@
 'use strict';
 
-var gameWorld = null;
-
 /**
  * @constructor
  */
@@ -64,80 +62,76 @@ PreGameState.prototype.enter = function() {
 
       waitDialog.setMessage('Ready to roll!  Preparing Map!');
 
-      gameWorld = new WorldManager();
-      gameWorld.setMap(charData.zoneNo, function() {
-        var startPos = new THREE.Vector3(
-            charData.posStart.x,
-            charData.posStart.y,
-            0);
-        gameWorld.setViewerInfo(startPos, function() {
-          gameWorld.rootObj.updateMatrixWorld();
+      var startZoneNo = charData.zoneNo;
+      var startPos = new THREE.Vector3(
+          charData.posStart.x,
+          charData.posStart.y,
+          0);
+      GZM.prepare(startZoneNo, startPos, function() {
+        NetManager.world = GZM.map;
+        NetManager.watch(netWorld, netGame);
 
-          NetManager.world = gameWorld;
-          NetManager.watch(netWorld, netGame);
+        MC = new MyCharacter();
+        MC.world = GZM.map;
+        MC.name = charData.name;
+        MC.gender = charData.gender;
+        MC.position.x = charData.posStart.x;
+        MC.position.y = charData.posStart.y;
+        MC.zoneNo = charData.zoneNo; // TODO: Move this to another object?
+        MC.reviveZoneNo = charData.reviveZoneNo;
+        MC.visParts = charData.parts;
 
-          MC = new MyCharacter();
-          MC.world = gameWorld;
-          MC.name = charData.name;
-          MC.gender = charData.gender;
-          MC.position.x = charData.posStart.x;
-          MC.position.y = charData.posStart.y;
-          MC.zoneNo = charData.zoneNo; // TODO: Move this to another object? gameWorld.zoneNo
-          MC.reviveZoneNo = charData.reviveZoneNo;
-          MC.visParts = charData.parts;
+        // tagBasicINFO
+        MC.birthStone = charData.birthStone;
+        MC.hairColor = charData.hairColor;
+        MC.job = charData.job;
+        MC.union = charData.union;
+        MC.rank = charData.rank;
+        MC.fame = charData.fame;
 
-          // tagBasicINFO
-          MC.birthStone = charData.birthStone;
-          MC.hairColor = charData.hairColor;
-          MC.job = charData.job;
-          MC.union = charData.union;
-          MC.rank = charData.rank;
-          MC.fame = charData.fame;
+        // tagGrowABility
+        MC.hp = charData.hp;
+        MC.mp = charData.mp;
+        MC.xp = charData.exp;
+        MC.level = charData.level;
+        MC.statPoints = charData.bonusPoint;
+        MC.skillPoints = charData.skillPoint;
+        MC.bodySize = charData.bodySize;
+        MC.headSize = charData.headSize;
+        MC.penaltyXP = charData.penalExp;
+        MC.fameG = charData.fameG;
+        MC.fameB = charData.fameB;
+        MC.pkFlag = charData.pkFlag;
+        MC.stamina = charData.stamina;
+        MC.patHp = charData.patHp;
+        MC.patCoolTime = charData.patCoolTime;
 
-          // tagGrowABility
-          MC.hp = charData.hp;
-          MC.mp = charData.mp;
-          MC.xp = charData.exp;
-          MC.level = charData.level;
-          MC.statPoints = charData.bonusPoint;
-          MC.skillPoints = charData.skillPoint;
-          MC.bodySize = charData.bodySize;
-          MC.headSize = charData.headSize;
-          MC.penaltyXP = charData.penalExp;
-          MC.fameG = charData.fameG;
-          MC.fameB = charData.fameB;
-          MC.pkFlag = charData.pkFlag;
-          MC.stamina = charData.stamina;
-          MC.patHp = charData.patHp;
-          MC.patCoolTime = charData.patCoolTime;
+        // tagBasicAbility
+        MC.stats = new McStats(MC);
+        MC.stats.str = charData.stats.str;
+        MC.stats.dex = charData.stats.dex;
+        MC.stats.int = charData.stats.int;
+        MC.stats.con = charData.stats.con;
+        MC.stats.cha = charData.stats.cha;
+        MC.stats.sen = charData.stats.sen;
 
-          // tagBasicAbility
-          MC.stats = new McStats(MC);
-          MC.stats.str = charData.stats.str;
-          MC.stats.dex = charData.stats.dex;
-          MC.stats.int = charData.stats.int;
-          MC.stats.con = charData.stats.con;
-          MC.stats.cha = charData.stats.cha;
-          MC.stats.sen = charData.stats.sen;
+        // TODO: charData.currency
+        // TODO: charData.maintainStatus
+        // TODO: charData.hotIcons
+        // TODO: charData.coolTime
 
-          // TODO: charData.currency
-          // TODO: charData.maintainStatus
-          // TODO: charData.hotIcons
-          // TODO: charData.coolTime
+        // Inventory
+        MC.inventory = InventoryData.fromPacketData(invData);
 
-          // Inventory
-          MC.inventory = InventoryData.fromPacketData(invData);
+        // Quests
+        MC.quests = QuestData.fromPacketData(questLog.quests, questVars.vars, questItems.items, dailyQuestLog.dailyLog);
 
-          // Quests
-          MC.quests = QuestData.fromPacketData(questLog.quests, questVars.vars, questItems.items, dailyQuestLog.dailyLog);
+        // MC validation and GOM addition defered to after JOIN_ZONE.
+        console.log('MC Loaded', MC);
 
-          // MC validation and GOM addition defered to after JOIN_ZONE.
-          console.log('MC Loaded', MC);
-
-          StateManager.prepare('game', function() {
-            waitDialog.close();
-            StateManager.switch('game');
-          });
+        StateManager.prepare('game', function() {
+          waitDialog.close();
+          StateManager.switch('game');
         });
       });
     }

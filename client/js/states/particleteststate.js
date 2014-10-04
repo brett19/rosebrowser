@@ -57,7 +57,7 @@ ParticleTestState.prototype.enter = function() {
   camera.position.z = 39;
 
   if (1) {
-    var wm = new WorldManager();
+    var wm = new MapManager();
     wm.rootObj.position.set(5200, 5200, 0);
     wm.setMap(5, function ()
     {

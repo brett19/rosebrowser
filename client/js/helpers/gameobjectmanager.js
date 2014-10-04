@@ -3,14 +3,14 @@
 /**
  * @constructor
  */
-function _GameObjectManager() {
+function GameObjectManager() {
   EventEmitter.call(this);
 
   this.objects = [];
 }
-_GameObjectManager.prototype = new EventEmitter();
+GameObjectManager.prototype = new EventEmitter();
 
-_GameObjectManager.prototype.addObject = function(obj) {
+GameObjectManager.prototype.addObject = function(obj) {
   if (obj.serverObjectIdx <= 0) {
     console.warn('Attempted to add object with invalid server index.');
     return;
@@ -44,7 +44,7 @@ _GameObjectManager.prototype.addObject = function(obj) {
   this.emit('object_added', obj);
 };
 
-_GameObjectManager.prototype.removeObject = function(obj) {
+GameObjectManager.prototype.removeObject = function(obj) {
   var objIdx = this.objects.indexOf(obj);
   if (objIdx !== -1) {
     var proxyObj = new ProxyObject();
@@ -58,7 +58,7 @@ _GameObjectManager.prototype.removeObject = function(obj) {
   this.emit('object_removed', obj);
 };
 
-_GameObjectManager.prototype.findByServerObjectIdx = function(objectIdx) {
+GameObjectManager.prototype.findByServerObjectIdx = function(objectIdx) {
   for (var i = 0;  i < this.objects.length; ++i) {
     var thisObject = this.objects[i];
     if (thisObject.serverObjectIdx === objectIdx) {
@@ -68,7 +68,7 @@ _GameObjectManager.prototype.findByServerObjectIdx = function(objectIdx) {
   return null;
 };
 
-_GameObjectManager.prototype.getRefByServerObjectIdx = function(objectIdx, objectPos) {
+GameObjectManager.prototype.getRefByServerObjectIdx = function(objectIdx, objectPos) {
   var foundObj = this.findByServerObjectIdx(objectIdx);
 
   if (!foundObj) {
@@ -84,14 +84,8 @@ _GameObjectManager.prototype.getRefByServerObjectIdx = function(objectIdx, objec
   return foundObj.ref;
 };
 
-_GameObjectManager.prototype.update = function(delta) {
+GameObjectManager.prototype.update = function(delta) {
   for (var i = 0; i < this.objects.length; ++i) {
     this.objects[i].update(delta);
   }
 };
-
-/**
- * @global
- * @type {_GameObjectManager}
- */
-var GOM = new _GameObjectManager();

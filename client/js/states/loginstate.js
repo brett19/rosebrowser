@@ -118,7 +118,7 @@ LoginState.prototype.enter = function() {
 
   LoadScreen.hide();
 
-  this.world = new WorldManager();
+  this.world = new MapManager();
   this.world.rootObj.position.set(5200, 5200, 0);
   this.world.setMap(7, function() {
     console.log('Map Ready');

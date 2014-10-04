@@ -6,11 +6,7 @@
 function GameState() {
   State.call(this);
 
-  this.worldMgr = null;
-  this.gomVisMgr = null;
-  this.activeMapIdx = -1;
   this.mcPawnRoot = new THREE.Object3D();
-
   this.pickPosH = new THREE.AxisHelper(2);
 }
 GameState.prototype = new State();
@@ -20,13 +16,10 @@ GameState.prototype.prepare = function(callback) {
 };
 
 GameState.prototype.update = function(delta) {
-  GOM.update(delta);
+  GZM.update(delta);
 
   this.mcPawnRoot.position.copy(MC.position);
   this.mcPawnRoot.position.z += 1.6;
-  this.worldMgr.setViewerInfo(MC.position);
-  this.worldMgr.update(delta);
-  this.gomVisMgr.update(delta);
 };
 
 GameState.prototype._startNpcTalk = function(npcObj) {
@@ -52,14 +45,19 @@ GameState.prototype._startNpcTalk = function(npcObj) {
   });
 };
 
+var _MOUSEPROJECTOR = new THREE.Projector();
+GameState.prototype._getMouseRay = function(mouseX, mouseY) {
+  var mouse = new THREE.Vector3(0, 0, 0.5);
+  mouse.x = ( mouseX / window.innerWidth ) * 2 - 1;
+  mouse.y = - ( mouseY / window.innerHeight ) * 2 + 1;
+  _MOUSEPROJECTOR.unprojectVector( mouse, camera );
+  var cameraPos = camera.localToWorld(new THREE.Vector3(0,0,0));
+  var ray = new THREE.Raycaster(cameraPos, mouse.sub( cameraPos ).normalize());
+  return ray;
+};
+
 GameState.prototype.enter = function() {
-  this.worldMgr = gameWorld;
-  this.gomVisMgr = new GOMVisManager(gameWorld);
-
-  this.worldMgr.addToScene();
-  this.gomVisMgr.addToScene();
-
-  var mcPawn = this.gomVisMgr.findByObject(MC);
+  GZM.addToScene();
 
   // Some of this will need to be moved to a place thats used when you
   //  switch maps as well...
@@ -75,22 +73,31 @@ GameState.prototype.enter = function() {
   controls.damping = 0.2;
 
   netGame.joinZone(MC.position.z, function(data) {
-    // TODO: Read the actual serverObjectIdx
     MC.hp = data.curHp;
     MC.mp = data.curMp;
     MC.serverObjectIdx = data.objectIdx;
     MC.pawn = new CharPawn(MC);
     MC.debugValidate();
     MC.dropFromSky();
-    GOM.addObject(MC);
+    GZM.addObject(MC);
+    GZM.setCenterObject(MC);
 
     console.log('ZONE JOINED');
   });
 
   ui.gameUI(MC);
 
-  var projector = new THREE.Projector();
+
   var self = this;
+  InputManager.on('mousemove', function(e) {
+    var ray = self._getMouseRay(e.clientX, e.clientY);
+    var pickInfo = GZM.objectRayPick(ray);
+    if (pickInfo) {
+      $('body').css('cursor', 'pointer');
+    } else {
+      $('body').css('cursor', 'default');
+    }
+  });
   InputManager.on('mousedown', function(e) {
     e.preventDefault();
 
@@ -98,30 +105,11 @@ GameState.prototype.enter = function() {
       return;
     }
 
-    var mouse = new THREE.Vector3(0, 0, 0.5);
-    mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
-    mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
-    projector.unprojectVector( mouse, camera );
-
-    var cameraPos = camera.localToWorld(new THREE.Vector3(0,0,0));
-    var ray = new THREE.Raycaster(cameraPos, mouse.sub( cameraPos ).normalize());
-
-    var objPickInfo = self.gomVisMgr.rayPick(ray);
-    var worldPickInfo = self.worldMgr.rayPick(ray);
-    if (worldPickInfo && objPickInfo) {
-      if (worldPickInfo.distance < objPickInfo.distance) {
-        // If the world is closer, remove the object pick
-        objPickInfo = null;
-      } else {
-        // Otherwise, remove the world pick
-        worldPickInfo = null;
-      }
-    }
-
-    if (objPickInfo) {
-      var pickPawn = self.gomVisMgr.findByMesh(objPickInfo.object);
-      if (pickPawn) {
-        var pickGo = pickPawn.owner;
+    var ray = self._getMouseRay(e.clientX, e.clientY);
+    var pickInfo = GZM.rayPick(ray);
+    if (pickInfo) {
+      if (pickInfo.object) {
+        var pickGo = pickInfo.object
         if (pickGo instanceof CharObject) {
           GC.moveToObj(pickGo);
         } else if (pickGo instanceof NpcObject) {
@@ -136,13 +124,11 @@ GameState.prototype.enter = function() {
             console.log('Finished Attacking!');
           });
         }
+      } else if (pickInfo.point) {
+        var moveToPos = pickInfo.point;
+        GC.moveTo(moveToPos.x, moveToPos.y);
+        self.pickPosH.position.copy(moveToPos);
       }
-    }
-
-    if (worldPickInfo) {
-      var moveToPos = worldPickInfo.point;
-      GC.moveTo(moveToPos.x, moveToPos.y);
-      self.pickPosH.position.copy(moveToPos);
     }
   });
 
@@ -182,8 +168,7 @@ GameState.prototype.enter = function() {
 };
 
 GameState.prototype.leave = function() {
-  scene.remove(this.worldMgr.rootObj);
+  GZM.removeFromScene();
 };
 
 StateManager.register('game', GameState);
-var gsGame = StateManager.get('game');

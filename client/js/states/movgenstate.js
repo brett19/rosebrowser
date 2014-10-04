@@ -79,7 +79,7 @@ MovGenState.prototype.enter = function() {
   debugGui.add(this, 'logCam');
   var self = this;
 
-  var wm = new WorldManager();
+  var wm = new MapManager();
   wm.rootObj.position.set(5200, 5200, 0);
   wm.setMap(7, function() {
     console.log('Map Ready');

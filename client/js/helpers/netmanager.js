@@ -68,7 +68,7 @@ _NetManager.prototype.watch = function(wn, gn) {
     if (data.command === OBJECT_COMMAND.MOVE) {
       npc._moveTo(data.posTo.x, data.posTo.y);
     }
-    GOM.addObject(npc);
+    GZM.addObject(npc);
   });
 
   gn.on('spawn_char', function(data) {
@@ -92,7 +92,7 @@ _NetManager.prototype.watch = function(wn, gn) {
     if (data.command === OBJECT_COMMAND.MOVE) {
       char._moveTo(data.posTo.x, data.posTo.y);
     }
-    GOM.addObject(char);
+    GZM.addObject(char);
   });
 
   gn.on('spawn_mob', function(data) {
@@ -111,25 +111,25 @@ _NetManager.prototype.watch = function(wn, gn) {
     if (data.command === OBJECT_COMMAND.MOVE) {
       mob._moveTo(data.posTo.x, data.posTo.y);
     }
-    GOM.addObject(mob);
+    GZM.addObject(mob);
   });
 
   gn.on('obj_remove', function(data) {
-    var obj = GOM.findByServerObjectIdx(data.objectIdx);
+    var obj = GZM.findByServerObjectIdx(data.objectIdx);
     if (obj) {
-      GOM.removeObject(obj);
+      GZM.removeObject(obj);
     }
   });
 
   gn.on('obj_moveto', function(data) {
-    var obj = GOM.findByServerObjectIdx(data.objectIdx);
+    var obj = GZM.findByServerObjectIdx(data.objectIdx);
     if (obj instanceof MyCharacter) {
       return;
     }
     if (obj && !(obj instanceof ProxyObject)) {
       var targetObj = null;
       if (data.targetObjectIdx) {
-        targetObj = GOM.getRefByServerObjectIdx(
+        targetObj = GZM.getRefByServerObjectIdx(
             data.targetObjectIdx,
             new THREE.Vector3(data.posTo.x, data.posTo.y, data.posZ));
       }
@@ -142,12 +142,12 @@ _NetManager.prototype.watch = function(wn, gn) {
   });
 
   gn.on('obj_attack', function(data) {
-    var attackerObj = GOM.findByServerObjectIdx(data.attackerObjectIdx);
+    var attackerObj = GZM.findByServerObjectIdx(data.attackerObjectIdx);
     if (attackerObj instanceof MyCharacter) {
       return;
     }
     if (attackerObj && !(attackerObj instanceof ProxyObject)) {
-      var defenderObj = GOM.getRefByServerObjectIdx(
+      var defenderObj = GZM.getRefByServerObjectIdx(
           data.defenderObjectIdx,
           new THREE.Vector3(data.posTo.x, data.posTo.y, 0));
       attackerObj._attackObj(defenderObj);
@@ -156,19 +156,19 @@ _NetManager.prototype.watch = function(wn, gn) {
   });
 
   gn.on('damage', function(data) {
-    var defenderObj = GOM.findByServerObjectIdx(data.defenderObjectIdx);
+    var defenderObj = GZM.findByServerObjectIdx(data.defenderObjectIdx);
     if (defenderObj && !(defenderObj instanceof ProxyObject)) {
       defenderObj.emit('damage', data.amount);
 
       if (data.flags & 16) {
         defenderObj.emit('died');
-        GOM.removeObject(defenderObj);
+        GZM.removeObject(defenderObj);
       }
     }
   });
 
   gn.on('chat_say', function(data) {
-    var senderObj = GOM.findByServerObjectIdx(data.senderObjectIdx);
+    var senderObj = GZM.findByServerObjectIdx(data.senderObjectIdx);
     if (senderObj && senderObj instanceof CharObject) {
       GCM.addGameMessage(MSG_TYPE.SAY, data.message, senderObj.name, senderObj);
     }

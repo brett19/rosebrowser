@@ -60,7 +60,7 @@ TestState.prototype.enter = function() {
   debugGui.add(this, 'goInSelect');
   debugGui.add(this, 'goInGame');
 
-  var wm = new WorldManager();
+  var wm = new MapManager();
   wm.rootObj.position.set(5200, 5200, 0);
   wm.setMap(2, function() {
     console.log('Map Ready');
