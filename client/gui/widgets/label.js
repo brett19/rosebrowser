@@ -22,6 +22,14 @@ ui.Label.prototype.html = function(html) {
   }
 };
 
+ui.Label.prototype.append = function(html) {
+  this._element.append(html);
+};
+
+ui.Label.prototype.scrollToBottom = function() {
+  this._element.prop('scrollTop', this._element.prop('scrollHeight'));
+};
+
 ui.label = function(parent, element) {
   if (typeof(element) === 'string') {
     element = parent._element.find(element);
