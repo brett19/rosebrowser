@@ -15,6 +15,48 @@ body {
   cursor: default;
   z-index: 0;
 
+  /* Some helper classes */
+  .flex-horizontal {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .flex-vertical {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .flex-stretch {
+    align-items: stretch;
+  }
+
+  .flex-center {
+    align-items: center;
+  }
+
+  .flex-fill {
+    flex: 1;
+  }
+
+  .seperator {
+    clear: both;
+    margin-bottom: 5px;
+  }
+
+  .seperator10 {
+    clear: both;
+    height: 10px;
+  }
+
+  .seperator15 {
+    clear: both;
+    height: 15px;
+  }
+
+  .vertical-scroll {
+    overflow-y: auto;
+  }
+
   /* Generic UI panel */
   .panel {
     background-color: rgba(40, 40, 40, 0.4);
@@ -28,6 +70,8 @@ body {
   /* Dialog */
   .dialog {
     .panel;
+    display: flex;
+    flex-flow: column;
     position: absolute;
     background-color: rgba(50, 50, 50, 0.7);
     border: 1px solid #000;
@@ -81,43 +125,19 @@ body {
     margin-top: 2px;
   }
 
-  /* Adds some space between elements */
-  .seperator {
-    clear: both;
-    height: 5px;
-  }
-
-  .seperator10 {
-    clear: both;
-    height: 10px;
-  }
-
-  .seperator15 {
-    clear: both;
-    height: 15px;
-  }
-
   /* Tabs Element */
   .tabpanel {
     .header {
+      .flex-horizontal;
       width: 100%;
 
-      div {
-        margin-left: 1px;
+      .button {
+        .flex-fill;
         border-bottom-right-radius: 0px;
         border-bottom-left-radius: 0px;
         border-bottom: 0px;
-        display: inline-block;
         padding-left: 10px;
         padding-right: 10px;
-      }
-
-      .button {
-        margin-left: 1px;
-        border-bottom-right-radius: 0px;
-        border-bottom-left-radius: 0px;
-        border-bottom: 0px;
-        display: inline-block;
       }
     }
 
@@ -172,11 +192,6 @@ body {
     height: 20px;
   }
 
-  /* Add vertical scrollbars to a div */
-  .vertical-scroll {
-    overflow-y: auto;
-  }
-
   /* List Element */
   .list {
     .panel;
@@ -224,7 +239,7 @@ body {
   }
 
   .progressbar > .percent:before {
-    content: '|';
+    content: '| ';
   }
 
   .progressbar > .percent {
@@ -291,11 +306,14 @@ body {
     top: 50%;
     margin-top: -133px;
     margin-left: -133px;
-    width: 266px;
+    width: 280px;
+
+    .flex-horizontal {
+      align-items: center;
+    }
 
     label {
-      width: 60px;
-      display: inline-block;
+      width: 70px;
     }
 
     .checkbox.remember {
@@ -311,11 +329,7 @@ body {
     margin-left: -125px;
     margin-top: -160px;
     width: 250px;
-
-    .list.servers {
-      height: 300px;
-      width: 100%;
-    }
+    height: 300px;
   }
 
   /* dlgCharacterSelect */
@@ -324,15 +338,14 @@ body {
     right: 10%;
     height: 80%;
     width: 250px;
+    align-items: center;
 
     .list.characters {
       width: 100%;
-      height: ~"calc(100% - 110px)";
     }
 
     .button {
       width: 70%;
-      margin-left: 15%;
     }
   }
 
@@ -346,6 +359,10 @@ body {
       width: 100%;
     }
 
+    .button.prev, .button.next {
+      width: 30px;
+    }
+
     .label.category {
       margin-bottom: 2px;
       margin-top: 5px;
@@ -353,21 +370,9 @@ body {
       font-weight: bold;
     }
 
-    .button.prev {
-      float: left;
-      width: 30px;
-    }
-
-    .button.next {
-      float: right;
-      width: 30px;
-    }
-
     .label.gender, .label.face, .label.hair-style, .label.hair-color {
       .panel;
       padding-top: 2px;
-      margin-left: 40px;
-      margin-right: 40px;
       text-align: center;
       height: 22px;
     }
@@ -427,48 +432,29 @@ body {
   .dialog.quest-list {
     width: 300px;
 
-    .label.count {
-      width: 50%;
-    }
-
-    .label.daily {
-      width: 50%;
-    }
-
     .list.quests {
       height: 100px;
     }
 
     .items {
-      width: 40px;
-      float: left;
+      margin-right: 5px;
     }
 
     .label.description {
       .panel;
       .vertical-scroll;
-      height: 257px;
-      width: ~"calc(100% - 48px)";
-      float: right;
     }
 
     .footer {
-      float: right;
       margin-top: 6px;
-      width: ~"calc(100% - 48px)";
-    }
-
-    .label.timer {
-      float: left;
-      display: inline;
-      text-align: center;
-      width: 50%
     }
 
     .button.abandon {
-      float: right;
-      display: inline;
-      width: 50%;
+      width: 100px;
+    }
+
+    .label.timer {
+      text-align: center;
     }
   }
 
@@ -555,35 +541,24 @@ body {
       }
     }
 
-    .radiogroup {
+    .radiogroup.chat-type {
+      .flex-horizontal;
       font-size: 0;
 
       .button {
-        display: inline-block;
-        width: ~"calc(16.6666% - 5px)";
+        .flex-fill;
         margin-right: 5px;
         font-size: small;
 
         &:last-child {
-          width: 16.6666%;
           margin-right: 0px;
         }
       }
     }
 
     .button.send {
-      width: 16.6666%;
-      float: right;
+      width: 50px;
       margin-left: 5px;
-    }
-
-    .msgwrapper {
-      width: auto;
-      overflow: hidden;
-    }
-
-    .message {
-      width: 100%;
     }
   }
 }

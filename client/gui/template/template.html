@@ -5,12 +5,16 @@
 <div id="dlgLogin" class="login dialog">
   <div class="title nodrag">Login</div>
   <div class="panel">
-    <label>Username:</label>
-    <input type="text" class="textbox username" />
+    <div class="flex-horizontal">
+      <label>Username:</label>
+      <input type="text" class="textbox username flex-fill" />
+    </div>
     <div class="seperator" />
 
-    <label>Password:</label>
-    <input type="password" class="textbox password" />
+    <div class="flex-horizontal">
+      <label>Password:</label>
+      <input type="password" class="textbox password flex-fill" />
+    </div>
     <div class="seperator" />
 
     <div class="checkbox remember">Remember Me</div>
@@ -22,12 +26,12 @@
 
 <div id="dlgServerSelect" class="dialog server-select">
   <div class="title nodrag">Server Select</div>
-  <div class="list servers" />
+  <div class="list servers flex-fill" />
 </div>
 
 <div id="dlgCharacterSelect" class="dialog character-select">
   <div class="title nodrag">Character Select</div>
-  <div class="list characters" />
+  <div class="list characters flex-fill" />
   <div class="seperator" />
   <div class="button create">Create Character</div>
   <div class="seperator" />
@@ -44,27 +48,35 @@
   <div class="seperator" />
 
   <div class="label category">Gender</div>
-  <div class="button prev gender">&lt;</div>
-  <div class="button next gender">&gt;</div>
-  <div class="label gender">Male</div>
+  <div class="flex-horizontal">
+    <div class="button prev gender">&lt;</div>
+    <div class="label gender flex-fill">Male</div>
+    <div class="button next gender">&gt;</div>
+  </div>
   <div class="seperator" />
 
   <div class="label category">Face</div>
-  <div class="button prev face">&lt;</div>
-  <div class="button next face">&gt;</div>
-  <div class="label face">1</div>
+  <div class="flex-horizontal">
+    <div class="button prev face">&lt;</div>
+    <div class="label face flex-fill">1</div>
+    <div class="button next face">&gt;</div>
+  </div>
   <div class="seperator" />
 
   <div class="label category">Hair Style</div>
-  <div class="button prev hair-style">&lt;</div>
-  <div class="button next hair-style">&gt;</div>
-  <div class="label hair-style">1</div>
+  <div class="flex-horizontal">
+    <div class="button prev hair-style">&lt;</div>
+    <div class="label hair-style flex-fill">1</div>
+    <div class="button next hair-style">&gt;</div>
+  </div>
   <div class="seperator" />
 
   <div class="label category">Hair Color</div>
-  <div class="button prev hair-color">&lt;</div>
-  <div class="button next hair-color">&gt;</div>
-  <div class="label hair-color">Dirty Blonde</div>
+  <div class="flex-horizontal">
+    <div class="button prev hair-color">&lt;</div>
+    <div class="label hair-color flex-fill">Dirty Blonde</div>
+    <div class="button next hair-color">&gt;</div>
+  </div>
 
   <div class="seperator15" />
   <div class="button create">Create</div>
@@ -95,31 +107,35 @@
 <div id="dlgQuestList" class="dialog quest-list" style="left: 100px; top: 100px;">
   <div class="title">Quests</div>
   <div class="close button">X</div>
-  <div class="panel">
-    <span class="label count">Quests 1 / 10</span>
-    <span class="label daily">Daily  0 / 15</span>
+  <div class="panel flex-horizontal">
+    <div class="label count flex-fill">Quests 1 / 10</div>
+    <div class="label daily flex-fill">Daily  0 / 15</div>
   </div>
   <div class="seperator" />
   <div class="list quests" />
   <div class="seperator" />
-  <span class="items">
-    <div class="quest-slot-1 slot" />
-    <div class="seperator" />
-    <div class="quest-slot-2 slot" />
-    <div class="seperator" />
-    <div class="quest-slot-3 slot" />
-    <div class="seperator" />
-    <div class="quest-slot-4 slot" />
-    <div class="seperator" />
-    <div class="quest-slot-5 slot" />
-    <div class="seperator" />
-    <div class="quest-slot-6 slot" />
-  </span>
-  <span class="label description"></span>
-  <span class="footer">
-    <span class="label timer">5 seconds</span>
-    <span class="button abandon">Abandon</span>
-  </span>
+  <div class="flex-horizontal flex-stretch">
+    <div class="items">
+      <div class="quest-slot-1 slot" />
+      <div class="seperator" />
+      <div class="quest-slot-2 slot" />
+      <div class="seperator" />
+      <div class="quest-slot-3 slot" />
+      <div class="seperator" />
+      <div class="quest-slot-4 slot" />
+      <div class="seperator" />
+      <div class="quest-slot-5 slot" />
+      <div class="seperator" />
+      <div class="quest-slot-6 slot" />
+    </div>
+    <div class="flex-vertical flex-fill">
+      <div class="label description flex-fill"></div>
+      <div class="footer flex-horizontal">
+        <div class="label timer flex-fill">5 seconds</div>
+        <div class="button abandon">Abandon</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div id="dlgInventory" class="dialog inventory" style="top: 200px; left: 200px">
@@ -196,8 +212,8 @@
     <div class="button group">~ Group</div>
   </div>
   <div class="seperator" />
-  <div>
+  <div class="flex-horizontal">
+    <input type="text" class="textbox message flex-fill" />
     <div class="button send">Send</div>
-    <div class="msgwrapper"><input type="text" class="textbox message" /></div>
   </div>
 </div>
