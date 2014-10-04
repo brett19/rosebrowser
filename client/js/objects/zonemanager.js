@@ -48,6 +48,10 @@ ZoneManager.prototype.removeFromScene = function() {
 };
 
 ZoneManager.prototype.addObject = function(obj) {
+  if (obj.world !== this.map) {
+    console.warn('Object added to ZoneManager that is assigned to another zone');
+  }
+
   if (obj instanceof ActorObject) {
     this.pawns.push(obj.pawn);
     this.colObjects.push(obj.pawn.rootObj);
@@ -56,7 +60,10 @@ ZoneManager.prototype.addObject = function(obj) {
     }
   }
 
-  return this.objects.addObject(obj);
+  this.objects.addObject(obj);
+
+  obj.world = this.map;
+  obj.dropFromSky();
 };
 
 ZoneManager.prototype.removeObject = function(obj) {
@@ -74,7 +81,7 @@ ZoneManager.prototype.removeObject = function(obj) {
     }
   }
 
-  return this.objects.removeObject(obj);
+  this.objects.removeObject(obj);
 };
 
 ZoneManager.prototype.findByServerObjectIdx = function(objectIdx) {

@@ -43,15 +43,6 @@ QuestData.Quest = function() {
   this.switches = [];
 };
 
-QuestData.fromPacketData = function(questLog, questVars, questItems, dailyQuestLog) {
-  var data = new QuestData();
-  data.setQuests(questLog);
-  data.setVars(questVars);
-  data.setItems(questItems);
-  data.setDailyLog(dailyQuestLog);
-  return data;
-};
-
 QuestData.prototype.setQuests = function(quests) {
   this.quests = quests;
 };

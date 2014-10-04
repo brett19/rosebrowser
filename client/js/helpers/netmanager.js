@@ -50,6 +50,30 @@ _NetManager.prototype.watch = function(wn, gn) {
     self._destroyWorld();
   });
 
+  gn.on('inventory_data', function(data) {
+    MC.inventory.money = data.money;
+    if (data.result === 0x1) {
+      MC.inventory.items = data.items;
+    } else if (data.result === 0x2) {
+      MC.inventory.items = MC.inventory.items.concat(data.items);
+    } else {
+      console.warn('Received unexpected inventory_data result.')
+    }
+  });
+
+  gn.on('quest_log', function(data) {
+    MC.quests.setQuests(data.quests);
+  });
+  gn.on('quest_vars', function(data) {
+    MC.quests.setVars(data.vars);
+  });
+  gn.on('questitem_list', function(data) {
+    MC.quests.setItems(data.items);
+  });
+  gn.on('quest_completion_data', function(data) {
+    MC.quests.setDailyLog(data.dailyLog);
+  });
+
   gn.on('spawn_npc', function(data) {
     var npc = new NpcObject(self.world);
     npc.serverObjectIdx = data.objectIdx;
@@ -64,7 +88,6 @@ _NetManager.prototype.watch = function(wn, gn) {
     npc.setPosition(data.position.x, data.position.y, 10);
     npc.setDirection(data.modelDir / 180 * Math.PI);
     npc.pawn = new NpcPawn(npc);
-    npc.dropFromSky();
     if (data.command === OBJECT_COMMAND.MOVE) {
       npc._moveTo(data.posTo.x, data.posTo.y);
     }
@@ -88,7 +111,6 @@ _NetManager.prototype.watch = function(wn, gn) {
     char.stats.attackSpeedBase = data.attackSpeedBase;
     char.pawn = new CharPawn(char);
     char.debugValidate();
-    char.dropFromSky();
     if (data.command === OBJECT_COMMAND.MOVE) {
       char._moveTo(data.posTo.x, data.posTo.y);
     }
@@ -107,7 +129,6 @@ _NetManager.prototype.watch = function(wn, gn) {
     mob.stats = new NpcStats(mob);
     mob.setPosition(data.position.x, data.position.y, 10);
     mob.pawn = new NpcPawn(mob);
-    mob.dropFromSky();
     if (data.command === OBJECT_COMMAND.MOVE) {
       mob._moveTo(data.posTo.x, data.posTo.y);
     }
@@ -196,6 +217,23 @@ _NetManager.prototype.watch = function(wn, gn) {
 
   gn.on('chat_ally', function(data) {
     GCM.addGameMessage(MSG_TYPE.ALLY, data.message, data.senderName);
+  });
+
+  gn.on('quest_reply', function(data) {
+    switch(data.result) {
+      case RESULT_QUEST_REPLY_ADD_SUCCESS:
+      case RESULT_QUEST_REPLY_ADD_FAILED:
+      case RESULT_QUEST_REPLY_DEL_SUCCESS:
+      case RESULT_QUEST_REPLY_DEL_FAILED:
+      case RESULT_QUEST_REPLY_TRIGGER_SUCCESS:
+      case RESULT_QUEST_REPLY_TRIGGER_FAILED:
+      case RESULT_QUEST_REPLY_UPDATE:
+      case RESULT_QUEST_REPLY_COMPLETE:
+      case RESULT_QUEST_REPLY_RESET:
+      case RESULT_QUEST_REPLY_DAILY_RESET:
+      default:
+        console.warn('Unimplemented quest reply result ' + data.result);
+    }
   });
 };
 

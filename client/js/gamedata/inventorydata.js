@@ -101,13 +101,6 @@ function InventoryData() {
   this.money = new Int64();
 }
 
-InventoryData.fromPacketData = function(itemData) {
-  var inv = new InventoryData();
-  inv.items = itemData.items;
-  inv.money = itemData.money;
-  return inv;
-};
-
 InventoryData.prototype.findByLocSlot = function(location, slotNo) {
   for (var i = 0; i < this.items.length; ++i) {
     var item = this.items[i];
