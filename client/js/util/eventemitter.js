@@ -43,7 +43,7 @@ EventEmitter.prototype.removeEventListener = function(event, handler) {
 EventEmitter.prototype.once = function(event, handler) {
   var onceHandler = function() {
     this.removeEventListener(event, onceHandler);
-    handler();
+    handler.apply(this, arguments);
   }.bind(this);
   this.addEventListener(event, onceHandler);
 };
