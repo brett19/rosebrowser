@@ -60,7 +60,7 @@ McStats.prototype.getAttackDistance = function() {
   return weaponData[WEAPON_DATA.RANGE] / 100;
 };
 
-McStats.getNeedRawExp = function () {
+McStats.prototype.getNeedRawExp = function () {
   var level = this.object.level;
   if (level <= 15) {
     return Math.floor((level + 3) * (level + 5) * (level + 10) * 0.7);
