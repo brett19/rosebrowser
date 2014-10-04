@@ -1,28 +1,28 @@
 ui.LoginDialog = function(template) {
   ui.Dialog.call(this, template);
 
-  this.username = ui.textbox(this, '.username');
-  this.password = ui.textbox(this, '.password');
-  this.remember = ui.checkbox(this, '.checkbox.remember');
+  this._username = ui.textbox(this, '.username');
+  this._password = ui.textbox(this, '.password');
+  this._remember = ui.checkbox(this, '.checkbox.remember');
 
   var username = localStorage.getItem('login_user');
   if (username) {
-    this.username.text(username);
-    this.remember.checked(true);
+    this._username.text(username);
+    this._remember.checked(true);
   }
 
-  this.username.on('returnpressed', this._login.bind(this));
-  this.password.on('returnpressed', this._login.bind(this));
+  this._username.on('returnpressed', this._login.bind(this));
+  this._password.on('returnpressed', this._login.bind(this));
   ui.button(this, '.button.submit').on('clicked', this._login.bind(this));
 }
 
 ui.LoginDialog.prototype = Object.create(ui.Dialog.prototype);
 
 ui.LoginDialog.prototype._login = function() {
-  var username = this.username.text();
-  var password = this.password.text();
+  var username = this._username.text();
+  var password = this._password.text();
 
-  if (this.remember.checked()) {
+  if (this._remember.checked()) {
     localStorage.setItem('login_user', username);
   }
 

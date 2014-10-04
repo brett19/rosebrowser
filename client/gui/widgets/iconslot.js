@@ -10,6 +10,10 @@ ui.IconSlot.MOVE_Z = 9999;
 
 ui.IconSlot.prototype = Object.create(ui.Widget.prototype);
 
+ui.IconSlot.prototype.getIcon = function(icon) {
+  return this._icon;
+};
+
 ui.IconSlot.prototype.setIcon = function(icon) {
   this._icon = icon;
   this._update();
@@ -30,22 +34,6 @@ ui.IconSlot.prototype.setAccepts = function(accepts) {
     this._element.addClass('accepts-' + accepts[i]);
   }
 };
-
-function getSlotClass(classes) {
-  var match;
-
-  if (match = classes.match(/inventory-slot-([0-9]*)/)) {
-    return match[0];
-  } else if (match = classes.match(/equip-slot-([0-9]*)/)) {
-    return match[0];
-  } else if (match = classes.match(/ammo-slot-([0-9]*)/)) {
-    return match[0];
-  }else if (match = classes.match(/quest-slot-([0-9]*)/)) {
-    return match[0];
-  }
-
-  return null;
-}
 
 ui.IconSlot.prototype._onSwap = function(other) {
   this.emit('swap', other);
@@ -82,7 +70,11 @@ ui.IconSlot.prototype._onMouseDown = function(downEvent) {
     if (target.is('canvas')) {
       self._onSwap('drop');
     } else if (target.hasClass('slot') && !target.is(self._element)) {
-      self._onSwap(getSlotClass(target.attr('class')));
+      var otherClass = target.attr('class');
+      var match = otherClass.match(/[a-z\-]*-slot-[0-9]*/);
+      if (match) {
+        self._onSwap(match[0]);
+      }
     }
 
     $(document).off('mousemove', mouseMove);

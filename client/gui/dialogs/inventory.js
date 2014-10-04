@@ -1,16 +1,16 @@
 ui.InventoryDialog = function(template, inventory) {
   ui.Dialog.call(this, template);
 
-  this.pageTabs = ui.tabpanel(this, '.tabpanel.page');
-  this.inventoryTabs = ui.tabpanel(this, '.tabpanel.inventory');
-  this.inventorySlots = [];
-  this.ammoSlots = [];
-  this.equipSlots = [];
+  this._pageTabs = ui.tabpanel(this, '.tabpanel.page');
+  this._inventoryTabs = ui.tabpanel(this, '.tabpanel.inventory');
+  this._inventorySlots = [];
+  this._ammoSlots = [];
+  this._equipSlots = [];
 
   for (var i = 1; i <= 90; ++i) {
     var id   = '.inventory-slot-' + i;
     var page = Math.floor((i - 1) / 30);
-    var tab  = this.inventoryTabs.tab(page);
+    var tab  = this._inventoryTabs.tab(page);
     var slot = ui.iconslot(tab, id, ['item']);
 
     if (i > 0 && (i % 6) === 0) {
@@ -18,38 +18,78 @@ ui.InventoryDialog = function(template, inventory) {
     }
 
     slot.on('swap', this._swapItem.bind(this, id.substr(1)));
-    this.inventorySlots.push(slot);
+    this._inventorySlots.push(slot);
   }
 
-  this.equippedTab = this.pageTabs.tab(0);
+  this._equippedTab = this._pageTabs.tab(0);
 
   for (var i = 1; i <= 11; ++i) {
     var id = '.equip-slot-' + i;
-    var slot = ui.iconslot(this.equippedTab, id, ['item']);
+    var slot = ui.iconslot(this._equippedTab, id, ['item']);
     slot.on('swap', this._swapItem.bind(this, id.substr(1)));
-    this.equipSlots[i] = slot;
+    this._equipSlots[i] = slot;
   }
 
   for (var i = 0; i < 3; ++i) {
     var id = '.ammo-slot-' + i;
-    var slot = ui.iconslot(this.equippedTab, id, ['item']);
+    var slot = ui.iconslot(this._equippedTab, id, ['item']);
     slot.on('swap', this._swapItem.bind(this, id.substr(1)));
-    this.ammoSlots[i] = slot;
+    this._ammoSlots[i] = slot;
   }
 
-  this.data = inventory;
+  this._data = inventory;
   this._update();
 };
 
 ui.InventoryDialog.prototype = Object.create(ui.Dialog.prototype);
 
+function getItemLocationFromName(name) {
+  var match;
+  if (match = name.match(/inventory-slot-([0-9]*)/)) {
+    return { location: ITEMLOC.INVENTORY, slot: parseInt(match[1]) - 1 };
+  } else if (match = name.match(/equip-slot-([0-9]*)/)) {
+    return { location: ITEMLOC.EQUIPPED_EQUIP, slot: parseInt(match[1]) };
+  } else if (match = name.match(/ammo-slot-([0-9]*)/)) {
+    return { location: ITEMLOC.EQUIPPED_AMMO, slot: parseInt(match[1]) };
+  } else {
+    return null;
+  }
+}
+
 ui.InventoryDialog.prototype._swapItem = function(src, dst) {
-  if (dst === 'equip') {
-    console.log('equipItem', src);
+  if (dst.indexOf('equip') === 0) {
+    var srcLocation = getItemLocationFromName(src);
+    if (srcLocation.location === ITEMLOC.EQUIPPED_EQUIP) {
+      // TODO: Send packet asking to unequip item
+      console.log('unequipItem', src);
+    } else if (srcLocation.location === ITEMLOC.EQUIPPED_EQUIP) {
+      // TODO: Send packet asking to unequip ammo
+      console.log('unequipItem', src);
+    } else if (srcLocation.location === ITEMLOC.INVENTORY) {
+      // TODO: Send packet asking to equip item
+      console.log('equipItem', src);
+    }
   } else if (dst === 'drop') {
     console.log('dropItem', src);
+    // TODO: Send packet asking to drop item
   } else {
-    console.log('swapItem', src, dst);
+    var srcLocation = getItemLocationFromName(src);
+    var dstLocation = getItemLocationFromName(dst);
+
+    if (srcLocation.location === ITEMLOC.EQUIPPED_EQUIP) {
+      console.log('unequipItem', src);
+      // TODO: Send packet asking to unequip item
+    } else if (srcLocation.location === ITEMLOC.EQUIPPED_AMMO) {
+      console.log('unequipAmmo', src);
+      // TODO: Send packet asking to unequip ammo
+    } else if (srcLocation && dstLocation) {
+      console.log('swapItem', src, dst);
+      var srcSlot = this._getItemSlot(srcLocation.location, srcLocation.slot);
+      var dstSlot = this._getItemSlot(dstLocation.location, dstLocation.slot);
+      var tmp = srcSlot.getIcon();
+      srcSlot.setIcon(dstSlot.getIcon());
+      dstSlot.setIcon(tmp);
+    }
   }
 };
 
@@ -58,13 +98,13 @@ ui.InventoryDialog.prototype._getItemSlot = function(location, id) {
 
   switch (location) {
   case ITEMLOC.INVENTORY:
-    slot = this.inventorySlots[id];
+    slot = this._inventorySlots[id];
     break;
   case ITEMLOC.EQUIPPED_EQUIP:
-    slot = this.equipSlots[id];
+    slot = this._equipSlots[id];
     break;
   case ITEMLOC.EQUIPPED_AMMO:
-    slot = this.ammoSlots[id];
+    slot = this._ammoSlots[id];
     break;
   case ITEMLOC.EQUIPPED_COSTUME:
   case ITEMLOC.EQUIPPED_PAT:
@@ -77,8 +117,8 @@ ui.InventoryDialog.prototype._getItemSlot = function(location, id) {
 
 ui.InventoryDialog.prototype._update = function() {
   var itemData = GDM.getNow('item_data');
-  for (var i = 0; i < this.data.items.length; ++i) {
-    var item = this.data.items[i];
+  for (var i = 0; i < this._data.items.length; ++i) {
+    var item = this._data.items[i];
     var data = itemData.getData(item.itemType, item.itemNo);
     var name = itemData.getName(item.itemType, item.itemNo);
     var desc = itemData.getDescription(item.itemType, item.itemNo);
@@ -95,53 +135,3 @@ ui.InventoryDialog.prototype._update = function() {
 ui.inventoryDialog = function(inventory) {
   return new ui.InventoryDialog('#dlgInventory', inventory);
 };
-
-/*
-function swapSlots(srcID, dstID) {
-    console.log('swapSlots(' + srcID + ', ' + dstID + ')');
-}
-
-InventoryDialog.prototype.setItem = function(slotIndex, item) {
-    slot.children('div').mousedown(function(downEvent) {
-        var self = $(this);
-        var startOffset = self.offset();
-
-        self.css('z-index', 999);
-
-        function mouseMove(moveEvent) {
-          self.offset({
-            left: moveEvent.pageX - downEvent.pageX + startOffset.left,
-            top: moveEvent.pageY - downEvent.pageY + startOffset.top
-          });
-        }
-
-        function mouseUp(upEvent) {
-            var target;
-            self.css('z-index', -999);
-            target = $(document.elementFromPoint(upEvent.clientX, upEvent.clientY));
-            self.css('z-index', 0);
-            self.offset(startOffset);
-
-            if (!target.hasClass('slot')) {
-                target = target.parent();
-
-                if (!target.hasClass('slot')) {
-                    target = null;
-                }
-            }
-
-            if (target && !target.is(slot)) {
-                if (target.hasClass('accepts-' + type)) {
-                    swapSlots(slot.attr('id'), target.attr('id'));
-                }
-            }
-
-            $(document).off('mousemove', mouseMove);
-            $(document).off('mouseup', mouseUp);
-        }
-
-        $(document).on('mousemove', mouseMove);
-        $(document).on('mouseup', mouseUp);
-    });
-};
-*/

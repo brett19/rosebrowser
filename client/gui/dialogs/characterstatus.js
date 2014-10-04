@@ -1,37 +1,29 @@
-ui.CharacterStatusDialog = function(template, character) {
+ui.CharacterStatusDialog = function(template, _data) {
   ui.Dialog.call(this, template);
 
   this.name = ui.label(this, '.label.name');
   this.hp = ui.progressbar(this, '.progressbar.health');
   this.mp = ui.progressbar(this, '.progressbar.mana');
   this.xp = ui.progressbar(this, '.progressbar.exp');
-
-  if (character) {
-    this.setCharacter(character);
-  }
+  this._data = _data;
+  this._update();
 }
 
 ui.CharacterStatusDialog.prototype = Object.create(ui.Dialog.prototype);
-ui.CharacterStatusDialog.prototype._character = null;
-
-ui.CharacterStatusDialog.prototype.setCharacter = function(character) {
-  this._character = character;
-  this._update();
-};
 
 ui.CharacterStatusDialog.prototype._update = function() {
-  this.name.text(this._character.name);
+  this.name.text(this._data.name);
 
-  this.hp.max(this._character.stats.getMaxHp());
-  this.hp.value(this._character.hp);
+  this.hp.max(this._data.stats.getMaxHp());
+  this.hp.value(this._data.hp);
 
-  this.mp.max(this._character.stats.getMaxMp());
-  this.mp.value(this._character.mp);
+  this.mp.max(this._data.stats.getMaxMp());
+  this.mp.value(this._data.mp);
 
   this.xp.max(1000); // TODO: Real max xp
-  this.xp.value(this._character.xp);
+  this.xp.value(this._data.xp);
 };
 
-ui.characterStatusDialog = function(character) {
-  return new ui.CharacterStatusDialog('#dlgCharacterStatus', character);
+ui.characterStatusDialog = function(_data) {
+  return new ui.CharacterStatusDialog('#dlgCharacterStatus', _data);
 };
