@@ -113,7 +113,7 @@ SkeletonAnimator.prototype.update = (function() {
 
     this.currentTime += delta * this.timeScale;
 
-    if (this.currentTime > this.length || this.currentTime < 0) {
+    if (this.currentTime >= this.length || this.currentTime < 0) {
       if (this.loop) {
         this.currentTime %= this.length;
 
