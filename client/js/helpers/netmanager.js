@@ -166,6 +166,19 @@ _NetManager.prototype.watch = function(wn, gn) {
       }
     }
   });
+
+  gn.on('chat_say', function(data) {
+    var senderObj = GOM.findByServerObjectIdx(data.senderObjectIdx);
+    if (senderObj && senderObj instanceof CharObject) {
+      GCM.addMessage(MSGTYPE.SAY, senderObj.name, senderObj, data.message);
+    }
+  });
+  gn.on('chat_whisper', function(data) {
+    GCM.addMessage(MSGTYPE.WHISPER, data.senderName, null, data.message);
+  });
+  gn.on('chat_shout', function(data) {
+    GCM.addMessage(MSGTYPE.SHOUT, data.senderName, null, data.message);
+  });
 };
 
 /**
