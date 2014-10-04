@@ -139,6 +139,10 @@ ZoneData.load = function(path, callback) {
         data.backgroundMusicPath = rh.readUint8Str();
         data.skyPath             = rh.readUint8Str();
         break;
+
+      default:
+        console.warn('Encountered unknown ZON block type:', type);
+        break;
       }
       rh.seek(pos);
     }

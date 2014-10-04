@@ -349,6 +349,7 @@ ZoneChunkData.load = function(path, callback) {
             data.events.push(object);
             break;
           default:
+              console.warn('Encountered unknown IFO block type:', type);
             break;
           }
         }
