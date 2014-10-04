@@ -16,7 +16,7 @@ if (USE_LIVE_SERVER) {
  */
 function LoginState() {
   State.call(this);
-  
+
   this.DM = new DataManager();
 }
 LoginState.prototype = new State();
@@ -45,44 +45,7 @@ LoginState.prototype.prepare = function(callback) {
   this.chars = [];
   this.selectedCharIdx = -1;
   this.visChars = [];
-
   callback();
-};
-
-LoginState.prototype._onSelectChar = function(charIdx) {
-  for (var i = 0; i < this.visChars.length; ++i) {
-    var visChar = this.visChars[i];
-    if (i === charIdx) {
-      visChar.rootObj.visible = true;
-    } else {
-      visChar.rootObj.visible = false;
-    }
-  }
-  this.selectedCharIdx = charIdx;
-};
-
-LoginState.prototype._onConfirmChar = function() {
-  var selectedChar = this.chars[this.selectedCharIdx];
-
-  CharSelDialog.hide();
-
-  var waitDialog = MsgBoxDialog.create('Confirming character...', false);
-
-  var pickCharName = selectedChar.name;
-  netWorld.selectCharacter(pickCharName, function(data) {
-    waitDialog.setMessage('Character Selected. Connecting to Game Server.');
-
-    // The pregame state has to be prepared before, if it is not
-    //   able to switch synchronously, we risk loosing events
-    //   related to the character data.
-    StateManager.prepare('pregame', function() {
-      netGame = new GameClient();
-      netGame.connect(data.gameIp, data.gamePort, data.transferKey1, rPass, function () {
-        waitDialog.close();
-        StateManager.switch('pregame');
-      });
-    });
-  });
 };
 
 LoginState.prototype.playNextAnim = function() {
