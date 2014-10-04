@@ -20,7 +20,7 @@ ui.CharacterStatusDialog.prototype._update = function() {
   this.mp.max(this._data.stats.getMaxMp());
   this.mp.value(this._data.mp);
 
-  this.xp.max(1000); // TODO: Real max xp
+  this.xp.max(this._data.stats.getNeedRawExp());
   this.xp.value(this._data.xp);
 };
 
