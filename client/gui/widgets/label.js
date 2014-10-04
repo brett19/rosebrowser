@@ -6,6 +6,10 @@ ui.Label = function(parent, element) {
 
 ui.Label.prototype = Object.create(ui.Widget.prototype);
 
+ui.Label.prototype.clear = function() {
+  this.html('');
+};
+
 ui.Label.prototype.text = function(text) {
   if (text === undefined) {
     return this._element.text();
@@ -20,6 +24,10 @@ ui.Label.prototype.html = function(html) {
   } else {
     this._element.html(html);
   }
+};
+
+ui.Label.prototype.prepend = function(html) {
+  this._element.prepend(html);
 };
 
 ui.Label.prototype.append = function(html) {
