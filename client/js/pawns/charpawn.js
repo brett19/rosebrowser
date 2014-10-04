@@ -129,8 +129,6 @@ function CharPawn(go) {
       self.newDamage(amount);
     });
   }
-
-  this.playDefaultMotion();
 }
 
 /**
@@ -185,6 +183,7 @@ CharPawn.prototype.setGender = function(genderIdx, callback) {
     if (callback) {
       callback();
     }
+    self.playDefaultMotion();
   });
 };
 
