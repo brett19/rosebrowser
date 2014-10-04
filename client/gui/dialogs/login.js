@@ -1,8 +1,8 @@
 ui.LoginDialog = function(template) {
   ui.Dialog.call(this, template);
 
-  this._username = ui.textbox(this, '.username');
-  this._password = ui.textbox(this, '.password');
+  this._username = ui.textbox(this, '.textbox.username');
+  this._password = ui.textbox(this, '.textbox.password');
   this._remember = ui.checkbox(this, '.checkbox.remember');
 
   var username = localStorage.getItem('login_user');

@@ -3,6 +3,7 @@
 ui.GameUI = function(character) {
   this.dialogs    = [];
   this.menu       = ui.menuDialog();
+  this.chatBox    = ui.chatBox();
   this.charStatus = ui.characterStatusDialog(character);
   this.inventory  = ui.inventoryDialog(character.inventory);
   this.questList  = ui.questListDialog(character.quests);
@@ -11,6 +12,7 @@ ui.GameUI = function(character) {
   this.questList.hide();
 
   this.dialogs.push(this.menu);
+  this.dialogs.push(this.chatBox);
   this.dialogs.push(this.charStatus);
   this.dialogs.push(this.inventory);
   this.dialogs.push(this.questList);

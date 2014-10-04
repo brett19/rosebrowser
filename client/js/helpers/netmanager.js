@@ -170,14 +170,32 @@ _NetManager.prototype.watch = function(wn, gn) {
   gn.on('chat_say', function(data) {
     var senderObj = GOM.findByServerObjectIdx(data.senderObjectIdx);
     if (senderObj && senderObj instanceof CharObject) {
-      GCM.addMessage(MSGTYPE.SAY, senderObj.name, senderObj, data.message);
+      GCM.addGameMessage(MSG_TYPE.SAY, data.message, senderObj.name, senderObj);
     }
   });
-  gn.on('chat_whisper', function(data) {
-    GCM.addMessage(MSGTYPE.WHISPER, data.senderName, null, data.message);
-  });
+
   gn.on('chat_shout', function(data) {
-    GCM.addMessage(MSGTYPE.SHOUT, data.senderName, null, data.message);
+    GCM.addGameMessage(MSG_TYPE.SHOUT, data.message, data.senderName);
+  });
+
+  gn.on('chat_whisper', function(data) {
+    GCM.addGameMessage(MSG_TYPE.WHISPER, data.message, data.senderName);
+  });
+
+  gn.on('chat_party', function(data) {
+    GCM.addGameMessage(MSG_TYPE.PARTY, data.message, data.senderName);
+  });
+
+  gn.on('chat_trade', function(data) {
+    GCM.addGameMessage(MSG_TYPE.TRADE, data.message, data.senderName);
+  });
+
+  gn.on('chat_clan', function(data) {
+    GCM.addGameMessage(MSG_TYPE.CLAN, data.message, data.senderName);
+  });
+
+  gn.on('chat_ally', function(data) {
+    GCM.addGameMessage(MSG_TYPE.ALLY, data.message, data.senderName);
   });
 };
 

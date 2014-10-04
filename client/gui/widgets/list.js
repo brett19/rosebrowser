@@ -22,7 +22,7 @@ ui.List.prototype.append = function(item) {
   return item;
 };
 
-ui.List.prototype.index = function(index, noEmit) {
+ui.List.prototype.index = function(index, noClick) {
   if (index === undefined) {
     return this._index;
   } else {
@@ -30,7 +30,7 @@ ui.List.prototype.index = function(index, noEmit) {
     this._element.children('.selected').removeClass('selected');
     this._items[index]._element.addClass('selected');
 
-    if (!noEmit) {
+    if (!noClick) {
       this._items[index].click();
     }
   }
