@@ -21,14 +21,16 @@ ui.ChatBox.prototype._onGameMessage = function(message) {
   html += message.sender.name + '&gt; ';
   html += message.message;
   html += '</div>';
-  this._game._element.append(html);
+  this._game.append(html);
+  this._game.scrollToBottom();
 };
 
 ui.ChatBox.prototype._onSystemMessage = function(message) {
   var html = '<div class="' + GCM.types[message.type].name + '">';
   html += message.message;
   html += '</div>';
-  this._system._element.append(html);
+  this._system.append(html);
+  this._system.scrollToBottom();
 };
 
 ui.ChatBox.prototype._setCategory = function(index) {
