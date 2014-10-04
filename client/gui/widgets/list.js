@@ -28,17 +28,26 @@ ui.List.prototype.index = function(index, noClick) {
   } else {
     this._index = index;
     this._element.children('.selected').removeClass('selected');
-    this._items[index]._element.addClass('selected');
+
+    if (this._items.length > 0) {
+      this._items[index]._element.addClass('selected');
+    } else {
+      index = -1;
+    }
 
     if (!noClick) {
-      this._items[index].click();
+      if (index === -1) {
+        this.emit('itemclicked', index);
+      } else {
+        this._items[index].click();
+      }
     }
   }
 };
 
 ui.List.prototype.clear = function() {
   this._items = [];
-  this._index = 0;
+  this._index = -1;
   this._element.html('');
 };
 
