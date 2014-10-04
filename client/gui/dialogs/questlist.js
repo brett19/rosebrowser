@@ -18,10 +18,20 @@ ui.QuestListDialog = function(template, questData) {
 ui.QuestListDialog.prototype = Object.create(ui.Dialog.prototype);
 
 ui.QuestListDialog.prototype._selectQuest = function(index) {
-  var quest = this._data.quests[index];
   var self = this;
+  var quest = this._data.quests[index];
 
-  GDM.get('list_quest', 'quest_names', function (questData, questString) {
+  this._description.clear();
+
+  for (var i = 0; i < this._items.length; ++i) {
+    this._items[i].clear();
+  }
+
+  if (!quest) {
+    return;
+  }
+
+  GDM.get('list_quest', 'quest_names', 'item_data', function (questData, questString, itemData) {
     var row = questData.row(quest.id);
     var str = questString.getByKey(row[6]);
     var html = '<b>' + str.text + '</b>';
@@ -29,7 +39,17 @@ ui.QuestListDialog.prototype._selectQuest = function(index) {
     html += '<p>' + str.quest1 + '</p>';
     html += '<p>' + str.quest2 + '</p>';
     self._description.html(html);
-    // TODO: Update quest timer and items!
+
+    for (var i = 0, j = 0; i < self._data.items.length; ++i) {
+      var questItem = self._data.items[i];
+
+      if (questItem.quest === quest.id) {
+        var slot = self._items[j++];
+        slot.setItem(questItem.item);
+      }
+    }
+
+    // TODO: Update quest timer
   });
 };
 
