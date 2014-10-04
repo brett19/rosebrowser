@@ -170,7 +170,7 @@ ModelListManager.prototype.createForStatic = function(modelIdx, lightmap, lmIdx,
         partMesh.position.copy(part.position);
         partMesh.quaternion.copy(part.rotation);
         partMesh.scale.copy(part.scale);
-        part.collisionMode = part.collisionMode;
+        partMesh.collisionMode = part.collisionMode;
         partMeshs[partIdx] = partMesh;
 
         if (part.animPath) {
