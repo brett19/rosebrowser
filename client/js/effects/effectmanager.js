@@ -274,13 +274,20 @@ EffectManager._loadMeshAnimation = function(data, callback) {
   // TODO: Remove this once Three.js properly copies the default attribs.
   material.defaultAttributeValues['alpha'] = 1;
 
+  animation.material = material;
+
   Mesh.load(data.meshPath, function(geometry) {
     animation.mesh = new THREE.Mesh(geometry, animation.material);
+    animation.rootObj.add(animation.mesh);
 
     // ROSE, you suck...
     if (data.animationPath && data.animationPath !== 'NULL') {
       AnimationData.load(data.animationPath, function (animData) {
         animation.meshAnimation = new GeometryAnimator(geometry, animData);
+        // If we take a while to load, its possible we've already started.
+        if (animation.state === Effect.STATE.PLAYING) {
+          animation.meshAnimation.play();
+        }
         callback();
       });
     } else {
