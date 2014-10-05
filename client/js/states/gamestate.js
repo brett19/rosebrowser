@@ -7,9 +7,37 @@ function GameState() {
   State.call(this);
 
   this.mcPawnRoot = new THREE.Object3D();
-  this.pickPosH = new THREE.AxisHelper(2);
+
+  this.pickPos = null;
 }
 GameState.prototype = new State();
+
+GameState.prototype._setPickPos = function(pos) {
+  if (this.pickPos) {
+    scene.remove(this.pickPos);
+    this.pickPos = null;
+  }
+
+  var newPickPos = new THREE.Object3D();
+  this.pickPos = newPickPos;
+  EffectManager.loadEffectByIdx(296, function(effect) {
+    if (this.pickPos !== newPickPos) {
+      return;
+    }
+
+    newPickPos.add(effect.rootObj);
+    newPickPos.add(effect.rootObj2);
+
+    effect.on('finish', function() {
+      newPickPos.remove(effect.rootObj);
+      newPickPos.remove(effect.rootObj2);
+    });
+
+    effect.play();
+    newPickPos.position.copy(pos);
+    scene.add(newPickPos);
+  }.bind(this));
+};
 
 GameState.prototype.prepare = function(callback) {
   GDM.get('item_data', 'list_npc', 'list_class', callback);
@@ -65,9 +93,6 @@ GameState.prototype.enter = function() {
   camera.position.set(4, 4, 4);
   this.mcPawnRoot.add(camera);
   scene.add(this.mcPawnRoot);
-
-  this.pickPosH.position.copy(MC.position);
-  scene.add(this.pickPosH);
 
   var controls = new THREE.OrbitControls(camera);
   controls.damping = 0.2;
@@ -125,7 +150,7 @@ GameState.prototype.enter = function() {
       } else if (pickInfo.point) {
         var moveToPos = pickInfo.point;
         GC.moveTo(moveToPos.x, moveToPos.y);
-        self.pickPosH.position.copy(moveToPos);
+        self._setPickPos(moveToPos);
       }
     }
   });
