@@ -112,6 +112,7 @@ function CharPawn(go) {
   this.activeMotions = [];
   this.defaultMotionIdx = -1;
   this.nameTag = null;
+  this.modelParts = [];
 
   if (go) {
     this.owner = go;
@@ -198,35 +199,55 @@ CharPawn.prototype._setModelPart = function(modelList, partIdx, modelIdx, bindBo
   }
 
   var self = this;
+
+  // Remove all previous meshes for this partIdx
+  if (this.modelParts[partIdx]) {
+    for (var i = 0; i < this.modelParts[partIdx].meshes.length; ++i) {
+      var part = this.modelParts[partIdx].meshes[i];
+      part.parent.remove(part);
+    }
+  }
+
+  this.modelParts[partIdx] = {
+    id: modelIdx,
+    meshes: []
+  };
+
   for (var j = 0; j < model.parts.length; ++j) {
     (function(part) {
       var material = modelList._createMaterial(part.materialIdx);
-
       var meshPath = modelList.data.meshes[part.meshIdx];
+
       Mesh.load(meshPath, function (geometry) {
+        var mesh;
+
         if (part.boneIndex !== undefined) {
           bindBone = part.boneIndex;
         }
+
         if (part.dummyIndex !== undefined) {
           bindDummy = part.dummyIndex;
         }
 
         if (bindBone === undefined && bindDummy === undefined) {
-          var charPartMesh = new THREE.SkinnedMesh(geometry, material);
-          charPartMesh.rootObject = self.rootObj;
-          charPartMesh.bind(self.skel);
-          self.rootObj.add(charPartMesh);
+          mesh = new THREE.SkinnedMesh(geometry, material);
+          mesh.rootObject = self.rootObj;
+          mesh.bind(self.skel);
+          self.rootObj.add(mesh);
         } else {
-          var charPartMesh = new THREE.Mesh(geometry, material);
-          charPartMesh.rootObject = self.rootObj;
+          mesh = new THREE.Mesh(geometry, material);
+          mesh.rootObject = self.rootObj;
+
           if (bindBone !== undefined) {
-            self.skel.bones[bindBone].add(charPartMesh);
+            self.skel.bones[bindBone].add(mesh);
           } else if (bindDummy !== undefined) {
-            self.skel.dummies[bindDummy].add(charPartMesh);
+            self.skel.dummies[bindDummy].add(mesh);
           } else {
             console.warn('Loaded part with no bind location');
           }
         }
+
+        self.modelParts[partIdx].meshes.push(mesh);
       });
     })(model.parts[j]);
   }
