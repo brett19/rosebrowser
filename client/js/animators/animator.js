@@ -126,7 +126,7 @@ Animator.prototype.update = (function() {
     }
 
     if (this.currentTime >= endTime || this.currentTime < 0) {
-      if (this.loop > 0) {
+      if (this.loop !== true && this.loop > 0) {
         this.loop--;
       }
       if (this.loop) {
