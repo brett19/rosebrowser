@@ -200,7 +200,7 @@ LoginState.prototype._beginCharSelect = function(charData) {
       console.log('Char', charIdx, charInfo);
 
       var charObj = new CharPawn();
-      charObj.setGender(0, function() {
+      charObj.setGender(charInfo.gender, function() {
         for (var j = 0; j < AVTBODYPART.Max; ++j) {
           charObj.setModelPart(j, charInfo.parts[j].itemNo);
         }
