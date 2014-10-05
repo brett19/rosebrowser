@@ -2,12 +2,11 @@
 
 ui.List = function(element) {
   ui.Widget.call(this, element);
+  this._items = [];
+  this._index = 0;
 };
 
 ui.List.prototype = Object.create(ui.Widget.prototype);
-
-ui.List.prototype._items = [];
-ui.List.prototype._index = 0;
 
 ui.List.prototype.append = function(item) {
   if (!(item instanceof ui.ListItem)) {
@@ -28,6 +27,14 @@ ui.List.prototype.index = function(index, noClick) {
     return this._index;
   } else {
     this._index = index;
+
+    if (index >= this._items.length) {
+      index = this._items.length;
+    }
+
+    if (this._items.length === 0) {
+      index = -1;
+    }
 
     for (var i = 0; i < this._items.length; ++i) {
       this._items[i].selected(i === index);

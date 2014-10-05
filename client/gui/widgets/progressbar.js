@@ -16,14 +16,13 @@ ui.ProgressBar = function(element) {
     this.append(this._absolute);
   }
 
+  this._min = 0;
+  this._max = 100;
+  this._value = 50;
   this._update();
 };
 
 ui.ProgressBar.prototype = Object.create(ui.Widget.prototype);
-
-ui.ProgressBar.prototype._min = 0;
-ui.ProgressBar.prototype._max = 100;
-ui.ProgressBar.prototype._value = 50;
 
 ui.ProgressBar.prototype.min = function(min) {
   if (min === undefined) {

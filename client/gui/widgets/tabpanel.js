@@ -2,12 +2,12 @@
 
 ui.TabPanel = function(element) {
   ui.Widget.call(this, element);
+  this._tabs = [];
+  this._index = 0;
   this._update();
 };
 
 ui.TabPanel.prototype = Object.create(ui.Widget.prototype);
-ui.TabPanel.prototype._tabs = [];
-ui.TabPanel.prototype._index = 0;
 
 ui.TabPanel.prototype._update = function() {
   var buttons = this._element.children('.header').children('.button');

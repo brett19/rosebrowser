@@ -2,12 +2,12 @@
 
 ui.RadioGroup = function(element) {
   ui.Widget.call(this, element);
+  this._buttons = [];
+  this._index = 0;
   this._update();
 };
 
 ui.RadioGroup.prototype = Object.create(ui.Widget.prototype);
-ui.RadioGroup.prototype._buttons = [];
-ui.RadioGroup.prototype._index = 0;
 
 ui.RadioGroup.prototype._update = function() {
   var buttons = this._element.children('.button');
