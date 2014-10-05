@@ -200,18 +200,9 @@ CharPawn.prototype.setGender = function(genderIdx, callback) {
 };
 
 CharPawn.prototype._setModelPart = function(modelList, partIdx, modelIdx, bindBone, bindDummy) {
-  var model = modelList.data.models[modelIdx];
-  if (!model) {
-    // This is only really a warnable offence if not 0
-    if (modelIdx !== 0) {
-      console.warn('Tried to set avatar part to invalid item (' + partIdx + ', ' + modelIdx + ', ' + bindBone + ')');
-    }
-    return;
-  }
-
   var self = this;
 
-  // Remove all previous meshes for this partIdx
+  // Remove old model
   if (this.modelParts[partIdx]) {
     for (var i = 0; i < this.modelParts[partIdx].meshes.length; ++i) {
       var part = this.modelParts[partIdx].meshes[i];
@@ -223,6 +214,16 @@ CharPawn.prototype._setModelPart = function(modelList, partIdx, modelIdx, bindBo
     id: modelIdx,
     meshes: []
   };
+
+  // Add new model
+  var model = modelList.data.models[modelIdx];
+
+  if (!model) {
+    if (modelIdx !== 0) {
+      console.warn('Tried to set avatar part to invalid item (' + partIdx + ', ' + modelIdx + ', ' + bindBone + ')');
+    }
+    return;
+  }
 
   for (var j = 0; j < model.parts.length; ++j) {
     (function(part) {
