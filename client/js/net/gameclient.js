@@ -162,6 +162,13 @@ GameClient.prototype.chatWhisper = function(targetName, message) {
   this.socket.sendPacket(opak);
 };
 
+GameClient.prototype.equipItem = function(slotNo, itemKey) {
+  var opak = new RosePacket(0x7a5);
+  opak.addUint32(slotNo);
+  opak.addUint64(itemKey);
+  this.socket.sendPacket(opak);
+};
+
 /**
  * Little helper to emit packet events that can be logged.
  * @param {string} event
@@ -295,6 +302,18 @@ GameClient._registerHandler(0x716, function(pak, data) {
     data.items.push(pak.readItem());
   }
   this._emitPE('inventory_data', data);
+});
+
+GameClient._registerHandler(0x718, function(pak, data) {
+  var itemCount = pak.readUint8();
+  data.changeItems = [];
+  for (var j = 0; j < itemCount; ++j) {
+    var changeItem = {};
+    changeItem.itemKey = pak.readUint64();
+    changeItem.item = pak.readItem();
+    data.changeItems.push(changeItem);
+  }
+  this._emitPE('inventory_change_items', data);
 });
 
 GameClient._registerHandler(0x79b, function(pak, data) {
@@ -457,6 +476,17 @@ GameClient._registerHandler(0x7ec, function(pak, data) {
   data.recoveryTickMp = pak.readInt32();
   data.forceHpUpdate = pak.readUint8() !== 0;
   this._emitPE('char_hpmp_info', data);
+});
+
+GameClient._registerHandler(0x7a5, function(pak, data) {
+  data.objectIdx = pak.readUint16();
+  data.equipIdx = pak.readUint16();
+  data.partItem = pak.readPartItem();
+  data.attackSpeedBase = pak.readInt16();
+  data.attackSpeed = pak.readInt16();
+  data.runSpeedBase = pak.readInt16();
+  data.runSpeed = pak.readInt16();
+  this._emitPE('char_equip_item', data);
 });
 
 function handleAddChar(pak, data) {

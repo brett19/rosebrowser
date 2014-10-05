@@ -2,7 +2,7 @@
 
 ui.IconSlot = function(element) {
   ui.Widget.call(this, element);
-  this._icon = null;
+  this.clear();
 };
 
 ui.IconSlot.MOVE_Z = 9999;
@@ -16,30 +16,31 @@ ui.IconSlot.prototype.icon = function(icon) {
     this._icon = icon;
     this._update();
   }
-}
+};
+
+ui.IconSlot.prototype.item = function(item) {
+  if (item === undefined) {
+    return this._item;
+  } else {
+    this._item = item;
+    this._update();
+  }
+};
+
+ui.IconSlot.prototype.dragEnabled = function(drag) {
+  if (drag === undefined) {
+    return !this._element.hasClass('nodrag');
+  } else if (drag !== this.dragEnabled){
+    this._element.toggleClass('nodrag');
+  }
+};
 
 ui.IconSlot.prototype.clear = function() {
   this._icon = null;
+  this._tooltip = null;
+  this._item = null;
+  this._skill = null;
   this._update();
-};
-
-ui.IconSlot.prototype.setItem = function(item) {
-  var itemData = GDM.getNow('item_data');
-  var data = itemData.getData(item.itemType, item.itemNo);
-  var name = itemData.getName(item.itemType, item.itemNo);
-  var desc = itemData.getDescription(item.itemType, item.itemNo);
-  var icon = iconManager.getItemIcon(data[9]);
-
-  // TODO: Tooltip generation
-  // TODO: Sockets & gem
-  if (item.itemType === ITEMTYPE.USE ||
-      item.itemType === ITEMTYPE.ETC ||
-      item.itemType === ITEMTYPE.NATURAL ||
-      item.itemType === ITEMTYPE.QUEST) {
-    icon.quantity = item.quantity;
-  }
-
-  this.icon(icon);
 };
 
 ui.IconSlot.prototype.acceptsSkill = function(accept) {
@@ -62,7 +63,15 @@ ui.IconSlot.prototype._onSwap = function(other) {
   this.emit('swap', other);
 };
 
+ui.IconSlot.prototype._onUse = function(downEvent) {
+  this.emit('use');
+};
+
 ui.IconSlot.prototype._onMouseDown = function(downEvent) {
+  if (!this.dragEnabled()) {
+    return;
+  }
+
   var self = this;
   var icon = this._icon._element;
   var offset = icon.offset();
@@ -95,6 +104,7 @@ ui.IconSlot.prototype._onMouseDown = function(downEvent) {
     } else if (target.hasClass('slot') && !target.is(self._element)) {
       var otherClass = target.attr('class');
       var match = otherClass.match(/[a-z\-]*-slot-[0-9]*/);
+
       if (match) {
         self._onSwap(match[0]);
       }
@@ -109,24 +119,52 @@ ui.IconSlot.prototype._onMouseDown = function(downEvent) {
 };
 
 ui.IconSlot.prototype._update = function() {
-  var icon = this._icon;
+  var icon = null;
   this._element.html('');
+
+  if (this._item) {
+    // Generate icon
+    var itemData = GDM.getNow('item_data');
+    var data = itemData.getData(this._item.itemType, this._item.itemNo);
+    var name = itemData.getName(this._item.itemType, this._item.itemNo);
+    var desc = itemData.getDescription(this._item.itemType, this._item.itemNo);
+
+    // Generate icon
+    var icon = iconManager.getItemIcon(data[9]);
+
+    // TODO: Tooltip generation
+    // TODO: Sockets & gem
+    if (this._item.itemType === ITEMTYPE.USE ||
+        this._item.itemType === ITEMTYPE.ETC ||
+        this._item.itemType === ITEMTYPE.NATURAL ||
+        this._item.itemType === ITEMTYPE.QUEST) {
+      icon.quantity = this._item.quantity;
+    }
+
+    // Generate tooltip
+    this._tooltip = '';
+    this._tooltip += '<div class="item name">' + name + '</div>';
+    this._tooltip += '<div class="item name">' + desc + '</div>';
+  }
+
+  this._icon = icon;
 
   if (icon) {
     var html = '<div class="icon" style="';
     html += 'background: url(' + icon.url + '); ';
     html += 'background-position: ' + icon.x + 'px ' + icon.y + 'px; ';
-    html += '"></div>';
+    html += '">';
+
+    if (icon.quantity) {
+      html += '<div class="quantity">' + icon.quantity + '</div>';
+    }
+
+    html += '</div>';
 
     icon._element = $(html);
     icon._element.mousedown(this._onMouseDown.bind(this));
-    icon._element.dblclick(this._onSwap.bind(this, 'equip'));
+    icon._element.dblclick(this._onUse.bind(this));
     this._element.append(icon._element);
-
-    if (icon.quantity) {
-      html = '<div class="quantity">' + icon.quantity + '</div>';
-      this._element.append($(html));
-    }
   }
 };
 

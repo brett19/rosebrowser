@@ -61,6 +61,10 @@ _NetManager.prototype.watch = function(wn, gn) {
     }
   });
 
+  gn.on('inventory_change_items', function(data) {
+    MC.inventory.changeItems(data.changeItems);
+  });
+
   gn.on('quest_log', function(data) {
     MC.quests.setQuests(data.quests);
   });
@@ -273,6 +277,19 @@ _NetManager.prototype.watch = function(wn, gn) {
       case RESULT_QUEST_REPLY_DAILY_RESET:
       default:
         console.warn('Unimplemented quest reply result ' + data.result);
+    }
+  });
+
+  gn.on('char_equip_item', function(data) {
+    var obj = GZM.findByServerObjectIdx(data.objectIdx);
+    if (obj instanceof CharObject) {
+      var pawn = obj.pawn;
+      var index = ITMPARTTOVISPART[data.equipIdx];
+      obj.visParts[index] = data.partItem;
+
+      if (pawn instanceof CharPawn) {
+        pawn.setModelPart(index, data.partItem.itemNo);
+      }
     }
   });
 };

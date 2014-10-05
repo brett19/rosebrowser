@@ -19,6 +19,7 @@ ui.InventoryDialog = function(template, inventory) {
       tab._element.append('<br />');
     }
 
+    slot.on('use', this._useItem.bind(this, id.substr(1)));
     slot.on('swap', this._swapItem.bind(this, id.substr(1)));
     this._inventorySlots.push(slot);
   }
@@ -29,6 +30,7 @@ ui.InventoryDialog = function(template, inventory) {
     var id = '.equip-slot-' + i;
     var slot = ui.iconslot(this._equippedTab, id);
     slot.acceptsItem(true);
+    slot.on('use', this._useItem.bind(this, id.substr(1)));
     slot.on('swap', this._swapItem.bind(this, id.substr(1)));
     this._equipSlots[i] = slot;
   }
@@ -37,6 +39,7 @@ ui.InventoryDialog = function(template, inventory) {
     var id = '.ammo-slot-' + i;
     var slot = ui.iconslot(this._equippedTab, id);
     slot.acceptsItem(true);
+    slot.on('use', this._useItem.bind(this, id.substr(1)));
     slot.on('swap', this._swapItem.bind(this, id.substr(1)));
     this._ammoSlots[i] = slot;
   }
@@ -61,41 +64,91 @@ function getItemLocationFromName(name) {
   }
 }
 
-ui.InventoryDialog.prototype._swapItem = function(src, dst) {
-  if (dst.indexOf('equip') === 0) {
-    var srcLocation = getItemLocationFromName(src);
-    if (srcLocation.location === ITEMLOC.EQUIPPED_EQUIP) {
-      // TODO: Send packet asking to unequip item
-      console.log('unequipItem', src);
-    } else if (srcLocation.location === ITEMLOC.EQUIPPED_EQUIP) {
-      // TODO: Send packet asking to unequip ammo
-      console.log('unequipItem', src);
-    } else if (srcLocation.location === ITEMLOC.INVENTORY) {
-      // TODO: Send packet asking to equip item
-      console.log('equipItem', src);
-    }
-  } else if (dst === 'drop') {
-    console.log('dropItem', src);
-    // TODO: Send packet asking to drop item
-  } else {
-    var srcLocation = getItemLocationFromName(src);
-    var dstLocation = getItemLocationFromName(dst);
+ui.InventoryDialog.prototype._useItem = function(src) {
+  var locInfo = getItemLocationFromName(src);
+  var itemSlot = this._getItemSlot(locInfo.location, locInfo.slot);
+  var item = itemSlot.item();
+  var location = locInfo.location;
 
-    if (srcLocation.location === ITEMLOC.EQUIPPED_EQUIP) {
-      console.log('unequipItem', src);
-      // TODO: Send packet asking to unequip item
-    } else if (srcLocation.location === ITEMLOC.EQUIPPED_AMMO) {
-      console.log('unequipAmmo', src);
-      // TODO: Send packet asking to unequip ammo
-    } else if (srcLocation && dstLocation) {
-      console.log('swapItem', src, dst);
-      var srcSlot = this._getItemSlot(srcLocation.location, srcLocation.slot);
-      var dstSlot = this._getItemSlot(dstLocation.location, dstLocation.slot);
-      var tmp = srcSlot.icon();
-      srcSlot.icon(dstSlot.icon());
-      dstSlot.icon(tmp);
+  // TODO: MOve useItem code to inventorydata?
+
+  if (location === ITEMLOC.EQUIPPED_EQUIP) {
+    netGame.equipItem(ITMTYPETOPART[item.itemType], 0);
+  } else if (location === ITEMLOC.EQUIPPED_AMMO) {
+    // TODO: Unequip ammo
+  } else if (location === ITEMLOC.INVENTORY) {
+    if (ITMTYPETOPART[item.itemType]) {
+      netGame.equipItem(ITMTYPETOPART[item.itemType], item.itemKey);
+    } else if (item.itemType === ITEMTYPE.USE) {
+      // TODO: Use consumable
+    } else if (item.itemType === ITEMTYPE.RIDE_PART) {
+      // TODO: Use ride part
+    }else if (item.itemType === ITEMTYPE.MOUNT) {
+      // TODO: Use mount
     }
   }
+};
+
+ui.InventoryDialog.prototype._swapItem = function(src, dst) {
+  var srcLocInfo = getItemLocationFromName(src);
+  var dstLocInfo = getItemLocationFromName(dst);
+
+  if (!srcLocInfo) {
+    throw new Error('Swap item src invalid');
+    return;
+  }
+
+  var srcLocation = srcLocInfo.location;
+  var srcItemSlot = this._getItemSlot(srcLocInfo.location, srcLocInfo.slot);
+  var srcItem = srcItemSlot.item();
+
+  if (dst === 'drop') {
+    ui.messageBox('Are you sure you want to drop item?', ['YES', 'NO'])
+      .on('closed', function(answer) {
+        if (answer === 'YES') {
+          // TODO: Drop srcItem
+          console.log('dropItem', srcItem);
+        }
+      });
+
+    return;
+  }
+
+  var dstLocInfo = getItemLocationFromName(dst);
+
+  if (!dstLocInfo) {
+    // TODO: Dest is not inventory, could be skillbar...
+    return;
+  }
+
+  var dstLocation = dstLocInfo.location;
+  var dstItemSlot = this._getItemSlot(dstLocInfo.location, dstLocInfo.slot);
+  var dstItem = dstItemSlot.item();
+
+  if (srcLocation === ITEMLOC.EQUIPPED_EQUIP && dstLocation == ITEMLOC.EQUIPPED_EQUIP) {
+    return;
+  }
+
+  if (srcLocation === ITEMLOC.EQUIPPED_EQUIP) {
+    // Unequip srcItem.
+    this._useItem(src);
+    return;
+  }
+
+  if (dstLocation === ITEMLOC.EQUIPPED_EQUIP) {
+    // Equip srcItem
+    this._useItem(src);
+    return;
+  }
+
+  if (srcLocation === ITEMLOC.INVENTORY && dstLocation === ITEMLOC.INVENTORY) {
+    var tmp = dstItemSlot._element.offset();
+    dstItemSlot._element.offset(srcItemSlot._element.offset());
+    srcItemSlot._element.offset(tmp);
+    return;
+  }
+
+  console.warn('Unhandled _swapItems', srcLocation, dstLocation);
 };
 
 ui.InventoryDialog.prototype._getItemSlot = function(location, id) {
@@ -121,13 +174,33 @@ ui.InventoryDialog.prototype._getItemSlot = function(location, id) {
 };
 
 ui.InventoryDialog.prototype._update = function() {
+  // Clear previous
+  for (var i = 0; i < this._inventorySlots.length; ++i) {
+    if (this._inventorySlots[i]) {
+      this._inventorySlots[i].clear();
+    }
+  }
+
+  for (var i = 0; i < this._equipSlots.length; ++i) {
+    if (this._equipSlots[i]) {
+      this._equipSlots[i].clear();
+    }
+  }
+  for (var i = 0; i < this._ammoSlots.length; ++i) {
+    if (this._ammoSlots[i]) {
+      this._ammoSlots[i].clear();
+    }
+  }
+
+  // Set current
   var itemData = GDM.getNow('item_data');
+
   for (var i = 0; i < this._data.items.length; ++i) {
     var item = this._data.items[i];
     var slot = this._getItemSlot(item.location, item.slotNo);
 
     if (slot) {
-      slot.setItem(item);
+      slot.item(item);
     }
   }
 };

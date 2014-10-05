@@ -96,6 +96,19 @@ ITMPARTTOTYPE[INVEQUIPIDX.NECKLACE] = ITEMTYPE.NECKLACE;
 ITMPARTTOTYPE[INVEQUIPIDX.RING] = ITEMTYPE.RING;
 ITMPARTTOTYPE[INVEQUIPIDX.EARRING] = ITEMTYPE.EARRING;
 
+var ITMTYPETOPART = {};
+ITMTYPETOPART[ITEMTYPE.FACE_ITEM] = INVEQUIPIDX.FACE_ITEM;
+ITMTYPETOPART[ITEMTYPE.HELMET] = INVEQUIPIDX.HELMET;
+ITMTYPETOPART[ITEMTYPE.ARMOR] = INVEQUIPIDX.ARMOR;
+ITMTYPETOPART[ITEMTYPE.BACK] = INVEQUIPIDX.BACK;
+ITMTYPETOPART[ITEMTYPE.ARMS] = INVEQUIPIDX.ARMS;
+ITMTYPETOPART[ITEMTYPE.BOOTS] = INVEQUIPIDX.BOOTS;
+ITMTYPETOPART[ITEMTYPE.WEAPON] = INVEQUIPIDX.WEAPON;
+ITMTYPETOPART[ITEMTYPE.SHIELD] = INVEQUIPIDX.SHIELD;
+ITMTYPETOPART[ITEMTYPE.NECKLACE] = INVEQUIPIDX.NECKLACE;
+ITMTYPETOPART[ITEMTYPE.RING] = INVEQUIPIDX.RING;
+ITMTYPETOPART[ITEMTYPE.EARRING] = INVEQUIPIDX.EARRING;
+
 var InventoryData = function() {
   EventEmitter.call(this);
   this.items = [];
@@ -114,9 +127,30 @@ InventoryData.prototype.setItems = function(items) {
   this.emit('changed');
 };
 
+InventoryData.prototype.changeItems = function(changeItems) {
+  for (var i = 0; i < changeItems.length; ++i) {
+    var changeItem = changeItems[i];
+
+    for (var j = 0; j < this.items.length; ++j) {
+      var item = this.items[j]
+
+      if (item.itemKey.lo === changeItem.itemKey.lo &&
+          item.itemKey.hi === changeItem.itemKey.hi) {
+        this.items[j] = changeItem.item;
+      }
+    }
+  }
+  this.emit('changed');
+};
+
 InventoryData.prototype.appendItems = function(items) {
   this.items = this.items.concat(items);
   this.emit('changed');
+};
+
+InventoryData.prototype.findByItemKey = function(itemKey) {
+  for (var i = 0; i < this.items.length; ++i) {
+  }
 };
 
 InventoryData.prototype.findByLocSlot = function(location, slotNo) {
