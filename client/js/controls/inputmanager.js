@@ -24,8 +24,8 @@ function _InputManager() {
   }
 
   addElCapture('mousedown');
-  addElCapture('mouseup');
-  addElCapture('mousemove');
+  addCapture('mouseup');
+  addCapture('mousemove');
   addCapture('keydown');
   addCapture('keyup');
   addElCapture('touchstart');
