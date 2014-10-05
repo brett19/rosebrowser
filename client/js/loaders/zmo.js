@@ -33,17 +33,17 @@ AnimationData.Channel = function(type, index) {
  * @readonly
  */
 AnimationData.CHANNEL_TYPE = {
-  None: 1 << 0,
-  Position: 1 << 1,
-  Rotation: 1 << 2,
-  Normal: 1 << 3,
-  Alpha: 1 << 4,
-  Uv1: 1 << 5,
-  Uv2: 1 << 6,
-  Uv3: 1 << 7,
-  Uv4: 1 << 8,
-  TexAnim: 1 << 9,
-  Scale: 1 << 10
+  None: 1 << 0, // 1
+  Position: 1 << 1, // 2
+  Rotation: 1 << 2, // 4
+  Normal: 1 << 3, // 8
+  Alpha: 1 << 4, // 16
+  Uv1: 1 << 5, // 32
+  Uv2: 1 << 6, // 64
+  Uv3: 1 << 7, // 128
+  Uv4: 1 << 8, // 256
+  TexAnim: 1 << 9, // 512
+  Scale: 1 << 10 // 1024
 };
 
 /**
