@@ -14,6 +14,8 @@ ui.LoginDialog = function(template) {
   this._username.on('returnpressed', this._login.bind(this));
   this._password.on('returnpressed', this._login.bind(this));
   ui.button(this, '.button.submit').on('clicked', this._login.bind(this));
+
+  this.center();
 }
 
 ui.LoginDialog.prototype = Object.create(ui.Dialog.prototype);

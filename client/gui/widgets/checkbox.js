@@ -1,15 +1,11 @@
 'use strict';
 
-ui.Checkbox = function(parent, element) {
-  ui.Widget.call(this, parent, element);
+ui.Checkbox = function(element) {
+  ui.Widget.call(this, element);
   this._element.click(this._onClick.bind(this));
 };
 
 ui.Checkbox.prototype = Object.create(ui.Widget.prototype);
-
-ui.Checkbox.prototype._onClick = function() {
-  this.checked(!this.checked());
-};
 
 ui.Checkbox.prototype.checked = function(value) {
   if (value === undefined) {
@@ -19,10 +15,12 @@ ui.Checkbox.prototype.checked = function(value) {
   }
 };
 
-ui.checkbox = function(parent, element) {
-  if (typeof(element) === 'string') {
-    element = parent._element.find(element);
-  }
-
-  return new ui.Checkbox(parent, element);
+ui.Checkbox.prototype.click = function() {
+  this._element.click();
 };
+
+ui.Checkbox.prototype._onClick = function() {
+  this.checked(!this.checked());
+};
+
+ui.checkbox = ui.widgetConstructor('checkbox', ui.Checkbox);

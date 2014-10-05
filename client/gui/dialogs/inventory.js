@@ -11,7 +11,9 @@ ui.InventoryDialog = function(template, inventory) {
     var id   = '.inventory-slot-' + i;
     var page = Math.floor((i - 1) / 30);
     var tab  = this._inventoryTabs.tab(page);
-    var slot = ui.iconslot(tab, id, ['item']);
+    var slot = ui.iconslot(id);
+    slot.acceptsItem(true);
+    tab.append(slot);
 
     if (i > 0 && (i % 6) === 0) {
       tab._element.append('<br />');
@@ -25,14 +27,16 @@ ui.InventoryDialog = function(template, inventory) {
 
   for (var i = 1; i <= 11; ++i) {
     var id = '.equip-slot-' + i;
-    var slot = ui.iconslot(this._equippedTab, id, ['item']);
+    var slot = ui.iconslot(this._equippedTab, id);
+    slot.acceptsItem(true);
     slot.on('swap', this._swapItem.bind(this, id.substr(1)));
     this._equipSlots[i] = slot;
   }
 
   for (var i = 0; i < 3; ++i) {
     var id = '.ammo-slot-' + i;
-    var slot = ui.iconslot(this._equippedTab, id, ['item']);
+    var slot = ui.iconslot(this._equippedTab, id);
+    slot.acceptsItem(true);
     slot.on('swap', this._swapItem.bind(this, id.substr(1)));
     this._ammoSlots[i] = slot;
   }
@@ -87,9 +91,9 @@ ui.InventoryDialog.prototype._swapItem = function(src, dst) {
       console.log('swapItem', src, dst);
       var srcSlot = this._getItemSlot(srcLocation.location, srcLocation.slot);
       var dstSlot = this._getItemSlot(dstLocation.location, dstLocation.slot);
-      var tmp = srcSlot.getIcon();
-      srcSlot.setIcon(dstSlot.getIcon());
-      dstSlot.setIcon(tmp);
+      var tmp = srcSlot.icon();
+      srcSlot.icon(dstSlot.icon());
+      dstSlot.icon(tmp);
     }
   }
 };

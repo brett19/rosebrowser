@@ -1,7 +1,7 @@
 'use strict';
 
-ui.Textbox = function(parent, element) {
-  ui.Widget.call(this, parent, element);
+ui.Textbox = function(element) {
+  ui.Widget.call(this, element);
   this._element.keypress(this._onKeyDown.bind(this));
 };
 
@@ -21,10 +21,4 @@ ui.Textbox.prototype.text = function(text) {
   }
 };
 
-ui.textbox = function(parent, element) {
-  if (typeof(element) === 'string') {
-    element = parent._element.find(element);
-  }
-
-  return new ui.Textbox(parent, element);
-};
+ui.textbox = ui.widgetConstructor('textbox', ui.Textbox);

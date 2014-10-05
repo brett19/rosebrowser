@@ -1,18 +1,34 @@
 'use strict';
 
-ui.Titlebar = function(parent, element) {
-  ui.Widget.call(this, parent, element);
+ui.Titlebar = function(element) {
+  ui.Widget.call(this, element);
+  this._dialog = this.parent('dialog');
   this._element.mousedown(this._onMouseDown.bind(this));
+
+  if (this._element.hasClass('close')) {
+    this._closeButton = ui.button('.button.close');
+    this._closeButton._element.text('X');
+    this._closeButton.on('clicked', this._dialog.hide.bind(this._dialog));
+    this._closeButton._element.insertAfter(this._element);
+  }
 };
 
 ui.Titlebar.prototype = Object.create(ui.Widget.prototype);
 
+ui.Titlebar.prototype.dragEnabled = function(enabled) {
+  if (enabled === undefined) {
+    return this._element.hasClass('drag');
+  } else if (enabled !== this.dragEnabled()) {
+    this._element.toggleClass('drag');
+  }
+};
+
 ui.Titlebar.prototype._onMouseDown = function(downEvent) {
   var self = this;
-  var offset = self._dialog._element.offset();
-  ui.bringToTop(self._dialog);
+  var offset = this._dialog._element.offset();
+  ui.bringToTop(this._dialog);
 
-  if (this._element.hasClass('nodrag')) {
+  if (!this.dragEnabled()) {
     return;
   }
 
@@ -35,18 +51,4 @@ ui.Titlebar.prototype._onMouseDown = function(downEvent) {
   $(document).on('mouseup', mouseUp);
 };
 
-ui.Titlebar.prototype.setDragEnabled = function(enabled) {
-  this._element.removeClass('nodrag');
-
-  if (enabled) {
-    this._element.addClass('nodrag');
-  }
-};
-
-ui.titlebar = function(parent, element) {
-  if (typeof(element) === 'string') {
-    element = parent._element.find(element);
-  }
-
-  return new ui.Titlebar(parent, element);
-};
+ui.titlebar = ui.widgetConstructor('titlebar', ui.Titlebar);

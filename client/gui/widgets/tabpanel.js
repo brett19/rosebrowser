@@ -1,19 +1,13 @@
 'use strict';
 
-ui.TabPanel = function(parent, element) {
-  ui.Widget.call(this, parent, element);
+ui.TabPanel = function(element) {
+  ui.Widget.call(this, element);
   this._update();
 };
 
 ui.TabPanel.prototype = Object.create(ui.Widget.prototype);
 ui.TabPanel.prototype._tabs = [];
 ui.TabPanel.prototype._index = 0;
-
-ui.Tab = function(parent, element) {
-  ui.Widget.call(this, parent, element);
-};
-
-ui.Tab.prototype = Object.create(ui.Widget.prototype);
 
 ui.TabPanel.prototype._update = function() {
   var buttons = this._element.children('.header').children('.button');
@@ -26,8 +20,8 @@ ui.TabPanel.prototype._update = function() {
   this._tabs = [];
 
   for (var i = 0; i < buttons.length && i < tabs.length; ++i) {
-    var button = ui.button(this, $(buttons[i]));
-    var tab = ui.tab(this, $(tabs[i]));
+    var button = ui.button($(buttons[i]));
+    var tab = ui.tab($(tabs[i]));
 
     button.on('clicked', this.index.bind(this, i));
 
@@ -49,28 +43,21 @@ ui.TabPanel.prototype.index = function(index) {
     return this._index;
   } else {
     for (var i = 0; i < this._tabs.length; ++i) {
-      this._tabs[i].button._element.removeClass('active');
+      this._tabs[i].button.active(false);
       this._tabs[i].tab.hide();
     }
 
     this._index = index;
-    this._tabs[index].button._element.addClass('active');
+    this._tabs[index].button.active(true);
     this._tabs[index].tab.show();
   }
 };
 
-ui.tabpanel = function(parent, element) {
-  if (typeof(element) === 'string') {
-    element = parent._element.find(element);
-  }
-
-  return new ui.TabPanel(parent, element);
+ui.Tab = function(element) {
+  ui.Widget.call(this, element);
 };
 
-ui.tab = function(parent, element) {
-  if (typeof(element) === 'string') {
-    element = parent._element.find(element);
-  }
+ui.Tab.prototype = Object.create(ui.Widget.prototype);
 
-  return new ui.Tab(parent, element);
-};
+ui.tabpanel = ui.widgetConstructor('tabpanel', ui.TabPanel);
+ui.tab = ui.widgetConstructor('tab', ui.Tab);

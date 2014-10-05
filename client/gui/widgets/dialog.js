@@ -1,15 +1,20 @@
 'use strict';
 
 ui.Dialog = function(template) {
-  var element = ui.loadFromTemplate(template);
-  ui.Widget.call(this, this, element);
+  ui.Widget.call(this, ui.loadFromTemplate(template));
   ui.addDialog(this);
 
-  ui.titlebar(this, '.title');
-  ui.button(this, '.close').on('clicked', this.hide.bind(this));
+  this._titleBar = ui.titlebar(this, '.titlebar');
 };
 
 ui.Dialog.prototype = Object.create(ui.Widget.prototype);
+
+ui.Dialog.prototype.center = function() {
+  var width = this._element.width();
+  var height = this._element.height();
+  this._element.css('left', 'calc(50% - ' + Math.floor(width / 2) + 'px)');
+  this._element.css('top', 'calc(50% - ' + Math.floor(height / 2) + 'px)');
+};
 
 ui.Dialog.prototype.show = function() {
   ui.bringToTop(this);

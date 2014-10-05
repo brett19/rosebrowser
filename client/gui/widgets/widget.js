@@ -1,23 +1,14 @@
 'use strict';
 
-ui.Widget = function(parent, element) {
+ui.Widget = function(element) {
   EventEmitter.call(this);
 
+  if (element.length !== 1) {
+    throw new Error('Widget wrapping a jQuery object with .length !== 1');
+  }
+
   this._element = element;
-
-  if (parent === this) {
-    this._parent = null;
-  } else {
-    this._parent = parent;
-  }
-
-  if (parent instanceof ui.Dialog) {
-    this._dialog = parent;
-  } else if (parent instanceof ui.Widget) {
-    this._dialog = parent._dialog;
-  } else {
-    throw new Error('Widget parent must be an instanceof ui.Dialog or ui.Widget');
-  }
+  this._element[0].__widget = this;
 };
 
 ui.Widget.prototype = Object.create(EventEmitter.prototype);
@@ -34,10 +25,26 @@ ui.Widget.prototype.hide = function() {
   this._element.hide();
 };
 
-ui.Widget.prototype.getDialog = function() {
-  if (this._element.hasClass('.dialog')) {
-    return this._element;
+ui.Widget.prototype.parent = function(className) {
+  for (var parent = this._element.parent(); parent.length; parent = parent.parent()) {
+    if (parent[0].__widget) {
+      if (className) {
+        if (parent.hasClass(className)) {
+          return parent[0].__widget;
+        }
+      } else {
+        return parent[0].__widget;
+      }
+    }
+  }
+
+  return null;
+};
+
+ui.Widget.prototype.append = function(widget) {
+  if (widget instanceof ui.Widget) {
+    this._element.append(widget._element);
   } else {
-    return this._element.parents('.dialog');
+    throw new Error('Tried to append non-widget to widget');
   }
 };

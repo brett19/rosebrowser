@@ -1,7 +1,7 @@
 'use strict';
 
-ui.Label = function(parent, element) {
-  ui.Widget.call(this, parent, element);
+ui.Label = function(element) {
+  ui.Widget.call(this, element);
 };
 
 ui.Label.prototype = Object.create(ui.Widget.prototype);
@@ -38,10 +38,4 @@ ui.Label.prototype.scrollToBottom = function() {
   this._element.prop('scrollTop', this._element.prop('scrollHeight'));
 };
 
-ui.label = function(parent, element) {
-  if (typeof(element) === 'string') {
-    element = parent._element.find(element);
-  }
-
-  return new ui.Label(parent, element);
-};
+ui.label = ui.widgetConstructor('label', ui.Label);

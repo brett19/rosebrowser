@@ -1,12 +1,21 @@
 'use strict';
 
-ui.ProgressBar = function(parent, element) {
-  ui.Widget.call(this, parent, element);
+ui.ProgressBar = function(element) {
+  ui.Widget.call(this, element);
 
   this._bar = $('<div class="bar"></div>');
   this._bar.prependTo(this._element);
-  this._percent = ui.label(this, '.percent');
-  this._absolute = ui.label(this, '.absolute');
+
+  if (this._element.hasClass('percent')) {
+    this._percent = ui.label('.label.percent');
+    this.append(this._percent);
+  }
+
+  if (this._element.hasClass('absolute')) {
+    this._absolute = ui.label('.label.absolute');
+    this.append(this._absolute);
+  }
+
   this._update();
 };
 
@@ -46,14 +55,14 @@ ui.ProgressBar.prototype.value = function(value) {
 ui.ProgressBar.prototype._update = function() {
   var percent = 100 * (this._value - this._min) / (this._max - this._min);
   this._bar.css('width', percent + '%');
-  this._percent.text(Math.floor(percent) + '%');
-  this._absolute.text(this._value + ' / ' + this._max);
-};
 
-ui.progressbar = function(parent, element) {
-  if (typeof(element) === 'string') {
-    element = parent._element.find(element);
+  if (this._percent) {
+    this._percent.text(Math.floor(percent) + '%');
   }
 
-  return new ui.ProgressBar(parent, element);
+  if (this._absolute) {
+    this._absolute.text(this._value + ' / ' + this._max);
+  }
 };
+
+ui.progressbar = ui.widgetConstructor('progressbar', ui.ProgressBar);

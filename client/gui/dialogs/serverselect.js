@@ -6,6 +6,7 @@ ui.ServerSelectDialog = function(template, servers) {
 
   this._servers = servers;
   this._update();
+  this.center();
 }
 
 ui.ServerSelectDialog.prototype = Object.create(ui.Dialog.prototype);
@@ -14,7 +15,7 @@ ui.ServerSelectDialog.prototype._update = function() {
   this._serverList.clear();
 
   for (var i = 0; i < this._servers.length; ++i) {
-    var item = $('<div />');
+    var item = ui.listitem();
     item.html(this._servers[i].name);
     this._serverList.append(item);
   }

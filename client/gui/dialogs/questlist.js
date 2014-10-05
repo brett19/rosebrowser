@@ -70,7 +70,8 @@ ui.QuestListDialog.prototype._update = function() {
       if (quest.id > 0) {
         var row = questData.row(quest.id);
         var str = questString.getByKey(row[6]);
-        var item = $('<div>' + str.text + '</div>');
+        var item = ui.listitem();
+        item.text(str.text);
         self._questList.append(item).on('clicked', self._selectQuest.bind(self, i));
       }
     }

@@ -1,7 +1,7 @@
 'use strict';
 
-ui.List = function(parent, element) {
-  ui.Widget.call(this, parent, element);
+ui.List = function(element) {
+  ui.Widget.call(this, element);
 };
 
 ui.List.prototype = Object.create(ui.Widget.prototype);
@@ -11,14 +11,15 @@ ui.List.prototype._index = 0;
 
 ui.List.prototype.append = function(item) {
   if (!(item instanceof ui.ListItem)) {
-    item = ui.listitem(this, item);
+    item = ui.listitem(item);
   }
 
   var index = this._items.length;
-  this._items.push(item);
-  this._element.append(item._element);
   item.on('clicked', this._onItemClicked.bind(this, index));
   item.on('doubleclicked', this._onItemDoubleClicked.bind(this, index));
+
+  this._items.push(item);
+  this._element.append(item._element);
   return item;
 };
 
@@ -27,12 +28,9 @@ ui.List.prototype.index = function(index, noClick) {
     return this._index;
   } else {
     this._index = index;
-    this._element.children('.selected').removeClass('selected');
 
-    if (this._items.length > 0) {
-      this._items[index]._element.addClass('selected');
-    } else {
-      index = -1;
+    for (var i = 0; i < this._items.length; ++i) {
+      this._items[i].selected(i === index);
     }
 
     if (!noClick) {
@@ -61,14 +59,6 @@ ui.List.prototype._onItemDoubleClicked = function(index) {
   this.emit('itemdoubleclicked', index);
 };
 
-ui.list = function(parent, element) {
-  if (typeof(element) === 'string') {
-    element = parent._element.find(element);
-  }
-
-  return new ui.List(parent, element);
-};
-
 ui.ListItem = function(parent, element) {
   ui.Widget.call(this, parent, element);
   this._element.click(this._onClicked.bind(this));
@@ -81,6 +71,22 @@ ui.ListItem.prototype.click = function() {
   this._onClicked();
 };
 
+ui.ListItem.prototype.text = function(text) {
+  this._element.text(text);
+};
+
+ui.ListItem.prototype.html = function(html) {
+  this._element.html(html);
+};
+
+ui.ListItem.prototype.selected = function(selected) {
+  if (selected === undefined) {
+    return this._element.hasClass('selected');
+  } else if (selected !== this.selected()){
+    this._element.toggleClass('selected');
+  }
+};
+
 ui.ListItem.prototype._onClicked = function() {
   this.emit('clicked');
 };
@@ -89,10 +95,5 @@ ui.ListItem.prototype._onDoubleClicked = function() {
   this.emit('doubleclicked');
 };
 
-ui.listitem = function(parent, element) {
-  if (typeof(element) === 'string') {
-    element = parent._element.find(element);
-  }
-
-  return new ui.ListItem(parent, element);
-};
+ui.list = ui.widgetConstructor('list', ui.List);
+ui.listitem = ui.widgetConstructor('listitem', ui.ListItem);

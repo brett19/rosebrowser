@@ -2,8 +2,16 @@
   <div class="label status">Hello world</div>
 </div>
 
+<div id="dlgMessageBox" class="dialog message-box">
+  <div class="panel flex-fill">
+    <div class="label message"></div>
+  </div>
+  <div class="seperator" />
+  <div class="flex-horizontal button-area"></div>
+</div>
+
 <div id="dlgLogin" class="login dialog">
-  <div class="title nodrag">Login</div>
+  <div class="titlebar">Login</div>
   <div class="panel">
     <div class="flex-horizontal">
       <label>Username:</label>
@@ -25,12 +33,12 @@
 </div>
 
 <div id="dlgServerSelect" class="dialog server-select">
-  <div class="title nodrag">Server Select</div>
+  <div class="titlebar">Server Select</div>
   <div class="list servers flex-fill" />
 </div>
 
 <div id="dlgCharacterSelect" class="dialog character-select">
-  <div class="title nodrag">Character Select</div>
+  <div class="titlebar">Character Select</div>
   <div class="list characters flex-fill" />
   <div class="seperator" />
   <div class="button create">Create Character</div>
@@ -41,46 +49,39 @@
 </div>
 
 <div id="dlgCharacterCreate" class="dialog character-create">
-  <div class="title nodrag">Character Create</div>
-
+  <div class="titlebar">Character Create</div>
   <div class="label category">Name</div>
-  <input type="text" class="name" />
+  <input type="text" class="textbox name" />
   <div class="seperator" />
-
   <div class="label category">Gender</div>
   <div class="flex-horizontal">
     <div class="button prev gender">&lt;</div>
-    <div class="label gender flex-fill">Male</div>
+    <div class="label gender flex-fill"></div>
     <div class="button next gender">&gt;</div>
   </div>
   <div class="seperator" />
-
   <div class="label category">Face</div>
   <div class="flex-horizontal">
     <div class="button prev face">&lt;</div>
-    <div class="label face flex-fill">1</div>
+    <div class="label face flex-fill"></div>
     <div class="button next face">&gt;</div>
   </div>
   <div class="seperator" />
-
   <div class="label category">Hair Style</div>
   <div class="flex-horizontal">
     <div class="button prev hair-style">&lt;</div>
-    <div class="label hair-style flex-fill">1</div>
+    <div class="label hair-style flex-fill"></div>
     <div class="button next hair-style">&gt;</div>
   </div>
   <div class="seperator" />
-
   <div class="label category">Hair Color</div>
   <div class="flex-horizontal">
     <div class="button prev hair-color">&lt;</div>
-    <div class="label hair-color flex-fill">Dirty Blonde</div>
+    <div class="label hair-color flex-fill"></div>
     <div class="button next hair-color">&gt;</div>
   </div>
-
   <div class="seperator15" />
   <div class="button create">Create</div>
-
   <div class="seperator" />
   <div class="button cancel">Cancel</div>
 </div>
@@ -93,20 +94,13 @@
 
 <div id="dlgCharacterStatus" class="dialog character-status">
   <div class="label name" />
-  <div class="progressbar health">
-    <div class="label percent">100%</div>
-    <div class="label absolute">75 / 100</div>
-  </div>
-  <div class="progressbar mana">
-    <div class="label percent">100%</div>
-    <div class="label absolute">75 / 100</div>
-  </div>
+  <div class="progressbar health percent absolute"></div>
+  <div class="progressbar mana percent absolute"></div>
   <div class="progressbar exp" />
 </div>
 
 <div id="dlgQuestList" class="dialog quest-list" style="left: 100px; top: 100px;">
-  <div class="title">Quests</div>
-  <div class="close button">X</div>
+  <div class="titlebar drag close">Quests</div>
   <div class="panel flex-horizontal">
     <div class="label count flex-fill">Quests 1 / 10</div>
     <div class="label daily flex-fill">Daily  0 / 15</div>
@@ -139,8 +133,7 @@
 </div>
 
 <div id="dlgInventory" class="dialog inventory" style="top: 200px; left: 200px">
-  <div class="title">Inventory</div>
-  <div class="close button">X</div>
+  <div class="titlebar drag close">Inventory</div>
   <div class="tabpanel page">
     <div class="header">
       <div class="button">Avatar</div>
@@ -192,8 +185,7 @@
 </div>
 
 <div id="dlgNpcChat" class="dialog npcchat">
-  <div class="title">Conversation</div>
-  <div class="close button">X</div>
+  <div class="titlebar drag close">Conversation</div>
   <div class="label message">Message</div>
   <div class="seperator" />
   <div class="list options" />

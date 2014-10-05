@@ -1,7 +1,7 @@
 'use strict';
 
-ui.RadioGroup = function(parent, element) {
-  ui.Widget.call(this, parent, element);
+ui.RadioGroup = function(element) {
+  ui.Widget.call(this, element);
   this._update();
 };
 
@@ -15,7 +15,7 @@ ui.RadioGroup.prototype._update = function() {
   this._buttons = [];
 
   for (var i = 0; i < buttons.length; ++i) {
-    var button = ui.button(this, $(buttons[i]));
+    var button = ui.button($(buttons[i]));
     button.on('clicked', this._onItemClicked.bind(this, i));
     this._buttons.push(button);
   }
@@ -35,11 +35,10 @@ ui.RadioGroup.prototype.index = function(index, noClick) {
     return this._index;
   } else {
     for (var i = 0; i < this._buttons.length; ++i) {
-      this._buttons[i]._element.removeClass('active');
+      this._buttons[i].active(i === index);
     }
 
     this._index = index;
-    this._buttons[index]._element.addClass('active');
 
     if (!noClick) {
       this._buttons[index].click();
@@ -47,10 +46,4 @@ ui.RadioGroup.prototype.index = function(index, noClick) {
   }
 };
 
-ui.radiogroup = function(parent, element) {
-  if (typeof(element) === 'string') {
-    element = parent._element.find(element);
-  }
-
-  return new ui.RadioGroup(parent, element);
-};
+ui.radiogroup = ui.widgetConstructor('radiogroup', ui.RadioGroup);

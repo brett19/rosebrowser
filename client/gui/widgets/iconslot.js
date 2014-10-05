@@ -1,18 +1,22 @@
 'use strict';
 
-ui.IconSlot = function(parent, element, accepts) {
-  ui.Widget.call(this, parent, element);
+ui.IconSlot = function(element) {
+  ui.Widget.call(this, element);
   this._icon = null;
-  this.setAccepts(accepts);
 };
 
 ui.IconSlot.MOVE_Z = 9999;
 
 ui.IconSlot.prototype = Object.create(ui.Widget.prototype);
 
-ui.IconSlot.prototype.getIcon = function(icon) {
-  return this._icon;
-};
+ui.IconSlot.prototype.icon = function(icon) {
+  if (icon === undefined) {
+    return this._icon;
+  } else {
+    this._icon = icon;
+    this._update();
+  }
+}
 
 ui.IconSlot.prototype.clear = function() {
   this._icon = null;
@@ -35,35 +39,22 @@ ui.IconSlot.prototype.setItem = function(item) {
     icon.quantity = item.quantity;
   }
 
-  this.setIcon(icon);
+  this.icon(icon);
 };
 
-ui.IconSlot.prototype.setIcon = function(icon) {
-  this._icon = icon;
-  this._update();
-};
-
-ui.IconSlot.prototype.acceptsSkill = function() {
-  return this._element.hasClass('accepts-skill');
-};
-
-ui.IconSlot.prototype.acceptsItem = function() {
-  return this._element.hasClass('accepts-item');
-};
-
-ui.IconSlot.prototype.setAccepts = function(accepts) {
-  var types = ['item', 'skill'];
-
-  for (var i = 0; i < types.length; ++i) {
-    this._element.removeClass(types[i]);
+ui.IconSlot.prototype.acceptsSkill = function(accept) {
+  if (accept === undefined) {
+    return this._element.hasClass('accepts-skill');
+  } else if (accept !== this.acceptsSkill()){
+    this._element.toggleClass('accepts-skill');
   }
+};
 
-  for (var i = 0; i < accepts.length; ++i) {
-    if (types.indexOf(accepts[i]) === -1) {
-      console.warn('Unknown item slot accepts type ' + accepts[i]);
-    }
-
-    this._element.addClass('accepts-' + accepts[i]);
+ui.IconSlot.prototype.acceptsItem = function(accept) {
+  if (accept === undefined) {
+    return this._element.hasClass('accepts-item');
+  } else if (accept !== this.acceptsItem()){
+    this._element.toggleClass('accepts-item');
   }
 };
 
@@ -139,22 +130,4 @@ ui.IconSlot.prototype._update = function() {
   }
 };
 
-ui.iconslot = function(parent, element, accepts) {
-  accepts = accepts || [];
-
-  if (typeof(element) === 'string') {
-    var id = element;
-    element = parent._element.find(id);
-
-    if (element.length == 0) {
-      element = $('<div class="' + id.substr(1) + ' slot"></div>');
-      element.appendTo(parent._element);
-    }
-
-    if (id[0] === '#') {
-      console.warn('Item slots must use class not id');
-    }
-  }
-
-  return new ui.IconSlot(parent, element, accepts);
-};
+ui.iconslot = ui.widgetConstructor('slot', ui.IconSlot);
