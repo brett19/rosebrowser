@@ -135,9 +135,9 @@ Mesh.loadMesh6 = function(rh) {
   data.vertices = new Float32Array(3 * vertices);
   for (i = 0, idx = 0; i < vertices; i += 1, idx += 3) {
     rh.skip(4);
-    data.vertices[idx    ] = rh.readFloat();
-    data.vertices[idx + 1] = rh.readFloat();
-    data.vertices[idx + 2] = rh.readFloat();
+    data.vertices[idx    ] = rh.readFloat() * ZZ_SCALE_IN;
+    data.vertices[idx + 1] = rh.readFloat() * ZZ_SCALE_IN;
+    data.vertices[idx + 2] = rh.readFloat() * ZZ_SCALE_IN;
   }
 
   if (format & Mesh.FORMAT.NORMAL) {
