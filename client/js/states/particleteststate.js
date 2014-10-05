@@ -24,15 +24,17 @@ ParticleTestState.prototype.spawnBonfire = function() {
 
 ParticleTestState.prototype.fuckingMeteors = function() {
   var rootObj = new THREE.Object3D();
-  var effect;
-  effect = new EffectManager.loadEffect('3Ddata\\EFFECT\\_RUNASTON_01.EFT', function() {
-    effect.play();
-  });
-
-  rootObj.add(effect.rootObj);
-  rootObj.add(effect.rootObj2);
   rootObj.position.set(5200 + (Math.random() * 20) - 10, 5280 + (Math.random() * 20) - 10, -5);
   scene.add(rootObj);
+
+  EffectManager.loadEffect('3Ddata\\EFFECT\\_RUNASTON_01.EFT', function(effect) {
+    rootObj.add(effect.rootObj);
+    rootObj.add(effect.rootObj2);
+    effect.play();
+    effect.on('finish', function() {
+      console.log('EFFECT FINISHED!');
+    });
+  });
 };
 
 ParticleTestState.prototype.enter = function() {

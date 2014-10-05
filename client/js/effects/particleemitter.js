@@ -176,6 +176,15 @@ ParticleEmitter.prototype.createParticle = function()
   return particle;
 };
 
+ParticleEmitter.prototype.deleteAllParticles = function() {
+  for (var i = 0; i < this.particles.length; ++i) {
+    var particle = this.particles[i];
+    this.rootObj.remove(particle.rootObj);
+    this.particleCache.push(particle);
+  }
+  this.particles = [];
+};
+
 ParticleEmitter.prototype.update = function(dt)
 {
   for (var i = 0; i < this.particles.length; ++i) {
@@ -185,8 +194,8 @@ ParticleEmitter.prototype.update = function(dt)
       this.applyEvents(particle);
     } else {
       this.particles.splice(i, 1);
-      this.particleCache.push(particle);
       this.rootObj.remove(particle.rootObj);
+      this.particleCache.push(particle);
       --i;
     }
   }
@@ -221,10 +230,6 @@ ParticleEmitter.prototype.update = function(dt)
     this.createParticle();
   }
 
-  if (!isRunning) {
-    // TODO: Destroy this particle emitter!
-  }
-
   var parentObject = this.rootObj.parent;
 
   switch (this.coordType) {
@@ -241,6 +246,8 @@ ParticleEmitter.prototype.update = function(dt)
     this.rootObj.quaternion.copy(rotate);
     break;
   }
+
+  return isRunning;
 };
 
 /**

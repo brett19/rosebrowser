@@ -3,11 +3,11 @@
 /**
  * @constructor
  */
-var EffectManager = function()
+var _EffectManager = function()
 {
 };
 
-EffectManager._createEmitter = function(data)
+_EffectManager._createEmitter = function(data)
 {
   var emitter = new ParticleEmitter();
 
@@ -122,113 +122,20 @@ EffectManager._createEmitter = function(data)
   return emitter;
 };
 
-/**
- * @constructor
- */
-var Effect = function(rootObj)
-{
-  this.rootObj  = new THREE.Object3D();
-  this.rootObj2 = new THREE.Object3D();
-
-  this.particleEffects = [];
-  this.animations =[];
-};
-
-Effect.prototype.resetBlendWeights = function() {
-  // Needed for THREE.AnimationHandler
-};
-
-Effect.prototype.play = function() {
-  THREE.AnimationHandler.play(this);
-
-  for (var i = 0; i < this.particleEffects.length; ++i) {
-    this.particleEffects[i].play();
-  }
-
-  for (var i = 0; i < this.animations.length; ++i) {
-    this.animations[i].play();
-  }
-};
-
-Effect.prototype.stop = function() {
-  THREE.AnimationHandler.stop(this);
-
-  for (var i = 0; i < this.particleEffects.length; ++i) {
-    this.particleEffects[i].stop();
-  }
-
-  for (var i = 0; i < this.animations.length; ++i) {
-    this.animations[i].stop();
-  }
-};
-
-Effect.prototype.update = function(delta) {
-  for (var i = 0; i < this.particleEffects.length; ++i) {
-    this.particleEffects[i].update(delta);
-  }
-
-  for (var i = 0; i < this.animations.length; ++i) {
-    this.animations[i].update(delta);
-  }
-};
-
-Effect.STATE = {
-  READY_TO_PLAY: 0,
-  PLAYING: 1,
-  STOPPED: 2
-};
-
-/**
- * @constructor
- */
-var ParticleEffect = function()
-{
-  this.rootObj = new THREE.Object3D();
-  this.emitters = [];
-  this.startDelay = 0;
-  this.animation = null;
-  this.state = Effect.STATE.READY_TO_PLAY;
-};
-
-ParticleEffect.prototype.play = function() {
-  // Initialise stuff to play
-};
-
-ParticleEffect.prototype.stop = function() {
-  // Make shit stop
-};
-
-ParticleEffect.prototype.update = function(delta) {
-  if (this.state === Effect.STATE.READY_TO_PLAY) {
-    this.startDelay -= delta;
-
-    if (this.startDelay < 0) {
-      this.state = Effect.STATE.PLAYING;
-
-      if (this.animation) {
-        this.animation.play();
-      }
-
-      delta = -this.startDelay;
-    }
-  }
-
-  if (this.state === Effect.STATE.PLAYING) {
-    for (var i = 0; i < this.emitters.length; ++i) {
-      this.emitters[i].update(delta);
-    }
-  }
-};
-
-EffectManager._loadParticleEffect = function(path, callback) {
-  var effect = new ParticleEffect();
+_EffectManager._loadParticleEffect = function(path, callback) {
+  var effect = new Effect.Particle();
   effect.path = path;
 
   ParticleSystemData.load(path, function(particleSystem) {
     for (var i = 0; i < particleSystem.emitters.length; ++i) {
-      var emitter = EffectManager._createEmitter(particleSystem.emitters[i]);
+      var emitter = _EffectManager._createEmitter(particleSystem.emitters[i]);
       effect.emitters.push(emitter);
-      effect.rootObj.add(emitter.rootObj);
+
+      if (effect.subRootObj) {
+        effect.subRootObj.add(emitter.rootObj);
+      } else {
+        effect.rootObj.add(emitter.rootObj);
+      }
     }
 
     if (callback) {
@@ -239,7 +146,7 @@ EffectManager._loadParticleEffect = function(path, callback) {
   return effect;
 };
 
-EffectManager._loadMeshAnimation = function(data, callback) {
+_EffectManager._loadMeshAnimation = function(data, callback) {
   var animation = new Effect.Animation();
   var texture = TextureManager.load(data.texturePath);
 
@@ -281,13 +188,11 @@ EffectManager._loadMeshAnimation = function(data, callback) {
     animation.rootObj.add(animation.mesh);
 
     // ROSE, you suck...
-    if (data.animationPath && data.animationPath !== 'NULL') {
+    if (data.animationPath) {
       AnimationData.load(data.animationPath, function (animData) {
-        animation.meshAnimation = new GeometryAnimator(geometry, animData);
-        // If we take a while to load, its possible we've already started.
-        if (animation.state === Effect.STATE.PLAYING) {
-          animation.meshAnimation.play();
-        }
+        var meshAnim = new GeometryAnimator(geometry, animData);
+        meshAnim.loop = data.loopCount;
+        animation.meshAnimation = meshAnim;
         callback();
       });
     } else {
@@ -298,110 +203,96 @@ EffectManager._loadMeshAnimation = function(data, callback) {
   return animation;
 };
 
-/**
- * @constructor
- */
-Effect.Animation = function() {
-  this.rootObj = new THREE.Object3D();
-  this.state = Effect.STATE.READY_TO_PLAY;
-  this.startDelay = 0;
-  this.animation = null;
-  this.material = null;
-  this.mesh = null;
-  this.meshAnimation = null;
-};
+_EffectManager._createParticleEffect = function(data, callback) {
+  var waitAll = new MultiWait();
 
-Effect.Animation.prototype.play = function() {
-  // Initialise stuff to play
-};
+  var particle = _EffectManager._loadParticleEffect(data.particlePath, waitAll.one());
 
-Effect.Animation.prototype.stop = function() {
-  // Make shit stop
-};
+  // Set initial properties
+  particle.startDelay = data.delay / 1000;
+  particle.rootObj.position.copy(data.position);
+  particle.rootObj.quaternion.copy(data.rotation);
 
-Effect.Animation.prototype.update = function(delta) {
-  if (this.state === Effect.STATE.READY_TO_PLAY) {
-    this.startDelay -= delta;
+  if (data.animation.enabled) {
+    particle.subRootObj = particle.rootObj;
+    particle.rootObj = new THREE.Object3D();
+    particle.rootObj.add(particle.subRootObj);
 
-    if (this.startDelay < 0) {
-      this.state = Effect.STATE.PLAYING;
-
-      if (this.animation) {
-        this.animation.play();
-      }
-
-      if (this.meshAnimation) {
-        this.meshAnimation.play();
-      }
-
-      delta = -this.startDelay;
-    }
+    AnimationData.load(data.animation.path, function (particleAnimWait, animData) {
+      particle.animation = new ObjectAnimator(particle.rootObj, animData);
+      particle.animation.loop = data.animation.loopCount;
+      particleAnimWait();
+    }.bind(this, waitAll.one()));
   }
 
-  // Check loopCount related shit
+  waitAll.wait(callback);
+
+  return particle;
 };
 
-EffectManager.loadEffectByIdx = function(index, callback) {
+_EffectManager._createMeshAnimation = function(data, callback) {
+  var waitAll = new MultiWait();
+
+  var meshAnimation = _EffectManager._loadMeshAnimation(data, waitAll.one());
+
+  // Set initial properties
+  meshAnimation.startDelay = data.delay / 1000;
+  meshAnimation.rootObj.position.copy(data.position);
+  meshAnimation.rootObj.quaternion.copy(data.rotation);
+
+  if (data.animation.enabled) {
+    meshAnimation.subRootObj = meshAnimation.rootObj;
+    meshAnimation.rootObj = new THREE.Object3D();
+    meshAnimation.rootObj.add(meshAnimation.subRootObj);
+
+    AnimationData.load(data.animation.path, function (meshAnimWait, animData) {
+      meshAnimation.animation = new ObjectAnimator(meshAnimation.rootObj, animData);
+      meshAnimation.loop = data.animation.loopCount;
+      meshAnimWait();
+    }.bind(this, waitAll.one()));
+  }
+
+  waitAll.wait(callback);
+
+  return meshAnimation;
+};
+
+_EffectManager.loadEffectByIdx = function(index, callback) {
   var effect = new Effect();
 
   GDM.get('file_effect', function (effectFileTable) {
     var effectRow = effectFileTable.row(index);
-    EffectManager.loadEffect(effectRow[1], callback, effect);
+    _EffectManager.loadEffect(effectRow[1], callback, effect);
   });
 
   return effect;
 };
 
-EffectManager.loadEffect = function(path, callback, effect) {
-  var waitAll = new MultiWait();
-  var effectWait = waitAll.one();
+_EffectManager.loadEffect = function(path, callback, effect) {
+  if (config.noeffects) {
+    // Don't load effects if they are disabled by configuration.
+    callback(null);
+    return;
+  }
+
   effect = effect || new Effect();
 
   EffectData.load(path, function (effectData) {
-    if (config.noeffects) {
-      // Don't load effects if they are disabled by configuration.
-      return;
-    }
+    var waitAll = new MultiWait();
 
     effect.path = path;
-    effect.loopCount = effectData.loopCount;
-
     effect.rootObj.name = effectData.name + ".rootObj";
     effect.rootObj2.name = effectData.name +  ".rootObj2";
     // TODO: Effect sound - data.soundEnabled, data.soundPath
 
     for (var i = 0; i < effectData.particles.length; ++i) {
       var data = effectData.particles[i];
-      var particle = EffectManager._loadParticleEffect(data.particlePath, waitAll.one());
-
-      // Set initial properties
-      particle.startDelay = data.delay / 1000;
-      particle.rootObj.position.copy(data.position);
-      particle.rootObj.quaternion.copy(data.rotation);
-
-      var particleRoot = particle.rootObj;
-      if (data.animation.enabled) {
-        if (data.animation.name && data.animation.name !== "NULL") {
-          particle.animRootObj = new THREE.Object3D();
-          particle.animRootObj.add(particle.rootObj);
-          particleRoot = particle.animRootObj;
-
-          (function(_particle, _data) {
-            var particleAnimWait = waitAll.one();
-            AnimationData.load(data.animation.name, function (animData)
-            {
-              _particle.animation = new ObjectAnimator(_particle.animRootObj, animData);
-              _particle.animationLoopCount = _data.animation.loopCount;
-              particleAnimWait();
-            });
-          })(particle, data);
-        }
-      }
+      var particle = _EffectManager._createParticleEffect(data, waitAll.one());
 
       if (data.linkRoot) {
-        effect.rootObj.add(particleRoot);
+        effect.rootObj.add(particle.rootObj);
       } else {
-        effect.rootObj2.add(particleRoot);
+        effect.rootObj2.add(particle.rootObj);
       }
 
       effect.particleEffects.push(particle);
@@ -409,13 +300,7 @@ EffectManager.loadEffect = function(path, callback, effect) {
 
     for (var i = 0; i < effectData.animations.length; ++i) {
       var data = effectData.animations[i];
-      var meshAnimation = EffectManager._loadMeshAnimation(data, waitAll.one());
-
-      // Set initial properties
-      meshAnimation.startDelay = data.delay / 1000;
-      meshAnimation.loopCount = data.loopCount;
-      meshAnimation.rootObj.position.copy(data.position);
-      meshAnimation.rootObj.quaternion.copy(data.rotation);
+      var meshAnimation = _EffectManager._createMeshAnimation(data, waitAll.one());
 
       if (data.linkRoot) {
         effect.rootObj.add(meshAnimation.rootObj);
@@ -423,25 +308,14 @@ EffectManager.loadEffect = function(path, callback, effect) {
         effect.rootObj2.add(meshAnimation.rootObj);
       }
 
-      if (data.animation.enabled) {
-        if (data.animation.name && data.animation.name !== "NULL") {
-          (function(_meshAnimation, _data) {
-            var meshAnimationWait = waitAll.one();
-            AnimationData.load(data.animation.name, function (animData) {
-              _meshAnimation.animation = new ObjectAnimator(_meshAnimation.rootObj, animData);
-              _meshAnimation.animationLoopCount = _data.animation.loopCount;
-              meshAnimationWait();
-            });
-          })(meshAnimation, data);
-        }
-      }
-
       effect.animations.push(meshAnimation);
     }
 
-    effectWait();
+    waitAll.wait(function() {
+      callback(effect);
+    });
   });
-
-  waitAll.wait(callback);
-  return effect;
 };
+
+// TODO: Make this newed so everything is consistent
+var EffectManager = _EffectManager;

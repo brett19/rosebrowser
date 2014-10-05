@@ -198,17 +198,18 @@ ModelListManager.prototype.createForStatic = function(modelIdx, lightmap, lmIdx,
        POINT_LIGHT_CONTAINER = 2,
       */
       var effectPath = self.data.effects[effectData.effectIdx];
-      var effect = EffectManager.loadEffect(effectPath);
-      effect.rootObj.position.copy(effectData.position);
-      effect.rootObj.quaternion.copy(effectData.rotation);
-      effect.rootObj.scale.copy(effectData.scale);
-      effect.rootObj.collisionMode = ModelList.Model.Part.COLLISION_MODE.NONE;
-      if (effectData.parent === 0) {
-        modelObj.add(effect.rootObj);
-      } else {
-        partMeshs[effectData.parent - 1].add(effect.rootObj);
-      }
-      effect.play();
+      EffectManager.loadEffect(effectPath, function(effect) {
+        effect.rootObj.position.copy(effectData.position);
+        effect.rootObj.quaternion.copy(effectData.rotation);
+        effect.rootObj.scale.copy(effectData.scale);
+        effect.rootObj.collisionMode = ModelList.Model.Part.COLLISION_MODE.NONE;
+        if (effectData.parent === 0) {
+          modelObj.add(effect.rootObj);
+        } else {
+          partMeshs[effectData.parent - 1].add(effect.rootObj);
+        }
+        effect.play();
+      });
     }
 
     for (var i = 0; i < partMeshs.length; ++i) {

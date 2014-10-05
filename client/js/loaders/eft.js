@@ -105,7 +105,7 @@ EffectData.load = function(path, callback) {
     data.name         = rh.readUint32Str();
     data.soundEnabled = (rh.readUint32() & 0xff) !== 0;
     data.soundPath    = rh.readUint32Str();
-    data.loopCount    = rh.readUint32();
+    data.soundLoopCount    = rh.readUint32();
 
     particles = rh.readUint32();
     for (i = 0; i < particles; ++i) {
@@ -115,7 +115,7 @@ EffectData.load = function(path, callback) {
       particle.stbIndex             = rh.readUint32();
       particle.particlePath         = rh.readUint32Str();
       particle.animation.enabled    = rh.readUint32() !== 0;
-      particle.animation.name       = rh.readUint32Str();
+      particle.animation.path       = rh.readUint32Str();
       particle.animation.loopCount  = rh.readUint32();
       particle.animation.index      = rh.readUint32();
       particle.position             = rh.readVector3();
@@ -124,6 +124,9 @@ EffectData.load = function(path, callback) {
       particle.delay                = rh.readUint32();
       particle.linkRoot             = rh.readUint32() !== 0;
       particle.position.multiplyScalar(ZZ_SCALE_IN);
+      if (!particle.animation.path || particle.animation.path === 'NULL') {
+        particle.animation.enabled = false;
+      }
       data.particles.push(particle);
     }
 
@@ -145,7 +148,7 @@ EffectData.load = function(path, callback) {
       animation.blendDst            = rh.readUint32();
       animation.blendOp             = rh.readUint32();
       animation.animation.enabled   = rh.readUint32() !== 0;
-      animation.animation.name      = rh.readUint32Str();
+      animation.animation.path      = rh.readUint32Str();
       animation.animation.loopCount = rh.readUint32();
       animation.animation.index     = rh.readUint32();
       animation.position            = rh.readVector3();
@@ -155,6 +158,13 @@ EffectData.load = function(path, callback) {
       animation.loopCount           = rh.readUint32();
       animation.linkRoot            = rh.readUint32() !== 0;
       animation.position.multiplyScalar(ZZ_SCALE_IN);
+      if (animation.animationPath === 'NULL') {
+        animation.animationPath = null;
+      }
+      if (!animation.animation.path || animation.animation.path === 'NULL') {
+        animation.animation.path = null;
+        animation.animation.enabled = false;
+      }
       data.animations.push(animation);
     }
 
