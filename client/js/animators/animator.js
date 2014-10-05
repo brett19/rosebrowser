@@ -118,7 +118,17 @@ Animator.prototype.update = (function() {
 
     this.currentTime += delta * this.timeScale;
 
-    if (this.currentTime >= this.length || this.currentTime < 0) {
+    // If this is the last frame, we have to stop at the last frame, rather
+    //   then blending back towards frame 0, remove that time.
+    var endTime = this.length;
+    if (this.loop === 1) {
+      endTime = (this.data.frameCount - 1) / this.data.fps;
+    }
+
+    if (this.currentTime >= endTime || this.currentTime < 0) {
+      if (this.loop > 0) {
+        this.loop--;
+      }
       if (this.loop) {
         this.currentTime %= this.length;
 
@@ -129,6 +139,7 @@ Animator.prototype.update = (function() {
         this.reset();
         this.emit('restart');
       } else {
+        this.currentTime = endTime;
         this.stop();
         this.emit('finish');
         return this.currentTime - this.length;
