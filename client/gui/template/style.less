@@ -15,6 +15,23 @@ body {
   cursor: default;
   z-index: 0;
 
+  .tooltip {
+    .panel;
+    background-color: rgba(30, 30, 30, 0.8);
+    width: 200px;
+    height: 100px;
+    z-index: 999;
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: none;
+    pointer-events: none;
+
+    .name {
+      font-weight: bold;
+    }
+  }
+
   /* Some helper classes */
   .flex-horizontal {
     display: flex;
@@ -567,4 +584,21 @@ body {
       margin-left: 5px;
     }
   }
+}
+
+.generate-item-iconsheets-single-digit(9);
+.generate-item-iconsheets-double-digit(49);
+
+.generate-item-iconsheets-single-digit(@n, @i: 1) when (@i =< @n) {
+  .item-iconsheet-@{i} {
+    background: url('//rbimg.br19.com/ICON0@{i}.png');
+  }
+  .generate-item-iconsheets-single-digit(@n, (@i + 1));
+}
+
+.generate-item-iconsheets-double-digit(@n, @i: 10) when (@i =< @n) {
+  .item-iconsheet-@{i} {
+    background: url('//rbimg.br19.com/ICON@{i}.png');
+  }
+  .generate-item-iconsheets-double-digit(@n, (@i + 1));
 }

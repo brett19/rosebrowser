@@ -1,5 +1,3 @@
-'use strict';
-
 ui.IconSlot = function(element) {
   ui.Widget.call(this, element);
   this.clear();
@@ -8,15 +6,6 @@ ui.IconSlot = function(element) {
 ui.IconSlot.MOVE_Z = 9999;
 
 ui.IconSlot.prototype = Object.create(ui.Widget.prototype);
-
-ui.IconSlot.prototype.icon = function(icon) {
-  if (icon === undefined) {
-    return this._icon;
-  } else {
-    this._icon = icon;
-    this._update();
-  }
-};
 
 ui.IconSlot.prototype.item = function(item) {
   if (item === undefined) {
@@ -36,8 +25,6 @@ ui.IconSlot.prototype.dragEnabled = function(drag) {
 };
 
 ui.IconSlot.prototype.clear = function() {
-  this._icon = null;
-  this._tooltip = null;
   this._item = null;
   this._skill = null;
   this._update();
@@ -67,13 +54,25 @@ ui.IconSlot.prototype._onUse = function(downEvent) {
   this.emit('use');
 };
 
+ui.IconSlot.prototype._onMouseMove = function(moveEvent) {
+  tooltipManager.showTooltip(this._iconTooltip, moveEvent.clientX, moveEvent.clientY);
+};
+
+ui.IconSlot.prototype._onMouseOut = function(outEvent) {
+  tooltipManager.hideTooltip();
+};
+
 ui.IconSlot.prototype._onMouseDown = function(downEvent) {
+  if (downEvent.which !== 1) {
+    return;
+  }
+
   if (!this.dragEnabled()) {
     return;
   }
 
   var self = this;
-  var icon = this._icon._element;
+  var icon = this._iconElement;
   var offset = icon.offset();
   icon.css('z-index', ui.IconSlot.MOVE_Z);
 
@@ -119,52 +118,24 @@ ui.IconSlot.prototype._onMouseDown = function(downEvent) {
 };
 
 ui.IconSlot.prototype._update = function() {
-  var icon = null;
-  this._element.html('');
-
-  if (this._item) {
-    // Generate icon
-    var itemData = GDM.getNow('item_data');
-    var data = itemData.getData(this._item.itemType, this._item.itemNo);
-    var name = itemData.getName(this._item.itemType, this._item.itemNo);
-    var desc = itemData.getDescription(this._item.itemType, this._item.itemNo);
-
-    // Generate icon
-    var icon = iconManager.getItemIcon(data[9]);
-
-    // TODO: Tooltip generation
-    // TODO: Sockets & gem
-    if (this._item.itemType === ITEMTYPE.USE ||
-        this._item.itemType === ITEMTYPE.ETC ||
-        this._item.itemType === ITEMTYPE.NATURAL ||
-        this._item.itemType === ITEMTYPE.QUEST) {
-      icon.quantity = this._item.quantity;
-    }
-
-    // Generate tooltip
-    this._tooltip = '';
-    this._tooltip += '<div class="item name">' + name + '</div>';
-    this._tooltip += '<div class="item name">' + desc + '</div>';
+  if (this._iconElement) {
+    this._iconElement.remove();
   }
 
-  this._icon = icon;
+  this._iconElement = null;
+  this._tooltip = null;
 
-  if (icon) {
-    var html = '<div class="icon" style="';
-    html += 'background: url(' + icon.url + '); ';
-    html += 'background-position: ' + icon.x + 'px ' + icon.y + 'px; ';
-    html += '">';
+  if (this._item) {
+    this._iconElement = iconManager.getItemIcon(this._item);
+    this._iconTooltip = tooltipManager.getItemTooltip(this._item);
+  }
 
-    if (icon.quantity) {
-      html += '<div class="quantity">' + icon.quantity + '</div>';
-    }
-
-    html += '</div>';
-
-    icon._element = $(html);
-    icon._element.mousedown(this._onMouseDown.bind(this));
-    icon._element.dblclick(this._onUse.bind(this));
-    this._element.append(icon._element);
+  if (this._iconElement) {
+    this._iconElement.mousemove(this._onMouseMove.bind(this));
+    this._iconElement.mouseout(this._onMouseOut.bind(this));
+    this._iconElement.mousedown(this._onMouseDown.bind(this));
+    this._iconElement.dblclick(this._onUse.bind(this));
+    this._element.append(this._iconElement);
   }
 };
 
