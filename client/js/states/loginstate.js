@@ -243,6 +243,28 @@ LoginState.prototype._beginCharSelect = function(charData) {
       self._beginCharacterCreate(dialog);
     });
 
+    dialog.on('delete', function() {
+      var charIndex;
+      var charName;
+
+      for (var i = 0; i < self.visChars.length; ++i) {
+        var visChar = self.visChars[i];
+
+        if (visChar.rootObj.visible) {
+          charIndex = i;
+          charName = self.chars[i].name;
+        }
+      }
+
+      if (charName) {
+        var doDelete = self.chars[charIndex].remainTime ? 0 : 1;
+        netWorld.deleteCharacter(charIndex, charName, doDelete, function(data) {
+          self.chars[charIndex].remainTime = data.remainTime;
+          dialog._update();
+        });
+      }
+    });
+
     // Force a selection so the model becomes visible
     dialog.emit('selectionChanged', 0);
   });

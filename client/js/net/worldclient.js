@@ -102,6 +102,25 @@ WorldClient.prototype.selectCharacter = function(charName, callback) {
   });
 };
 
+WorldClient.prototype.deleteCharacter = function(index, name, doDelete, callback) {
+  var opak = new RosePacket(0x714);
+  opak.addUint8(index);
+  opak.addUint8(doDelete);
+  opak.addString(name);
+  this.socket.sendPacket(opak);
+
+  this.son('packet', function(pak) {
+    if (pak.cmd !== 0x714) {
+      return true;
+    }
+
+    var data = {};
+    data.remainTime = pak.readUint32();
+    data.name = pak.readString();
+    callback(data);
+  });
+};
+
 WorldClient.prototype.createCharacter = function(name, gender, face, hairStyle, hairColor, callback) {
   var opak = new RosePacket(0x713);
   opak.addUint8(gender);

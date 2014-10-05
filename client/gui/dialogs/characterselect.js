@@ -18,18 +18,29 @@ ui.CharacterSelectDialog = function(template, characters) {
 ui.CharacterSelectDialog.prototype = Object.create(ui.Dialog.prototype);
 
 ui.CharacterSelectDialog.prototype._update = function() {
+  var prevIndex = Math.max(this._characterList.index(), 0);
+  this._characterList.clear();
+
   for (var i = 0; i < this._characters.length; ++i) {
     var character = this._characters[i];
     var item = ui.listitem();
     var html = '';
     html += '<b>' + character.name + '</b><br />';
     html += 'Level: ' + character.level + '<br />';
-    html += 'Location: ' + character.zoneName;
+
+    if (character.remainTime) {
+      var hours = Math.floor(character.remainTime / 60 / 60);
+      var minutes = Math.floor(character.remainTime / 60) - (hours * 60);
+      html += 'Deleting in ' + hours + 'h ' + minutes + 'm';
+    } else {
+      html += 'Location: ' + character.zoneName;
+    }
+
     item.html(html);
     this._characterList.append(item);
   }
 
-  this._characterList.index(0);
+  this._characterList.index(prevIndex);
 };
 
 ui.CharacterSelectDialog.prototype._changeCharacter = function(index) {
