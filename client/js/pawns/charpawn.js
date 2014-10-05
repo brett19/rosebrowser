@@ -234,7 +234,12 @@ CharPawn.prototype._setModelPart = function(modelList, partIdx, modelIdx, bindBo
 
 CharPawn.prototype.setModelPart = function(partIdx, modelIdx, callback) {
   var self = this;
-  var partType = MAVTPARTTYPES[partIdx];
+  var partType;
+  if (this.gender === 0) {
+    partType = MAVTPARTTYPES[partIdx];
+  } else {
+    partType = FAVTPARTTYPES[partIdx];
+  }
   GDM.get(partType.dataName, function(partModelList) {
     self._setModelPart(partModelList, partIdx, modelIdx,
         partType.boneIdx, partType.dummyIdx);
