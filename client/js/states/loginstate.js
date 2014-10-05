@@ -151,18 +151,26 @@ LoginState.prototype._doneSrvSel = function(serverId) {
 
       netWorld = new WorldClient();
       netWorld.connect(data.worldIp, data.worldPort, data.transferKey1, activePass, function () {
-        waitDialog.setMessage('Connected to World Server;  Downloading characters...');
-
-        netWorld.characterList(function (data) {
-
-          // need list zone to show character select:
-          GDM.get('zone_names', 'list_zone', function() {
-            waitDialog.close();
-
-            self._beginCharSelect(data);
-          });
-        });
+        waitDialog.setMessage('Connected to World Server');
+        self._startCharSelect(waitDialog);
       });
+    });
+  });
+};
+
+LoginState.prototype._startCharSelect = function(waitDialog) {
+  var self = this;
+
+  if (waitDialog === undefined) {
+    waitDialog = ui.statusDialog();
+  }
+
+  waitDialog.setMessage('Downloading characters...');
+
+  netWorld.characterList(function (data) {
+    GDM.get('zone_names', 'list_zone', function() {
+      waitDialog.close();
+      self._beginCharSelect(data);
     });
   });
 };
@@ -179,7 +187,14 @@ LoginState.prototype._beginCharSelect = function(charData) {
   var listZones = GDM.getNow('list_zone');
   var zoneNames = GDM.getNow('zone_names');
 
+  // Remove any previous characters!
+  for (var i = 0; i < this.visChars.length; ++i) {
+    scene.remove(this.visChars[i].rootObj);
+  }
+
+  this.visChars = [];
   this.chars = charData.characters;
+
   for (var i = 0; i < charData.characters.length; ++i) {
     (function(charIdx, charInfo) {
       console.log('Char', charIdx, charInfo);
@@ -209,8 +224,8 @@ LoginState.prototype._beginCharSelect = function(charData) {
   this.playCamAnim('canim_inselect', 1, 8, function() {
     console.log('INSELECT DONE');
 
-    var charSelReq = ui.characterSelectDialog(charData.characters);
-    charSelReq.on('selectionChanged', function(characterIdx) {
+    var dialog = ui.characterSelectDialog(charData.characters);
+    dialog.on('selectionChanged', function(characterIdx) {
       for (var i = 0; i < self.visChars.length; ++i) {
         var visChar = self.visChars[i];
         if (i === characterIdx) {
@@ -220,19 +235,23 @@ LoginState.prototype._beginCharSelect = function(charData) {
         }
       }
     });
-    charSelReq.on('done', self._doneCharSel.bind(self));
-    charSelReq.on('create', function() {
-      charSelReq.hide();
-      self._startCharacterCreate(charSelReq);
+
+    dialog.on('done', self._doneCharSel.bind(self));
+
+    dialog.on('create', function() {
+      dialog.hide();
+      self._beginCharacterCreate(dialog);
     });
 
     // Force a selection so the model becomes visible
-    charSelReq.emit('selectionChanged', 0);
+    dialog.emit('selectionChanged', 0);
   });
 };
 
-LoginState.prototype._startCharacterCreate = function (charSelReq) {
+LoginState.prototype._beginCharacterCreate = function (charSelectDialog) {
+  var self = this;
   var visibleCharacter = null;
+
   // Hide all select characters
   for (var i = 0; i < this.visChars.length; ++i) {
     if (this.visChars[i].rootObj.visible) {
@@ -245,7 +264,11 @@ LoginState.prototype._startCharacterCreate = function (charSelReq) {
   var charObj = new CharPawn();
   charObj.setGender(0, function() {
     for (var j = 0; j < AVTBODYPART.Max; ++j) {
-      charObj.setModelPart(j, 0);
+      if (j === AVTBODYPART.Face || j === AVTBODYPART.Hair) {
+        charObj.setModelPart(j, 1);
+      } else {
+        charObj.setModelPart(j, 0);
+      }
     }
   });
 
@@ -272,16 +295,43 @@ LoginState.prototype._startCharacterCreate = function (charSelReq) {
   dialog.on('change_hair_color', function(color) {
   });
 
-  dialog.on('create', function(name, gender, face, hair, color) {
-    console.log('Create Character', name, gender, face, hair, color);
+  dialog.on('create', function(name, gender, face, hairStyle, hairColor) {
+    netWorld.createCharacter(name, gender, face, hairStyle, hairColor, function(data) {
+      switch (data.result) {
+      case RESULT_CREATE_CHAR_OK:
+        dialog.close();
+        charSelectDialog.close();
+        scene.remove(charObj.rootObj);
+        self._startCharSelect();
+        break;
+      case RESULT_CREATE_CHAR_FAILED:
+        ui.messageBox('Create character failed for unknown reason.');
+        break;
+      case RESULT_CREATE_CHAR_DUP_NAME:
+        ui.messageBox('Character name is already taken.');
+        break;
+      case RESULT_CREATE_CHAR_INVALID_NAME:
+        ui.messageBox('Character name is invalid.');
+        break;
+      case RESULT_CREATE_CHAR_NO_MORE_SLOT:
+        ui.messageBox('No more free character slots available.');
+        break;
+      case RESULT_CREATE_CHAR_BLOCKED:
+        ui.messageBox('Create character is blocked.');
+        break;
+      case RESULT_CREATE_CHAR_NEED_PREMIUM:
+        ui.messageBox('Pay2win');
+        break;
+      }
+    });
   });
 
   dialog.on('cancel', function() {
-    charSelReq.show();
+    charSelectDialog.show();
     scene.remove(charObj.rootObj);
     visibleCharacter.visible = true;
   });
-}
+};
 
 LoginState.prototype._doneCharSel = function(characterName) {
   var waitDialog = ui.statusDialog();

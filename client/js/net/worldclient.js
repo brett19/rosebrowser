@@ -102,4 +102,34 @@ WorldClient.prototype.selectCharacter = function(charName, callback) {
   });
 };
 
+WorldClient.prototype.createCharacter = function(name, gender, face, hairStyle, hairColor, callback) {
+  var opak = new RosePacket(0x713);
+  opak.addUint8(gender);
+  opak.addUint32(hairColor);
+  opak.addUint32(hairStyle);
+  opak.addUint32(face);
+  opak.addUint32(0); // "Weapon Type"
+  opak.addUint32(0); // "Zone No"
+  opak.addString(name);
+  this.socket.sendPacket(opak);
+
+  this.son('packet', function(pak) {
+    if (pak.cmd !== 0x713) {
+      return true;
+    }
+
+    var data = {};
+    data.result = pak.readUint8();
+    callback(data);
+  });
+};
+
+var	RESULT_CREATE_CHAR_OK = 0x00;
+var	RESULT_CREATE_CHAR_FAILED = 0x01;
+var	RESULT_CREATE_CHAR_DUP_NAME = 0x02;
+var	RESULT_CREATE_CHAR_INVALID_NAME = 0x03;
+var	RESULT_CREATE_CHAR_NO_MORE_SLOT = 0x04;
+var	RESULT_CREATE_CHAR_BLOCKED = 0x05;
+var	RESULT_CREATE_CHAR_NEED_PREMIUM = 0x06;
+
 var netWorld = null;
