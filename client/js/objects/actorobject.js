@@ -15,6 +15,10 @@ function ActorObject(type, world) {
 }
 ActorObject.prototype = new GameObject();
 
+ActorObject.prototype.setVisible = function(visible) {
+  this.pawn.rootObj.visible = visible;
+};
+
 ActorObject.prototype._setNextCmd = function(cmd) {
   // We do not enter the newly submitted command immediately from here
   //   to allow callers of this function to assign event handlers for

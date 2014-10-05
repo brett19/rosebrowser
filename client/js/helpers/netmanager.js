@@ -93,17 +93,15 @@ _NetManager.prototype.watch = function(wn, gn) {
   gn.on('spawn_npc', function(data) {
     var npc = new NpcObject(self.world);
     npc.serverObjectIdx = data.objectIdx;
-    if (data.charIdx > 0) {
-      npc.charIdx = data.charIdx;
-    } else {
-      npc.charIdx = -data.charIdx;
-      npc.hidden = true;
-    }
+    npc.charIdx = Math.abs(data.charIdx);
     npc.eventIdx = data.eventIdx;
     npc.stats = new NpcStats(npc);
     npc.setPosition(data.position.x, data.position.y, 10);
     npc.setDirection(data.modelDir / 180 * Math.PI);
     npc.pawn = new NpcPawn(npc);
+    if (data.charIdx < 0) {
+      npc.setVisible(false);
+    }
     if (data.command === OBJECT_COMMAND.MOVE) {
       npc._moveTo(data.posTo.x, data.posTo.y);
     }
@@ -136,15 +134,13 @@ _NetManager.prototype.watch = function(wn, gn) {
   gn.on('spawn_mob', function(data) {
     var mob = new MobObject(self.world);
     mob.serverObjectIdx = data.objectIdx;
-    if (data.charIdx > 0) {
-      mob.charIdx = data.charIdx;
-    } else {
-      mob.charIdx = -data.charIdx;
-      mob.hidden = true;
-    }
+    mob.charIdx = Math.abs(data.charIdx);
     mob.stats = new NpcStats(mob);
     mob.setPosition(data.position.x, data.position.y, 10);
     mob.pawn = new NpcPawn(mob);
+    if (data.charIdx < 0) {
+      mob.setVisible(false);
+    }
     if (data.command === OBJECT_COMMAND.MOVE) {
       mob._moveTo(data.posTo.x, data.posTo.y);
     }
