@@ -54,11 +54,11 @@ GeometryAnimator.prototype._applyChannel = function(index, type, value) {
     attrib.array[index * 3 + 1] = value.y;
     attrib.array[index * 3 + 2] = value.z;
     attrib.needsUpdate = true;
-  } else if (AnimationData.CHANNEL_TYPE.Alpha) {
+  } else if (type === AnimationData.CHANNEL_TYPE.Alpha) {
     var attrib = geom.attributes['alpha'];
     attrib.array[index] = value;
     attrib.needsUpdate = true;
-  } else if (AnimationData.CHANNEL_TYPE.Uv1) {
+  } else if (type === AnimationData.CHANNEL_TYPE.Uv1) {
     var attrib = geom.attributes['uv'];
     attrib.array[index * 2 + 0] = value.x;
     attrib.array[index * 2 + 1] = value.y;
