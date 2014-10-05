@@ -179,11 +179,22 @@ CharPawn.prototype.setGender = function(genderIdx, callback) {
   if (!skelName) {
     throw new Error('Invalid gender specified (' + genderIdx + ')');
   }
+
   GDM.get(skelName, function(skelData) {
     self._setSkeleton(skelData);
+
+    // Reload items
+    for (var i = 0; i < self.modelParts.length; ++i) {
+      if (self.modelParts[i]) {
+        self.setModelPart(i, self.modelParts[i].id);
+      }
+    }
+
     if (callback) {
       callback();
     }
+
+    self.defaultMotionIdx = -1;
     self.playDefaultMotion();
   });
 };
