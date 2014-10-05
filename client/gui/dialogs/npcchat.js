@@ -32,14 +32,15 @@ ui.NpcChatDialog.prototype._update = function() {
 
   for (var id in options) {
     if (options.hasOwnProperty(id)) {
-      var item = $('<div></div>');
+      var item = ui.listitem();
       item.text(index + '. ' + options[id]);
       this._options.append(item).on('clicked', this._selectOption.bind(this, parseInt(id)));
       index++;
     }
   }
 
-  var item = $('<div>0. Close</div>');
+  var item = ui.listitem();
+  item.text('0. Close');
   this._options.append(item).on('clicked', this._selectOption.bind(this, 0));
 };
 
