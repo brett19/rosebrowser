@@ -2,6 +2,7 @@
 
 var TooltipManager = function() {
   this.itemData = null;
+  this.skillData = null;
   this._tooltipElement = null;
   this._disableTooltips = false;
   this._expandTooltips = false;
@@ -48,6 +49,10 @@ TooltipManager.prototype.showTooltip = function(tooltip, x, y) {
 };
 
 TooltipManager.prototype.moveTooltip = function(x, y) {
+  var width = this._tooltipElement.width();
+  var height = this._tooltipElement.height();
+  x = Math.max(0, Math.min(x, window.innerWidth - width));
+  y = Math.max(0, Math.min(y, window.innerHeight - height));
   this._tooltipElement.offset({ left: x, top: y });
 };
 
@@ -81,6 +86,46 @@ TooltipManager.prototype.getItemTooltip = function(item) {
   html = this.addItemDescription(item, html);
   html += '</div>';
   return $(html);
+};
+
+TooltipManager.prototype.getCommandTooltip = function(command) {
+};
+
+TooltipManager.prototype.addSkillName = function(skill, html) {
+  var name = this.skillData.getName(skill.skillIdx);
+  html += '<div class="skill name">'
+  html += name;
+  html += '</div>';
+  return html;
+};
+
+TooltipManager.prototype.addSkillDescription = function(skill, html) {
+  var desc = this.skillData.getDescription(skill.skillIdx);
+  html += '<div class="skill description">'
+  html += desc;
+  html += '</div>';
+  return html;
+};
+
+TooltipManager.prototype.getSkillTooltip = function(skill) {
+  if (!this.skillData) {
+    this.skillData = GDM.getNow('skill_data');
+  }
+
+  var html = '<div>';
+  html = this.addSkillName(skill, html);
+  html = this.addSkillDescription(skill, html);
+  html += '</div>';
+  return $(html);
+};
+
+TooltipManager.prototype.getEmoteTooltip = function(emote) {
+};
+
+TooltipManager.prototype.getDialogTooltip = function(dialog) {
+};
+
+TooltipManager.prototype.getClanSkillTooltip = function(skill) {
 };
 
 var tooltipManager = new TooltipManager();

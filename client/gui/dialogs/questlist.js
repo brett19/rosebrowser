@@ -46,7 +46,7 @@ ui.QuestListDialog.prototype._selectQuest = function(index) {
 
       if (questItem.quest === quest.id) {
         var slot = self._items[j++];
-        slot.item(questItem.item);
+        slot.setItem(questItem.item);
       }
     }
 

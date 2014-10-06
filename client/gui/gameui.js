@@ -7,6 +7,7 @@ ui.GameUI = function(character) {
   this.charStatus = ui.characterStatusDialog(character);
   this.inventory  = ui.inventoryDialog(character.inventory);
   this.questList  = ui.questListDialog(character.quests);
+  this.quickbar   = ui.quickBarDialog(character.hotIcons);
 
   this.inventory.hide();
   this.questList.hide();
@@ -16,6 +17,7 @@ ui.GameUI = function(character) {
   this.dialogs.push(this.charStatus);
   this.dialogs.push(this.inventory);
   this.dialogs.push(this.questList);
+  this.dialogs.push(this.quickbar);
 
   this.menu.on('toggle-inventory', this._toggleInventoryDialog.bind(this));
   this.menu.on('toggle-quest-list', this._toggleQuestListDialog.bind(this));

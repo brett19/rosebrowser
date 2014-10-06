@@ -57,7 +57,17 @@ _NetManager.prototype.watch = function(wn, gn) {
     } else if (data.result === 0x2) {
       MC.inventory.appendItems(data.items);
     } else {
-      console.warn('Received unexpected inventory_data result.')
+      console.warn('Received unexpected inventory_data result.', data.result);
+    }
+  });
+
+  gn.on('skill_data', function(data) {
+    if (data.result === 0x1) {
+      MC.skills.setSkills(data.skills);
+    } else if (data.result === 0x2) {
+      MC.skills.appendSkills(data.skills);
+    } else {
+      console.warn('Received unexpected skill_data result.', data.result);
     }
   });
 

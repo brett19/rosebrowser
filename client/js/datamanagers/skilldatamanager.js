@@ -17,6 +17,11 @@ SkillDataManager.prototype.getName = function(skillNo) {
   return this.strings.getByKey(itemKey).text;
 };
 
+SkillDataManager.prototype.getDescription = function(skillNo) {
+  var itemKey = this.data.item(skillNo, this.data.columnCount - 1);
+  return this.strings.getByKey(itemKey).comment;
+};
+
 /**
  * Load helper so the ItemDataManager can be controlled by the GDM.
  *

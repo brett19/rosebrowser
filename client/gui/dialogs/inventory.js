@@ -67,7 +67,7 @@ function getItemLocationFromName(name) {
 ui.InventoryDialog.prototype._useItem = function(src) {
   var locInfo = getItemLocationFromName(src);
   var itemSlot = this._getItemSlot(locInfo.location, locInfo.slot);
-  var item = itemSlot.item();
+  var item = itemSlot.icon();
   var location = locInfo.location;
 
   // TODO: MOve useItem code to inventorydata?
@@ -100,7 +100,7 @@ ui.InventoryDialog.prototype._swapItem = function(src, dst) {
 
   var srcLocation = srcLocInfo.location;
   var srcItemSlot = this._getItemSlot(srcLocInfo.location, srcLocInfo.slot);
-  var srcItem = srcItemSlot.item();
+  var srcItem = srcItemSlot.icon();
 
   if (dst === 'drop') {
     ui.messageBox('Are you sure you want to drop item?', ['YES', 'NO'])
@@ -123,7 +123,7 @@ ui.InventoryDialog.prototype._swapItem = function(src, dst) {
 
   var dstLocation = dstLocInfo.location;
   var dstItemSlot = this._getItemSlot(dstLocInfo.location, dstLocInfo.slot);
-  var dstItem = dstItemSlot.item();
+  var dstItem = dstItemSlot.icon();
 
   if (srcLocation === ITEMLOC.EQUIPPED_EQUIP && dstLocation == ITEMLOC.EQUIPPED_EQUIP) {
     return;
@@ -200,7 +200,7 @@ ui.InventoryDialog.prototype._update = function() {
     var slot = this._getItemSlot(item.location, item.slotNo);
 
     if (slot) {
-      slot.item(item);
+      slot.setItem(item);
     }
   }
 };

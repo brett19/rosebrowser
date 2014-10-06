@@ -1,19 +1,74 @@
+
 ui.IconSlot = function(element) {
   ui.Widget.call(this, element);
+  this._type = HOT_ICON_TYPE.EMPTY;
+  this._object = null;
+  this._icon = null;
+  this._tooltip = null;
   this.clear();
 };
 
+ui.IconSlot.prototype = Object.create(ui.Widget.prototype);
 ui.IconSlot.MOVE_Z = 9999;
 
-ui.IconSlot.prototype = Object.create(ui.Widget.prototype);
-
-ui.IconSlot.prototype.item = function(item) {
-  if (item === undefined) {
-    return this._item;
+ui.IconSlot.prototype.type = function(type) {
+  if (type === undefined) {
+    return this._type;
   } else {
-    this._item = item;
+    this._type = type;
     this._update();
   }
+};
+
+ui.IconSlot.prototype.icon = function(object) {
+  if (object === undefined) {
+    return this._object;
+  } else {
+    this._object = object;
+    this._update();
+  }
+};
+
+ui.IconSlot.prototype.setIcon = function(type, icon) {
+  this._type = type;
+  this._object = icon;
+  this._update();
+};
+
+ui.IconSlot.prototype.setItem = function(item) {
+  this._type = HOT_ICON_TYPE.ITEM;
+  this._object = item;
+  this._update();
+};
+
+ui.IconSlot.prototype.setCommand = function(command) {
+  this._type = HOT_ICON_TYPE.COMMAND;
+  this._object = command;
+  this._update();
+};
+
+ui.IconSlot.prototype.setSkill = function(skill) {
+  this._type = HOT_ICON_TYPE.SKILL;
+  this._object = skill;
+  this._update();
+};
+
+ui.IconSlot.prototype.setEmote = function(emote) {
+  this._type = HOT_ICON_TYPE.EMOTE;
+  this._object = emote;
+  this._update();
+};
+
+ui.IconSlot.prototype.setDialog = function(dialog) {
+  this._type = HOT_ICON_TYPE.DIALOG;
+  this._object = dialog;
+  this._update();
+};
+
+ui.IconSlot.prototype.setClanSkill = function(skill) {
+  this._type = HOT_ICON_TYPE.CLAN_SKILL;
+  this._object = skill;
+  this._update();
 };
 
 ui.IconSlot.prototype.dragEnabled = function(drag) {
@@ -55,7 +110,7 @@ ui.IconSlot.prototype._onUse = function(downEvent) {
 };
 
 ui.IconSlot.prototype._onMouseMove = function(moveEvent) {
-  tooltipManager.showTooltip(this._iconTooltip, moveEvent.clientX, moveEvent.clientY);
+  tooltipManager.showTooltip(this._tooltip, moveEvent.clientX, moveEvent.clientY);
 };
 
 ui.IconSlot.prototype._onMouseOut = function(outEvent) {
@@ -72,23 +127,22 @@ ui.IconSlot.prototype._onMouseDown = function(downEvent) {
   }
 
   var self = this;
-  var icon = this._iconElement;
-  var offset = icon.offset();
-  icon.css('z-index', ui.IconSlot.MOVE_Z);
+  var offset = self._icon.offset();
+  self._icon.css('z-index', ui.IconSlot.MOVE_Z);
 
   function mouseMove(moveEvent) {
-    icon.offset({
+    self._icon.offset({
       left: moveEvent.pageX - downEvent.pageX + offset.left,
       top: moveEvent.pageY - downEvent.pageY + offset.top
     });
   };
 
   function mouseUp(upEvent) {
-    icon.hide();
+    self._icon.hide();
     var target = $(document.elementFromPoint(upEvent.clientX, upEvent.clientY));
-    icon.css('z-index', '');
-    icon.show();
-    icon.offset(offset);
+    self._icon.css('z-index', '');
+    self._icon.show();
+    self._icon.offset(offset);
 
     if (!target.hasClass('slot')) {
       var parent = target.parent();
@@ -118,24 +172,46 @@ ui.IconSlot.prototype._onMouseDown = function(downEvent) {
 };
 
 ui.IconSlot.prototype._update = function() {
-  if (this._iconElement) {
-    this._iconElement.remove();
+  if (this._icon) {
+    this._icon.remove();
   }
 
-  this._iconElement = null;
+  this._icon = null;
   this._tooltip = null;
 
-  if (this._item) {
-    this._iconElement = iconManager.getItemIcon(this._item);
-    this._iconTooltip = tooltipManager.getItemTooltip(this._item);
+  switch (this._type) {
+  case HOT_ICON_TYPE.ITEM:
+    this._icon = iconManager.getItemIcon(this._object);
+    this._tooltip = tooltipManager.getItemTooltip(this._object);
+    break;
+  case HOT_ICON_TYPE.COMMAND:
+    this._icon = iconManager.getCommandIcon(this._object);
+    this._tooltip = tooltipManager.getCommandTooltip(this._object);
+    break;
+  case HOT_ICON_TYPE.SKILL:
+    this._icon = iconManager.getSkillIcon(this._object);
+    this._tooltip = tooltipManager.getSkillTooltip(this._object);
+    break;
+  case HOT_ICON_TYPE.EMOTE:
+    this._icon = iconManager.getEmoteIcon(this._object);
+    this._tooltip = tooltipManager.getEmoteTooltip(this._object);
+    break;
+  case HOT_ICON_TYPE.DIALOG:
+    this._icon = iconManager.getDialogIcon(this._object);
+    this._tooltip = tooltipManager.getDialogTooltip(this._object);
+    break;
+  case HOT_ICON_TYPE.CLAN_SKILL:
+    this._icon = iconManager.getClanSkillIcon(this._object);
+    this._tooltip = tooltipManager.getClanSkillTooltip(this._object);
+    break;
   }
 
-  if (this._iconElement) {
-    this._iconElement.mousemove(this._onMouseMove.bind(this));
-    this._iconElement.mouseout(this._onMouseOut.bind(this));
-    this._iconElement.mousedown(this._onMouseDown.bind(this));
-    this._iconElement.dblclick(this._onUse.bind(this));
-    this._element.append(this._iconElement);
+  if (this._icon) {
+    this._icon.mousemove(this._onMouseMove.bind(this));
+    this._icon.mouseout(this._onMouseOut.bind(this));
+    this._icon.mousedown(this._onMouseDown.bind(this));
+    this._icon.dblclick(this._onUse.bind(this));
+    this._element.append(this._icon);
   }
 };
 

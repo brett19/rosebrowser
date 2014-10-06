@@ -150,15 +150,39 @@ InventoryData.prototype.appendItems = function(items) {
 
 InventoryData.prototype.findByItemKey = function(itemKey) {
   for (var i = 0; i < this.items.length; ++i) {
+    var item = this.items[i];
+
+    if (item.itemKey.lo === itemKey.lo &&
+        item.itemKey.hi === itemKey.hi) {
+      return item;
+    }
+  }
+
+  return null;
+};
+
+InventoryData.prototype.findBySlot = function(slotNo) {
+  if (slotNo < INVEQUIPIDX.MAX) {
+    return this.findByLocSlot(ITEMLOC.EQUIPPED_EQUIP, slotNo);
+  } else if (slotNo < INVEQUIPIDX.MAX + 120) {
+    return this.findByLocSlot(ITEMLOC.INVENTORY, slotNo - INVEQUIPIDX.MAX);
+  } else if (slotNo < INVEQUIPIDX.MAX + 120 + 3) {
+    return this.findByLocSlot(ITEMLOC.EQUIPPED_AMMO, slotNo - INVEQUIPIDX.MAX - 120);
+  } else if (slotNo < INVEQUIPIDX.MAX + 120 + 3 + 5) {
+    return this.findByLocSlot(ITEMLOC.EQUIPPED_PAT, slotNo - INVEQUIPIDX.MAX - 120 - 3);
+  } else {
+    throw new Error('Find by slot ' + slotNo);
   }
 };
 
 InventoryData.prototype.findByLocSlot = function(location, slotNo) {
   for (var i = 0; i < this.items.length; ++i) {
     var item = this.items[i];
+
     if (item.location === location && item.slotNo === slotNo) {
       return item;
     }
   }
+
   return null;
 };

@@ -17,6 +17,8 @@ PreGameState.prototype.enter = function() {
     MC = new MyCharacter();
     MC.inventory = new InventoryData();
     MC.quests = new QuestData();
+    MC.hotIcons = new HotIcons();
+    MC.skills = new SkillData();
 
     MC.name = charData.name;
     MC.gender = charData.gender;
@@ -62,7 +64,9 @@ PreGameState.prototype.enter = function() {
 
     // TODO: charData.currency
     // TODO: charData.maintainStatus
-    // TODO: charData.hotIcons
+
+    MC.hotIcons.setIcons(charData.hotIcons);
+
     // TODO: charData.coolTime
 
     netGame.once('preload_char', function(data) {

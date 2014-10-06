@@ -18,8 +18,7 @@ body {
   .tooltip {
     .panel;
     background-color: rgba(30, 30, 30, 0.8);
-    width: 200px;
-    height: 100px;
+    width: 250px;
     z-index: 999;
     position: absolute;
     left: 0;
@@ -383,8 +382,8 @@ body {
 
   /* dlgMenu */
   .dialog.menu {
-    right: 30px;
-    bottom: 30px;
+    right: 10px;
+    bottom: 10px;
     width: 100px;
   }
 
@@ -497,6 +496,12 @@ body {
     }
   }
 
+  /* dlgQuickBar */
+  .dialog.quickbar {
+    .flex-horizontal;
+    bottom: 10px;
+  }
+
   /* dlgChatBox */
   .dialog.chatbox {
     width: 450px;
@@ -601,4 +606,13 @@ body {
     background: url('//rbimg.br19.com/ICON@{i}.png');
   }
   .generate-item-iconsheets-double-digit(@n, (@i + 1));
+}
+
+.generate-skill-iconsheets-single-digit(9);
+
+.generate-skill-iconsheets-single-digit(@n, @i: 1) when (@i =< @n) {
+  .skill-iconsheet-@{i} {
+    background: url('//rbimg.br19.com/SKILL0@{i}.png');
+  }
+  .generate-skill-iconsheets-single-digit(@n, (@i + 1));
 }
