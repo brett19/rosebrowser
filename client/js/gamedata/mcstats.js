@@ -99,6 +99,13 @@ McStats.prototype.getMaxMp = function() {
   return Math.floor((level + iA) * fM1 + (this.int * fM2));
 };
 
+McStats.prototype.getCritical = function() {
+  var level = this.object.level;
+  var baseValue = 190 + (level * 10);
+
+  return Math.floor(this.sen + this.con * 0.2);
+};
+
 McStats.prototype.getAttackSpeed = function() {
   // TODO: Implement this properly!
   return 100;
