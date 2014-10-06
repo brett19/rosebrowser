@@ -97,20 +97,20 @@ MapManager.prototype.removeFromScene = function() {
 };
 
 // Returns the closest picked object.
-MapManager.prototype.rayPick = function(rayCaster) {
-  function __descSort( a, b ) {
-    return a.distance - b.distance;
-  };
-  function __rayIntersect(object, raycaster, intersects) {
-    if (object.collisionMode === ModelList.Model.Part.COLLISION_MODE.NONE) {
-      return;
-    }
-    object.raycast( raycaster, intersects );
-    var children = object.children;
-    for ( var i = 0, l = children.length; i < l; i ++ ) {
-      __rayIntersect( children[i], raycaster, intersects );
-    }
+function __descSort( a, b ) {
+  return a.distance - b.distance;
+}
+function __rayIntersect(object, raycaster, intersects) {
+  if (object.collisionMode === ModelList.Model.Part.COLLISION_MODE.NONE) {
+    return;
   }
+  object.raycast( raycaster, intersects );
+  var children = object.children;
+  for ( var i = 0, l = children.length; i < l; i ++ ) {
+    __rayIntersect( children[i], raycaster, intersects );
+  }
+}
+MapManager.prototype.rayPick = function(rayCaster) {
   var intersects = [];
   for (var i = 0; i < this.colObjects.length; ++i) {
     __rayIntersect(this.colObjects[i], rayCaster, intersects);
