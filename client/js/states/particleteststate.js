@@ -37,11 +37,27 @@ ParticleTestState.prototype.fuckingMeteors = function() {
   });
 };
 
+ParticleTestState.prototype.fuckingPointer = function() {
+  var rootObj = new THREE.Object3D();
+  rootObj.position.set(5200 + (Math.random() * 20) - 10, 5280 + (Math.random() * 20) - 10, -5);
+  scene.add(rootObj);
+
+  EffectManager.loadEffectByIdx(296, function(effect) {
+    rootObj.add(effect.rootObj);
+    rootObj.add(effect.rootObj2);
+    effect.play();
+    effect.on('finish', function() {
+      console.log('EFFECT FINISHED!');
+    });
+  });
+};
+
 ParticleTestState.prototype.enter = function() {
   var self = this;
 
   debugGui.add(this, 'spawnBonfire');
   debugGui.add(this, 'fuckingMeteors');
+  debugGui.add(this, 'fuckingPointer');
 
   var container = document.createElement( 'div' );
   document.body.appendChild( container );
