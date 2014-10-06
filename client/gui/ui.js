@@ -72,7 +72,7 @@ ui._getWidgetElement = function(type, arg1, arg2) {
     element = $('<div class="' + type + '" />');
   }
 
-  if (element.length === 0) {
+  if (element instanceof jQuery && element.length === 0) {
     element = null;
   }
 
