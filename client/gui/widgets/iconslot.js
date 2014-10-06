@@ -29,6 +29,12 @@ ui.IconSlot.prototype.icon = function(object) {
   }
 };
 
+ui.IconSlot.prototype.clear = function() {
+  this._type = HOT_ICON_TYPE.EMPTY;
+  this._object = null;
+  this._update();
+};
+
 ui.IconSlot.prototype.setIcon = function(type, icon) {
   this._type = type;
   this._object = icon;
@@ -77,12 +83,6 @@ ui.IconSlot.prototype.dragEnabled = function(drag) {
   } else if (drag !== this.dragEnabled){
     this._element.toggleClass('nodrag');
   }
-};
-
-ui.IconSlot.prototype.clear = function() {
-  this._item = null;
-  this._skill = null;
-  this._update();
 };
 
 ui.IconSlot.prototype.acceptsSkill = function(accept) {
