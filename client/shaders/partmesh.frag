@@ -7,6 +7,6 @@ void main() {
   #ifdef ALPHATEST
   if ( color.a < ALPHATEST ) discard;
   #endif
-  color.rgb *= fAlpha;
+  color *= fAlpha;
   gl_FragColor = color;
 }
