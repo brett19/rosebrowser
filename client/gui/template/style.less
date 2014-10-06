@@ -54,6 +54,14 @@ body {
     flex: 1;
   }
 
+  .flex-fill-1 {
+    flex: 2;
+  }
+
+  .flex-fill-2 {
+    flex: 2;
+  }
+
   .seperator {
     clear: both;
     margin-bottom: 5px;
@@ -433,24 +441,88 @@ body {
         rgba(150, 150, 100, 0.4) 90%,
         rgba(0, 0, 0, .5) 10%);
     }
-
-    .progressbar.health > .bar {
-      background: rgba(255, 0, 0, 0.5);
-    }
-
-    .progressbar.mana > .bar {
-      background: rgba(0, 0, 255, 0.5);
-    }
-
-    .progressbar.exp > .bar {
-      background: rgba(200, 200, 0, 0.45);
-    }
   }
 
   /* dlgCharacter */
   .dialog.character {
-    width: 500px;
-    min-height: 150px;
+    top: 100px;
+    left: 500px;
+
+    .stat-row {
+      .flex-horizontal;
+      .flex-center;
+    }
+
+    .stat-column {
+      margin-right: 5px;
+
+      &:last-child {
+        margin-right: 0px;
+      }
+    }
+
+    .stat {
+      .flex-horizontal;
+      .flex-center;
+      margin-bottom: 2px;
+
+      .value {
+        .flex-fill;
+        background-color: rgba(40, 40, 40, 0.5);
+        border-radius: 4px;
+        text-align: center;
+        height: 1.3em;
+      }
+
+      .label.cost {
+        min-width: 20px;
+        margin-right: 5px;
+        text-align: right;
+      }
+
+      .button.levelup {
+        min-width: 20px;
+        height: 20px;
+        margin-right: 5px;
+      }
+
+      .progressbar {
+        .flex-fill;
+        height: 1.5em !important;
+      }
+    }
+
+    .stat-row.long-stats {
+      align-items: baseline;
+
+      .stat-column {
+        min-width: 160px;
+
+        &:first-child {
+          min-width: 140px;
+        }
+
+        .stat {
+          .type {
+            min-width: 100px;
+          }
+        }
+      }
+    }
+
+    .stat.level, .stat.job, .stat.clan,
+    .stat.health, .stat.mana, .stat.exp {
+      .type {
+        min-width: 35px !important;
+      }
+    }
+
+    .stat.strength, .stat.dexterity, .stat.intelligence,
+    .stat.concentration, .stat.charm, .stat.sense {
+      .type {
+        min-width: 35px !important;
+      }
+    }
   }
 
   /* dlgQuestList */

@@ -134,49 +134,176 @@
   </div>
 </div>
 
-<div id="dlgCharacter" class="dialog character" style="top: 100px; left: 500px">
+<div id="dlgCharacter" class="dialog character">
     <div class="titlebar drag close">Character</div>
     <div class="flex-horizontal">
-        <div class="flex-fill">
-            <div class="flex-horizontal">
-                <div class="flex-fill">Level: <span class="label level">0</span></div>
-                <div class="flex-fill">Job: <span class="label job">0</span></div>
+      <div class="flex-fill" style="margin-right: 5px">
+          <div class="stat-row">
+            <div class="stat-column" style="min-width: 90px">
+              <div class="stat level">
+                <div class="type">Level</div>
+                <div class="label value" />
+              </div>
             </div>
-            <div>
-                Clan: <span class="label clan">0</span><br />
-                <span class="label str-sp">0</span> - STR: <span class="label str">0</span><br />
-                <span class="label dex-sp">0</span> - DEX: <span class="label dex">0</span><br />
-                <span class="label int-sp">0</span> - INT: <span class="label int">0</span><br />
-                <span class="label con-sp">0</span> - CON: <span class="label con">0</span><br />
-                <span class="label cha-sp">0</span> - CHA: <span class="label cha">0</span><br />
-                <span class="label sen-sp">0</span> - SEN: <span class="label sen">0</span><br />
+            <div class="stat-column" style="flex: 2">
+              <div class="stat job flex-fill">
+                <div class="type">Job</div>
+                <div class="label value" />
+              </div>
+            </div>
+          </div>
+          <div class="stat clan">
+            <div class="type">Clan</div>
+            <div class="label value" />
+          </div>
+          <div class="stat health">
+            <div class="type">HP</div>
+            <div class="progressbar value health absolute" />
+          </div>
+          <div class="stat mana">
+            <div class="type">MP</div>
+            <div class="progressbar value mana absolute" />
+          </div>
+          <div class="stat exp">
+            <div class="type">EXP</div>
+            <div class="progressbar value exp absolute" />
+          </div>
+      </div>
+      <div class="flex-fill">
+        TODO: Currency.
+      </div>
+    </div>
+    <div class="seperator" />
+    <div class="stat-row long-stats">
+        <div class="stat-column flex-fill-1">
+          <div class="stat strength">
+            <div class="label cost" />
+            <div class="button levelup">+</div>
+            <div class="type">STR</div>
+            <div class="label value" />
+          </div>
+          <div class="stat dexterity">
+            <div class="label cost" />
+            <div class="button levelup">+</div>
+            <div class="type">DEX</div>
+            <div class="label value" />
+          </div>
+          <div class="stat intelligence">
+            <div class="label cost" />
+            <div class="button levelup">+</div>
+            <div class="type">INT</div>
+            <div class="label value" />
+          </div>
+          <div class="stat concentration">
+            <div class="label cost" />
+            <div class="button levelup">+</div>
+            <div class="type">CON</div>
+            <div class="label value" />
+          </div>
+          <div class="stat charm">
+            <div class="label cost" />
+            <div class="button levelup">+</div>
+            <div class="type">CHA</div>
+            <div class="label value" />
+          </div>
+          <div class="stat sense">
+            <div class="label cost" />
+            <div class="button levelup">+</div>
+            <div class="type">SEN</div>
+            <div class="label value" />
+          </div>
+        </div>
+        <div class="stat-column flex-fill-2">
+            <div class="stat attack">
+              <div class="type">Attack</div>
+              <div class="label value" />
+            </div>
+            <div class="stat accuracy">
+              <div class="type">Accuracy</div>
+              <div class="label value" />
+            </div>
+            <div class="stat critical">
+              <div class="type">Critical</div>
+              <div class="label value" />
+            </div>
+            <div class="stat critical-damage">
+              <div class="type">Critical Damage</div>
+              <div class="label value" />
+            </div>
+            <div class="stat pierce-physical">
+              <div class="type">Pierce Physical</div>
+              <div class="label value" />
+            </div>
+            <div class="stat pierce-magical">
+              <div class="type">Pierce Magical</div>
+              <div class="label value" />
+            </div>
+            <div class="stat attack-speed">
+              <div class="type">Attack Speed</div>
+              <div class="label value" />
+            </div>
+            <div class="stat pvm-offense">
+              <div class="type">PVM Offense</div>
+              <div class="label value" />
+            </div>
+            <div class="stat pvp-offense">
+              <div class="type">PVP Offense</div>
+              <div class="label value" />
+            </div>
+            <div class="stat mp-cost">
+              <div class="type">MP Cost</div>
+              <div class="label value" />
+            </div>
+            <div class="stat summon-gauge">
+              <div class="type">Summon Gauge</div>
+              <div class="label value" />
             </div>
         </div>
-        <div class="flex-fill">
-            Attack: <span class="label attack">0</span><br />
-            Accuracy: <span class="label accuracy">0</span><br />
-            Critical: <span class="label critical">0</span><br />
-            Critical Damage: <span class="label critical-damage">0</span><br />
-            Pierce Physical: <span class="label pierce-physical">0</span><br />
-            Pierce Magical: <span class="label pierce-magical">0</span><br />
-            Attack Speed: <span class="label attack-speed">0</span><br />
-            PVM Offense: <span class="label pvm-offense">0</span><br />
-            PVP Offense: <span class="label pvp-offense">0</span><br />
-            MP Cost: <span class="label mp-cost">0</span><br />
-            Summon Gauge: <span class="label summon-gauge">0</span><br />
-        </div>
-        <div class="flex-fill">
-            Defense: <span class="label defense">0</span><br />
-            Magic Defense: <span class="label magic-defense">0</span><br />
-            Dodge: <span class="label dodge">0</span><br />
-            Block Rate: <span class="label block-rate">0</span><br />
-            Block Physical: <span class="label block-physical">0</span><br />
-            Block Magical: <span class="label block-magical">0</span><br />
-            Run Speed: <span class="label run-speed">0</span><br />
-            PVM Defense: <span class="label pvm-defense">0</span><br />
-            PVP Defense: <span class="label pvp-defense">0</span><br />
-            HP Recovery: <span class="label hp-recovery">0</span> / Sec<br />
-            MP Recovery: <span class="label mp-recovery">0</span> / Sec<br />
+        <div class="stat-column flex-fill-2">
+            <div class="stat defense">
+              <div class="type">Defense</div>
+              <div class="label value" />
+            </div>
+            <div class="stat magic-defense">
+              <div class="type">Magic Defense</div>
+              <div class="label value" />
+            </div>
+            <div class="stat dodge">
+              <div class="type">Dodge</div>
+              <div class="label value" />
+            </div>
+            <div class="stat block-rate">
+              <div class="type">Block Rate</div>
+              <div class="label value" />
+            </div>
+            <div class="stat block-physical">
+              <div class="type">Block Physical</div>
+              <div class="label value" />
+            </div>
+            <div class="stat block-magical">
+              <div class="type">Block Magical</div>
+              <div class="label value" />
+            </div>
+            <div class="stat run-speed">
+              <div class="type">Run Speed</div>
+              <div class="label value" />
+            </div>
+            <div class="stat pvm-defense">
+              <div class="type">PVM Defense</div>
+              <div class="label value" />
+            </div>
+            <div class="stat pvp-defense">
+              <div class="type">PVP Defense</div>
+              <div class="label value" />
+            </div>
+            <div class="stat hp-recovery">
+              <div class="type">HP Recovery</div>
+              <div class="label value" />
+            </div>
+            <div class="stat mp-recovery">
+              <div class="type">MP Recovery</div>
+              <div class="label value" />
+            </div>
         </div>
     </div>
 </div>
