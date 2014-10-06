@@ -29,6 +29,7 @@ MoveToPosCmd.prototype.enter = function() {
   this.object.direction = Math.atan2(velocity.y, velocity.x) + Math.PI / 2;
 
   this.object.emit('start_move');
+  this.object.pawn.playDefaultMotion();
 };
 
 MoveToPosCmd.prototype.leave = function() {
