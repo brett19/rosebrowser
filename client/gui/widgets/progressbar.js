@@ -4,16 +4,25 @@ ui.ProgressBar = function(element) {
   ui.Widget.call(this, element);
 
   this._bar = $('<div class="bar"></div>');
-  this._bar.prependTo(this._element);
+  this._element.append(this._bar);
 
-  if (this._element.hasClass('percent')) {
-    this._percent = ui.label('.label.percent');
-    this.append(this._percent);
-  }
+  this._text = $('<div class="text"></div>');
+  this._element.append(this._text);
 
   if (this._element.hasClass('absolute')) {
     this._absolute = ui.label('.label.absolute');
-    this.append(this._absolute);
+    this._text.append(this._absolute._element);
+  }
+
+  if (this._element.hasClass('percent')) {
+    if (this._absolute) {
+      this._text.append($('<div class="spacer">|</div>'));
+    }
+
+    this._percent = ui.label('.label.percent');
+    this._text.append(this._percent._element);
+  } else if (this._absolute) {
+    this._absolute._element.css('text-align', 'center');
   }
 
   this._min = 0;
@@ -53,7 +62,7 @@ ui.ProgressBar.prototype.value = function(value) {
 
 ui.ProgressBar.prototype._update = function() {
   var percent = 100 * (this._value - this._min) / (this._max - this._min);
-  this._bar.css('width', percent + '%');
+  this._bar.css('width', Math.min(100, Math.max(0, percent)) + '%');
 
   if (this._percent) {
     this._percent.text(Math.floor(percent) + '%');

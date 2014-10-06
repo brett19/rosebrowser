@@ -235,33 +235,50 @@ body {
     background: linear-gradient(to bottom,
       rgba(120, 120, 120, 0.7) 0%, rgba(100, 100, 100, 0.7) 49%,
       rgba(80, 80, 80, 0.7) 51%, rgba(60, 60, 60, 0.7) 100%);
+
+    .bar {
+      top: 0;
+      left: 0;
+      height: 100%;
+      margin-right: -100%;
+      display: inline;
+      float: left;
+      border-radius: 2px;
+      box-shadow: inset 0px 0px 4px rgba(255, 255, 255, 0.6);
+    }
+
+    .text {
+      display: flex;
+      width: 100%;
+      float: left;
+
+      .label.absolute {
+        flex: 1;
+        text-align: right;
+        padding-right: 5px;
+      }
+
+      .spacer {
+        padding-right: 5px;
+      }
+
+      .label.percent {
+        padding-right: 5px;
+      }
+    }
   }
 
-  .progressbar > .bar {
-    box-shadow: inset 0px 0px 4px rgba(255, 255, 255, 0.6);
-    height: 100%;
-    top: 0;
-    left: 0;
-    display: inline;
-    float: left;
-    margin-right: -100%;
+  /* Some default colours for progress bar */
+  .progressbar.health > .bar {
+    background: rgba(255, 0, 0, 0.5);
   }
 
-  .progressbar > .label.percent:before {
-    content: '| ';
-      display: inline-block;
+  .progressbar.mana > .bar {
+    background: rgba(0, 0, 255, 0.5);
   }
 
-  .progressbar > .label.percent {
-    display: inline-block;
-    float: right;
-    padding-left: 5px;
-    padding-right: 5px;
-  }
-
-  .progressbar > .label.absolute {
-    display: inline-block;
-    float: right;
+  .progressbar.exp > .bar {
+    background: rgba(200, 200, 0, 0.45);
   }
 
   /* Checkbox Element */
