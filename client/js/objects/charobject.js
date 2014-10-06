@@ -22,6 +22,11 @@ function CharObject(world) {
 }
 CharObject.prototype = Object.create( ActorObject.prototype );
 
+CharObject.prototype._setMotion = function(motionIdx) {
+  // Timescale should not be hardcoded here...
+  this.pawn.playMotion(motionIdx, 1.0, false)
+};
+
 CharObject.prototype.getAbilityValue = function(abilType) {
   switch(abilType) {
     case ABILTYPE.SEX: return this.gender;

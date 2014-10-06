@@ -198,6 +198,13 @@ _NetManager.prototype.watch = function(wn, gn) {
     }
   });
 
+  gn.on('obj_motion', function(data) {
+    var obj = GZM.findByServerObjectIdx(data.objectIdx);
+    if (obj && obj instanceof CharObject) {
+      obj._setMotion(data.motionNo);
+    }
+  });
+
   gn.on('damage', function(data) {
     var defenderObj = GZM.findByServerObjectIdx(data.defenderObjectIdx);
     if (defenderObj && !(defenderObj instanceof ProxyObject)) {

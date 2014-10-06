@@ -692,6 +692,13 @@ GameClient._registerHandler(0x799, function(pak, data) {
   this._emitPE('damage', data);
 });
 
+GameClient._registerHandler(0x781, function(pak, data) {
+  data.motionNo = pak.readInt16();
+  data.flags = pak.readUint16();
+  data.objectIdx = pak.readUint16();
+  this._emitPE('obj_motion', data);
+});
+
 GameClient._registerHandler(0x783, function(pak, data) {
   data.senderObjectIdx = pak.readUint16();
   data.message = pak.readString();
