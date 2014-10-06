@@ -3,13 +3,14 @@ ui.QuickBarDialog = function(template, hotIcons) {
   this.centerX();
 
   this._slots = [];
-    this._hotIcons = [];
+  this._hotIcons = [];
 
   for (var i = 1; i <= 12; ++i) {
     var id = '.quick-slot-' + i;
     var slot = ui.iconslot(this, id);
-    slot.on('use', this._useSlot.bind(this, id.substr(1)));
-    slot.on('swap', this._swapSlot.bind(this, id.substr(1)));
+    var index = this._slots.length;
+    slot.on('use', this._useSlot.bind(this, index));
+    slot.on('swap', this._swapSlot.bind(this, index));
     this._slots.push(slot);
   }
 
@@ -22,7 +23,30 @@ ui.QuickBarDialog = function(template, hotIcons) {
 ui.QuickBarDialog.prototype = Object.create(ui.Dialog.prototype);
 
 ui.QuickBarDialog.prototype._useSlot = function(index) {
-  console.log('quickbar._useSlot', index);
+  var hotIcon = this._hotIcons.icons[index];
+  var type = hotIcon.type;
+  var slot = hotIcon.slot;
+
+  switch (type) {
+  case HOT_ICON_TYPE.ITEM:
+    var item = MC.inventory.findBySlot(slot);
+    if (item) {
+      MC.inventory.useItem(item);
+    }
+    break;
+  case HOT_ICON_TYPE.SKILL:
+    var skill = MC.skills.findBySlot(slot);
+    if (skill) {
+      MC.skills.useSkill(skill);
+    }
+    break;
+  case HOT_ICON_TYPE.COMMAND:
+  case HOT_ICON_TYPE.EMOTE:
+  case HOT_ICON_TYPE.DIALOG:
+  case HOT_ICON_TYPE.CLAN_SKILL:
+  default:
+    console.warn('Unimplemented hot icon type in _useSlot', type);
+  };
 };
 
 ui.QuickBarDialog.prototype._swapSlot = function(src, dst) {

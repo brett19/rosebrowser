@@ -162,10 +162,46 @@ GameClient.prototype.chatWhisper = function(targetName, message) {
   this.socket.sendPacket(opak);
 };
 
+GameClient.prototype.toggleMount = function(itemKey) {
+  var opak = new RosePacket(0x859);
+  opak.addUint64(itemKey);
+  this.socket.sendPacket(opak);
+};
+
+GameClient.prototype.useItem = function(itemKey) {
+  var opak = new RosePacket(0x7a3);
+  opak.addUint64(itemKey);
+  this.socket.sendPacket(opak);
+};
+
+GameClient.prototype.useItemOnTarget = function(itemKey, targetIdx) {
+  var opak = new RosePacket(0x7a3);
+  opak.addUint64(itemKey);
+  opak.addUint16(targetIdx);
+  this.socket.sendPacket(opak);
+};
+
+GameClient.prototype.useItemOnPosition = function(itemKey, x, y) {
+  var opak = new RosePacket(0x7a3);
+  opak.addUint64(itemKey);
+  opak.addFloat(x * 100);
+  opak.addFloat(y * 100);
+  this.socket.sendPacket(opak);
+};
+
 GameClient.prototype.equipItem = function(slotNo, itemKey) {
   var opak = new RosePacket(0x7a5);
   opak.addUint32(slotNo);
   opak.addUint64(itemKey);
+  this.socket.sendPacket(opak);
+};
+
+GameClient.prototype.setMotion = function(motion, stopCmd, etc) {
+  stopCmd = stopCmd || 0;
+  etc = etc || 0;
+  var opak = new RosePacket(0x781);
+  opak.addUint16(motion);
+  opak.addUint16((etc & 0x7fff) | ((stopCmd & 1) << 15));
   this.socket.sendPacket(opak);
 };
 

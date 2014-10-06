@@ -65,27 +65,11 @@ function getItemLocationFromName(name) {
 }
 
 ui.InventoryDialog.prototype._useItem = function(src) {
-  var locInfo = getItemLocationFromName(src);
-  var itemSlot = this._getItemSlot(locInfo.location, locInfo.slot);
-  var item = itemSlot.icon();
-  var location = locInfo.location;
+  var locSlot = getItemLocationFromName(src);
+  var item = this._data.findByLocSlot(locSlot.location, locSlot.slot);
 
-  // TODO: MOve useItem code to inventorydata?
-
-  if (location === ITEMLOC.EQUIPPED_EQUIP) {
-    netGame.equipItem(ITMTYPETOPART[item.itemType], 0);
-  } else if (location === ITEMLOC.EQUIPPED_AMMO) {
-    // TODO: Unequip ammo
-  } else if (location === ITEMLOC.INVENTORY) {
-    if (ITMTYPETOPART[item.itemType]) {
-      netGame.equipItem(ITMTYPETOPART[item.itemType], item.itemKey);
-    } else if (item.itemType === ITEMTYPE.USE) {
-      // TODO: Use consumable
-    } else if (item.itemType === ITEMTYPE.RIDE_PART) {
-      // TODO: Use ride part
-    }else if (item.itemType === ITEMTYPE.MOUNT) {
-      // TODO: Use mount
-    }
+  if (item) {
+    this._data.useItem(item);
   }
 };
 
@@ -103,14 +87,7 @@ ui.InventoryDialog.prototype._swapItem = function(src, dst) {
   var srcItem = srcItemSlot.icon();
 
   if (dst === 'drop') {
-    ui.messageBox('Are you sure you want to drop item?', ['YES', 'NO'])
-      .on('closed', function(answer) {
-        if (answer === 'YES') {
-          // TODO: Drop srcItem
-          console.log('dropItem', srcItem);
-        }
-      });
-
+    this._data.dropItem(srcItem);
     return;
   }
 

@@ -140,12 +140,39 @@ InventoryData.prototype.changeItems = function(changeItems) {
       }
     }
   }
+
   this.emit('changed');
 };
 
 InventoryData.prototype.appendItems = function(items) {
   this.items = this.items.concat(items);
   this.emit('changed');
+};
+
+InventoryData.prototype.useItem = function(item) {
+  if (item.location === ITEMLOC.EQUIPPED_EQUIP) {
+    netGame.equipItem(item.slotNo, 0);
+  } else if (item.location === ITEMLOC.INVENTORY) {
+    if (ITMTYPETOPART[item.itemType]) {
+      netGame.equipItem(ITMTYPETOPART[item.itemType], item.itemKey);
+    } else if (item.itemType === ITEMTYPE.USE) {
+      // TODO: Use consumable on TARGET / POSITION
+      netGame.useItem(item.itemKey);
+    } else if (item.itemType === ITEMTYPE.RIDE_PART) {
+      // TODO: Equip ride part
+    }else if (item.itemType === ITEMTYPE.MOUNT) {
+      netGame.toggleMount(item.itemKey);
+    }
+  }
+};
+
+InventoryData.prototype.dropItem = function(item) {
+  ui.messageBox('Are you sure you want to drop item?', ['YES', 'NO'])
+    .on('closed', function(answer) {
+      if (answer === 'YES') {
+        console.warn('TODO: Unimplemented dropItem', srcItem);
+      }
+    });
 };
 
 InventoryData.prototype.findByItemKey = function(itemKey) {
