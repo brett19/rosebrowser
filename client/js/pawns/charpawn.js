@@ -288,6 +288,9 @@ CharPawn.prototype._getMotionData = function(motionIdx, callback) {
       var motionFileIdx = motionTypes.item(motionIdx, 1);
       var motionRow = charMotions.row(motionFileIdx);
       var motionFile = motionRow[MOTION_TABLE.MALE_MOTION + this.gender];
+      if (!motionFile && this.gender !== 0) {
+        motionFile = motionRow[MOTION_TABLE.MALE_MOTION];
+      }
       CharPawn.motionFileCache.get(motionFile, function (animData) {
         if (callback) {
           callback(animData);
