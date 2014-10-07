@@ -301,7 +301,12 @@ CharPawn.prototype.setModelPart = function(partIdx, modelIdx, callback) {
 CharPawn.prototype._getMotionData = function(motionIdx, callback) {
   GDM.get('char_motiontypes', 'char_motions', function(motionTypes, charMotions) {
     this._waitSkeleton(function() {
-      var motionFileIdx = motionTypes.item(motionIdx, 1);
+      var motionFileIdx;
+      if (motionIdx >= 0) {
+        motionFileIdx = motionTypes.item(motionIdx, 1);
+      } else {
+        motionFileIdx = -motionIdx;
+      }
       var motionRow = charMotions.row(motionFileIdx);
       var motionFile = motionRow[MOTION_TABLE.MALE_MOTION + this.gender];
       if (!motionFile && this.gender !== 0) {
@@ -416,7 +421,18 @@ CharPawn.prototype.update = function(delta) {
     for (var i = 1; i < this.activeMotions.length; ++i) {
       var motion = this.activeMotions[i];
       motion.weight -= blendWeightDelta;
-      if (!motion.isPlaying || motion.weight <= 0) {
+
+      // If the motion is stopped, we turn off advancing and play
+      //  it so we can blend the last frame to the next motion.
+      if (!motion.isPlaying) {
+        motion.loop = true;
+        motion.timeScale = 0;
+        motion.play();
+      }
+
+      // If we're done blending away, stop the motion and remove
+      //  it from the list of motions.
+      if (motion.weight <= 0) {
         motion.stop();
         this.activeMotions.splice(i, 1);
         --i;
