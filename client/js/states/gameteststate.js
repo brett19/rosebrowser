@@ -21,6 +21,8 @@ GameTestState.prototype.enter = function() {
   // Grab user/pass from local storage
   var rUser = localStorage.getItem('autologin_user');
   var rPass = localStorage.getItem('autologin_pass');
+  var rServer = localStorage.getItem('autologin_server');
+  var rChar = localStorage.getItem('autologin_char');
 
   // Help out by setting some initial but blank entries.
   if (!rUser) {
@@ -28,6 +30,12 @@ GameTestState.prototype.enter = function() {
   }
   if (!rPass) {
     localStorage.setItem('autologin_pass', '');
+  }
+  if (!rServer) {
+    localStorage.setItem('autologin_server', '1Draconis');
+  }
+  if (!rChar) {
+    localStorage.setItem('autologin_char', '');
   }
 
   // Make sure we have some user details
@@ -45,6 +53,10 @@ GameTestState.prototype.enter = function() {
     serverIp = '128.241.92.36';
     serverName = '1Draconis';
     channelName = 'Channel 1';
+
+    if (rServer) {
+      serverName = rServer;
+    }
   }
 
   // TODO: Move somewhere nice as this is loaded in loginstate
@@ -115,6 +127,11 @@ GameTestState.prototype.enter = function() {
               }
 
               var pickCharName = data.characters[0].name;
+
+              if (rChar) {
+                pickCharName = rChar;
+              }
+
               netWorld.selectCharacter(pickCharName, function(data) {
                 waitDialog.setMessage('Character Selected. Connecting to Game Server.');
 
