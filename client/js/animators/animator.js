@@ -121,12 +121,12 @@ Animator.prototype.update = (function() {
     // If this is the last frame, we have to stop at the last frame, rather
     //   then blending back towards frame 0, remove that time.
     var endTime = this.length;
-    if (this.loop === 1) {
+    if (this.loop === false || this.loop === 1) {
       endTime = (this.data.frameCount - 1) / this.data.fps;
     }
 
     if (this.currentTime >= endTime || this.currentTime < 0) {
-      if (this.loop !== true && this.loop > 0) {
+      if (this.loop !== false && this.loop !== true && this.loop > 0) {
         this.loop--;
       }
       if (this.loop) {
