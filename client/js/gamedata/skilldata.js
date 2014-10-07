@@ -21,8 +21,10 @@ SkillData.prototype.useSkill = function(skill) {
     var motion = parseInt(data[SKILL.ANI_ACTION_TYPE]);
     netGame.setMotion(motion, 1);
     break;
+  default:
+    console.warn('TODO: Unimplemented useSkill', skill);
+    break;
   }
-  console.warn('TODO: Unimplemented useSkill', skill);
 };
 
 SkillData.prototype._useCommand = function(command) {
