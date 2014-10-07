@@ -103,12 +103,12 @@ _NetManager.prototype.watch = function(wn, gn) {
   gn.on('spawn_npc', function(data) {
     var npc = new NpcObject(self.world);
     npc.serverObjectIdx = data.objectIdx;
-    npc.charIdx = Math.abs(data.charIdx);
     npc.eventIdx = data.eventIdx;
     npc.stats = new NpcStats(npc);
     npc.setPosition(data.position.x, data.position.y, 10);
     npc.setDirection(data.modelDir / 180 * Math.PI);
     npc.pawn = new NpcPawn(npc);
+    npc.setChar(Math.abs(data.charIdx));
     if (data.charIdx < 0) {
       npc.setVisible(false);
     }
@@ -144,10 +144,10 @@ _NetManager.prototype.watch = function(wn, gn) {
   gn.on('spawn_mob', function(data) {
     var mob = new MobObject(self.world);
     mob.serverObjectIdx = data.objectIdx;
-    mob.charIdx = Math.abs(data.charIdx);
     mob.stats = new NpcStats(mob);
     mob.setPosition(data.position.x, data.position.y, 10);
     mob.pawn = new NpcPawn(mob);
+    mob.setChar(Math.abs(data.charIdx));
     if (data.charIdx < 0) {
       mob.setVisible(false);
     }

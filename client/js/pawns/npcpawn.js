@@ -32,15 +32,31 @@ function NpcPawn(go) {
     this.rootObj.name = 'NPC_' + go.serverObjectIdx + '_' + go.charIdx;
     this.rootObj.position.copy(go.position);
     this.rootObj.rotation.z = go.direction;
-    this.setModel(go.charIdx);
 
     go.on('damage', function(amount) {
       self.newDamage(amount);
     });
+
+    this.createNamePlate();
   }
 
   this.playDefaultMotion();
 }
+
+NpcPawn.prototype.createNamePlate = function() {
+  var texture = ui.createNamePlate(this.owner);
+
+  // Recreate the sprite with new texture
+  var material = new THREE.SpriteMaterial({ map: texture, color: 0xffffff });
+  material.depthWrite = false;
+  var sprite = new OrthoSprite(material);
+  sprite.position.set(0, 0, 2.0);
+  sprite.scale.set(texture.image.width, texture.image.height, 1);
+  sprite.offset.set(0, -24, 0);
+
+  this.rootObj.add(sprite);
+  this.nameTag = sprite;
+};
 
 /**
  * Holds a cache of all loaded animation files data.  This is just the data,
@@ -222,15 +238,6 @@ NpcPawn.prototype.setModel = function(charIdx, callback) {
       callback();
     }
   });
-
-  // TODO: This should be moved away from the Pawn
-  GDM.get('list_npc', 'npc_names', function(npcTable, stringTable) {
-    var npcRow = npcTable.row(charIdx);
-    var strKey = npcRow[40];
-    var data = stringTable.getByKey(strKey);
-    self.setName(data.text);
-    self.setScale(npcRow[4]);
-  });
 };
 
 NpcPawn.prototype.newDamage = function(amount) {
@@ -241,46 +248,6 @@ NpcPawn.prototype.newDamage = function(amount) {
 NpcPawn.prototype.setScale = function(scale) {
   scale = scale * ZZ_SCALE_IN;
   this.rootObj.scale.set(scale, scale, scale);
-};
-
-NpcPawn.prototype.setName = function(name) {
-  if (this.nameTag) {
-    var children = this.nameTag.children.slice();
-    for (var i = 0; i < children.length; ++i) {
-      this.nameTag.remove(children[i]);
-    }
-  } else {
-    this.nameTag = new THREE.Object3D();
-    this.nameTag.position.set(0, 0, 2.0);
-    this.rootObj.add(this.nameTag);
-  }
-
-  this.name = name;
-
-  var idx = name.indexOf(']');
-
-  if (idx !== -1) {
-    var job  = name.substr(0, idx + 1).trim();
-
-    // Create sprite for JOB
-    var texture = createTEXTure(Font.FONT.NORMAL_OUTLINE, job);
-    var material = new THREE.SpriteMaterial({ map: texture, color: 0xffceae, depthWrite: false });
-
-    var sprite = new OrthoSprite(material);
-    sprite.scale.set(texture.image.width, texture.image.height, 1);
-    sprite.offset.set(0, -texture.image.height, 0);
-    this.nameTag.add(sprite);
-
-    name = name.substr(idx + 1).trim();
-  }
-
-  // Create sprite for NAME
-  var texture = createTEXTure(Font.FONT.NORMAL_OUTLINE, name);
-  var material = new THREE.SpriteMaterial({ map: texture, color: 0xe7ffae, depthWrite: false });
-
-  var sprite = new OrthoSprite(material);
-  sprite.scale.set(texture.image.width, texture.image.height, 1);
-  this.nameTag.add(sprite);
 };
 
 NpcPawn.prototype.update = function(delta) {

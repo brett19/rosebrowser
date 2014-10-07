@@ -116,7 +116,6 @@ function CharPawn(go) {
 
   if (go) {
     this.owner = go;
-    this.setName(go.name);
 
     var self = this;
     this.rootObj.name = 'CHAR_' + '????';
@@ -129,8 +128,25 @@ function CharPawn(go) {
     go.on('damage', function(amount) {
       self.newDamage(amount);
     });
+
+    this.createNamePlate();
   }
 }
+
+CharPawn.prototype.createNamePlate = function() {
+  var texture = ui.createNamePlate(this.owner);
+
+  // Recreate the sprite with new texture
+  var material = new THREE.SpriteMaterial({ map: texture, color: 0xffffff });
+  material.depthWrite = false;
+  var sprite = new OrthoSprite(material);
+  sprite.position.set(0, 0, 2.0);
+  sprite.scale.set(texture.image.width, texture.image.height, 1);
+  sprite.offset.set(0, -24, 0);
+
+  this.rootObj.add(sprite);
+  this.nameTag = sprite;
+};
 
 /**
  * Holds a cache of all loaded animation files data.  This is just the data,
@@ -386,27 +402,6 @@ CharPawn.prototype.playAttackMotion = function(onFinish) {
 CharPawn.prototype.newDamage = function(amount) {
   DamageRender.add(amount,
       this.rootObj.localToWorld(new THREE.Vector3(0, 0, 2.4)));
-};
-
-CharPawn.prototype.setName = function(name) {
-  this.name = name;
-
-  var texture = createTEXTure(Font.FONT.NORMAL_OUTLINE, name);
-
-  // Recreate the sprite with new texture
-  var material = new THREE.SpriteMaterial({ map: texture, color: 0xffffff });
-  material.depthWrite = false;
-  var sprite = new OrthoSprite(material);
-  sprite.position.set(0, 0, 2.0);
-  sprite.scale.set(texture.image.width, texture.image.height, 1);
-  sprite.offset.set(0, 0, 0);
-
-  if (this.nameTag) {
-    this.rootObj.remove(this.nameTag);
-  }
-
-  this.rootObj.add(sprite);
-  this.nameTag = sprite;
 };
 
 CharPawn.prototype.update = function(delta) {
