@@ -149,7 +149,9 @@ GameState.prototype.enter = function() {
       if (pickInfo.object) {
         var pickGo = pickInfo.object;
         self._setTarget(pickGo);
-        if (pickGo instanceof CharObject) {
+        if (pickGo instanceof MyCharacter) {
+          // Don't move to yourself or anything...
+        } else if (pickGo instanceof CharObject) {
           GC.moveToObj(pickGo);
         } else if (pickGo instanceof NpcObject) {
           var moveCmd = GC.moveToObj(pickGo);
