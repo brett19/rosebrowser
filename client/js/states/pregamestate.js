@@ -19,8 +19,10 @@ PreGameState.prototype.enter = function() {
     MC.quests = new QuestData();
     MC.hotIcons = new HotIcons();
     MC.skills = new SkillData();
+    MC.party = new PartyData();
 
     MC.name = charData.name;
+    MC.uniqueTag = charData.uniqueTag;
     MC.gender = charData.gender;
     MC.position.x = charData.posStart.x;
     MC.position.y = charData.posStart.y;

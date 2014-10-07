@@ -62,7 +62,8 @@ var ITEMTYPE = {
   QUEST: 13,
   RIDE_PART: 14,
   MOUNT: 15,
-  MAX: 16
+  MAX: 16,
+  MONEY: 31
 };
 
 var ITEM_DATA = {
@@ -108,6 +109,12 @@ ITMTYPETOPART[ITEMTYPE.SHIELD] = INVEQUIPIDX.SHIELD;
 ITMTYPETOPART[ITEMTYPE.NECKLACE] = INVEQUIPIDX.NECKLACE;
 ITMTYPETOPART[ITEMTYPE.RING] = INVEQUIPIDX.RING;
 ITMTYPETOPART[ITEMTYPE.EARRING] = INVEQUIPIDX.EARRING;
+
+var ITMSTACKABLE = {};
+ITMTYPETOPART[ITEMTYPE.USE] = INVEQUIPIDX.USE;
+ITMTYPETOPART[ITEMTYPE.ETC] = INVEQUIPIDX.ETC;
+ITMTYPETOPART[ITEMTYPE.NATURAL] = INVEQUIPIDX.NATURAL;
+ITMTYPETOPART[ITEMTYPE.QUEST] = INVEQUIPIDX.QUEST;
 
 var InventoryData = function() {
   EventEmitter.call(this);
@@ -167,11 +174,12 @@ InventoryData.prototype.useItem = function(item) {
 };
 
 InventoryData.prototype.dropItem = function(item) {
-  ui.messageBox('Are you sure you want to drop item?', ['YES', 'NO'])
-    .on('closed', function(answer) {
-      if (answer === 'YES') {
-        console.warn('TODO: Unimplemented dropItem', srcItem);
-      }
+  ui.messageBox('Are you sure you want to drop item?', ['Yes', 'No'])
+    .on('yes', function(answer) {
+      console.warn('TODO: Unimplemented dropItem', srcItem);
+    })
+    .on('no', function() {
+
     });
 };
 

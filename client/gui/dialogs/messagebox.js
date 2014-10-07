@@ -13,7 +13,7 @@ ui.MessageBoxDialog = function(template, message, buttons) {
   }
 
   for (var i = 0; i < buttons.length; ++i) {
-    var button = ui.button('.button');
+    var button = ui.button();
     button._element.text(buttons[i]);
     button.on('clicked', this._onButtonClicked.bind(this, buttons[i]));
     this._buttonArea.append(button._element);
@@ -26,7 +26,7 @@ ui.MessageBoxDialog.prototype = Object.create(ui.Dialog.prototype);
 
 ui.MessageBoxDialog.prototype._onButtonClicked = function(button) {
   this.close();
-  this.emit('closed', button);
+  this.emit(button.toLowerCase());
 };
 
 ui.messageBox = function(message, buttons) {

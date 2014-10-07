@@ -15,14 +15,19 @@ ui.ProgressBar = function(element) {
   }
 
   if (this._element.hasClass('percent')) {
-    if (this._absolute) {
-      this._text.append($('<div class="spacer">|</div>'));
-    }
-
     this._percent = ui.label('.label.percent');
     this._text.append(this._percent._element);
-  } else if (this._absolute) {
+  }
+
+  if (this._absolute && !this._percent) {
     this._absolute._element.css('text-align', 'center');
+    this._absolute._element.css('padding-right', '0');
+  } else if (this._percent && !this._absolute) {
+    this._percent._element.css('text-align', 'center');
+    this._percent._element.css('padding-right', '0');
+    this._percent._element.css('flex', '1');
+  } else if (this._absolute && this._percent) {
+    $('<div class="spacer">|</div>').insertAfter(this._absolute._element);
   }
 
   this._min = 0;

@@ -205,6 +205,20 @@ GameClient.prototype.setMotion = function(motion, stopCmd, etc) {
   this.socket.sendPacket(opak);
 };
 
+GameClient.prototype.partyRequest = function(request, objectIdxOrTag) {
+  var opak = new RosePacket(0x7d0);
+  opak.addUint8(request);
+  opak.addUint32(objectIdxOrTag);
+  this.socket.sendPacket(opak);
+};
+
+GameClient.prototype.partyReply = function(reply, objectIdxOrTag) {
+  var opak = new RosePacket(0x7d1);
+  opak.addUint8(reply);
+  opak.addUint32(objectIdxOrTag);
+  this.socket.sendPacket(opak);
+};
+
 /**
  * Little helper to emit packet events that can be logged.
  * @param {string} event
@@ -715,6 +729,106 @@ GameClient._registerHandler(0x785, function(pak, data) {
   data.senderName = pak.readString();
   data.message = pak.readString();
   this._emitPE('chat_shout', data);
+});
+
+GameClient._registerHandler(0x7d0, function(pak, data) {
+  data.request = pak.readUint8();
+  data.objectIdx = pak.readUint16();
+  this._emitPE('party_req', data);
+});
+
+var	PARTY_REQ_MAKE = 0x00;
+var	PARTY_REQ_JOIN = 0x01;
+var	PARTY_REQ_LEFT = 0x02;
+var	PARTY_REQ_CHANGE_OWNER = 0x03;
+var	PARTY_REQ_BAN = 0x81;
+
+GameClient._registerHandler(0x7d1, function(pak, data) {
+  data.reply = pak.readUint8();
+  data.objectIdx = pak.readUint32();
+  data.objectTag = data.objectIdx;
+  this._emitPE('party_reply', data);
+});
+
+var PARTY_REPLY_NOT_FOUND = 0x00;
+var PARTY_REPLY_BUSY = 0x01;
+var PARTY_REPLY_ACCEPT_MAKE = 0x02;
+var PARTY_REPLY_ACCEPT_JOIN = 0x03;
+var PARTY_REPLY_REJECT_JOIN = 0x04;
+var PARTY_REPLY_DESTROY = 0x05;
+var PARTY_REPLY_FULL_MEMBERS = 0x06;
+var PARTY_REPLY_INVALID_LEVEL = 0x07;
+var PARTY_REPLY_CHANGE_OWNER = 0x08;
+var PARTY_REPLY_CHANGE_OWNERnDISCONN = 0x09;
+var PAATY_REPLY_NO_CHARGE_TARGET = 0x0a;
+var PARTY_REPLY_SHARE_ENABLED = 0x0b;
+var PARTY_REPLY_SHARE_DISABLED = 0x0c;
+var PARTY_REPLY_BAN = 0x80;
+var PARTY_REPLY_DISCONNECT = 0x81;
+var PARTY_REPLY_REJOIN = 0x82;
+
+function handlePartyMember(pak) {
+  var member = new PartyData.Member();
+  member.serverTag = pak.readUint32();
+  member.serverIdx = pak.readUint16();
+  member.maxHP = pak.readUint32();
+  member.hp = pak.readUint32();
+  member.status = pak.readUint64();
+  member.con = pak.readUint16();
+  member.recoverHP = pak.readUint32();
+  member.recoverHPRate = pak.readUint32();
+  member.recoverMP = pak.readUint32();
+  member.recoverMPRate = pak.readUint32();
+  member.stamina = pak.readUint16();
+  member.name = pak.readString();
+  return member;
+};
+
+GameClient._registerHandler(0x7d2, function(pak, data) {
+  data.rule = pak.readUint8();
+  var count = pak.readUint8();
+
+  if (count === PARTY_MEMBER_SUB) {
+    data.leaverTag = pak.readUint32();
+    data.newLeaderTag = pak.readUint32();
+  } else {
+    data.members = [];
+
+    for (var i = 0; i < count; ++i) {
+      data.members.push(handlePartyMember(pak));
+    }
+  }
+
+  this._emitPE('party_member', data);
+});
+
+var	PARTY_RULE_EXP_PER_PLAYER = 0x001;
+var	PARTY_RULE_ITEM_TO_ORDER = 0x080;
+
+var PARTY_MEMBER_SUB = 0xff;
+
+GameClient._registerHandler(0x7d3, function(pak, data) {
+  data.objectIdx = pak.readUint16();
+  data.item = pak.readItem();
+  this._emitPE('party_item', data);
+});
+
+GameClient._registerHandler(0x7d4, function(pak, data) {
+  data.level = pak.readUint8();
+  var value = pak.readUint32();
+  data.xp = value & 0x7fffffff;
+  data.isLevelUp = value >> 31;
+  this._emitPE('party_xp', data);
+});
+
+GameClient._registerHandler(0x7d5, function(pak, data) {
+  data.member = handlePartyMember(pak);
+  this._emitPE('party_member_update', data);
+});
+
+GameClient._registerHandler(0x7d7, function(pak, data) {
+  data.rule = pak.readUint8();
+  this._emitPE('party_rule', data);
 });
 
 var netGame = null;

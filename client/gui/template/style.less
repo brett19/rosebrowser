@@ -227,9 +227,13 @@ body {
     .listitem {
       padding: 3px 3px 3px 3px;
       margin-bottom: 3px;
+
+      *:last-child {
+        margin-bottom: 0px;
+      }
     }
 
-    div:hover {
+    .listitem:hover {
       .selected;
     }
   }
@@ -596,6 +600,26 @@ body {
   .dialog.quickbar {
     .flex-horizontal;
     bottom: 10px;
+  }
+
+  /* dlgParty */
+  .dialog.party {
+    .label.level {
+      min-width: 80px;
+    }
+
+    .partymember {
+      .flex-horizontal;
+
+      .label.name {
+        min-width: 90px;
+      }
+
+      .progressbar.health {
+        min-width: 150px;
+        color: white !important;
+      }
+    }
   }
 
   /* dlgChatBox */

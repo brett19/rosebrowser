@@ -305,6 +305,141 @@ _NetManager.prototype.watch = function(wn, gn) {
       }
     }
   });
+
+  gn.on('party_req', function(data) {
+    var obj = GZM.findByServerObjectIdx(data.objectIdx);
+
+    if (!(obj instanceof CharObject)) {
+      console.warn('Invited to party by unknown objectIdx');
+      return;
+    }
+
+    switch (data.request) {
+    case PARTY_REQ_MAKE:
+    case PARTY_REQ_JOIN:
+      ui.messageBox(obj.name + ' has invited you to party', ['Accept', 'Decline'])
+        .on('accept', function() {
+          netGame.partyReply(PARTY_REPLY_ACCEPT_MAKE, data.objectIdx);
+        })
+        .on ('decline', function() {
+          netGame.partyReply(PARTY_REPLY_REJECT_JOIN, data.objectIdx);
+        });
+      break;
+    }
+  });
+
+  gn.on('party_reply', function(data) {
+    var obj = GZM.findByServerObjectIdx(data.objectIdx);
+    var name = '{Unknown}';
+
+    if (obj instanceof CharObject) {
+      name = obj.name;
+    }
+
+    switch (data.reply) {
+    case PARTY_REPLY_ACCEPT_MAKE:
+      MC.party.setLeaderByIdx(MC.serverObjectIdx);
+      break;
+    case PARTY_REPLY_NOT_FOUND:
+      ui.messageBox('Party not found');
+      break;
+    case PARTY_REPLY_BUSY:
+      ui.messageBox('Could not invite ' + name + ' to party, target is busy.');
+      break;
+    case PARTY_REPLY_REJECT_JOIN:
+      ui.messageBox('Could not invite ' + name + ' to party, target rejected invite.');
+      break;
+    case PARTY_REPLY_DESTROY:
+      MC.party.clear();
+      break;
+    case PARTY_REPLY_FULL_MEMBERS:
+      ui.messageBox('Could not invite ' + name + ' to party, party is full.');
+      break;
+    case PARTY_REPLY_INVALID_LEVEL:
+      ui.messageBox('Could not invite ' + name + ' to party, level requirements not met.');
+      break;
+    case PARTY_REPLY_CHANGE_OWNER:
+      MC.party.setLeaderByIdx(data.objectIdx);
+      break;
+    case PARTY_REPLY_CHANGE_OWNERnDISCONN:
+      MC.party.disconnectMember(MC.party.leaderTag);
+      MC.party.setLeaderByIdx(data.objectIdx);
+      break;
+    case PAATY_REPLY_NO_CHARGE_TARGET:
+      ui.messageBox('PAATY_REPLY_NO_CHARGE_TARGET');
+      break;
+    case PARTY_REPLY_DISCONNECT:
+      MC.party.disconnectMember(data.objectTag);
+      break;
+    case PARTY_REPLY_BAN:
+      MC.party.kickMember(data.objectTag);
+      break;
+    case PARTY_REPLY_SHARE_ENABLED:
+      GCM.system('Party experience sharing is enabled.');
+      break;
+    case PARTY_REPLY_SHARE_DISABLED:
+      GCM.system('Party experience sharing is disabled.');
+      break;
+    };
+  });
+
+  gn.on('party_member', function(data) {
+    if (MC.party.exists) {
+      if (data.leaverTag) {
+        MC.party.leaveMember(data.leaverTag);
+
+        if (data.leaverTag === MC.party.leaderTag) {
+          var member = MC.party.findMemberByTag(data.newLeaderTag);
+          MC.party.setLeader(member.serverIdx, member.serverTag);
+        }
+      } else {
+        MC.party.addMembers(data.members);
+      }
+    } else {
+      MC.party.create();
+      MC.party.setRule(data.rule);
+      MC.party.addMembers(data.members);
+
+      if (MC.leaderTag !== MC.uniqueTag) {
+        MC.party.setLeaderByIdx(data.members[0].serverIdx);
+      }
+    }
+  });
+
+  gn.on('party_member_update', function(data) {
+    MC.party.updateMember(data.member.serverTag, data.member);
+  });
+
+  gn.on('party_xp', function(data) {
+    MC.party.setLevelXP(data.level, data.xp);
+
+    if (data.isLevelUp) {
+      MC.party.levelup();
+    }
+  });
+
+  gn.on('party_rule', function(data) {
+    MC.party.setRule(data.rule);
+  });
+
+  gn.on('party_item', function(data) {
+    var member = MC.party.findMemberByIdx(data.objectIdx);
+
+    if (member) {
+      if (data.item.itemType === ITEMTYPE.MONEY) {
+        GCM.system(member.name + ' obtained ' + data.item.money + ' Zulie.');
+      } else {
+        var itemData = GDM.getNow('item_data');
+        var name = this.itemData.getName(data.item.itemType, data.item.itemNo);
+
+        if (ITMSTACKABLE[data.item.itemType]) {
+          GCM.system(member.name + ' obtained ' + name + ' (' + data.item.quantity + ')');
+        } else {
+          GCM.system(member.name + ' obtained ' + name);
+        }
+      }
+    }
+  });
 };
 
 /**

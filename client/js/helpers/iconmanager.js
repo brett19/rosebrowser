@@ -19,10 +19,7 @@ IconManager.prototype.getItemIcon = function(item) {
   html += 'background-position: ' + (col * -40) + 'px ' + (row * -40) + 'px; ';
   html += '">';
 
-  if (item.itemType === ITEMTYPE.USE ||
-      item.itemType === ITEMTYPE.ETC ||
-      item.itemType === ITEMTYPE.NATURAL ||
-      item.itemType === ITEMTYPE.QUEST) {
+  if (ITMSTACKABLE[item.itemType]) {
     html += '<div class="quantity">' + item.quantity + '</div>';
   }
 

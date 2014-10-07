@@ -67,7 +67,7 @@ ui._getWidgetElement = function(type, arg1, arg2) {
     element = arg1;
   } else if (typeof(arg1) === 'string') {
     var classes = arg1.split('.').join(' ');
-    element = $('<div class="' + type + ' ' + classes + '" />');
+    element = $('<div class="' + classes + '" />');
   } else if (arg1 === undefined && arg2 === undefined) {
     element = $('<div class="' + type + '" />');
   }

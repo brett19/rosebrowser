@@ -15,7 +15,7 @@ SkillData.prototype.useSkill = function(skill) {
   switch(type) {
   case SKILL_ACTION_TYPE.BASE_ACTION:
     var command = parseInt(data[SKILL.BASIC_COMMAND]);
-    // TODO: execute BASIC_COMMAND
+    this._useCommand(command);
     break;
   case SKILL_ACTION_TYPE.EMOTION_ACTION:
     var motion = parseInt(data[SKILL.ANI_ACTION_TYPE]);
@@ -23,6 +23,22 @@ SkillData.prototype.useSkill = function(skill) {
     break;
   }
   console.warn('TODO: Unimplemented useSkill', skill);
+};
+
+SkillData.prototype._useCommand = function(command) {
+  switch (command) {
+  case BASIC_COMMAND.PARTY:
+    if (MC.party.exists) {
+      if (MC.party.leaderTag === MC.uniqueTag) {
+        //netGame.partyRequest(PARTY_REQ_JOIN, targetIdx);
+      } else {
+        GCM.system('Only the party leader can send party invites.');
+      }
+    } else {
+      //netGame.partyRequest(PARTY_REQ_MAKE, targetIdx);
+    }
+    break;
+  }
 };
 
 SkillData.prototype.setSkills = function(skills) {

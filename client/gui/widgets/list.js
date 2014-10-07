@@ -4,13 +4,23 @@ ui.List = function(element) {
   ui.Widget.call(this, element);
   this._items = [];
   this._index = 0;
+
+  this.__defineGetter__('length', function() {
+    return this._items.length;
+  });
 };
 
 ui.List.prototype = Object.create(ui.Widget.prototype);
 
 ui.List.prototype.append = function(item) {
+  if (!(item instanceof ui.Widget)) {
+    throw new Error('List.append expects a ui.Widget');
+  }
+
   if (!(item instanceof ui.ListItem)) {
-    item = ui.listitem(item);
+    var listitem = ui.listitem();
+    listitem.append(item);
+    item = listitem;
   }
 
   var index = this._items.length;
@@ -20,6 +30,15 @@ ui.List.prototype.append = function(item) {
   this._items.push(item);
   this._element.append(item._element);
   return item;
+};
+
+ui.List.prototype.erase = function(index) {
+  this._items[index].remove();
+  this._items.splice(index, 1);
+
+  if (this._index >= this._items.length) {
+    this.index(this._items.length - 1);
+  }
 };
 
 ui.List.prototype.index = function(index, noClick) {
