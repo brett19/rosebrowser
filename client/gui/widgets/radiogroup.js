@@ -46,4 +46,9 @@ ui.RadioGroup.prototype.index = function(index, noClick) {
   }
 };
 
+// Constructors
+ui.RadioGroup.Create = function() {
+  return $('<div class="radiogroup" />');
+};
+
 ui.radiogroup = ui.widgetConstructor('radiogroup', ui.RadioGroup);

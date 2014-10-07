@@ -1,4 +1,3 @@
-
 ui.IconSlot = function(element) {
   ui.Widget.call(this, element);
   this._type = HOT_ICON_TYPE.EMPTY;
@@ -213,6 +212,11 @@ ui.IconSlot.prototype._update = function() {
     this._icon.dblclick(this._onUse.bind(this));
     this._element.append(this._icon);
   }
+};
+
+// Constructors
+ui.IconSlot.Create = function() {
+  return $('<div class="slot" />');
 };
 
 ui.iconslot = ui.widgetConstructor('slot', ui.IconSlot);

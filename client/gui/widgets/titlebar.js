@@ -6,7 +6,7 @@ ui.Titlebar = function(element) {
   this._element.mousedown(this._onMouseDown.bind(this));
 
   if (this._element.hasClass('close')) {
-    this._closeButton = ui.button('.button.close');
+    this._closeButton = ui.button('.close');
     this._closeButton._element.text('X');
     this._closeButton.on('clicked', this._dialog.hide.bind(this._dialog));
     this._closeButton._element.insertAfter(this._element);
@@ -49,6 +49,11 @@ ui.Titlebar.prototype._onMouseDown = function(downEvent) {
 
   $(document).on('mousemove', mouseMove);
   $(document).on('mouseup', mouseUp);
+};
+
+// Constructors
+ui.Titlebar.Create = function() {
+  return $('<div class="titlebar" />');
 };
 
 ui.titlebar = ui.widgetConstructor('titlebar', ui.Titlebar);

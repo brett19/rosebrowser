@@ -56,8 +56,8 @@ ui.partyDialog = function(party) {
 ui.PartyMember = function(element) {
   ui.Widget.call(this, element);
 
-  this._name = ui.label('.label.name.flex-fill');
-  this._hp = ui.progressbar('.progressbar.health.absolute');
+  this._name = ui.label('.name.flex-fill');
+  this._hp = ui.progressbar('.health.absolute');
   this.append(this._name);
   this.append(this._hp);
 

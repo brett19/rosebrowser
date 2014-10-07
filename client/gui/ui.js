@@ -58,7 +58,7 @@ ui._updateDialogOrder = function() {
   }
 };
 
-ui._getWidgetElement = function(type, arg1, arg2) {
+ui._getWidgetElement = function(type, widget, arg1, arg2) {
   var element = null;
 
   if (arg1 instanceof ui.Widget && typeof(arg2) === 'string') {
@@ -66,10 +66,15 @@ ui._getWidgetElement = function(type, arg1, arg2) {
   } else if (arg1 instanceof jQuery) {
     element = arg1;
   } else if (typeof(arg1) === 'string') {
-    var classes = arg1.split('.').join(' ');
-    element = $('<div class="' + classes + '" />');
+    var classes = arg1.split('.');
+    element = widget.Create();
+    for (var i = 0; i < classes.length; ++i) {
+      if (classes[i].length) {
+        element.addClass(classes[i]);
+      }
+    }
   } else if (arg1 === undefined && arg2 === undefined) {
-    element = $('<div class="' + type + '" />');
+    element = widget.Create();
   }
 
   if (element instanceof jQuery && element.length === 0) {
@@ -89,12 +94,12 @@ ui._getWidgetElement = function(type, arg1, arg2) {
   return element;
 };
 
-ui.widgetConstructor = function(name, type) {
+ui.widgetConstructor = function(name, widget) {
   return function(arg1, arg2) {
-    var element = ui._getWidgetElement(name, arg1, arg2);
+    var element = ui._getWidgetElement(name, widget, arg1, arg2);
 
     if (element) {
-      return new type(element);
+      return new widget(element);
     } else {
       return null;
     }

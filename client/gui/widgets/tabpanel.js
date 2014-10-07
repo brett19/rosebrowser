@@ -59,5 +59,14 @@ ui.Tab = function(element) {
 
 ui.Tab.prototype = Object.create(ui.Widget.prototype);
 
+// Constructors
+ui.TabPanel.Create = function() {
+  return $('<div class="tabpanel"><div class="header" /></div>');
+};
+
+ui.Tab.Create = function() {
+  return $('<div class="tab" />');
+};
+
 ui.tabpanel = ui.widgetConstructor('tabpanel', ui.TabPanel);
 ui.tab = ui.widgetConstructor('tab', ui.Tab);

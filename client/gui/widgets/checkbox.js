@@ -23,4 +23,9 @@ ui.Checkbox.prototype._onClick = function() {
   this.checked(!this.checked());
 };
 
+// Constructors
+ui.Checkbox.Create = function() {
+  return $('<div class="checkbox" />');
+};
+
 ui.checkbox = ui.widgetConstructor('checkbox', ui.Checkbox);

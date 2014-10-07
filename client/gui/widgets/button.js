@@ -23,4 +23,9 @@ ui.Button.prototype._onClicked = function() {
   this.emit('clicked');
 };
 
+// Constructors
+ui.Button.Create = function() {
+  return $('<div class="button" />');
+};
+
 ui.button = ui.widgetConstructor('button', ui.Button);

@@ -21,4 +21,9 @@ ui.Textbox.prototype.text = function(text) {
   }
 };
 
+// Constructors
+ui.Textbox.Create = function() {
+  return $('<input type="text" class="textbox" />');
+};
+
 ui.textbox = ui.widgetConstructor('textbox', ui.Textbox);

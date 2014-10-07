@@ -13,7 +13,7 @@ ui.InventoryDialog = function(template, inventory) {
     var id   = '.inventory-slot-' + i;
     var page = Math.floor((i - 1) / 30);
     var tab  = this._inventoryTabs.tab(page);
-    var slot = ui.iconslot('.slot' + id);
+    var slot = ui.iconslot(id);
     slot.acceptsItem(true);
     tab.append(slot);
 

@@ -10,12 +10,12 @@ ui.ProgressBar = function(element) {
   this._element.append(this._text);
 
   if (this._element.hasClass('absolute')) {
-    this._absolute = ui.label('.label.absolute');
+    this._absolute = ui.label('.absolute');
     this._text.append(this._absolute._element);
   }
 
   if (this._element.hasClass('percent')) {
-    this._percent = ui.label('.label.percent');
+    this._percent = ui.label('.percent');
     this._text.append(this._percent._element);
   }
 
@@ -76,6 +76,11 @@ ui.ProgressBar.prototype._update = function() {
   if (this._absolute) {
     this._absolute.text(this._value + ' / ' + this._max);
   }
+};
+
+// Construct
+ui.ProgressBar.Create = function() {
+  return $('<div class="progressbar" />');
 };
 
 ui.progressbar = ui.widgetConstructor('progressbar', ui.ProgressBar);

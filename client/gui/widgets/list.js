@@ -121,5 +121,14 @@ ui.ListItem.prototype._onDoubleClicked = function() {
   this.emit('doubleclicked');
 };
 
+// Constructors
+ui.List.Create = function() {
+  return $('<div class="list" />');
+};
+
+ui.ListItem.Create = function() {
+  return $('<div class="listitem" />');
+};
+
 ui.list = ui.widgetConstructor('list', ui.List);
 ui.listitem = ui.widgetConstructor('listitem', ui.ListItem);

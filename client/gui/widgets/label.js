@@ -38,4 +38,9 @@ ui.Label.prototype.scrollToBottom = function() {
   this._element.prop('scrollTop', this._element.prop('scrollHeight'));
 };
 
+// Constructors
+ui.Label.Create = function() {
+  return $('<div class="label" />');
+};
+
 ui.label = ui.widgetConstructor('label', ui.Label);
