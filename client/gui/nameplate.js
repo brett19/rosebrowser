@@ -41,8 +41,14 @@ function _drawFont(g, x, y, font, text, color) {
 
 function _drawCharNamePlate(g, gameObject) {
   var font = Font.getFont(Font.FONT.NORMAL_OUTLINE);
-  var size = _measureText(font, gameObject.name);
-  _drawFont(g, 128/2 - size.x/2, 64+10-size.y, font, gameObject.name, 'white');
+  var name = gameObject.name;
+
+  if (gameObject.selected) {
+    name = '|> ' + name + ' <|';
+  }
+
+  var size = _measureText(font, name);
+  _drawFont(g, 128/2 - size.x/2, 64+10-size.y, font, name, 'white');
 }
 
 function _drawNpcNamePlate(g, gameObject) {
@@ -55,6 +61,10 @@ function _drawNpcNamePlate(g, gameObject) {
   } else {
     topText = '';
     bottomText = name;
+  }
+
+  if (gameObject.selected) {
+    bottomText = '|> ' + bottomText + ' <|';
   }
 
   var curY = 64 + 10;
@@ -90,11 +100,14 @@ ui.createNamePlate = function(gameObject) {
   var texture = new THREE.Texture(bitmap);
 
   function __update() {
+    g.clearRect(0, 0, 128, 64);
     _drawNamePlate(g, gameObject);
     texture.needsUpdate = true;
   }
   __update();
   gameObject.on('name_changed', __update);
+  gameObject.on('selected', __update);
+  gameObject.on('deselected', __update);
 
   return texture;
 };

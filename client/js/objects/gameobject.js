@@ -11,6 +11,7 @@ function GameObject(objType, world) {
   this.serverObjectIdx = -1;
   this.position = new THREE.Vector3(0, 0, 0);
   this.ref = new GORef(this);
+  this.selected = false;
 }
 GameObject.prototype = new EventEmitter();
 

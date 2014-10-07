@@ -9,8 +9,23 @@ function GameState() {
   this.mcPawnRoot = new THREE.Object3D();
 
   this.pickPos = null;
+  this.targetGo = null;
 }
 GameState.prototype = new State();
+
+GameState.prototype._setTarget = function(go) {
+  if (this.targetGo) {
+    MC.target = null;
+    this.targetGo.selected = false;
+    this.targetGo.emit('deselected');
+    this.targetGo = null;
+  }
+
+  MC.target = go.ref;
+  this.targetGo = go;
+  go.selected = true;
+  go.emit('selected');
+};
 
 GameState.prototype._setPickPos = function(pos) {
   if (this.pickPos) {
@@ -132,7 +147,8 @@ GameState.prototype.enter = function() {
     var pickInfo = GZM.rayPick(ray);
     if (pickInfo) {
       if (pickInfo.object) {
-        var pickGo = pickInfo.object
+        var pickGo = pickInfo.object;
+        self._setTarget(pickGo);
         if (pickGo instanceof CharObject) {
           GC.moveToObj(pickGo);
         } else if (pickGo instanceof NpcObject) {
