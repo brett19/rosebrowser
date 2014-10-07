@@ -1,7 +1,8 @@
 'use strict';
+ui.loadTemplateFile('serverselect.html');
 
-ui.ServerSelectDialog = function(template, servers) {
-  ui.Dialog.call(this, template);
+ui.ServerSelectDialog = function(servers) {
+  ui.Dialog.call(this, 'serverselect.html');
 
   this._serverList = ui.list(this, '.list.servers');
   this._serverList.on('itemdoubleclicked', this._selectServer.bind(this));
@@ -32,5 +33,5 @@ ui.ServerSelectDialog.prototype._selectServer = function(index) {
 };
 
 ui.serverSelectDialog = function(servers) {
-  return new ui.ServerSelectDialog('#dlgServerSelect', servers);
+  return new ui.ServerSelectDialog(servers);
 };

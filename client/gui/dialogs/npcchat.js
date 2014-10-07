@@ -1,7 +1,8 @@
 'use strict';
+ui.loadTemplateFile('npcchat.html');
 
-ui.NpcChatDialog = function(template, conversation) {
-  ui.Dialog.call(this, template);
+ui.NpcChatDialog = function(conversation) {
+  ui.Dialog.call(this, 'npcchat.html');
 
   this._message = ui.label(this, '.label.message');
   this._options = ui.list(this, '.list.options');
@@ -45,5 +46,5 @@ ui.NpcChatDialog.prototype._update = function() {
 };
 
 ui.npcChatDialog = function(conversation) {
-  return new ui.NpcChatDialog('#dlgNpcChat', conversation);
+  return new ui.NpcChatDialog(conversation);
 };

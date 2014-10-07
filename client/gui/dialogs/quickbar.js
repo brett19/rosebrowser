@@ -1,7 +1,8 @@
 'use strict';
+ui.loadTemplateFile('quickbar.html');
 
-ui.QuickBarDialog = function(template, hotIcons) {
-  ui.Dialog.call(this, template);
+ui.QuickBarDialog = function(hotIcons) {
+  ui.Dialog.call(this, 'quickbar.html');
   this.centerX();
 
   this._slots = [];
@@ -84,5 +85,5 @@ ui.QuickBarDialog.prototype._update = function() {
 };
 
 ui.quickBarDialog = function(hotIcons) {
-  return new ui.QuickBarDialog('#dlgQuickBar', hotIcons);
+  return new ui.QuickBarDialog(hotIcons);
 };

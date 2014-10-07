@@ -1,7 +1,8 @@
 'use strict';
+ui.loadTemplateFile('chatbox.html');
 
-ui.ChatBox = function(template) {
-  ui.Dialog.call(this, template);
+ui.ChatBox = function() {
+  ui.Dialog.call(this, 'chatbox.html');
 
   this._game = ui.label(this, '.label.game.messages');
   this._system = ui.label(this, '.label.system.messages');
@@ -78,5 +79,5 @@ ui.ChatBox.prototype._sendMessage = function() {
 };
 
 ui.chatBox = function() {
-  return new ui.ChatBox('#dlgChatBox');
+  return new ui.ChatBox();
 };

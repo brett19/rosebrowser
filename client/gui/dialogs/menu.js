@@ -1,7 +1,8 @@
 'use strict';
+ui.loadTemplateFile('menu.html');
 
-ui.MenuDialog = function(template) {
-  ui.Dialog.call(this, template);
+ui.MenuDialog = function() {
+  ui.Dialog.call(this, 'menu.html');
 
   ui.button(this, '.button.character').on('clicked', this._onCharacter.bind(this));
   ui.button(this, '.button.inventory').on('clicked', this._onInventory.bind(this));
@@ -23,5 +24,5 @@ ui.MenuDialog.prototype._onQuestList = function() {
 };
 
 ui.menuDialog = function() {
-  return new ui.MenuDialog('#dlgMenu');
+  return new ui.MenuDialog();
 };

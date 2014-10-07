@@ -1,7 +1,8 @@
 'use strict';
+ui.loadTemplateFile('party.html');
 
-ui.PartyDialog = function(template, party) {
-  ui.Dialog.call(this, template);
+ui.PartyDialog = function(party) {
+  ui.Dialog.call(this, 'party.html');
 
   this._level = ui.label(this, '.label.level');
   this._xp = ui.progressbar(this, '.progressbar.exp');
@@ -49,10 +50,6 @@ ui.PartyDialog.prototype._update = function() {
   this.alignRightEdge(50);
 };
 
-ui.partyDialog = function(party) {
-  return new ui.PartyDialog('#dlgParty', party);
-};
-
 ui.PartyMember = function(element) {
   ui.Widget.call(this, element);
 
@@ -83,3 +80,7 @@ ui.PartyMember.prototype._update = function() {
 };
 
 ui.partymember = ui.widgetConstructor('partymember', ui.PartyMember);
+
+ui.partyDialog = function(party) {
+  return new ui.PartyDialog(party);
+};

@@ -4,20 +4,31 @@ var ui = { };
 
 ui.uniqueID = 1;
 ui._element = $('<div class="ui" />');
-ui._templates = $('<div id="templates" />');
 ui._zIndex  = 10;
 ui._dialogs = [];
+ui._templates = {};
+ui._templateFiles = [];
 
-ui.loadTemplate = function(path, callback) {
-  ui._templates.load(path, callback);
-  $('body').append(ui._element);
+ui.loadTemplateFile = function(name) {
+  ui._templateFiles.push(name);
 };
 
-ui.loadFromTemplate = function(id) {
-  var element = ui._templates.find(id).clone();
-  id = id + '-' + ui.uniqueID++;
-  element.attr('id', id);
-  return element;
+ui.loadTemplates = function(basePath, callback) {
+  var waitAll = new MultiWait();
+
+  for (var i = 0; i < ui._templateFiles.length; ++i) {
+    var name = ui._templateFiles[i];
+    var template = $('<div />');
+    template.load(basePath + '/' + name, waitAll.one());
+    ui._templates[name] = template;
+  }
+
+  $('body').append(ui._element);
+  waitAll.wait(callback);
+};
+
+ui.loadFromTemplate = function(name) {
+  return ui._templates[name].children('.dialog').clone();
 };
 
 ui.addDialog = function(dialog) {

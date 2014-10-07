@@ -1,7 +1,8 @@
 'use strict';
+ui.loadTemplateFile('character.html');
 
-ui.CharacterDialog = function(template, mycharacter) {
-  ui.Dialog.call(this, template);
+ui.CharacterDialog = function(mycharacter) {
+  ui.Dialog.call(this, 'character.html');
 
   // Char Info
   this._level = ui.charstat(this, '.stat.level');
@@ -96,10 +97,6 @@ ui.CharacterDialog.prototype._update = function() {
   this._critical.value(_makePerc(stats.getCritical(), 250));
 };
 
-ui.characterDialog = function(inventory) {
-  return new ui.CharacterDialog('#dlgCharacter', inventory);
-};
-
 // Helper widget for stats
 ui.CharacterStat = function(element) {
   ui.Widget.call(this, element);
@@ -157,3 +154,7 @@ ui.CharacterStat.prototype.max = function(max) {
 };
 
 ui.charstat = ui.widgetConstructor('stat', ui.CharacterStat);
+
+ui.characterDialog = function(inventory) {
+  return new ui.CharacterDialog(inventory);
+};

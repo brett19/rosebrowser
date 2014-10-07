@@ -1,7 +1,8 @@
 'use strict';
+ui.loadTemplateFile('messagebox.html');
 
-ui.MessageBoxDialog = function(template, message, buttons) {
-  ui.Dialog.call(this, template);
+ui.MessageBoxDialog = function(message, buttons) {
+  ui.Dialog.call(this, 'messagebox.html');
 
   this._message = ui.label(this, '.label.message');
   this._buttonArea = this._element.find('.button-area');
@@ -30,5 +31,5 @@ ui.MessageBoxDialog.prototype._onButtonClicked = function(button) {
 };
 
 ui.messageBox = function(message, buttons) {
-  return new ui.MessageBoxDialog('#dlgMessageBox', message, buttons);
+  return new ui.MessageBoxDialog(message, buttons);
 };

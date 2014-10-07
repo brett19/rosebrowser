@@ -1,7 +1,8 @@
 'use strict';
+ui.loadTemplateFile('inventory.html');
 
-ui.InventoryDialog = function(template, inventory) {
-  ui.Dialog.call(this, template);
+ui.InventoryDialog = function(inventory) {
+  ui.Dialog.call(this, 'inventory.html');
 
   this._pageTabs = ui.tabpanel(this, '.tabpanel.page');
   this._inventoryTabs = ui.tabpanel(this, '.tabpanel.inventory');
@@ -185,5 +186,5 @@ ui.InventoryDialog.prototype._update = function() {
 };
 
 ui.inventoryDialog = function(inventory) {
-  return new ui.InventoryDialog('#dlgInventory', inventory);
+  return new ui.InventoryDialog(inventory);
 };

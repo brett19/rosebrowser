@@ -1,7 +1,8 @@
 'use strict';
+ui.loadTemplateFile('status.html');
 
-ui.StatusDialog = function(template, message) {
-  ui.Dialog.call(this, template);
+ui.StatusDialog = function(message) {
+  ui.Dialog.call(this, 'status.html');
   this._label = ui.label(this, '.label.status');
   this.setMessage(message);
 }
@@ -18,5 +19,5 @@ ui.StatusDialog.prototype._update = function() {
 };
 
 ui.statusDialog = function(message) {
-  return new ui.StatusDialog('#dlgStatus', message);
+  return new ui.StatusDialog(message);
 };

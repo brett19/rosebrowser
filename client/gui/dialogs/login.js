@@ -1,11 +1,12 @@
 'use strict';
+ui.loadTemplateFile('login.html');
 
-ui.LoginDialog = function(template) {
-  ui.Dialog.call(this, template);
+ui.LoginDialog = function() {
+  ui.Dialog.call(this, 'login.html');
 
-  this._username = ui.textbox(this, '.textbox.username');
-  this._password = ui.textbox(this, '.textbox.password');
-  this._remember = ui.checkbox(this, '.checkbox.remember');
+  this._username = ui.textbox(this, '.username');
+  this._password = ui.textbox(this, '.password');
+  this._remember = ui.checkbox(this, '.remember');
 
   var username = localStorage.getItem('login_user');
   if (username) {
@@ -15,7 +16,7 @@ ui.LoginDialog = function(template) {
 
   this._username.on('returnpressed', this._login.bind(this));
   this._password.on('returnpressed', this._login.bind(this));
-  ui.button(this, '.button.submit').on('clicked', this._login.bind(this));
+  ui.button(this, '.submit').on('clicked', this._login.bind(this));
 
   this.center();
 }
@@ -35,5 +36,5 @@ ui.LoginDialog.prototype._login = function() {
 };
 
 ui.loginDialog = function() {
-  return new ui.LoginDialog('#dlgLogin');
+  return new ui.LoginDialog();
 };

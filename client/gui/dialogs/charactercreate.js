@@ -1,7 +1,8 @@
 'use strict';
+ui.loadTemplateFile('charactercreate.html');
 
-ui.CharacterCreateDialog = function(template) {
-  ui.Dialog.call(this, template);
+ui.CharacterCreateDialog = function() {
+  ui.Dialog.call(this, 'charactercreate.html');
 
   this._name = ui.textbox(this, '.textbox.name');
   this._gender = ui.label(this, '.label.gender');
@@ -240,5 +241,5 @@ ui.CharacterCreateDialog.prototype._onNextHairColor = function() {
 };
 
 ui.characterCreateDialog = function() {
-  return new ui.CharacterCreateDialog('#dlgCharacterCreate');
+  return new ui.CharacterCreateDialog();
 };

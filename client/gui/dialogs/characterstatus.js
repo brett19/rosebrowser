@@ -1,14 +1,15 @@
 'use strict';
+ui.loadTemplateFile('characterstatus.html');
 
-ui.CharacterStatusDialog = function(template, _data) {
-  ui.Dialog.call(this, template);
+ui.CharacterStatusDialog = function(character) {
+  ui.Dialog.call(this, 'characterstatus.html');
 
   this.name = ui.label(this, '.label.name');
   this.hp = ui.progressbar(this, '.progressbar.health');
   this.mp = ui.progressbar(this, '.progressbar.mana');
   this.xp = ui.progressbar(this, '.progressbar.exp');
 
-  this._data = _data;
+  this._data = character;
   this._data.on('changed', this._update.bind(this));
   this._update();
 }
@@ -28,6 +29,6 @@ ui.CharacterStatusDialog.prototype._update = function() {
   this.xp.value(this._data.xp);
 };
 
-ui.characterStatusDialog = function(_data) {
-  return new ui.CharacterStatusDialog('#dlgCharacterStatus', _data);
+ui.characterStatusDialog = function(character) {
+  return new ui.CharacterStatusDialog(character);
 };

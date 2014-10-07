@@ -231,7 +231,7 @@ ShaderManager.register('partmesh', 'partmesh.vert', 'partmesh.frag', {
 ShaderManager.init(function() {
   // Needed for game states that alter UI.
   $(function() {
-    ui.loadTemplate('/gui/template/template.html', function() {
+    ui.loadTemplates('/gui/dialogs/templates', function() {
       StateManager.prepareAndSwitch(launchStateName);
     });
   });

@@ -1,7 +1,8 @@
 'use strict';
+ui.loadTemplateFile('questlist.html');
 
-ui.QuestListDialog = function(template, questData) {
-  ui.Dialog.call(this, template);
+ui.QuestListDialog = function(questData) {
+  ui.Dialog.call(this, 'questlist.html');
 
   this._questList = ui.list(this, '.list.quests');
   this._description = ui.label(this, '.label.description');
@@ -83,5 +84,5 @@ ui.QuestListDialog.prototype._update = function() {
 };
 
 ui.questListDialog = function(questData) {
-  return new ui.QuestListDialog('#dlgQuestList', questData);
+  return new ui.QuestListDialog(questData);
 };

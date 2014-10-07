@@ -1,7 +1,8 @@
 'use strict';
+ui.loadTemplateFile('characterselect.html');
 
-ui.CharacterSelectDialog = function(template, characters) {
-  ui.Dialog.call(this, template);
+ui.CharacterSelectDialog = function(characters) {
+  ui.Dialog.call(this, 'characterselect.html');
 
   this._characterList = ui.list(this, '.list.characters');
   this._characterList.on('itemclicked', this._changeCharacter.bind(this));
@@ -67,5 +68,5 @@ ui.CharacterSelectDialog.prototype._onBackClicked = function() {
 };
 
 ui.characterSelectDialog = function(characters) {
-  return new ui.CharacterSelectDialog('#dlgCharacterSelect', characters);
+  return new ui.CharacterSelectDialog(characters);
 };
