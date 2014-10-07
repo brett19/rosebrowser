@@ -2,7 +2,8 @@
 
 function _measureText(font, text) {
   var div = document.createElement("div");
-  div.innerHTML = text;
+  div.innerHTML = '';
+  div.appendChild(document.createTextNode(text));
   div.style.position = 'absolute';
   div.style.top = '-9999px';
   div.style.left = '-9999px';
