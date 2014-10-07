@@ -14,6 +14,26 @@ ui.Dialog.prototype.center = function() {
   this.centerY();
 };
 
+ui.Dialog.prototype.alignLeftEdge = function(padding) {
+  this._element.css('left', padding + 'px');
+};
+
+ui.Dialog.prototype.alignTopEdge = function(padding) {
+  this._element.css('top', padding + 'px');
+};
+
+ui.Dialog.prototype.alignRightEdge = function(padding) {
+  var width = this._element.width();
+  var left = window.innerWidth - width - padding;
+  this._element.css('left', left + 'px');
+};
+
+ui.Dialog.prototype.alignBottomEdge = function(padding) {
+  var height = this._element.height();
+  var top = window.innerHeight - height - padding;
+  this._element.css('top', top + 'px');
+};
+
 ui.Dialog.prototype.centerX = function() {
   var width = this._element.width();
   this._element.css('left', 'calc(50% - ' + Math.floor(width / 2) + 'px)');
