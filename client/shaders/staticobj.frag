@@ -8,5 +8,5 @@ void main() {
   #ifdef ALPHATEST
   if ( baseColor.a < ALPHATEST ) discard;
   #endif
-  gl_FragColor = baseColor * texture2D(texture2, vUv2) * 2.0;
+  gl_FragColor = baseColor * texture2D(texture2, vUv2) * 2.4;
 }
