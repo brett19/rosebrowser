@@ -1,3 +1,5 @@
+'use strict';
+
 ui.InventoryDialog = function(template, inventory) {
   ui.Dialog.call(this, template);
 

@@ -1,3 +1,5 @@
+'use strict';
+
 ui.MenuDialog = function(template) {
   ui.Dialog.call(this, template);
 

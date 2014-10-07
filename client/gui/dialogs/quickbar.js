@@ -1,3 +1,5 @@
+'use strict';
+
 ui.QuickBarDialog = function(template, hotIcons) {
   ui.Dialog.call(this, template);
   this.centerX();

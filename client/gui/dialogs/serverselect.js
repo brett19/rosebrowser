@@ -1,3 +1,5 @@
+'use strict';
+
 ui.ServerSelectDialog = function(template, servers) {
   ui.Dialog.call(this, template);
 

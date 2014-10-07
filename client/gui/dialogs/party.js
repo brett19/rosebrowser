@@ -1,3 +1,5 @@
+'use strict';
+
 ui.PartyDialog = function(template, party) {
   ui.Dialog.call(this, template);
 

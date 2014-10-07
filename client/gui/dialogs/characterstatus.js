@@ -1,3 +1,5 @@
+'use strict';
+
 ui.CharacterStatusDialog = function(template, _data) {
   ui.Dialog.call(this, template);
 

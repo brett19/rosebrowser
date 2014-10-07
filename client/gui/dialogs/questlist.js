@@ -1,3 +1,5 @@
+'use strict';
+
 ui.QuestListDialog = function(template, questData) {
   ui.Dialog.call(this, template);
 

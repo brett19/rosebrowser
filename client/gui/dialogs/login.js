@@ -1,3 +1,5 @@
+'use strict';
+
 ui.LoginDialog = function(template) {
   ui.Dialog.call(this, template);
 
