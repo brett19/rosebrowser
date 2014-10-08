@@ -551,7 +551,7 @@ function handleAddChar(pak, data) {
   data.teamNo = pak.readInt32();
   data.statusFlags = pak.readUint64();
   data.statusTimers = [];
-  for (var si = 0; si < 66; ++si) {
+  for (var si = 0; si < ING.MAX; ++si) {
     data.statusTimers.push(pak.readInt16());
   }
 }
@@ -602,38 +602,44 @@ function handleAddAvatar(pak, data) {
   data.subStatusFlags = pak.readUint64();
   data.hairColor = pak.readUint8();
   data.statusTimers = [];
-  for (var si = 0; si < 66; ++si) {
+  for (var si = 0; si < ING.MAX; ++si) {
     data.statusTimers.push(pak.readInt16());
   }
   data.name = pak.readString();
 
-  // How we read these is a bit dirty...
-  if (data.statusFlags.lo & CHARSTATUSLO.MAX_HP) {
-    data.flagMaxHp = pak.readInt16();
+  data.statusValues = {};
+  if (data.statusFlags.hasBits(FLAG_ING.MAX_HP)) {
+    data.statusValues.maxHp = pak.readInt16();
   }
-  if (data.statusFlags.lo & CHARSTATUSLO.INC_MOV_SPEED) {
-    data.flagIncMovSpeed = pak.readInt16();
+
+  if (data.statusFlags.hasBits(FLAG_ING.INC_MOV_SPEED)) {
+    data.statusValues.incMovSpeed = pak.readInt16();
   }
-  if (data.statusFlags.lo & CHARSTATUSLO.DEC_MOV_SPEED) {
-    data.flagDecMovSpeed = pak.readInt16();
+
+  if (data.statusFlags.hasBits(FLAG_ING.DEC_MOV_SPEED)) {
+    data.statusValues.decMovSpeed = pak.readInt16();
   }
-  if (data.statusFlags.lo & CHARSTATUSLO.INC_ATK_SPEED) {
-    data.flagIncAtkSpeed = pak.readInt16();
+
+  if (data.statusFlags.hasBits(FLAG_ING.INC_ATK_SPEED)) {
+    data.statusValues.incAtkSpeed = pak.readInt16();
   }
-  if (data.statusFlags.lo & CHARSTATUSLO.DEC_ATK_SPEED) {
-    data.flagDecAtkSpeed = pak.readInt16();
+
+  if (data.statusFlags.hasBits(FLAG_ING.DEC_ATK_SPEED)) {
+    data.statusValues.decAtkSpeed = pak.readInt16();
   }
-  if (data.statusFlags.lo & CHARSTATUSLO.DEC_LIFE_TIME) {
-    data.flagCallerIdx = data.readUint16();
-    if (data.flagCallerIdx) {
-      data.flagSummonedSkillIdx = data.readInt16();
+
+  if (data.statusFlags.hasBits(FLAG_ING.DEC_LIFE_TIME)) {
+    data.statusValues.callerIdx = data.readUint16();
+
+    if (data.statusValues.callerIdx) {
+      data.statusValues.summonedSkillIdx = data.readInt16();
     }
   }
 
-  if (data.subStatusFlags.lo & CHARFLAGSLO.STORE) {
+  if (data.subStatusFlags.hasBits(FLAG_ING_SUB.STORE)) {
     data.storeSkin = pak.readInt16();
     data.storeTitle = pak.readString();
-  } else if (data.subStatusFlags.lo & CHARFLAGSLO.CHAT) {
+  } else if (data.subStatusFlags.hasBits(FLAG_ING_SUB.CHAT)) {
     data.chatTitle = pak.readString();
   }
 

@@ -109,6 +109,7 @@ _NetManager.prototype.watch = function(wn, gn) {
     npc.setDirection(data.modelDir / 180 * Math.PI);
     npc.pawn = new NpcPawn(npc);
     npc.setChar(Math.abs(data.charIdx));
+    npc.ingStatus = new IngStatus(npc.pawn.rootObj, data.statusFlags, data.statusTimers);
     if (data.charIdx < 0) {
       npc.setVisible(false);
     }
@@ -134,6 +135,7 @@ _NetManager.prototype.watch = function(wn, gn) {
     char.stats.attackSpeed = data.attackSpeed;
     char.stats.attackSpeedBase = data.attackSpeedBase;
     char.pawn = new CharPawn(char);
+    char.ingStatus = new IngStatus(char.pawn.rootObj, data.statusFlags, data.statusTimers, data.statusValues);
     char.debugValidate();
     if (data.command === OBJECT_COMMAND.MOVE) {
       char._moveTo(data.posTo.x, data.posTo.y);
