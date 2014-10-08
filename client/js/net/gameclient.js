@@ -149,15 +149,33 @@ GameClient.prototype.chatSay = function(message) {
   this.socket.sendPacket(opak);
 };
 
+GameClient.prototype.chatWhisper = function(targetName, message) {
+  var opak = new RosePacket(0x784);
+  opak.addString(targetName);
+  opak.addString(message);
+  this.socket.sendPacket(opak);
+};
+
 GameClient.prototype.chatShout = function(message) {
   var opak = new RosePacket(0x785);
   opak.addString(message);
   this.socket.sendPacket(opak);
 };
 
-GameClient.prototype.chatWhisper = function(targetName, message) {
-  var opak = new RosePacket(0x784);
-  opak.addString(targetName);
+GameClient.prototype.chatParty = function(message) {
+  var opak = new RosePacket(0x786);
+  opak.addString(message);
+  this.socket.sendPacket(opak);
+};
+
+GameClient.prototype.chatClan = function(message) {
+  var opak = new RosePacket(0x787);
+  opak.addString(message);
+  this.socket.sendPacket(opak);
+};
+
+GameClient.prototype.chatTrade = function(message) {
+  var opak = new RosePacket(0x7ed);
   opak.addString(message);
   this.socket.sendPacket(opak);
 };
@@ -533,9 +551,9 @@ GameClient._registerHandler(0x71a, function(pak, data) {
   data.skills = [];
   for (var l = 0; l < skillCount; ++l) {
     var skill = {};
-    skill.slot = pak.readInt16();
-    skill.skillIdx = pak.readInt16();
-    skill.expireSec = pak.readInt32();
+    skill.slot = pak.readUint16();
+    skill.skillIdx = pak.readUint16();
+    skill.expireSec = pak.readUint32();
     data.skills.push(skill);
   }
   this._emitPE('skill_data', data);
@@ -765,6 +783,24 @@ GameClient._registerHandler(0x785, function(pak, data) {
   data.senderName = pak.readString();
   data.message = pak.readString();
   this._emitPE('chat_shout', data);
+});
+
+GameClient._registerHandler(0x786, function(pak, data) {
+  data.senderName = pak.readString();
+  data.message = pak.readString();
+  this._emitPE('chat_party', data);
+});
+
+GameClient._registerHandler(0x787, function(pak, data) {
+  data.senderName = pak.readString();
+  data.message = pak.readString();
+  this._emitPE('chat_clan', data);
+});
+
+GameClient._registerHandler(0x7ed, function(pak, data) {
+  data.senderName = pak.readString();
+  data.message = pak.readString();
+  this._emitPE('chat_trade', data);
 });
 
 GameClient._registerHandler(0x7d0, function(pak, data) {
