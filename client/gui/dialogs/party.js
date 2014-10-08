@@ -53,10 +53,8 @@ ui.PartyDialog.prototype._update = function() {
 ui.PartyMember = function(element) {
   ui.Widget.call(this, element);
 
-  this._name = ui.label('.name.flex-fill');
-  this._hp = ui.progressbar('.health.absolute');
-  this.append(this._name);
-  this.append(this._hp);
+  this._name = ui.label(this, '.label.name');
+  this._hp = ui.progressbar(this, '.progressbar.health');
 
   this._member = null;
   this._update();
@@ -77,6 +75,15 @@ ui.PartyMember.prototype._update = function() {
   this._name.text(this._member.name);
   this._hp.max(this._member.maxHP);
   this._hp.value(this._member.hp);
+};
+
+
+ui.PartyMember.Create = function() {
+  var html = '<div class="partymember">';
+  html += '<div class="label name flex-fill" />';
+  html += '<div class="progressbar health absolute" />';
+  html += '</div>';
+  return $(html);
 };
 
 ui.partymember = ui.widgetConstructor('partymember', ui.PartyMember);
