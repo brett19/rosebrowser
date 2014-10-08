@@ -10,11 +10,12 @@ ui.GameUI = function(character) {
   this.questList  = ui.questListDialog(character.quests);
   this.quickbar   = ui.quickBarDialog(character.hotIcons);
   this.party      = ui.partyDialog(character.party);
-  this.skills     = ui.skillsDialog(character.skills);
+  this.skillList  = ui.skillsDialog(character.skills);
 
   this.character.hide();
   this.inventory.hide();
   this.questList.hide();
+  this.skillList.hide();
 
   this.dialogs.push(this.menu);
   this.dialogs.push(this.chatBox);
@@ -23,11 +24,12 @@ ui.GameUI = function(character) {
   this.dialogs.push(this.questList);
   this.dialogs.push(this.quickbar);
   this.dialogs.push(this.party);
-  this.dialogs.push(this.skills);
+  this.dialogs.push(this.skillList);
 
   this.menu.on('toggle-character', this._toggleCharacterDialog.bind(this));
   this.menu.on('toggle-inventory', this._toggleInventoryDialog.bind(this));
   this.menu.on('toggle-quest-list', this._toggleQuestListDialog.bind(this));
+  this.menu.on('toggle-skill-list', this._toggleSkillListDialog.bind(this));
 };
 
 ui.GameUI.prototype._toggleCharacterDialog = function() {
@@ -40,6 +42,10 @@ ui.GameUI.prototype._toggleInventoryDialog = function() {
 
 ui.GameUI.prototype._toggleQuestListDialog = function() {
   this.questList.toggle();
+};
+
+ui.GameUI.prototype._toggleSkillListDialog = function() {
+  this.skillList.toggle();
 };
 
 ui.GameUI.prototype.close = function() {

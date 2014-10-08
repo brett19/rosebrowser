@@ -3,7 +3,6 @@ ui.loadTemplateFile('quickbar.html');
 
 ui.QuickBarDialog = function(hotIcons, startIndex) {
   ui.Dialog.call(this, 'quickbar.html');
-  this.centerX();
 
   this._slotsContainer = this._element.children('.slots');
   this._startIndex = startIndex;
@@ -20,7 +19,10 @@ ui.QuickBarDialog = function(hotIcons, startIndex) {
     this._slotsContainer.append(slot._element);
   }
 
+  this.centerX();
+
   this._hotIcons = hotIcons;
+  MC.skills.on('changed', this._update.bind(this));
   MC.inventory.on('changed', this._update.bind(this));
   this._hotIcons.on('changed', this._update.bind(this));
   this._update();

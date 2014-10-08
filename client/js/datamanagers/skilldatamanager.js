@@ -1,6 +1,7 @@
 'use strict';
 
 var SKILL = {
+  TAB_TYPE: 4,
   TYPE: 5,
   BASIC_COMMAND: 6,
   RANGE: 6,
@@ -13,7 +14,8 @@ var SKILL = {
   MOTION: 68,
   SPEED: 69,
   NUMHITS: 70,
-  ANI_ACTION_TYPE: 68
+  ANI_ACTION_TYPE: 68,
+  SLOT_NUM: 111
 };
 
 var SKILL_ACTION_TYPE = {

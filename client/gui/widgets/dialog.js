@@ -45,8 +45,16 @@ ui.Dialog.prototype.centerY = function() {
 };
 
 ui.Dialog.prototype.show = function() {
-  ui.bringToTop(this);
   ui.Widget.prototype.show.call(this);
+  ui.bringToTop(this);
+};
+
+ui.Dialog.prototype.toggle = function() {
+  ui.Widget.prototype.toggle.call(this);
+
+  if (this._element.is(':visible')) {
+    ui.bringToTop(this);
+  }
 };
 
 ui.Dialog.prototype.close = function() {
