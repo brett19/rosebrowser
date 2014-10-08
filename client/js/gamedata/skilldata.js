@@ -22,9 +22,9 @@ SkillData.prototype.useSkill = function(skill) {
     netGame.setMotion(motion, 1);
     break;
   case SKILL_ACTION_TYPE.ACTION_IMMEDIATE:
-    var target = MC.target.object;
-    if (target) {
-      netGame.useSkillOnTarget(skill.slot, target.serverObjectIdx);
+    if (MC.target && MC.target.object) {
+      var targetObj = MC.target.object;
+      netGame.useSkillOnTarget(skill.slot, targetObj.serverObjectIdx);
     }
     break;
   default:
