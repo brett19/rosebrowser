@@ -177,14 +177,37 @@ function _checkQuestItem(param, itemSn, where, count, op) {
 
   if (where >= INVEQUIPIDX.FACE_ITEM && where < INVEQUIPIDX.MAX) {
     // TODO: Check equipment
+    console.warn('Unimplemented _checkQuestItem on equipment!');
   } else if (type === ITEMTYPE.QUEST) {
     quantity = MC.quests.getQuestItemQuantity(param.questID, type, id);
   } else {
     // TODO: Check inventory
+    console.warn('Unimplemented _checkQuestItem on inventory!');
   }
 
   qsdConsole.debug('Check Quest Item', itemSn, where, ':'+quantity, _CHECKOPNAME[op], count);
   return _checkOp(op, quantity, count);
+}
+
+function _checkParty(param, isLeader, level, reverse) {
+  var party = MC.party;
+  var success = false;
+
+  qsdConsole.debug('Check Party', isLeader, level, reverse);
+
+  if (!party.exists) {
+    return false;
+  }
+
+  if (isLeader && party.leaderTag === MC.uniqueTag) {
+    success = true;
+  }
+
+  if (party.level >= level) {
+    success = true;
+  }
+
+  return reverse ? !success : success;
 }
 
 function _checkCond(param, ins) {
@@ -242,7 +265,11 @@ function _checkCond(param, ins) {
         console.debug(ins.items[i]);
       }
       qsdConsole.groupEnd();
-      console.warn('Unimplemented Condition!', ins);
+      break;
+    case QuestScriptManager.CONDITIONS.PARTY:
+      if (!_checkParty(param, ins.isLeader, ins.level, ins.reverse)) {
+        wasSuccess = false;
+      }
       break;
     case QuestScriptManager.CONDITIONS.SKILL:
       qsdConsole.debug('Skill Check', ins.skillNo1, ins.skillNo2, ins.op);
@@ -256,7 +283,6 @@ function _checkCond(param, ins) {
       qsdConsole.debug('Quest Log Activity', ins.questNo, ins.op);
       console.warn('Unimplemented Condition!', ins);
       break;
-    case QuestScriptManager.CONDITIONS.PARTY:
     case QuestScriptManager.CONDITIONS.LOCATION:
     case QuestScriptManager.CONDITIONS.WORLD_TIME:
     case QuestScriptManager.CONDITIONS.QUEST_TIME:
