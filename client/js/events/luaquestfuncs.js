@@ -66,3 +66,13 @@ function QF_getQuestVar(questNo, id) {
 function QF_getEventOwner(event) {
   return [ event.npc.serverObjectIdx ];
 }
+
+function QF_getNpcQuestZeroVal(objectIdx) {
+  var obj = GZM.findByServerObjectIdx(objectIdx);
+
+  if (obj instanceof NpcObject) {
+    return [ obj.eventVar[0] || 0 ];
+  } else {
+    return [ 0 ];
+  }
+}

@@ -116,6 +116,9 @@ _NetManager.prototype.watch = function(wn, gn) {
     if (data.command === OBJECT_COMMAND.MOVE) {
       npc._moveTo(data.posTo.x, data.posTo.y);
     }
+    for (var i = 0; i < data.eventStatuses.length; ++i) {
+      npc.eventVar[i] = data.eventStatuses[i];
+    }
     GZM.addObject(npc);
   });
 
@@ -157,6 +160,13 @@ _NetManager.prototype.watch = function(wn, gn) {
       mob._moveTo(data.posTo.x, data.posTo.y);
     }
     GZM.addObject(mob);
+  });
+
+  gn.on('event_status', function(data) {
+    var obj = GZM.findByServerObjectIdx(data.objectIdx);
+    if (obj instanceof NpcObject) {
+      obj.setEventVar(data.id, data.value);
+    }
   });
 
   gn.on('obj_remove', function(data) {

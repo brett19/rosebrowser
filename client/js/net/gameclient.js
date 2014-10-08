@@ -520,6 +520,13 @@ GameClient._registerHandler(0x71b, function(pak, data) {
   }
 });
 
+GameClient._registerHandler(0x790, function(pak, data) {
+  data.objectIdx = pak.readUint16();
+  data.id = pak.readUint8();
+  data.value = pak.readInt16();
+  this._emitPE('event_status', data);
+});
+
 GameClient._registerHandler(0x71a, function(pak, data) {
   data.result = pak.readUint8();
   var skillCount = pak.readInt16();

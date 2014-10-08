@@ -116,7 +116,7 @@ LuaFunctions.prototype.QF_Init = function() {
   this.setFunc('QF_getQuestSwitch', QF_getQuestSwitch);
   this.setFunc('QF_getQuestVar', QF_getQuestVar);
   this.setFunc('QF_getEventOwner', QF_getEventOwner);
-  this.setFunc('QF_getNpcQuestZeroVal');
+  this.setFunc('QF_getNpcQuestZeroVal', QF_getNpcQuestZeroVal);
   this.setFunc('QF_getSkillLevel');
   this.setFunc('QF_givePoint');
   this.setFunc('QF_gotoCon');
