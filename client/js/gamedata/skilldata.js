@@ -21,6 +21,12 @@ SkillData.prototype.useSkill = function(skill) {
     var motion = parseInt(data[SKILL.ANI_ACTION_TYPE]);
     netGame.setMotion(motion, 1);
     break;
+  case SKILL_ACTION_TYPE.ACTION_IMMEDIATE:
+    var target = MC.target.object;
+    if (target) {
+      netGame.useSkillOnTarget(skill.slot, target.serverObjectIdx);
+    }
+    break;
   default:
     console.warn('TODO: Unimplemented useSkill', skill);
     break;

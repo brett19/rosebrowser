@@ -22,6 +22,18 @@ function CharObject(world) {
 }
 CharObject.prototype = Object.create( ActorObject.prototype );
 
+CharObject.prototype._skillToObj = function(objectRef, skillIdx) {
+  if (!(objectRef instanceof GORef)) {
+    console.warn('Reference passed to _attackObj was not a GORef.');
+    return;
+  }
+
+  var skillData = GDM.getNow('skill_data');
+  var skill = skillData.getData(skillIdx);
+
+  return this._setNextCmd(new SkillToObjCmd(this, objectRef, skill));
+};
+
 CharObject.prototype._setMotion = function(motionIdx) {
   // Timescale should not be hardcoded here...
   this.pawn.playMotion(motionIdx, 1.0, false)

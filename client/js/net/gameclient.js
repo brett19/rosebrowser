@@ -189,6 +189,13 @@ GameClient.prototype.useItemOnPosition = function(itemKey, x, y) {
   this.socket.sendPacket(opak);
 };
 
+GameClient.prototype.useSkillOnTarget = function(skillSlotNo, targetIdx) {
+  var opak = new RosePacket(0x7b3);
+  opak.addUint16(targetIdx);
+  opak.addUint16(skillSlotNo);
+  this.socket.sendPacket(opak);
+};
+
 GameClient.prototype.equipItem = function(slotNo, itemKey) {
   var opak = new RosePacket(0x7a5);
   opak.addUint32(slotNo);
@@ -835,6 +842,52 @@ GameClient._registerHandler(0x7d5, function(pak, data) {
 GameClient._registerHandler(0x7d7, function(pak, data) {
   data.rule = pak.readUint8();
   this._emitPE('party_rule', data);
+});
+
+GameClient._registerHandler(0x7b3, function(pak, data) {
+  data.sourceObjectIdx = pak.readUint16();
+  data.destObjectIdx = pak.readUint16();
+  data.skillIdx = pak.readInt16();
+  data.serverDist = pak.readUint16();
+  data.posTo = pak.readVector2();
+  if (!pak.isReadEof()) {
+    data.npcSkillMotion = pak.readString();
+  }
+  this._emitPE('target_skill', data);
+});
+
+GameClient._registerHandler(0x7bb, function(pak, data) {
+  data.objectIdx = pak.readUint16();
+  this._emitPE('skill_start', data);
+});
+
+GameClient._registerHandler(0x865, function(pak, data) {
+  this._emitPE('skill_cooldown', data);
+});
+
+function handleEffectOfSkill(pak, data) {
+  data.sourceObjectIdx = pak.readUint16();
+  data.destObjectIdx = pak.readUint16();
+  data.skillIdx = pak.readUint16();
+  data.primaryStat = pak.readUint16();
+  data.secondaryStat = pak.readUint16();
+  data.successBits = pak.readUint8();
+}
+GameClient._registerHandler(0x7b6, function(pak, data) {
+  handleEffectOfSkill(pak, data);
+  data.amount = pak.readUint32();
+  data.flags = pak.readUint32();
+  data.items = [];
+  while(!pak.isReadEof()) {
+    data.items.push(pak.readDropItem());
+  }
+  this._emitPE('skill_damage', data);
+});
+
+GameClient._registerHandler(0x7b9, function(pak, data) {
+  data.objectIdx = pak.readUint16();
+  data.skillIdx = pak.readInt16();
+  this._emitPE('skill_result', data);
 });
 
 var netGame = null;

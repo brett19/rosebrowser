@@ -200,6 +200,17 @@ _NetManager.prototype.watch = function(wn, gn) {
     }
   });
 
+  gn.on('target_skill', function(data) {
+    var attackerObj = GZM.findByServerObjectIdx(data.sourceObjectIdx);
+    if (attackerObj && !(attackerObj instanceof ProxyObject)) {
+      var defenderObj = GZM.getRefByServerObjectIdx(
+          data.destObjectIdx,
+          new THREE.Vector3(data.posTo.x, data.posTo.y, 0));
+      attackerObj._skillToObj(defenderObj, data.skillIdx);
+      console.log('obj_target_skill', data);
+    }
+  });
+
   gn.on('obj_motion', function(data) {
     var obj = GZM.findByServerObjectIdx(data.objectIdx);
     if (obj && obj instanceof CharObject) {
@@ -209,6 +220,18 @@ _NetManager.prototype.watch = function(wn, gn) {
 
   gn.on('damage', function(data) {
     var defenderObj = GZM.findByServerObjectIdx(data.defenderObjectIdx);
+    if (defenderObj && !(defenderObj instanceof ProxyObject)) {
+      defenderObj.emit('damage', data.amount);
+
+      if (data.flags & 16) {
+        defenderObj.emit('died');
+        GZM.removeObject(defenderObj);
+      }
+    }
+  });
+
+  gn.on('skill_damage', function(data) {
+    var defenderObj = GZM.findByServerObjectIdx(data.destObjectIdx);
     if (defenderObj && !(defenderObj instanceof ProxyObject)) {
       defenderObj.emit('damage', data.amount);
 
