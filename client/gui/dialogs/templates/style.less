@@ -164,10 +164,13 @@ body {
   }
 
   /* Tabs Element */
-  .tabpanel {
-    .header {
+  .tabpanel.horizontal {
+    .flex-vertical;
+    .flex-stretch;
+
+    & > .header {
       .flex-horizontal;
-      width: 100%;
+      z-index: 1;
 
       .button {
         .flex-fill;
@@ -179,12 +182,38 @@ body {
       }
     }
 
-    .tab {
+    & > .tab {
+      .flex-fill;
       .panel;
-      width: 100%;
       border-top-right-radius: 0px;
       border-top-left-radius: 0px;
       margin-top: -1px;
+    }
+  }
+
+  .tabpanel.vertical {
+    .flex-horizontal;
+    .flex-stretch;
+
+    & > .header {
+      .flex-vertical;
+      z-index: 1;
+
+      .button {
+        border-bottom-right-radius: 0px;
+        border-top-right-radius: 0px;
+        border-right: 0px;
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+    }
+
+    & > .tab {
+      .flex-fill;
+      .panel;
+      border-top-left-radius: 0px;
+      border-bottom-left-radius: 0px;
+      margin-left: -1px;
     }
   }
 

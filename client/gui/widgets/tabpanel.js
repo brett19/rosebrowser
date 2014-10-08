@@ -2,6 +2,12 @@
 
 ui.TabPanel = function(element) {
   ui.Widget.call(this, element);
+
+  // Default to horizontal tab buttons
+  if (!this._element.hasClass('vertical') && !this._element.hasClass('horizontal')) {
+    this._element.addClass('horizontal');
+  }
+
   this._tabs = [];
   this._index = 0;
   this._update();
