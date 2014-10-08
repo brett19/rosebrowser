@@ -34,16 +34,19 @@ SkillData.prototype.useSkill = function(skill) {
 };
 
 SkillData.prototype._useCommand = function(command) {
+  var target = MC.target;
   switch (command) {
   case BASIC_COMMAND.PARTY:
-    if (MC.party.exists) {
-      if (MC.party.leaderTag === MC.uniqueTag) {
-        //netGame.partyRequest(PARTY_REQ_JOIN, targetIdx);
+    if (target) {
+      if (MC.party.exists) {
+        if (MC.party.leaderTag === MC.uniqueTag) {
+          netGame.partyRequest(PARTY_REQ_JOIN, target.serverObjectIdx);
+        } else {
+          GCM.system('Only the party leader can send party invites.');
+        }
       } else {
-        GCM.system('Only the party leader can send party invites.');
+        netGame.partyRequest(PARTY_REQ_MAKE, target.serverObjectIdx);
       }
-    } else {
-      //netGame.partyRequest(PARTY_REQ_MAKE, targetIdx);
     }
     break;
   }
