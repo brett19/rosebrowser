@@ -210,6 +210,21 @@ InventoryData.prototype.findBySlot = function(slotNo) {
   }
 };
 
+
+InventoryData.prototype.getSlotFromLocSlot = function(location, slotNo) {
+  if (location === ITEMLOC.EQUIPPED_EQUIP) {
+    return slotNo;
+  } else if (location === ITEMLOC.INVENTORY) {
+    return slotNo + INVEQUIPIDX.MAX;
+  } else if (location === ITEMLOC.EQUIPPED_AMMO) {
+    return slotNo + INVEQUIPIDX.MAX + 120;
+  } else if (location === ITEMLOC.EQUIPPED_PAT) {
+    return slotNo + INVEQUIPIDX.MAX + 120 + 3;
+  }else {
+    throw new Error('getSlotFromLocSlot ' + location + ' ' + slotNo);
+  }
+};
+
 InventoryData.prototype.findByLocSlot = function(location, slotNo) {
   for (var i = 0; i < this.items.length; ++i) {
     var item = this.items[i];

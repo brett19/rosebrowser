@@ -318,6 +318,10 @@ _NetManager.prototype.watch = function(wn, gn) {
     }
   });
 
+  gn.on('set_hot_icon', function(data) {
+    MC.hotIcons.setIcon(data.id, data.type, data.slot);
+  });
+
   gn.on('char_equip_item', function(data) {
     var obj = GZM.findByServerObjectIdx(data.objectIdx);
     if (obj instanceof CharObject) {

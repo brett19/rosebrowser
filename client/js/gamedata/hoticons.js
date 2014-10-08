@@ -22,13 +22,14 @@ HotIcons.Icon = function(type, slot) {
   this.slot = slot;
 };
 
+HotIcons.prototype.setIcon = function(id, type, slot) {
+  var icon = this.icons[id];
+  icon.type = type;
+  icon.slot = slot;
+  this.emit('changed', [id]);
+};
+
 HotIcons.prototype.setIcons = function(icons) {
-  this.icons = [];
-
-  for (var i = 0; i < icons.length; ++i) {
-    this.icons.push(new HotIcons.Icon(icons[i] & 0x1f, icons[i] >> 5));
-  }
-
-  console.log(this.icons);
+  this.icons = icons;
   this.emit('changed');
 };

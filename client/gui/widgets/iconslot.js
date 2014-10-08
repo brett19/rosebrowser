@@ -4,6 +4,7 @@ ui.IconSlot = function(element) {
   this._object = null;
   this._icon = null;
   this._tooltip = null;
+  this._usable = true;
   this.clear();
 };
 
@@ -84,6 +85,14 @@ ui.IconSlot.prototype.dragEnabled = function(drag) {
   }
 };
 
+ui.IconSlot.prototype.acceptsAll = function(accept) {
+  if (accept === undefined) {
+    return this._element.hasClass('accepts-all');
+  } else if (accept !== this.acceptsAll()){
+    this._element.toggleClass('accepts-all');
+  }
+};
+
 ui.IconSlot.prototype.acceptsSkill = function(accept) {
   if (accept === undefined) {
     return this._element.hasClass('accepts-skill');
@@ -100,12 +109,31 @@ ui.IconSlot.prototype.acceptsItem = function(accept) {
   }
 };
 
+ui.IconSlot.prototype.use = function() {
+  switch (this._type) {
+  case HOT_ICON_TYPE.ITEM:
+    MC.inventory.useItem(this._object);
+    break;
+  case HOT_ICON_TYPE.SKILL:
+    MC.skills.useSkill(this._object);
+    break;
+  case HOT_ICON_TYPE.COMMAND:
+  case HOT_ICON_TYPE.EMOTE:
+  case HOT_ICON_TYPE.DIALOG:
+  case HOT_ICON_TYPE.CLAN_SKILL:
+  default:
+    console.warn('Unimplemented hot icon type in IconSlot.use', this._type);
+  };
+}
+
 ui.IconSlot.prototype._onSwap = function(other) {
   this.emit('swap', other);
 };
 
-ui.IconSlot.prototype._onUse = function(downEvent) {
-  this.emit('use');
+ui.IconSlot.prototype._onDoubleClick = function() {
+  if (this._usable) {
+    this.use();
+  }
 };
 
 ui.IconSlot.prototype._onMouseMove = function(moveEvent) {
@@ -127,9 +155,22 @@ ui.IconSlot.prototype._onMouseDown = function(downEvent) {
 
   var self = this;
   var offset = self._icon.offset();
-  self._icon.css('z-index', ui.IconSlot.MOVE_Z);
+  var dragStarted = false;
 
   function mouseMove(moveEvent) {
+    if (!dragStarted) {
+      dragStarted = true;
+
+      self._icon.css('position', 'absolute');
+      self._icon.css('z-index', ui.IconSlot.MOVE_Z);
+      self._icon.detach();
+      $('.ui').append(self._icon);
+      self._icon.offset({
+        left: offset.left,
+        top: offset.top
+      });
+    }
+
     self._icon.offset({
       left: moveEvent.pageX - downEvent.pageX + offset.left,
       top: moveEvent.pageY - downEvent.pageY + offset.top
@@ -137,10 +178,20 @@ ui.IconSlot.prototype._onMouseDown = function(downEvent) {
   };
 
   function mouseUp(upEvent) {
+    $(document).off('mousemove', mouseMove);
+    $(document).off('mouseup', mouseUp);
+
+    if (!dragStarted) {
+      return;
+    }
+
     self._icon.hide();
     var target = $(document.elementFromPoint(upEvent.clientX, upEvent.clientY));
     self._icon.css('z-index', '');
+    self._icon.css('position', 'relative');
     self._icon.show();
+    self._icon.detach();
+    self._element.append(self._icon);
     self._icon.offset(offset);
 
     if (!target.hasClass('slot')) {
@@ -161,9 +212,6 @@ ui.IconSlot.prototype._onMouseDown = function(downEvent) {
         self._onSwap(match[0]);
       }
     }
-
-    $(document).off('mousemove', mouseMove);
-    $(document).off('mouseup', mouseUp);
   };
 
   $(document).on('mousemove', mouseMove);
@@ -209,7 +257,7 @@ ui.IconSlot.prototype._update = function() {
     this._icon.mousemove(this._onMouseMove.bind(this));
     this._icon.mouseout(this._onMouseOut.bind(this));
     this._icon.mousedown(this._onMouseDown.bind(this));
-    this._icon.dblclick(this._onUse.bind(this));
+    this._icon.dblclick(this._onDoubleClick.bind(this));
     this._element.append(this._icon);
   }
 };

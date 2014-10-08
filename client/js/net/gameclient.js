@@ -226,6 +226,13 @@ GameClient.prototype.partyReply = function(reply, objectIdxOrTag) {
   this.socket.sendPacket(opak);
 };
 
+GameClient.prototype.setHotIcon = function(id, type, slot) {
+  var opak = new RosePacket(0x7aa);
+  opak.addUint8(id);
+  opak.addUint16((type & 0x1f) | (slot << 5));
+  this.socket.sendPacket(opak);
+};
+
 /**
  * Little helper to emit packet events that can be logged.
  * @param {string} event
@@ -311,7 +318,8 @@ GameClient._registerHandler(0x715, function(pak, data) {
   }
   data.hotIcons = [];
   for (var p = 0; p < 48; ++p) {
-    data.hotIcons.push(pak.readUint16());
+    var icon = pak.readUint16();
+    data.hotIcons.push(new HotIcons.Icon(icon & 0x1f, icon >> 5));
   }
   data.uniqueTag = pak.readUint32();
   data.coolTime = [];
@@ -544,6 +552,14 @@ GameClient._registerHandler(0x7a5, function(pak, data) {
   data.runSpeedBase = pak.readInt16();
   data.runSpeed = pak.readInt16();
   this._emitPE('char_equip_item', data);
+});
+
+GameClient._registerHandler(0x7aa, function(pak, data) {
+  data.id = pak.readUint8();
+  var icon = pak.readUint16();
+  data.type = icon & 0x1f;
+  data.slot = icon >> 5;
+  this._emitPE('set_hot_icon', data);
 });
 
 function handleAddChar(pak, data) {

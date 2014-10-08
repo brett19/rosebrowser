@@ -22,8 +22,7 @@ ui.InventoryDialog = function(inventory) {
       tab._element.append('<br />');
     }
 
-    slot.on('use', this._useItem.bind(this, id.substr(1)));
-    slot.on('swap', this._swapItem.bind(this, id.substr(1)));
+    slot.on('swap', this._swapSlot.bind(this, slot));
     this._inventorySlots.push(slot);
   }
 
@@ -33,8 +32,7 @@ ui.InventoryDialog = function(inventory) {
     var id = '.equip-slot-' + i;
     var slot = ui.iconslot(this._equippedTab, id);
     slot.acceptsItem(true);
-    slot.on('use', this._useItem.bind(this, id.substr(1)));
-    slot.on('swap', this._swapItem.bind(this, id.substr(1)));
+    slot.on('swap', this._swapSlot.bind(this, slot));
     this._equipSlots[i] = slot;
   }
 
@@ -42,8 +40,7 @@ ui.InventoryDialog = function(inventory) {
     var id = '.ammo-slot-' + i;
     var slot = ui.iconslot(this._equippedTab, id);
     slot.acceptsItem(true);
-    slot.on('use', this._useItem.bind(this, id.substr(1)));
-    slot.on('swap', this._swapItem.bind(this, id.substr(1)));
+    slot.on('swap', this._swapSlot.bind(this, slot));
     this._ammoSlots[i] = slot;
   }
 
@@ -67,68 +64,56 @@ function getItemLocationFromName(name) {
   }
 }
 
-ui.InventoryDialog.prototype._useItem = function(src) {
-  var locSlot = getItemLocationFromName(src);
-  var item = this._data.findByLocSlot(locSlot.location, locSlot.slot);
-
-  if (item) {
-    this._data.useItem(item);
-  }
-};
-
-ui.InventoryDialog.prototype._swapItem = function(src, dst) {
-  var srcLocInfo = getItemLocationFromName(src);
+ui.InventoryDialog.prototype._swapSlot = function(srcSlot, dst) {
   var dstLocInfo = getItemLocationFromName(dst);
+  var item = srcSlot.icon();
 
-  if (!srcLocInfo) {
-    throw new Error('Swap item src invalid');
-    return;
-  }
-
-  var srcLocation = srcLocInfo.location;
-  var srcItemSlot = this._getItemSlot(srcLocInfo.location, srcLocInfo.slot);
-  var srcItem = srcItemSlot.icon();
-
+  // Drop item
   if (dst === 'drop') {
-    this._data.dropItem(srcItem);
+    this._data.dropItem(item);
     return;
   }
 
   var dstLocInfo = getItemLocationFromName(dst);
 
   if (!dstLocInfo) {
-    // TODO: Dest is not inventory, could be skillbar...
+    // Move to quickbar
+    var match = dst.match(/^quick-slot-([0-9]*)$/);
+
+    if (match) {
+      var slot = this._data.getSlotFromLocSlot(item.location, item.slotNo);
+      if (slot) {
+        netGame.setHotIcon(match[1], HOT_ICON_TYPE.ITEM, slot);
+      }
+      return;
+    }
+
     return;
   }
 
   var dstLocation = dstLocInfo.location;
-  var dstItemSlot = this._getItemSlot(dstLocInfo.location, dstLocInfo.slot);
-  var dstItem = dstItemSlot.icon();
 
-  if (srcLocation === ITEMLOC.EQUIPPED_EQUIP && dstLocation == ITEMLOC.EQUIPPED_EQUIP) {
+  // Equip -> Equip does nothing
+  if (item.location !== ITEMLOC.INVENTORY && dstLocation !== ITEMLOC.INVENTORY) {
     return;
   }
 
-  if (srcLocation === ITEMLOC.EQUIPPED_EQUIP) {
-    // Unequip srcItem.
-    this._useItem(src);
+  // Equip or unquip item
+  if (item.location === ITEMLOC.EQUIPPED_EQUIP || dstLocation === ITEMLOC.EQUIPPED_EQUIP) {
+    srcSlot.use();
     return;
   }
 
-  if (dstLocation === ITEMLOC.EQUIPPED_EQUIP) {
-    // Equip srcItem
-    this._useItem(src);
+  // Inventory -> Inventory is client side
+  if (item.location === ITEMLOC.INVENTORY && dstLocation === ITEMLOC.INVENTORY) {
+    var dstSlot = this._getItemSlot(dstLocInfo.location, dstLocInfo.slot);
+    var tmp = dstSlot._element.offset();
+    dstSlot._element.offset(srcSlot._element.offset());
+    srcSlot._element.offset(tmp);
     return;
   }
 
-  if (srcLocation === ITEMLOC.INVENTORY && dstLocation === ITEMLOC.INVENTORY) {
-    var tmp = dstItemSlot._element.offset();
-    dstItemSlot._element.offset(srcItemSlot._element.offset());
-    srcItemSlot._element.offset(tmp);
-    return;
-  }
-
-  console.warn('Unhandled _swapItems', srcLocation, dstLocation);
+  console.warn('Unhandled _swapSlots', srcSlot, dstLocation);
 };
 
 ui.InventoryDialog.prototype._getItemSlot = function(location, id) {
