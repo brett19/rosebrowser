@@ -60,7 +60,7 @@ GameTestState.prototype.enter = function() {
   }
 
   // TODO: Move somewhere nice as this is loaded in loginstate
-  GDM.get('zone_names', 'list_zone');
+  GDM.get('zone_names', 'list_zone', 'list_status');
 
   netLogin = new LoginClient();
   netLogin.connect(serverIp, 29000, function(err) {

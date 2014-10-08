@@ -27,7 +27,7 @@ LoginState.prototype.prepareOnce = function(callback) {
   this.DM.register('canim_outselect', AnimationData, 'CAMERAS/TITLEMAP_AVTLIST_RETURN.ZMO');
 
   // Start loading this, going to need it later.
-  GDM.get('zone_names', 'list_zone');
+  GDM.get('zone_names', 'list_zone', 'list_status');
 
   var self = this;
   this.DM.get('canim_intro', function() {
