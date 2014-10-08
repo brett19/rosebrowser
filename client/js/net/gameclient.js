@@ -780,7 +780,7 @@ var PARTY_REPLY_BAN = 0x80;
 var PARTY_REPLY_DISCONNECT = 0x81;
 var PARTY_REPLY_REJOIN = 0x82;
 
-function handlePartyMember(pak) {
+function handlePartyMember(pak, noReadName) {
   var member = new PartyData.Member();
   member.serverTag = pak.readUint32();
   member.serverIdx = pak.readUint16();
@@ -793,7 +793,9 @@ function handlePartyMember(pak) {
   member.recoverMP = pak.readUint32();
   member.recoverMPRate = pak.readUint32();
   member.stamina = pak.readUint16();
-  member.name = pak.readString();
+  if (!noReadName) {
+    member.name = pak.readString();
+  }
   return member;
 };
 
@@ -835,7 +837,7 @@ GameClient._registerHandler(0x7d4, function(pak, data) {
 });
 
 GameClient._registerHandler(0x7d5, function(pak, data) {
-  data.member = handlePartyMember(pak);
+  data.member = handlePartyMember(pak, true);
   this._emitPE('party_member_update', data);
 });
 
