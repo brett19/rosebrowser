@@ -23,24 +23,32 @@ Int64.prototype.isBitSet = function(bit) {
   if (bit < 32) {
     return this.lo & (1 << bit);
   } else {
-    return this.hi & (1 << (bit-32));
+    return this.hi & (1 << (bit - 32));
   }
 };
 
+Int64.prototype.hasBits = function(other) {
+  return (this.hi & other.hi) | (this.lo & other.lo);
+};
+
 Int64.prototype.toString = function(radix) {
-  if (radix === 10 || radix === undefined) {
-    return '?int64_tostring_badradix?';
-  } else if (radix === 16) {
-    var str = this.lo.toString(16);
-    while (str.length < 8) {
-      str = '0' + str;
-    }
-    return this.hi.toString(16) + str;
-  } else {
-    return '?int64_tostring_badradix?';
+  var str = this.lo.toString(16);
+
+  while (str.length < 8) {
+    str = '0' + str;
   }
+
+  return this.hi.toString(16) + str;
 };
 
 Int64.prototype.toNumber = function() {
   return this.hi << 32 | this.lo;
+};
+
+Int64.fromBit = function(bit) {
+  if (bit <= 31) {
+    return new Int64(1 << bit, 0);
+  } else {
+    return new Int64(0, 1 << (bit - 31));
+  }
 };
