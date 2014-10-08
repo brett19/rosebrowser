@@ -142,6 +142,13 @@ body {
     vertical-align: middle;
     line-height: 19px;
     cursor: pointer;
+    .flex-horizontal;
+    .flex-center;
+
+    .text {
+      .flex-fill;
+      margin-top: -1px;
+    }
 
     &:hover {
       background: linear-gradient(to bottom, rgb(145, 80, 69) 0%, rgb(145, 80, 6) 49%, rgb(135, 40, 10) 51%, rgb(135, 40, 10) 100%);
@@ -214,6 +221,10 @@ body {
       }
   }
 
+  /* Textbox Widget */
+  .textbox {
+    .panel;
+    color: white;
   }
 
   /* List Element */
@@ -342,16 +353,12 @@ body {
     text-align: center;
   }
 
-  /* dlgLogin */
+  /* Login Dialog */
   .dialog.login {
     width: 280px;
 
-    .flex-horizontal {
-      align-items: center;
-    }
-
-    label {
-      width: 70px;
+    .textbox {
+      width: 100%;
     }
 
     .checkbox.remember {
@@ -708,6 +715,7 @@ body {
 
     .button.send {
       width: 50px;
+      height: inherit;
       margin-left: 5px;
     }
   }

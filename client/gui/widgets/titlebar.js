@@ -7,7 +7,7 @@ ui.Titlebar = function(element) {
 
   if (this._element.hasClass('close')) {
     this._closeButton = ui.button('.close');
-    this._closeButton._element.text('X');
+    this._closeButton.text('X');
     this._closeButton.on('clicked', this._dialog.hide.bind(this._dialog));
     this._closeButton._element.insertAfter(this._element);
   }
