@@ -25,13 +25,17 @@ function Animator(object, animationData) {
 Animator.prototype = Object.create(EventEmitter.prototype);
 
 Animator.prototype.play = function (startTime, weight) {
+  if (this.isPlaying) {
+    return;
+  }
+
   this.currentTime = startTime !== undefined ? startTime : 0;
   this.weight = weight !== undefined ? weight : 1;
 
+  this.reset();
+
   this.isPlaying = true;
   this.isPaused = false;
-
-  this.reset();
 
   THREE.AnimationHandler.play(this);
 };
@@ -40,7 +44,15 @@ Animator.prototype.pause = function() {
   this.isPaused = true;
 };
 
+Animator.prototype.unpause = function() {
+  this.isPaused = false;
+};
+
 Animator.prototype.stop = function () {
+  if (!this.isPlaying) {
+    return;
+  }
+
   this.isPlaying = false;
   this.isPaused = false;
 
@@ -128,7 +140,7 @@ Animator.prototype.update = (function() {
       // If this is the last frame, we have to stop at the last frame, rather
       //   then blending back towards frame 0, remove that time.
       var endTime = this.length;
-      if (this.loop === 1) {
+      if (this.loop === false || this.loop === 1) {
         endTime = (this.data.frameCount - 1) / this.data.fps;
       }
 
@@ -146,10 +158,11 @@ Animator.prototype.update = (function() {
           this.reset();
           this.emit('restart');
         } else {
+          var timeConsumed = endTime - this.currentTime;
           this.currentTime = endTime;
           this.pause();
           this.emit('finish');
-          return this.currentTime - this.length;
+          return delta - timeConsumed;
         }
       }
     }

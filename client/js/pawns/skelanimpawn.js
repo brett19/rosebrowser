@@ -62,6 +62,8 @@ SkelAnimPawn.prototype.playMotion = function(motionIdx, timeScale, loop, callbac
     anim.loop = loop;
     if (!anim.isPlaying) {
       anim.play(0, 0);
+    } else if (anim.isPaused) {
+      anim.unpause();
     }
 
     // If no motions were previously playing, immediately activate this one.
