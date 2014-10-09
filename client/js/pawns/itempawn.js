@@ -10,8 +10,14 @@ function ItemPawn(go) {
 ItemPawn.prototype = Object.create(Pawn.prototype);
 
 ItemPawn.prototype._setModel = function(modelMgr, modelIdx) {
-  var model = modelMgr.createForStatic(modelIdx, null, null, function() {
-    console.log('FIELDITEM LOADED', model);
+  var model = modelMgr.createForStatic(modelIdx);
+  GDM.get('fielditem_ani', function(itemAni) {
+    var ani = new ObjectAnimator(model, itemAni);
+    ani.loop = false;
+    ani.once('finish', function() {
+      ani.stop();
+    });
+    ani.play();
   });
   this.rootObj.add(model);
 };

@@ -262,6 +262,7 @@ GDM.register('list_npc', DataTable, '3DDATA/STB/LIST_NPC.STB');
 GDM.register('npc_names', StringTable, '3DDATA/STB/LIST_NPC_S.STL');
 
 GDM.register('fielditem_models', ModelListManager, '3DDATA/ITEM/LIST_FIELDITEM.ZSC');
+GDM.register('fielditem_ani', AnimationData, '3DDATA/MOTION/ITEM_ANI.ZMO');
 
 GDM.register('male_skel', SkeletonData, '3DDATA/AVATAR/MALE.ZMD');
 GDM.register('female_skel', SkeletonData, '3DDATA/AVATAR/FEMALE.ZMD');
