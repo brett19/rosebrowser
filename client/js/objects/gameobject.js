@@ -12,6 +12,7 @@ function GameObject(objType, world) {
   this.position = new THREE.Vector3(0, 0, 0);
   this.ref = new GORef(this);
   this.selected = false;
+  this.pawn = undefined;
 }
 GameObject.prototype = new EventEmitter();
 
@@ -27,4 +28,8 @@ GameObject.prototype.dropFromSky = function() {
 };
 
 GameObject.prototype.update = function(delta) {
+  if (this.pawn) {
+    this.pawn.setPosition(this.position);
+    this.pawn.update(delta);
+  }
 };

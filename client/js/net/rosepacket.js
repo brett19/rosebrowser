@@ -209,11 +209,10 @@ RosePacket.prototype.readItem = function() {
 };
 RosePacket.prototype.readDropItem = function() {
   var item = {};
-  item.position = this.readVector2();
+  item.position = this.readVector2().divideScalar(100);
   item.item = this.readItem();
   item.objectIdx = this.readUint16();
   item.ownerObjectIdx = this.readUint16();
-  item.remainTime = this.readUint32();
   return item;
 };
 RosePacket.prototype.readString = function() {

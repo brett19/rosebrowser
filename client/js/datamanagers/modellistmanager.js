@@ -155,7 +155,10 @@ ModelListManager.prototype.createForStatic = function(modelIdx, lightmap, lmIdx,
   var self = this;
   for (var i = 0; i < model.parts.length; ++i) {
     (function(partIdx, part, partCallback) {
-      var lmData = lightmap.getDataForPart(lmIdx, i);
+      var lmData = null;
+      if (lightmap) {
+        lmData = lightmap.getDataForPart(lmIdx, i);
+      }
       var material = null;
 
       if (!lmData) {

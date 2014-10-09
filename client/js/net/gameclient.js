@@ -765,11 +765,11 @@ GameClient._registerHandler(0x799, function(pak, data) {
   data.defenderObjectIdx = pak.readUint16();
   data.amount = pak.readUint32();
   data.flags = pak.readUint32();
-  data.items = [];
-  while(!pak.isReadEof()) {
-    data.items.push(pak.readDropItem());
-  }
   this._emitPE('damage', data);
+
+  while(!pak.isReadEof()) {
+    this._emitPE('dropitem', pak.readDropItem());
+  }
 });
 
 GameClient._registerHandler(0x781, function(pak, data) {
@@ -922,7 +922,7 @@ GameClient._registerHandler(0x7b3, function(pak, data) {
   data.destObjectIdx = pak.readUint16();
   data.skillIdx = pak.readInt16();
   data.serverDist = pak.readUint16();
-  data.posTo = pak.readVector2();
+  data.posTo = pak.readVector2().divideScalar(100);
   if (!pak.isReadEof()) {
     data.npcSkillMotion = pak.readString();
   }
@@ -950,11 +950,17 @@ GameClient._registerHandler(0x7b6, function(pak, data) {
   handleEffectOfSkill(pak, data);
   data.amount = pak.readUint32();
   data.flags = pak.readUint32();
-  data.items = [];
-  while(!pak.isReadEof()) {
-    data.items.push(pak.readDropItem());
-  }
   this._emitPE('skill_damage', data);
+
+  while(!pak.isReadEof()) {
+    this._emitPE('dropitem', pak.readDropItem());
+  }
+});
+
+GameClient._registerHandler(0x7a6, function(pak, data) {
+  var item = pak.readDropItem();
+  item.remainTime = pak.readUint16();
+  this._emitPE('dropitem', item);
 });
 
 GameClient._registerHandler(0x7b9, function(pak, data) {

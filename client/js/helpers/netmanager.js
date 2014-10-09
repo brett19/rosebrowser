@@ -208,6 +208,15 @@ _NetManager.prototype.watch = function(wn, gn) {
     GZM.addObject(mob);
   });
 
+  gn.on('dropitem', function(data) {
+    var item = new ItemObject(self.world);
+    item.serverObjectIdx = data.objectIdx;
+    item.setPosition(data.position.x, data.position.y, 10);
+    item.pawn = new ItemPawn(item);
+    item.setItem(data.item);
+    GZM.addObject(item);
+  });
+
   gn.on('event_status', function(data) {
     var obj = GZM.findByServerObjectIdx(data.objectIdx);
     if (obj instanceof NpcObject) {

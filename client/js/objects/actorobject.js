@@ -11,7 +11,6 @@ function ActorObject(type, world) {
   this.moveSpeed = 550;
   this.activeCmd = null;
   this.nextCmd = null;
-  this.pawn = undefined;
 }
 ActorObject.prototype = new GameObject();
 
@@ -84,8 +83,7 @@ ActorObject.prototype.update = function(delta) {
   }
 
   if (this.pawn) {
-    this.pawn.setPosition(this.position);
     this.pawn.setDirection(this.direction);
-    this.pawn.update(delta);
   }
+  return GameObject.prototype.update.call(this, delta);
 };

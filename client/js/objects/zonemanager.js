@@ -48,16 +48,14 @@ ZoneManager.prototype.removeFromScene = function() {
 };
 
 ZoneManager.prototype.addObject = function(obj) {
-  if (obj.world !== this.map) {
+  if (obj.world && obj.world !== this.map) {
     console.warn('Object added to ZoneManager that is assigned to another zone');
   }
 
-  if (obj instanceof ActorObject) {
-    this.pawns.push(obj.pawn);
-    this.colObjects.push(obj.pawn.rootObj);
-    if (this.inScene) {
-      scene.add(obj.pawn.rootObj);
-    }
+  this.pawns.push(obj.pawn);
+  this.colObjects.push(obj.pawn.rootObj);
+  if (this.inScene) {
+    scene.add(obj.pawn.rootObj);
   }
 
   this.objects.addObject(obj);
@@ -67,18 +65,16 @@ ZoneManager.prototype.addObject = function(obj) {
 };
 
 ZoneManager.prototype.removeObject = function(obj) {
-  if (obj instanceof ActorObject) {
-    var colObjIdx = this.colObjects.indexOf(obj.pawn.rootObj);
-    if (colObjIdx !== -1) {
-      this.colObjects.splice(colObjIdx, 1);
-    }
-    var pawnIdx = this.pawns.indexOf(obj.pawn);
-    if (pawnIdx !== -1) {
-      this.pawns.splice(pawnIdx, 1);
-    }
-    if (this.inScene) {
-      scene.remove(obj.pawn.rootObj);
-    }
+  var colObjIdx = this.colObjects.indexOf(obj.pawn.rootObj);
+  if (colObjIdx !== -1) {
+    this.colObjects.splice(colObjIdx, 1);
+  }
+  var pawnIdx = this.pawns.indexOf(obj.pawn);
+  if (pawnIdx !== -1) {
+    this.pawns.splice(pawnIdx, 1);
+  }
+  if (this.inScene) {
+    scene.remove(obj.pawn.rootObj);
   }
 
   this.objects.removeObject(obj);
