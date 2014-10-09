@@ -25,10 +25,6 @@ function Animator(object, animationData) {
 Animator.prototype = Object.create(EventEmitter.prototype);
 
 Animator.prototype.play = function (startTime, weight) {
-  if (this.isPlaying) {
-    return;
-  }
-
   this.currentTime = startTime !== undefined ? startTime : 0;
   this.weight = weight !== undefined ? weight : 1;
 
