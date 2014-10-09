@@ -270,6 +270,7 @@ GDM.register('itm_mcap', ModelListManager, '3DDATA/AVATAR/LIST_MCAP.ZSC');
 GDM.register('itm_mbody', ModelListManager, '3DDATA/AVATAR/LIST_MBODY.ZSC');
 GDM.register('itm_marms', ModelListManager, '3DDATA/AVATAR/LIST_MARMS.ZSC');
 GDM.register('itm_mfoot', ModelListManager, '3DDATA/AVATAR/LIST_MFOOT.ZSC');
+GDM.register('itm_mfaceitem', ModelListManager, '3DDATA/AVATAR/LIST_MFACEITEM.ZSC');
 
 GDM.register('itm_fface', ModelListManager, '3DDATA/AVATAR/LIST_WFACE.ZSC');
 GDM.register('itm_fhair', ModelListManager, '3DDATA/AVATAR/LIST_WHAIR.ZSC');
@@ -277,14 +278,7 @@ GDM.register('itm_fcap', ModelListManager, '3DDATA/AVATAR/LIST_WCAP.ZSC');
 GDM.register('itm_fbody', ModelListManager, '3DDATA/AVATAR/LIST_WBODY.ZSC');
 GDM.register('itm_farms', ModelListManager, '3DDATA/AVATAR/LIST_WARMS.ZSC');
 GDM.register('itm_ffoot', ModelListManager, '3DDATA/AVATAR/LIST_WFOOT.ZSC');
-
-if (config.isEvoData) {
-  GDM.register('itm_mfaceitem', ModelListManager, '3DDATA/AVATAR/LIST_MFACEITEM.ZSC');
-  GDM.register('itm_ffaceitem', ModelListManager, '3DDATA/AVATAR/LIST_WFACEITEM.ZSC');
-} else {
-  GDM.register('itm_mfaceitem', ModelListManager, '3DDATA/AVATAR/LIST_FACEITEM.ZSC');
-  GDM.register('itm_ffaceitem', ModelListManager, '3DDATA/AVATAR/LIST_FACEITEM.ZSC');
-}
+GDM.register('itm_ffaceitem', ModelListManager, '3DDATA/AVATAR/LIST_WFACEITEM.ZSC');
 
 GDM.register('itm_back', ModelListManager, '3DDATA/AVATAR/LIST_BACK.ZSC');
 GDM.register('itm_weapon', ModelListManager, '3DDATA/WEAPON/LIST_WEAPON.ZSC');
