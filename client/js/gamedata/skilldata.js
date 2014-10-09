@@ -49,6 +49,9 @@ SkillData.prototype._useCommand = function(command) {
       }
     }
     break;
+  default:
+    console.warn('Used unimplemented basic command:', command);
+    break;
   }
 };
 
