@@ -16,14 +16,9 @@ var NPCANI = {
 };
 
 function NpcPawn(go) {
-  this.rootObj = new THREE.Object3D();
-  this.rootObj.owner = this;
+  SkelAnimPawn.call(this);
+
   this.charIdx = 0;
-  this.skel = null;
-  this.skelWaiters = [];
-  this.motionCache = null;
-  this.activeMotions = [];
-  this.defaultMotionIdx = -1;
 
   if (go) {
     this.owner = go;
@@ -39,9 +34,8 @@ function NpcPawn(go) {
 
     this.createNamePlate();
   }
-
-  this.playDefaultMotion();
 }
+NpcPawn.prototype = Object.create(SkelAnimPawn.prototype);
 
 NpcPawn.prototype.createNamePlate = function() {
   var texture = ui.createNamePlate(this.owner);
@@ -66,103 +60,13 @@ NpcPawn.prototype.createNamePlate = function() {
  */
 NpcPawn.motionFileCache = new DataCache(AnimationData);
 
-NpcPawn.prototype._setSkeleton = function(skelData) {
-  this.skel = skelData.create(this.rootObj);
-
-  // Reset the loaded motions if the skeleton changed...
-  this.motionCache = {};
-  this.activeMotions = [];
-
-  // Let everyone waiting know!
-  for (var i = 0; i < this.skelWaiters.length; ++i) {
-    this.skelWaiters[i]();
-  }
-  this.skelWaiters = [];
-};
-
-NpcPawn.prototype._waitSkeleton = function(callback) {
-  if (this.skel) {
-    callback();
-  } else {
-    this.skelWaiters.push(callback);
-  }
-};
-
 NpcPawn.prototype._getMotionData = function(motionIdx, callback) {
-  var self = this;
   GDM.get('npc_chars', function(charData) {
-    self._waitSkeleton(function() {
-      var char = charData.characters[self.charIdx];
-      var animIdx = char.animations[motionIdx];
-      var motionFile = charData.animations[animIdx];
-      NpcPawn.motionFileCache.get(motionFile, function (animData) {
-        if (callback) {
-          callback(animData);
-        }
-      });
-    });
-  });
-};
-
-NpcPawn.prototype._getMotion = function(motionIdx, callback) {
-  // We check the cache after the getMotionData to avoid synchronization
-  //   issues from calling this method twice in a row for the same motion.
-  this._getMotionData(motionIdx, function(animData) {
-    if (this.motionCache[motionIdx]) {
-      callback(this.motionCache[motionIdx]);
-      return;
-    }
-    var anim = new SkeletonAnimator(this.skel, animData);
-    this.motionCache[motionIdx] = anim;
-    callback(anim);
+    var char = charData.characters[this.charIdx];
+    var animIdx = char.animations[motionIdx];
+    var motionFile = charData.animations[animIdx];
+    NpcPawn.motionFileCache.get(motionFile, callback);
   }.bind(this));
-};
-
-NpcPawn.prototype._playMotion = function(motionIdx, timeScale, loop, callback) {
-  this._getMotion(motionIdx, function(anim) {
-    var activeIdx = this.activeMotions.indexOf(anim);
-    if (activeIdx !== -1) {
-      this.activeMotions.splice(activeIdx, 1);
-    }
-
-    anim.timeScale = timeScale;
-    anim.loop = loop;
-    if (!anim.isPlaying) {
-      anim.play(0, 0);
-    }
-
-    // If no motions were previously playing, immediately activate this one.
-    if (this.activeMotions.length === 0) {
-      anim.weight = 1;
-    }
-
-    this.activeMotions.unshift(anim);
-
-    if (callback) {
-      callback(anim);
-    }
-  }.bind(this));
-};
-
-NpcPawn.prototype.playDefaultMotion = function() {
-  var newIdleMotion = NPCANI.STOP;
-  if (this.owner) {
-    if (this.owner.speed > 0) {
-      newIdleMotion = NPCANI.RUN;
-    }
-  }
-
-  if (newIdleMotion === this.defaultMotionIdx) {
-    return;
-  }
-
-  this._playMotion(newIdleMotion, 1.0, true);
-  this.defaultMotionIdx = newIdleMotion
-};
-
-NpcPawn.prototype.playMotion = function(motionIdx, timeScale, loop, callback) {
-  this._playMotion(motionIdx, timeScale, loop, callback);
-  this.defaultMotionIdx = -1;
 };
 
 NpcPawn.prototype.playAttackMotion = function(onFinish) {
@@ -170,6 +74,14 @@ NpcPawn.prototype.playAttackMotion = function(onFinish) {
   this.playMotion(NPCANI.ATTACK, timeScale, false, function(anim) {
     anim.once('finish', onFinish);
   });
+};
+
+NpcPawn.prototype.playRunMotion = function() {
+  this.playMotion(NPCANI.RUN, 1.0, true);
+};
+
+NpcPawn.prototype.playIdleMotion = function() {
+  this.playMotion(NPCANI.STOP, 1.0, true);
 };
 
 NpcPawn.prototype._addEffectToBone = function(boneIdx, effectPath, callback) {
@@ -248,52 +160,4 @@ NpcPawn.prototype.newDamage = function(amount) {
 NpcPawn.prototype.setScale = function(scale) {
   scale = scale * ZZ_SCALE_IN;
   this.rootObj.scale.set(scale, scale, scale);
-};
-
-NpcPawn.prototype.update = function(delta) {
-// Update Animation Blending
-  var blendWeightDelta = 6 * delta;
-  if (this.activeMotions.length >= 1) {
-    var activeMotion = this.activeMotions[0];
-    if (activeMotion.weight < 1) {
-      activeMotion.weight += blendWeightDelta;
-    }
-
-    for (var i = 1; i < this.activeMotions.length; ++i) {
-      var motion = this.activeMotions[i];
-      motion.weight -= blendWeightDelta;
-      if (!motion.isPlaying || motion.weight <= 0) {
-        motion.stop();
-        this.activeMotions.splice(i, 1);
-        --i;
-      }
-    }
-
-    if (!this.activeMotions[0].isPlaying) {
-      this.playDefaultMotion();
-    }
-  }
-
-  // Update stuff
-  if (this.owner) {
-    var self = this;
-    var dirStep = (Math.PI * 3) * delta;
-    var deltaDir = slerp1d(this.owner.direction, self.rootObj.rotation.z);
-
-    if (deltaDir > dirStep || deltaDir < -dirStep) {
-      if (deltaDir < 0) {
-        self.rootObj.rotation.z -= dirStep;
-      } else {
-        self.rootObj.rotation.z += dirStep;
-      }
-    } else {
-      self.rootObj.rotation.z = this.owner.direction;
-    }
-
-    self.rootObj.position.copy(this.owner.position);
-  }
-
-  if (this.defaultMotionIdx !== -1) {
-    this.playDefaultMotion();
-  }
 };

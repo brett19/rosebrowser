@@ -55,7 +55,13 @@ GameState.prototype._setPickPos = function(pos) {
 };
 
 GameState.prototype.prepare = function(callback) {
-  GDM.get('item_data', 'skill_data', 'list_npc', 'list_class', callback);
+  GDM.get(
+      'item_data',
+      'skill_data',
+      'list_npc',
+      'list_class',
+      'char_motiontypes',
+      callback);
 };
 
 GameState.prototype.update = function(delta) {

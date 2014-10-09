@@ -20,21 +20,19 @@ function MoveToPosCmd(object, pos) {
 MoveToPosCmd.prototype = Object.create(MoCommand.prototype);
 
 MoveToPosCmd.prototype.enter = function() {
-  var thisObj = this.object;
-  var thisPos = thisObj.position;
+  var thisPos = this.object.position;
   var targetPos = this.targetPos;
-  var velocity = new THREE.Vector2(targetPos.x-thisPos.x, targetPos.y-thisPos.y);
 
-  this.object.speed = 1;
-  this.object.direction = Math.atan2(velocity.y, velocity.x) + Math.PI / 2;
+  var deltaPos = new THREE.Vector2(targetPos.x-thisPos.x, targetPos.y-thisPos.y);
+  this.object.direction = Math.atan2(deltaPos.y, deltaPos.x) + Math.PI / 2;
 
-  this.object.emit('start_move');
-  this.object.pawn.playDefaultMotion();
+  this.object.pawn.playRunMotion();
 };
 
 MoveToPosCmd.prototype.leave = function() {
-  this.object.speed = 0;
-  this.object.emit('stop_move');
+  if (!this.object.nextCmd) {
+    this.object.pawn.playIdleMotion();
+  }
 };
 
 MoveToPosCmd.prototype.update = function(delta) {

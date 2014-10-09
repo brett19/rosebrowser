@@ -33,6 +33,10 @@ ActorObject.prototype._setNextCmd = function(cmd) {
   return cmd;
 };
 
+ActorObject.prototype._stop = function() {
+  return this._setNextCmd(new StopCmd(this));
+};
+
 ActorObject.prototype._moveTo = function(x, y) {
   return this._setNextCmd(new MoveToPosCmd(this, new THREE.Vector2(x, y)));
 };
@@ -62,13 +66,13 @@ ActorObject.prototype.update = function(delta) {
   var deltaLeft = delta;
   while (deltaLeft > EPSILON) {
     if (!this.activeCmd) {
-      if (this.nextCmd) {
-        this.activeCmd = this.nextCmd;
-        this.nextCmd = null;
-        this.activeCmd._enter();
-      } else {
-        break;
+      if (!this.nextCmd) {
+        this.nextCmd = new StopCmd(this);
       }
+
+      this.activeCmd = this.nextCmd;
+      this.nextCmd = null;
+      this.activeCmd._enter();
     }
 
     deltaLeft = this.activeCmd.update(deltaLeft);
@@ -80,6 +84,8 @@ ActorObject.prototype.update = function(delta) {
   }
 
   if (this.pawn) {
+    this.pawn.setPosition(this.position);
+    this.pawn.setDirection(this.direction);
     this.pawn.update(delta);
   }
 };

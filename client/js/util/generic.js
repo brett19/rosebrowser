@@ -115,3 +115,8 @@ MultiWait.prototype.wait = function(callback) {
     this.callback = callback;
   }
 };
+
+
+var VIRTUAL_FUNC = function() {
+  throw new Error('Pure virtual function was invoked');
+};

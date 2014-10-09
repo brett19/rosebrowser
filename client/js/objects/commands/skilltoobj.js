@@ -40,7 +40,7 @@ _SkillToObjCmd.prototype._skillDone = function() {
   this.isComplete = true;
   this.emit('finish');
 
-  if (!this.object.nextCmd) {
+  if (!this.object.nextCmd && this.target.object instanceof MobObject) {
     this.object._attackObj(this.target);
   }
 };

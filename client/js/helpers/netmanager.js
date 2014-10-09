@@ -100,11 +100,63 @@ _NetManager.prototype.watch = function(wn, gn) {
     MC.quests.setDailyLog(data.dailyLog);
   });
 
+
+  var NETOBJCMD = {
+    STOP: 0x0000,
+    MOVE: 0x0001,
+    ATTACK: 0x0002,
+    DIE: 0x0003,
+    PICKITEM: 0x0004,
+    SKILL2SELF: 0x0006,
+    SKILL2OBJ: 0x0007,
+    SKILL2POS: 0x0008,
+    RUNAWAY: 0x8009,
+    SIT: 0x000a,
+    STORE: 0x000b
+  };
+  function _setCommand(go, data) {
+    switch (data.command) {
+      case NETOBJCMD.DIE:
+        // TODO
+        break;
+      case NETOBJCMD.SIT:
+        // TODO
+        break;
+      case NETOBJCMD.STOP:
+        go._stop();
+        break;
+      case NETOBJCMD.ATTACK:
+        var targetObj = GZM.getRefByServerObjectIdx(
+            data.targetObj, new THREE.Vector3(data.posTo.x, data.posTo.y, 0));
+        go._attackObj(targetObj);
+        break;
+      case NETOBJCMD.RUNAWAY:
+      case NETOBJCMD.MOVE:
+      case NETOBJCMD.PICKITEM:
+        if (data.targetObj) {
+          var targetObj = GZM.getRefByServerObjectIdx(
+              data.targetObj, new THREE.Vector3(data.posTo.x, data.posTo.y, 0));
+          go._moveToObj(targetObj);
+        } else {
+          go._moveTo(data.posTo.x, data.posTo.y);
+        }
+      case NETOBJCMD.SKILL2SELF:
+        // NOT IMPLEMENTED BY ANY CLIENT
+        break;
+      case NETOBJCMD.SKILL2OBJ:
+        // NOT IMPLEMENTED BY ANY CLIENT
+        break;
+      case NETOBJCMD.SKILL2POS:
+        // NOT IMPLEMENTED BY ANY CLIENT
+        break;
+    }
+  }
+
   gn.on('spawn_npc', function(data) {
     var npc = new NpcObject(self.world);
     npc.serverObjectIdx = data.objectIdx;
     npc.eventIdx = data.eventIdx;
-    npc.stats = new NpcStats(npc);
+    npc.stats = new NpcStats(npc, data.charIdx);
     npc.setPosition(data.position.x, data.position.y, 10);
     npc.setDirection(data.modelDir / 180 * Math.PI);
     npc.pawn = new NpcPawn(npc);
@@ -113,9 +165,7 @@ _NetManager.prototype.watch = function(wn, gn) {
     if (data.charIdx < 0) {
       npc.setVisible(false);
     }
-    if (data.command === OBJECT_COMMAND.MOVE) {
-      npc._moveTo(data.posTo.x, data.posTo.y);
-    }
+    _setCommand(npc, data);
     for (var i = 0; i < data.eventStatuses.length; ++i) {
       npc.eventVar[i] = data.eventStatuses[i];
     }
@@ -140,25 +190,21 @@ _NetManager.prototype.watch = function(wn, gn) {
     char.pawn = new CharPawn(char);
     char.ingStatus = new IngStatus(char.pawn.rootObj, data.statusFlags, data.statusTimers, data.statusValues);
     char.debugValidate();
-    if (data.command === OBJECT_COMMAND.MOVE) {
-      char._moveTo(data.posTo.x, data.posTo.y);
-    }
+    _setCommand(char, data);
     GZM.addObject(char);
   });
 
   gn.on('spawn_mob', function(data) {
     var mob = new MobObject(self.world);
     mob.serverObjectIdx = data.objectIdx;
-    mob.stats = new NpcStats(mob);
+    mob.stats = new NpcStats(mob, data.charIdx);
     mob.setPosition(data.position.x, data.position.y, 10);
     mob.pawn = new NpcPawn(mob);
     mob.setChar(Math.abs(data.charIdx));
     if (data.charIdx < 0) {
       mob.setVisible(false);
     }
-    if (data.command === OBJECT_COMMAND.MOVE) {
-      mob._moveTo(data.posTo.x, data.posTo.y);
-    }
+    _setCommand(mob, data);
     GZM.addObject(mob);
   });
 
