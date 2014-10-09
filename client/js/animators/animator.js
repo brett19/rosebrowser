@@ -16,6 +16,7 @@ function Animator(object, animationData) {
   this.data = animationData;
   this.currentTime = 0;
   this.isPlaying = false;
+  this.isPaused = false;
   this.loop = true;
   this.timeScale = 1;
   this.length = this.data.frameCount / this.data.fps;
@@ -28,15 +29,20 @@ Animator.prototype.play = function (startTime, weight) {
   this.weight = weight !== undefined ? weight : 1;
 
   this.isPlaying = true;
+  this.isPaused = false;
 
   this.reset();
 
   THREE.AnimationHandler.play(this);
 };
 
+Animator.prototype.pause = function() {
+  this.isPaused = true;
+};
 
 Animator.prototype.stop = function () {
   this.isPlaying = false;
+  this.isPaused = false;
 
   THREE.AnimationHandler.stop(this);
 };
@@ -116,33 +122,35 @@ Animator.prototype.update = (function() {
   return function (delta) {
     if (this.isPlaying === false) return delta;
 
-    this.currentTime += delta * this.timeScale;
+    if (!this.isPaused) {
+      this.currentTime += delta * this.timeScale;
 
-    // If this is the last frame, we have to stop at the last frame, rather
-    //   then blending back towards frame 0, remove that time.
-    var endTime = this.length;
-    if (this.loop === false || this.loop === 1) {
-      endTime = (this.data.frameCount - 1) / this.data.fps;
-    }
-
-    if (this.currentTime >= endTime || this.currentTime < 0) {
-      if (this.loop !== false && this.loop !== true && this.loop > 0) {
-        this.loop--;
+      // If this is the last frame, we have to stop at the last frame, rather
+      //   then blending back towards frame 0, remove that time.
+      var endTime = this.length;
+      if (this.loop === 1) {
+        endTime = (this.data.frameCount - 1) / this.data.fps;
       }
-      if (this.loop) {
-        this.currentTime %= this.length;
 
-        if (this.currentTime < 0) {
-          this.currentTime += this.length;
+      if (this.currentTime >= endTime || this.currentTime < 0) {
+        if (this.loop !== true && this.loop > 0) {
+          this.loop--;
         }
+        if (this.loop) {
+          this.currentTime %= this.length;
 
-        this.reset();
-        this.emit('restart');
-      } else {
-        this.currentTime = endTime;
-        this.stop();
-        this.emit('finish');
-        return this.currentTime - this.length;
+          if (this.currentTime < 0) {
+            this.currentTime += this.length;
+          }
+
+          this.reset();
+          this.emit('restart');
+        } else {
+          this.currentTime = endTime;
+          this.pause();
+          this.emit('finish');
+          return this.currentTime - this.length;
+        }
       }
     }
 

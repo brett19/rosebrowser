@@ -90,14 +90,6 @@ SkelAnimPawn.prototype.update = function(delta) {
       var motion = this.activeMotions[i];
       motion.weight -= blendWeightDelta;
 
-      // If the motion is stopped, we turn off advancing and play
-      //  it so we can blend the last frame to the next motion.
-      if (!motion.isPlaying) {
-        motion.loop = true;
-        motion.timeScale = 0;
-        motion.play();
-      }
-
       // If we're done blending away, stop the motion and remove
       //  it from the list of motions.
       if (motion.weight <= 0) {

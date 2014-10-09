@@ -183,20 +183,21 @@ Effect.Animation.prototype.update = function(delta) {
       this.state = Effect.STATE.PLAYING;
 
       if (this.animation) {
+        this.animation.once('finish', function() {
+          this.animation.stop();
+        }.bind(this));
         this.animation.play();
       }
 
       if (this.meshAnimation) {
+        this.meshAnimation.once('finish', function() {
+          this.meshAnimation.stop();
+          this.pause();
+        }.bind(this));
         this.meshAnimation.play();
       }
 
       delta = -this.startDelay;
-    }
-  }
-
-  if (this.state === Effect.STATE.PLAYING) {
-    if (this.meshAnimation && !this.meshAnimation.isPlaying) {
-      this.pause();
     }
   }
 };
