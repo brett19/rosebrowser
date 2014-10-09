@@ -172,6 +172,10 @@ Animator.prototype.update = (function() {
     }
 
     var thisFrame = Math.floor(this.currentTime * this.data.fps);
+    // TODO: THIS SHOULD NOT BE NEEDED
+    if (thisFrame >= this.data.frameCount) {
+      thisFrame = this.data.frameCount - 1;
+    }
     var nextFrame = thisFrame + 1;
     if (nextFrame >= this.data.frameCount) {
       if (this.loop) {
