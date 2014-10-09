@@ -274,6 +274,13 @@ _NetManager.prototype.watch = function(wn, gn) {
     }
   });
 
+  gn.on('toggle_sit', function(data) {
+    var obj = GZM.findByServerObjectIdx(data.objectIdx);
+    if (obj && obj instanceof CharObject) {
+      obj._toggleSit();
+    }
+  });
+
   gn.on('damage', function(data) {
     var defenderObj = GZM.findByServerObjectIdx(data.defenderObjectIdx);
     if (defenderObj && !(defenderObj instanceof ProxyObject)) {

@@ -22,6 +22,18 @@ function CharObject(world) {
 }
 CharObject.prototype = Object.create( ActorObject.prototype );
 
+CharObject.prototype._toggleSit = function() {
+  if (this.activeCmd instanceof SitCmd) {
+    this._stop();
+  } else {
+    this._sit();
+  }
+};
+
+CharObject.prototype._sit = function() {
+  return this._setNextCmd(new SitCmd(this));
+};
+
 CharObject.prototype._skillToObj = function(objectRef, skillIdx) {
   if (!(objectRef instanceof GORef)) {
     console.warn('Reference passed to _attackObj was not a GORef.');

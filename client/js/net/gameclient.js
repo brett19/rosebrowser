@@ -251,6 +251,18 @@ GameClient.prototype.setHotIcon = function(id, type, slot) {
   this.socket.sendPacket(opak);
 };
 
+var NETTOGGLETYPE = {
+  RUN: 0,
+  SIT: 1,
+  DRIVE: 2
+};
+
+GameClient.prototype.toggleSit = function() {
+  var opak = new RosePacket(0x782);
+  opak.addUint8(NETTOGGLETYPE.SIT);
+  this.socket.sendPacket(opak);
+};
+
 /**
  * Little helper to emit packet events that can be logged.
  * @param {string} event
@@ -949,6 +961,24 @@ GameClient._registerHandler(0x7b9, function(pak, data) {
   data.objectIdx = pak.readUint16();
   data.skillIdx = pak.readInt16();
   this._emitPE('skill_result', data);
+});
+
+GameClient._registerHandler(0x782, function(pak, data) {
+  data.objectIdx = pak.readUint16();
+  var toggleType = pak.readUint8();
+  data.attackSpeedBase = pak.readInt16();
+  data.attackSpeed = pak.readInt16();
+  if (!pak.isReadEof()) {
+    data.runSpeedBase = pak.readInt16();
+  }
+
+  switch (toggleType) {
+    case NETTOGGLETYPE.SIT:
+      this._emitPE('toggle_sit', data);
+      break;
+    default:
+      console.warn('Received unknown toggle command:', data.type);
+  }
 });
 
 var netGame = null;

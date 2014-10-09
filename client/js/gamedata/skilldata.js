@@ -49,6 +49,9 @@ SkillData.prototype._useCommand = function(command) {
       }
     }
     break;
+  case BASIC_COMMAND.SIT:
+    netGame.toggleSit();
+    break;
   default:
     console.warn('Used unimplemented basic command:', command);
     break;

@@ -311,6 +311,20 @@ CharPawn.prototype.playRunMotion = function() {
   this.playMotion(AVTANI.RUN, timeScale, true);
 };
 
+CharPawn.prototype.playSitDownMotion = function(onFinish) {
+  this.playMotion(AVTANI.SITTING, 1.0, false, function(anim) {
+    anim.once('finish', onFinish);
+  });
+};
+CharPawn.prototype.playSittingMotion = function() {
+  this.playMotion(AVTANI.SIT, 1.0, true);
+};
+CharPawn.prototype.playStandUpMotion = function(onFinish) {
+  this.playMotion(AVTANI.STANDUP, 1.0, false, function(anim) {
+    anim.once('finish', onFinish);
+  });
+};
+
 CharPawn.prototype.newDamage = function(amount) {
   DamageRender.add(amount,
       this.rootObj.localToWorld(new THREE.Vector3(0, 0, 2.4)));
