@@ -323,7 +323,7 @@ _NetManager.prototype.watch = function(wn, gn) {
     MC.changed();
 
     if (fromObj && !(fromObj instanceof ProxyObject)) {
-      GCM.system('You have defeated ' + fromObj.pawn.name + '.');
+      GCM.system('You have defeated ' + fromObj.name + '.');
     }
   });
 
