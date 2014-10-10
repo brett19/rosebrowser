@@ -170,11 +170,20 @@ ModelListManager.prototype.createForStatic = function(modelIdx, lightmap, lmIdx,
       }
       self._createMesh(part.meshIdx, function(geometry) {
         var partMesh = new THREE.Mesh(geometry, material);
-        partMesh.position.copy(part.position);
-        partMesh.quaternion.copy(part.rotation);
-        partMesh.scale.copy(part.scale);
         partMesh.collisionMode = part.collisionMode;
         partMeshs[partIdx] = partMesh;
+
+        if (part.position) {
+          partMesh.position.copy(part.position);
+        }
+
+        if (part.rotation) {
+          partMesh.quaternion.copy(part.rotation);
+        }
+
+        if (part.scale) {
+          partMesh.scale.copy(part.scale);
+        }
 
         if (part.animPath) {
           AnimationData.load(part.animPath, function(zmoData) {
