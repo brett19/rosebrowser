@@ -202,16 +202,18 @@ ModelListManager.prototype.createForStatic = function(modelIdx, lightmap, lmIdx,
       */
       var effectPath = self.data.effects[effectData.effectIdx];
       EffectManager.loadEffect(effectPath, function(effect) {
-        effect.rootObj.position.copy(effectData.position);
-        effect.rootObj.quaternion.copy(effectData.rotation);
-        effect.rootObj.scale.copy(effectData.scale);
-        effect.rootObj.collisionMode = ModelList.Model.Part.COLLISION_MODE.NONE;
-        if (effectData.parent === 0) {
-          modelObj.add(effect.rootObj);
-        } else {
-          partMeshs[effectData.parent - 1].add(effect.rootObj);
+        if (effect) {
+          effect.rootObj.position.copy(effectData.position);
+          effect.rootObj.quaternion.copy(effectData.rotation);
+          effect.rootObj.scale.copy(effectData.scale);
+          effect.rootObj.collisionMode = ModelList.Model.Part.COLLISION_MODE.NONE;
+          if (effectData.parent === 0) {
+            modelObj.add(effect.rootObj);
+          } else {
+            partMeshs[effectData.parent - 1].add(effect.rootObj);
+          }
+          effect.play();
         }
-        effect.play();
       });
     }
 
