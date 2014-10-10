@@ -102,15 +102,18 @@ ZoneManager.prototype.update = function(delta) {
 };
 
 ZoneManager.prototype._meshToObject = function(mesh) {
-  // Find the root Object3D for whatever we clicked.
-  var rootObj = mesh.rootObject;
-  if (rootObj) {
-    // Find the Pawn associated with this Object3D
-    var foundPawn = rootObj.owner;
-    if (foundPawn) {
-      return foundPawn.owner;
+  var parent = mesh;
+
+  do {
+    var pawn = parent.owner;
+
+    if (pawn) {
+      return pawn.owner;
     }
-  }
+
+    parent = parent.parent;
+  } while (parent);
+
   return null;
 };
 

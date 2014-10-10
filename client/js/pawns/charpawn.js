@@ -227,12 +227,10 @@ CharPawn.prototype._setModelPart = function(modelList, partIdx, modelIdx, bindBo
 
         if (bindBone === undefined && bindDummy === undefined) {
           mesh = new THREE.SkinnedMesh(geometry, material);
-          mesh.rootObject = self.rootObj;
           mesh.bind(self.skel);
           self.rootObj.add(mesh);
         } else {
           mesh = new THREE.Mesh(geometry, material);
-          mesh.rootObject = self.rootObj;
 
           if (bindBone !== undefined) {
             self.skel.bones[bindBone].add(mesh);
