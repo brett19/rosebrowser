@@ -65,16 +65,21 @@ ZoneManager.prototype.addObject = function(obj) {
 };
 
 ZoneManager.prototype.removeObject = function(obj) {
-  var colObjIdx = this.colObjects.indexOf(obj.pawn.rootObj);
-  if (colObjIdx !== -1) {
-    this.colObjects.splice(colObjIdx, 1);
-  }
-  var pawnIdx = this.pawns.indexOf(obj.pawn);
-  if (pawnIdx !== -1) {
-    this.pawns.splice(pawnIdx, 1);
-  }
-  if (this.inScene) {
-    scene.remove(obj.pawn.rootObj);
+  if (!(obj instanceof ProxyObject)) {
+    var colObjIdx = this.colObjects.indexOf(obj.pawn.rootObj);
+    var pawnIdx = this.pawns.indexOf(obj.pawn);
+
+    if (colObjIdx !== -1) {
+      this.colObjects.splice(colObjIdx, 1);
+    }
+
+    if (pawnIdx !== -1) {
+      this.pawns.splice(pawnIdx, 1);
+    }
+
+    if (this.inScene) {
+      scene.remove(obj.pawn.rootObj);
+    }
   }
 
   this.objects.removeObject(obj);
