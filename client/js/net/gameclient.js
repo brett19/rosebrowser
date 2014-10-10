@@ -263,6 +263,13 @@ GameClient.prototype.toggleSit = function() {
   this.socket.sendPacket(opak);
 };
 
+GameClient.prototype.pickupItem = function(objectIdx) {
+  var opak = new RosePacket(0x7a7);
+  opak.addUint8(0); // m_btObjectCollision ??
+  opak.addUint16(objectIdx);
+  this.socket.sendPacket(opak);
+};
+
 /**
  * Little helper to emit packet events that can be logged.
  * @param {string} event
@@ -962,6 +969,22 @@ GameClient._registerHandler(0x7a6, function(pak, data) {
   item.remainTime = pak.readUint16();
   this._emitPE('dropitem', item);
 });
+
+GameClient._registerHandler(0x7a7, function(pak, data) {
+  data.objectIdx = pak.readUint16();
+  data.result = pak.readUint8();
+
+  if (data.result === REPLY_GET_FIELDITEM_REPLY_OK) {
+    data.item = pak.readItem();
+  }
+
+  this._emitPE('pickup_item', data);
+});
+
+var REPLY_GET_FIELDITEM_REPLY_OK = 0x00;
+var REPLY_GET_FIELDITEM_REPLY_NONE = 0x01;
+var REPLY_GET_FIELDITEM_REPLY_NO_RIGHT = 0x02;
+var REPLY_GET_FIELDITEM_REPLY_TOO_MANY = 0x03;
 
 GameClient._registerHandler(0x7b9, function(pak, data) {
   data.objectIdx = pak.readUint16();

@@ -217,6 +217,39 @@ _NetManager.prototype.watch = function(wn, gn) {
     GZM.addObject(item);
   });
 
+  gn.on('pickup_item', function(data) {
+    var obj = GZM.findByServerObjectIdx(data.objectIdx);
+
+    switch (data.result) {
+    case REPLY_GET_FIELDITEM_REPLY_OK:
+      if (data.item.itemType === ITEMTYPE.MONEY) {
+        GCM.system('You have obtained ' + data.item.money + ' Zulie.');
+      } else {
+        var itemData = GDM.getNow('item_data');
+        var name = itemData.getName(data.item.itemType, data.item.itemNo);
+
+        if (ITMSTACKABLE[data.item.itemType]) {
+          GCM.system('You have obtained ' + name + ' (' + data.item.quantity + ')');
+        } else {
+          GCM.system('You have obtained ' + name);
+        }
+      }
+
+      MC.inventory.addItem(data.item);
+      break;
+    case REPLY_GET_FIELDITEM_REPLY_NONE:
+      if (obj) {
+        GZM.removeObject(obj);
+      }
+      break;
+    case REPLY_GET_FIELDITEM_REPLY_NO_RIGHT:
+      GCM.system('You have no right to pickup this item!');
+      break;
+    case REPLY_GET_FIELDITEM_REPLY_TOO_MANY:
+      GCM.system('You have no space in your inventory!');
+      break;
+    };
+  });
   gn.on('event_status', function(data) {
     var obj = GZM.findByServerObjectIdx(data.objectIdx);
     if (obj instanceof NpcObject) {

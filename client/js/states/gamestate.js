@@ -173,6 +173,12 @@ GameState.prototype.enter = function() {
           atkCmd.on('finish', function() {
             console.log('Finished Attacking!');
           });
+        } else if (pickGo instanceof ItemObject) {
+          var moveCmd = GC.moveToObj(pickGo);
+          moveCmd.on('finish', function() {
+            console.log('Finished walk-to-object!');
+            netGame.pickupItem(pickGo.serverObjectIdx);
+          });
         }
       } else if (pickInfo.point) {
         var moveToPos = pickInfo.point;
