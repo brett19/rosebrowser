@@ -661,12 +661,14 @@ WorldChunk.prototype._loadEffects = function(callback) {
   for (var i = 0; i < this.info.effects.length; ++i) {
     var data = this.info.effects[i];
     EffectManager.loadEffect(data.filePath, function(effectWait, effect) {
-      effect.rootObj.position.copy(data.position);
-      effect.rootObj.quaternion.copy(data.rotation);
-      effect.rootObj.scale.copy(data.scale);
-      this.rootObj.add(effect.rootObj);
-      this.rootObj.add(effect.rootObj2);
-      effect.play();
+      if (effect) {
+        effect.rootObj.position.copy(data.position);
+        effect.rootObj.quaternion.copy(data.rotation);
+        effect.rootObj.scale.copy(data.scale);
+        this.rootObj.add(effect.rootObj);
+        this.rootObj.add(effect.rootObj2);
+        effect.play();
+      }
       effectWait();
     }.bind(this, waitAll.one()));
   }

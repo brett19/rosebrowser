@@ -91,8 +91,10 @@ NpcPawn.prototype._addEffectToBone = function(boneIdx, effectPath, callback) {
   }
 
   _EffectManager.loadEffect(effectPath, function(effect) {
-    this.skel.dummies[boneIdx].add(effect.rootObj);
-    effect.play();
+    if (effect) {
+      this.skel.dummies[boneIdx].add(effect.rootObj);
+      effect.play();
+    }
   }.bind(this));
 };
 

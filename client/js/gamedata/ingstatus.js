@@ -313,9 +313,11 @@ IngStatus.prototype.onStatusChange = function() {
       var effectIdx = data[10];
       if (effectIdx) {
         EffectManager.loadEffectByIdx(effectIdx, function(effect) {
-          self.rootObj.add(effect.rootObj);
-          effect.play();
-          property.effect = effect;
+          if (effect) {
+            self.rootObj.add(effect.rootObj);
+            effect.play();
+            property.effect = effect;
+          }
         });
       }
     }

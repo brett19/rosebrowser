@@ -40,15 +40,18 @@ GameState.prototype._setPickPos = function(pos) {
       return;
     }
 
-    newPickPos.add(effect.rootObj);
-    newPickPos.add(effect.rootObj2);
+    if (effect) {
+      newPickPos.add(effect.rootObj);
+      newPickPos.add(effect.rootObj2);
 
-    effect.on('finish', function() {
-      newPickPos.remove(effect.rootObj);
-      newPickPos.remove(effect.rootObj2);
-    });
+      effect.on('finish', function () {
+        newPickPos.remove(effect.rootObj);
+        newPickPos.remove(effect.rootObj2);
+      });
 
-    effect.play();
+      effect.play();
+    }
+
     newPickPos.position.copy(pos);
     scene.add(newPickPos);
   }.bind(this));
