@@ -19,6 +19,8 @@ function CharObject(world) {
 
   this.isRunning = true;
   this.isSitting = false;
+
+  this.on('damage', this._onDamage.bind(this));
 }
 CharObject.prototype = Object.create( ActorObject.prototype );
 
@@ -62,6 +64,10 @@ CharObject.prototype.getAbilityValue = function(abilType) {
 
   console.warn('Attempted to retrieve unknown ability value:', abilType);
   return 0;
+};
+
+CharObject.prototype._onDamage = function(amount) {
+  this.hp -= amount;
 };
 
 CharObject.prototype.debugValidate = function() {

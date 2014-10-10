@@ -11,6 +11,8 @@ function MyCharacter(world) {
   this.mp = undefined;
   this.inventory = undefined;
   this.quests = undefined;
+
+  this.on('damage', this.changed.bind(this));
 };
 
 MyCharacter.prototype = Object.create( CharObject.prototype );
