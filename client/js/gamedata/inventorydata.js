@@ -126,12 +126,35 @@ InventoryData.prototype = Object.create(EventEmitter.prototype);
 
 InventoryData.prototype.setMoney = function(money) {
   this.money = money;
-  this.emit('changed');
+  this.emit('changed', money);
 };
 
 InventoryData.prototype.setItems = function(items) {
   this.items = items;
   this.emit('changed');
+};
+
+InventoryData.prototype.addItem = function(item) {
+  if (item.itemType === ITEMTYPE.MONEY) {
+    this.money = item.quantity;
+    this.emit('changed', this.money);
+  } else {
+    var isNewItem = true;
+
+    for (var i = 0; i < this.items.length; ++i) {
+      var other = this.items[i];
+      if (other.location === item.location && other.slotNo === item.slotNo) {
+        this.items[i] = item;
+        isNewItem = false;
+      }
+    }
+
+    if (isNewItem) {
+      this.items.push(item);
+    }
+
+    this.emit('changed', [item]);
+  }
 };
 
 InventoryData.prototype.changeItems = function(changeItems) {
@@ -148,12 +171,12 @@ InventoryData.prototype.changeItems = function(changeItems) {
     }
   }
 
-  this.emit('changed');
+  this.emit('changed', changeItems);
 };
 
 InventoryData.prototype.appendItems = function(items) {
   this.items = this.items.concat(items);
-  this.emit('changed');
+  this.emit('changed', items);
 };
 
 InventoryData.prototype.useItem = function(item) {
@@ -179,7 +202,6 @@ InventoryData.prototype.dropItem = function(item) {
       console.warn('TODO: Unimplemented dropItem', srcItem);
     })
     .on('no', function() {
-
     });
 };
 
