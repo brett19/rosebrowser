@@ -250,6 +250,7 @@ _NetManager.prototype.watch = function(wn, gn) {
       break;
     };
   });
+
   gn.on('event_status', function(data) {
     var obj = GZM.findByServerObjectIdx(data.objectIdx);
     if (obj instanceof NpcObject) {
@@ -345,6 +346,14 @@ _NetManager.prototype.watch = function(wn, gn) {
         GZM.removeObject(defenderObj);
       }
     }
+  });
+
+  gn.on('char_hpmp_info', function(data) {
+    MC.hp = data.curHp;
+    MC.mp = data.curMp;
+    MC.recoveryHp = data.recoveryTickHp;
+    MC.recoveryMp = data.recoveryTickMp;
+    MC.changed();
   });
 
   gn.on('set_xp', function(data) {
