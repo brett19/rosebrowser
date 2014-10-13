@@ -164,13 +164,11 @@ var renderFrame = function () {
     renderCamera = debugCamera;
   }
 
-  // TODO: I don't think this works how I think it works.
-  //  Everything appears to draw perfectly correctly no matter what
-  //  clearing flags I set, or what clearing I do on my own...
+  renderer.clear(true, true, false);
   if (skyObject) {
-    skyObject.position.copy(renderCamera.position);
+    camera.updateMatrixWorld();
+    skyObject.position.copy(camera.localToWorld(new THREE.Vector3(0, 0, 0)));
     renderer.render(skyScene, renderCamera);
-    renderer.clear(false, true, false);
   } else {
     renderer.clear(true, true, false);
   }
@@ -203,7 +201,7 @@ if (config.state) {
 }
 
 ShaderManager.register('skydome', 'skydome.vert', 'skydome.frag', {
-  depthWrite: false,
+  depthWrite: true,
   depthTest: false
 });
 ShaderManager.register('terrain', 'terrain.vert', 'terrain.frag', {
@@ -247,6 +245,7 @@ GDM.register('list_status', DataTable, '3DDATA/STB/LIST_STATUS.STB');
 
 GDM.register('list_zone', DataTable, '3DDATA/STB/LIST_ZONE.STB');
 GDM.register('zone_names', StringTable, '3DDATA/STB/LIST_ZONE_S.STL');
+GDM.register('list_sky', DataTable, '3DDATA/STB/LIST_SKY.STB');
 
 GDM.register('list_quest', DataTable, '3DDATA/STB/LIST_QUEST.STB');
 GDM.register('quest_names', StringTable, '3DDATA/STB/LIST_QUEST_S.STL');

@@ -158,8 +158,11 @@ MapManager.prototype.setMap = function(mapIdx, callback) {
   var self = this;
   self.textures = [];
 
-  GDM.get('list_zone', function (zoneTable) {
+  GDM.get('list_zone', 'list_sky', function (zoneTable, skyTable) {
     var mapRow = zoneTable.row(mapIdx);
+    var skyIdx = mapRow[ZONE_TABLE.BG_IMAGE];
+
+    self.loadSky(skyTable.row(skyIdx));
 
     self.DM.register('cnstmdls', ModelListManager, mapRow[ZONE_TABLE.CNST_TABLE]);
     self.DM.register('decomdls', ModelListManager, mapRow[ZONE_TABLE.OBJECT_TABLE]);
@@ -187,6 +190,33 @@ MapManager.prototype.setMap = function(mapIdx, callback) {
       self.isLoaded = true;
       callback();
     });
+  });
+};
+
+MapManager.prototype.loadSky = function(skyData) {
+  var self = this;
+  var mesh = skyData[0];
+  var dayTexture = skyData[1];
+  var nightTexture = skyData[2];
+
+  if (skyObject) {
+    return;
+    skyScene.remove(skyObject);
+    skyObject = null;
+  }
+
+  Mesh.load(mesh, function(geom) {
+    var texd = TextureManager.load(dayTexture);
+    var texn = TextureManager.load(nightTexture);
+    var mat = ShaderManager.get('skydome').clone();
+    mat.uniforms = {
+      texture1: { type: 't', value: texd },
+      texture2: { type: 't', value: texn },
+      blendRatio: { type: 'f', value: 0.5 }
+    };
+
+    skyObject = new THREE.Mesh(geom, mat);
+    skyScene.add(skyObject);
   });
 };
 
