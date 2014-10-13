@@ -441,10 +441,13 @@ _NetManager.prototype.watch = function(wn, gn) {
     if (obj instanceof CharObject) {
       var pawn = obj.pawn;
       var index = ITMPARTTOVISPART[data.equipIdx];
-      obj.visParts[index] = data.partItem;
 
-      if (pawn instanceof CharPawn) {
-        pawn.setModelPart(index, data.partItem.itemNo);
+      if (index) {
+        obj.visParts[index] = data.partItem;
+
+        if (pawn instanceof CharPawn) {
+          pawn.setModelPart(index, data.partItem.itemNo);
+        }
       }
     }
   });
