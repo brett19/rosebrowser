@@ -200,7 +200,6 @@ MapManager.prototype.loadSky = function(skyData) {
   var nightTexture = skyData[2];
 
   if (skyObject) {
-    return;
     skyScene.remove(skyObject);
     skyObject = null;
   }
