@@ -122,91 +122,88 @@ Animator.prototype._applyChannel = function(index, type, value) {
   }
 };
 
-Animator.prototype.update = (function() {
-  var _SLERPER = new THREE.Quaternion();
-  var _V3LERPER = new THREE.Vector3();
-  var _V2LERPER = new THREE.Vector2();
+var _SLERPER = new THREE.Quaternion();
+var _V3LERPER = new THREE.Vector3();
+var _V2LERPER = new THREE.Vector2();
+Animator.prototype.update = function (delta) {
+  if (this.isPlaying === false) return delta;
 
-  return function (delta) {
-    if (this.isPlaying === false) return delta;
+  if (!this.isPaused) {
+    this.currentTime += delta * this.timeScale;
 
-    if (!this.isPaused) {
-      this.currentTime += delta * this.timeScale;
+    // If this is the last frame, we have to stop at the last frame, rather
+    //   then blending back towards frame 0, remove that time.
+    var endTime = this.length;
+    if (this.loop === false || this.loop === 1) {
+      endTime = (this.data.frameCount - 1) / this.data.fps;
+    }
 
-      // If this is the last frame, we have to stop at the last frame, rather
-      //   then blending back towards frame 0, remove that time.
-      var endTime = this.length;
-      if (this.loop === false || this.loop === 1) {
-        endTime = (this.data.frameCount - 1) / this.data.fps;
+    if (this.currentTime >= endTime || this.currentTime < 0) {
+      if (this.loop !== true && this.loop > 0) {
+        this.loop--;
       }
-
-      if (this.currentTime >= endTime || this.currentTime < 0) {
-        if (this.loop !== true && this.loop > 0) {
-          this.loop--;
-        }
-        if (this.loop) {
-          this.currentTime %= this.length;
-
-          if (this.currentTime < 0) {
-            this.currentTime += this.length;
-          }
-
-          this.reset();
-          this.emit('restart');
-        } else {
-          var timeConsumed = endTime - this.currentTime;
-          this.currentTime = endTime;
-          this.pause();
-          this.emit('finish');
-          return delta - timeConsumed;
-        }
-      }
-    }
-
-    if (this.weight === 0) {
-      return 0;
-    }
-
-    var thisFrame = Math.floor(this.currentTime * this.data.fps);
-    // TODO: THIS SHOULD NOT BE NEEDED
-    if (thisFrame >= this.data.frameCount) {
-      thisFrame = this.data.frameCount - 1;
-    }
-    var nextFrame = thisFrame + 1;
-    if (nextFrame >= this.data.frameCount) {
       if (this.loop) {
-        nextFrame -= this.data.frameCount;
-      } else {
-        nextFrame = thisFrame;
-      }
-    }
-    var frameWeight = ( this.currentTime - (thisFrame / this.data.fps) ) / (1 / this.data.fps);
+        this.currentTime %= this.length;
 
-    for (var i = 0; i < this.data.channels.length; ++i) {
-      var c = this.data.channels[i];
-
-      var f0 = c.frames[thisFrame];
-      var f1 = c.frames[nextFrame];
-      var f = null;
-      if (frameWeight === 0) {
-        f = f0;
-      } else {
-        if (f0 instanceof THREE.Quaternion) {
-          f = THREE.Quaternion.slerp(f0, f1, _SLERPER, frameWeight);
-        } else if (f0 instanceof THREE.Vector3) {
-          f = _V3LERPER.copy(f0).lerp(f1, frameWeight);
-        } else if (f0 instanceof THREE.Vector2) {
-          f = _V2LERPER.copy(f0).lerp(f1, frameWeight);
-        } else if (f0 instanceof Number) {
-          f = f0 * (1 - frameWeight) + f1 * frameWeight;
-        } else {
-          f = f0;
+        if (this.currentTime < 0) {
+          this.currentTime += this.length;
         }
-      }
 
-      this._applyChannel(c.index, c.type, f);
+        this.reset();
+        this.emit('restart');
+      } else {
+        var timeConsumed = endTime - this.currentTime;
+        this.currentTime = endTime;
+        this.pause();
+        this.emit('finish');
+        return delta - timeConsumed;
+      }
+    }
+  }
+
+  if (this.weight === 0) {
+    return 0;
+  }
+
+  var thisFrame = Math.floor(this.currentTime * this.data.fps);
+  // TODO: THIS SHOULD NOT BE NEEDED
+  if (thisFrame >= this.data.frameCount) {
+    thisFrame = this.data.frameCount - 1;
+  }
+  var nextFrame = thisFrame + 1;
+  if (nextFrame >= this.data.frameCount) {
+    if (this.loop) {
+      nextFrame -= this.data.frameCount;
+    } else {
+      nextFrame = thisFrame;
+    }
+  }
+  var frameWeight = ( this.currentTime - (thisFrame / this.data.fps) ) / (1 / this.data.fps);
+
+  for (var i = 0; i < this.data.channels.length; ++i) {
+    var c = this.data.channels[i];
+
+    var f0 = c.frames[thisFrame];
+    var f1 = c.frames[nextFrame];
+    var f = null;
+    if (frameWeight === 0) {
+      f = f0;
+    } else {
+      if (f0 instanceof THREE.Quaternion) {
+        f = THREE.Quaternion.slerp(f0, f1, _SLERPER, frameWeight);
+      } else if (f0 instanceof THREE.Vector3) {
+        f = _V3LERPER.copy(f0).lerp(f1, frameWeight);
+      } else if (f0 instanceof THREE.Vector2) {
+        f = _V2LERPER.copy(f0).lerp(f1, frameWeight);
+      } else if (f0 instanceof Number) {
+        f = f0 * (1 - frameWeight) + f1 * frameWeight;
+      } else {
+        f = f0;
+      }
     }
 
-    return 0;
-  };
-})();
+    this._applyChannel(c.index, c.type, f);
+  }
+
+  return 0;
+};
