@@ -17,7 +17,7 @@ function Animator(object, animationData) {
   this.currentTime = 0;
   this.isPlaying = false;
   this.isPaused = false;
-  this.loop = true;
+  this.loop = 0;
   this.timeScale = 1;
   this.length = this.data.frameCount / this.data.fps;
 }
@@ -125,6 +125,32 @@ Animator.prototype._applyChannel = function(index, type, value) {
 var _SLERPER = new THREE.Quaternion();
 var _V3LERPER = new THREE.Vector3();
 var _V2LERPER = new THREE.Vector2();
+Animator.prototype._applyChannels = function(channels, thisFrame, nextFrame, frameRatio) {
+  for (var i = 0; i < channels.length; ++i) {
+    var c = channels[i];
+
+    var f0 = c.frames[thisFrame];
+    var f1 = c.frames[nextFrame];
+    var f = null;
+    if (frameRatio === 0) {
+      f = f0;
+    } else {
+      if (f0 instanceof THREE.Quaternion) {
+        f = THREE.Quaternion.slerp(f0, f1, _SLERPER, frameRatio);
+      } else if (f0 instanceof THREE.Vector3) {
+        f = _V3LERPER.copy(f0).lerp(f1, frameRatio);
+      } else if (f0 instanceof THREE.Vector2) {
+        f = _V2LERPER.copy(f0).lerp(f1, frameRatio);
+      } else if (f0 instanceof Number) {
+        f = f0 * (1 - frameRatio) + f1 * frameRatio;
+      } else {
+        f = f0;
+      }
+    }
+    this._applyChannel(c.index, c.type, f);
+  }
+};
+
 Animator.prototype.update = function (delta) {
   if (this.isPlaying === false) return delta;
 
@@ -134,15 +160,16 @@ Animator.prototype.update = function (delta) {
     // If this is the last frame, we have to stop at the last frame, rather
     //   then blending back towards frame 0, remove that time.
     var endTime = this.length;
-    if (this.loop === false || this.loop === 1) {
+    if (this.loop === 1) {
       endTime = (this.data.frameCount - 1) / this.data.fps;
     }
 
     if (this.currentTime >= endTime || this.currentTime < 0) {
-      if (this.loop !== true && this.loop > 0) {
-        this.loop--;
-      }
-      if (this.loop) {
+      if (this.loop === 0 || this.loop > 1) {
+        if (this.loop !== 0) {
+          this.loop--;
+        }
+
         this.currentTime %= this.length;
 
         if (this.currentTime < 0) {
@@ -162,7 +189,7 @@ Animator.prototype.update = function (delta) {
   }
 
   if (this.weight === 0) {
-    return 0;
+    return 0.0;
   }
 
   var thisFrame = Math.floor(this.currentTime * this.data.fps);
@@ -178,32 +205,9 @@ Animator.prototype.update = function (delta) {
       nextFrame = thisFrame;
     }
   }
-  var frameWeight = ( this.currentTime - (thisFrame / this.data.fps) ) / (1 / this.data.fps);
 
-  for (var i = 0; i < this.data.channels.length; ++i) {
-    var c = this.data.channels[i];
+  var frameRatio = ( this.currentTime - (thisFrame / this.data.fps) ) / (1 / this.data.fps);
+  this._applyChannels(this.data.channels, thisFrame, nextFrame, frameRatio);
 
-    var f0 = c.frames[thisFrame];
-    var f1 = c.frames[nextFrame];
-    var f = null;
-    if (frameWeight === 0) {
-      f = f0;
-    } else {
-      if (f0 instanceof THREE.Quaternion) {
-        f = THREE.Quaternion.slerp(f0, f1, _SLERPER, frameWeight);
-      } else if (f0 instanceof THREE.Vector3) {
-        f = _V3LERPER.copy(f0).lerp(f1, frameWeight);
-      } else if (f0 instanceof THREE.Vector2) {
-        f = _V2LERPER.copy(f0).lerp(f1, frameWeight);
-      } else if (f0 instanceof Number) {
-        f = f0 * (1 - frameWeight) + f1 * frameWeight;
-      } else {
-        f = f0;
-      }
-    }
-
-    this._applyChannel(c.index, c.type, f);
-  }
-
-  return 0;
+  return 0.0;
 };

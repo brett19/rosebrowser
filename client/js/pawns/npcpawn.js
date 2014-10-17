@@ -71,17 +71,17 @@ NpcPawn.prototype._getMotionData = function(motionIdx, callback) {
 
 NpcPawn.prototype.playAttackMotion = function(onFinish) {
   var timeScale = this.owner.stats.getAttackSpeed() / 100;
-  this.playMotion(NPCANI.ATTACK, timeScale, false, function(anim) {
+  this.playMotion(NPCANI.ATTACK, timeScale, 1, function(anim) {
     anim.once('finish', onFinish);
   });
 };
 
 NpcPawn.prototype.playRunMotion = function() {
-  this.playMotion(NPCANI.RUN, 1.0, true);
+  this.playMotion(NPCANI.RUN, 1.0, 0);
 };
 
 NpcPawn.prototype.playIdleMotion = function() {
-  this.playMotion(NPCANI.STOP, 1.0, true);
+  this.playMotion(NPCANI.STOP, 1.0, 0);
 };
 
 NpcPawn.prototype._addEffectToBone = function(boneIdx, effectPath, callback) {

@@ -295,30 +295,30 @@ CharPawn.prototype.playAttackMotion = function(onFinish) {
   } else if (animNum === 2) {
     motionIdx = AVTANI.ATTACK3;
   }
-  this.playMotion(motionIdx, timeScale, false, function(anim) {
+  this.playMotion(motionIdx, timeScale, 1, function(anim) {
     anim.once('finish', onFinish);
   });
 };
 
 CharPawn.prototype.playIdleMotion = function() {
-  this.playMotion(AVTANI.STOP1, 1.0, true);
+  this.playMotion(AVTANI.STOP1, 1.0, 0);
 };
 
 CharPawn.prototype.playRunMotion = function() {
   var timeScale = (this.owner.moveSpeed + 180) / 600;
-  this.playMotion(AVTANI.RUN, timeScale, true);
+  this.playMotion(AVTANI.RUN, timeScale, 0);
 };
 
 CharPawn.prototype.playSitDownMotion = function(onFinish) {
-  this.playMotion(AVTANI.SITTING, 1.0, false, function(anim) {
+  this.playMotion(AVTANI.SITTING, 1.0, 1, function(anim) {
     anim.once('finish', onFinish);
   });
 };
 CharPawn.prototype.playSittingMotion = function() {
-  this.playMotion(AVTANI.SIT, 1.0, true);
+  this.playMotion(AVTANI.SIT, 1.0, 0);
 };
 CharPawn.prototype.playStandUpMotion = function(onFinish) {
-  this.playMotion(AVTANI.STANDUP, 1.0, false, function(anim) {
+  this.playMotion(AVTANI.STANDUP, 1.0, 1, function(anim) {
     anim.once('finish', onFinish);
   });
 };

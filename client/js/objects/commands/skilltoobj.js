@@ -11,7 +11,7 @@ _SkillToObjCmd.prototype = Object.create(MoCommand.prototype);
 _SkillToObjCmd.prototype.enter = function() {
   var motionIdx = this.skillData[SKILL.CASTING_MOTION];
   var timeScale = this.skillData[SKILL.CASTING_SPEED] / 100;
-  this.pawn.playMotion(motionIdx, timeScale, false, function(anim) {
+  this.pawn.playMotion(motionIdx, timeScale, 1, function(anim) {
     anim.once('finish', this._skillCastDone.bind(this));
   }.bind(this));
 };
@@ -31,7 +31,7 @@ _SkillToObjCmd.prototype._skillCastDone = function() {
 _SkillToObjCmd.prototype._skillRepeatDone = function() {
   var motionIdx = this.skillData[SKILL.MOTION];
   var timeScale = this.skillData[SKILL.SPEED] / 100;
-  this.pawn.playMotion(motionIdx, timeScale, false, function(anim) {
+  this.pawn.playMotion(motionIdx, timeScale, 1, function(anim) {
     anim.once('finish', this._skillDone.bind(this));
   }.bind(this));
 };
