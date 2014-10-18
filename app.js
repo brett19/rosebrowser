@@ -9,6 +9,7 @@ var mkdirp = require('mkdirp')
 var express = require('express');
 var socketio = require('socket.io');
 var less = require('less');
+var browserify = require('browserify');
 var yaml_config = require('node-yaml-config');
 
 var config = yaml_config.load(path.normalize(__dirname + '/config.yml'));
@@ -73,6 +74,17 @@ Cacher.prototype.getStream = function(filePath, callback) {
 
 
 var app = express();
+
+app.get('/bundle.js', function(req, resp, next) {
+  var b = browserify({
+    insertGlobals: true,
+    detectGlobals: false,
+    debug: true,
+    basedir: 'client/'
+  });
+  b.add('./js/core.js');
+  b.bundle().pipe(resp);
+});
 
 app.get('/config', function(req, resp, next) {
   resp.send('var config = ' + JSON.stringify(config.client) + ';');
