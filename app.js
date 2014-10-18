@@ -10,6 +10,7 @@ var express = require('express');
 var socketio = require('socket.io');
 var less = require('less');
 var browserify = require('browserify');
+var exposify = require('exposify');
 var yaml_config = require('node-yaml-config');
 
 var config = yaml_config.load(path.normalize(__dirname + '/config.yml'));
@@ -75,6 +76,11 @@ Cacher.prototype.getStream = function(filePath, callback) {
 
 var app = express();
 
+exposify.config = {
+  jquery: '$',
+  three: 'THREE'
+};
+
 app.get('/bundle.js', function(req, resp, next) {
   var b = browserify({
     detectGlobals: false,
@@ -84,6 +90,7 @@ app.get('/bundle.js', function(req, resp, next) {
   b.on('error', function(e) {
     console.log(e);
   });
+  b.transform(exposify);
   b.add('./js/app.js');
   b.bundle(function(err, bundle) {
     if (err) {
