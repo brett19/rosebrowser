@@ -1,4 +1,4 @@
-'use strict';
+var MoCommand = require('./command');
 
 /**
  * ActorObject command for handling stopping (play idle animation)
@@ -43,3 +43,5 @@ SitCmd.prototype.update = function(delta) {
   }
   return 0;
 };
+
+module.exports = SitCmd;

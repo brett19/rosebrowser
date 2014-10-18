@@ -1,4 +1,4 @@
-'use strict';
+var ROSELoader = require('./rose');
 
 /**
  * @constructor
@@ -73,3 +73,5 @@ DataTable.load = function(path, callback) {
     callback(data);
   });
 };
+
+module.exports = DataTable;

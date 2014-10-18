@@ -1,4 +1,5 @@
-'use strict';
+var StateManager = require('./statemanager');
+var State = require('./state');
 
 /*
 This gamestate fakes the login screen by doing all the networking,

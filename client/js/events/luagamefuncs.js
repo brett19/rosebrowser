@@ -1,6 +1,4 @@
-'use strict';
-
-var VAR_INDEX = {
+global.VAR_INDEX = {
   SEX: 0,
   BIRTH: 1,
   CLASS: 2,
@@ -15,10 +13,12 @@ var VAR_INDEX = {
   SEN: 11,
   EXP: 12,
   LEVEL: 13,
-  POINT: 14,
+  POINT: 14
 };
 
-function GF_getVariable(type) {
+var GF = {};
+
+GF.getVariable = function(type) {
   var value = -1;
 
   switch(type) {
@@ -67,22 +67,24 @@ function GF_getVariable(type) {
   }
 
   return [ value ];
-}
+};
 
-function GF_getName() {
+GF.getName = function() {
   return [ MC.name ];
-}
+};
 
-function GF_getReviveZoneName() {
+GF.getReviveZoneName = function() {
   var listZones = GDM.getNow('list_zone');
   var zoneNames = GDM.getNow('zone_names');
   var zoneStrKey = listZones.item(MC.reviveZoneNo, 26);
   var name = zoneNames.getByKey(zoneStrKey).text;
   return [ name ];
-}
+};
 
-function GF_setRevivePosition() {
+GF.setRevivePosition = function() {
   netGame.setRevivePosition();
   MC.reviveZoneNo = MC.zoneNo;
   return [ 0 ];
-}
+};
+
+module.exports = GF;

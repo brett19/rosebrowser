@@ -1,4 +1,5 @@
-'use strict';
+var RoseSocket = require('./rosesocket');
+var RosePacket = require('./rosepacket');
 
 /**
  * @constructor
@@ -143,12 +144,4 @@ WorldClient.prototype.createCharacter = function(name, gender, face, hairStyle, 
   });
 };
 
-var	RESULT_CREATE_CHAR_OK = 0x00;
-var	RESULT_CREATE_CHAR_FAILED = 0x01;
-var	RESULT_CREATE_CHAR_DUP_NAME = 0x02;
-var	RESULT_CREATE_CHAR_INVALID_NAME = 0x03;
-var	RESULT_CREATE_CHAR_NO_MORE_SLOT = 0x04;
-var	RESULT_CREATE_CHAR_BLOCKED = 0x05;
-var	RESULT_CREATE_CHAR_NEED_PREMIUM = 0x06;
-
-var netWorld = null;
+module.exports = WorldClient;

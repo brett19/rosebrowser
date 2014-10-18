@@ -1,6 +1,4 @@
-'use strict';
-
-var EPSILON = 0.0001;
+var MoCommand = require('./command');
 
 /**
  * ActorObject command for handling moving to a position.
@@ -90,3 +88,5 @@ MoveToPosCmd.prototype.update = function(delta) {
     return delta;
   }
 };
+
+module.exports = MoveToPosCmd;

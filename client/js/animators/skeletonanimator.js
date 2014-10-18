@@ -1,4 +1,4 @@
-'use strict';
+var Animator = require('./animator');
 
 /**
  * An Animator class for animating Skeleton's based on an AnimationData.
@@ -15,3 +15,4 @@ function SkeletonAnimator(skeleton, animationData) {
 
 SkeletonAnimator.prototype = Object.create(Animator.prototype);
 
+module.exports = SkeletonAnimator;

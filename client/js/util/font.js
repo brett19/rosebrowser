@@ -158,3 +158,6 @@ function createTEXTure(fontID, text)
   texture.needsUpdate = true;
   return texture;
 }
+Font.createTEXTure = createTEXTure;
+
+module.exports = Font;

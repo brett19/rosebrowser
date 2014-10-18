@@ -1,5 +1,3 @@
-'use strict';
-
 // This class must provide at least all the methods available on CharStats.
 
 function McStats(mcObj) {
@@ -133,3 +131,5 @@ McStats.prototype.getNeedRawExp = function () {
     return Math.floor((level - 15) * (level + 7) * (level - 126) * 41.0);
   }
 };
+
+module.exports = McStats;

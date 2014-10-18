@@ -1,5 +1,3 @@
-'use strict';
-
 function _LoadScreen() {
 }
 
@@ -12,3 +10,4 @@ _LoadScreen.prototype.hide = function() {
 };
 
 var LoadScreen = new _LoadScreen();
+module.exports = LoadScreen;

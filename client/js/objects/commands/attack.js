@@ -1,4 +1,5 @@
-'use strict';
+var MoCommand = require('./command');
+var MoveToObjCmd = require('./movetoobj');
 
 function _AttackCmd(object, targetObjRef) {
   MoCommand.call(this, object);
@@ -89,3 +90,5 @@ AttackCmd.prototype.update = function(delta) {
 
   return this.activeCmd.update(delta);
 };
+
+module.exports = AttackCmd;

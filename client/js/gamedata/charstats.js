@@ -1,5 +1,3 @@
-'use strict';
-
 function CharStats(charObj) {
   this.object = charObj;
 
@@ -37,3 +35,5 @@ CharStats.prototype.getAttackDistance = function() {
   }
   return weaponData[WEAPON_DATA.RANGE] / 100;
 };
+
+module.exports = CharStats;

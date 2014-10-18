@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @constructor
  */
@@ -56,3 +54,5 @@ EventEmitter.prototype.once = function(event, handler) {
   this.addEventListener(event, onceHandler);
   return this;
 };
+
+module.exports = EventEmitter;

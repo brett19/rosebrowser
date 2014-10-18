@@ -1,4 +1,9 @@
-'use strict';
+var GORef = require('./goref');
+var GameObject = require('./gameobject');
+var StopCmd = require('./commands/stop');
+var MoveToPosCmd = require('./commands/movetopos');
+var MoveToObjCmd = require('./commands/movetoobj');
+var AttackCmd = require('./commands/attack');
 
 /**
  * @constructor
@@ -87,3 +92,5 @@ ActorObject.prototype.update = function(delta) {
   }
   return GameObject.prototype.update.call(this, delta);
 };
+
+module.exports = ActorObject;

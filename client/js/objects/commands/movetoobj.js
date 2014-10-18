@@ -1,8 +1,4 @@
-'use strict';
-
-var AVT_CLICK_EVENT_RANGE = 10.00;
-var NPC_CLICK_EVENT_RANGE = 2.50;
-var ITEM_CLICK_EVENT_RANGE = 1.50;
+var MoveToPosCmd = require('./movetopos');
 
 function MoveToObjCmd(object, targetObjRef, distance) {
   var targetPos = new THREE.Vector2(targetObjRef.position.x, targetObjRef.position.y);
@@ -65,3 +61,5 @@ MoveToObjCmd.prototype.update = (function() {
     return MoveToPosCmd.prototype.update.call(this, delta);
   }
 })();
+
+module.exports = MoveToObjCmd;

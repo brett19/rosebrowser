@@ -1,6 +1,4 @@
-'use strict';
-
-var ABILTYPE = {
+global.ABILTYPE = {
   SEX: 2,
   HAIRCOLOR: 3,
   CLASS: 4,

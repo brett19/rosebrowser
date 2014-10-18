@@ -1,4 +1,4 @@
-'use strict';
+var ROSELoader = require('./rose');
 
 function CameraSpecs() {
 }
@@ -34,3 +34,5 @@ CameraSpecs.load = function(path, callback) {
     callback(data);
   });
 };
+
+module.exports = CameraSpecs;

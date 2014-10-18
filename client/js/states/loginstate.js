@@ -1,4 +1,5 @@
-'use strict';
+var StateManager = require('./statemanager');
+var State = require('./state');
 
 var rUser = null;
 var rPass = null;

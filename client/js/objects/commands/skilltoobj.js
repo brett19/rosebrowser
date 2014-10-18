@@ -1,4 +1,5 @@
-'use strict';
+var MoCommand = require('./command');
+var MoveToObjCmd = require('./movetoobj');
 
 function _SkillToObjCmd(object, targetObjRef, skillData) {
   MoCommand.call(this, object);
@@ -128,3 +129,5 @@ SkillToObjCmd.prototype.update = function(delta) {
 
   return this.activeCmd.update(delta);
 };
+
+module.exports = SkillToObjCmd;

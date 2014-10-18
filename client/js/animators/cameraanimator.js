@@ -1,4 +1,4 @@
-'use strict';
+var Animator = require('./animator');
 
 var CAMANIMPLAYSTATE = {
   Stopped: 0,
@@ -135,3 +135,5 @@ CameraAnimator.prototype.update = function(delta) {
     this.emit('complete');
   }
 };
+
+module.exports = CameraAnimator;

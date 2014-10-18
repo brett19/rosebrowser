@@ -1,3 +1,5 @@
+var ROSELoader = require('./rose');
+
 /**
  * @constructor
  * @property {String[]} meshes
@@ -262,3 +264,5 @@ ModelList.load = function(path, callback) {
     callback(data);
   });
 };
+
+module.exports = ModelList;

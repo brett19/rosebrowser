@@ -39,3 +39,5 @@ Color4.prototype.multiplyScalar = function(scalar) {
   this.a *= scalar;
   return this;
 };
+
+module.exports = Color4;

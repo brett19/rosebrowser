@@ -1,6 +1,6 @@
-'use strict';
+var EventEmitter = require('../util/eventemitter');
 
-var MSG_TYPE = {
+global.MSG_TYPE = {
   SAY: 0,
   SHOUT: 1,
   WHISPER: 2,
@@ -15,35 +15,35 @@ var MSG_TYPE = {
   QUEST_REWARD: 11
 };
 
-var ChatManager = function() {
+var _ChatManager = function() {
   EventEmitter.call(this);
 
   this.types = [
-    new ChatManager.MessageType('say', null, this.say.bind(this)),
-    new ChatManager.MessageType('shout', '!', this.shout.bind(this)),
-    new ChatManager.MessageType('whisper', '"', this.whisper.bind(this)),
-    new ChatManager.MessageType('party', '#', this.clan.bind(this)),
-    new ChatManager.MessageType('trade', '$', this.trade.bind(this)),
-    new ChatManager.MessageType('clan', '@', this.clan.bind(this)),
-    new ChatManager.MessageType('ally', '~', this.clan.bind(this)),
-    new ChatManager.MessageType('system', null, this.system.bind(this)),
-    new ChatManager.MessageType('notice', null, this.notice.bind(this)),
-    new ChatManager.MessageType('error', null, this.error.bind(this)),
-    new ChatManager.MessageType('quest', null, this.quest.bind(this)),
-    new ChatManager.MessageType('quest-reward', null, this.questReward.bind(this))
+    new _ChatManager.MessageType('say', null, this.say.bind(this)),
+    new _ChatManager.MessageType('shout', '!', this.shout.bind(this)),
+    new _ChatManager.MessageType('whisper', '"', this.whisper.bind(this)),
+    new _ChatManager.MessageType('party', '#', this.clan.bind(this)),
+    new _ChatManager.MessageType('trade', '$', this.trade.bind(this)),
+    new _ChatManager.MessageType('clan', '@', this.clan.bind(this)),
+    new _ChatManager.MessageType('ally', '~', this.clan.bind(this)),
+    new _ChatManager.MessageType('system', null, this.system.bind(this)),
+    new _ChatManager.MessageType('notice', null, this.notice.bind(this)),
+    new _ChatManager.MessageType('error', null, this.error.bind(this)),
+    new _ChatManager.MessageType('quest', null, this.quest.bind(this)),
+    new _ChatManager.MessageType('quest-reward', null, this.questReward.bind(this))
   ];
 };
 
-ChatManager.prototype = Object.create(EventEmitter.prototype);
-ChatManager.prototype.types = [];
+_ChatManager.prototype = Object.create(EventEmitter.prototype);
+_ChatManager.prototype.types = [];
 
-ChatManager.MessageType = function(name, prefix, sendFunc) {
+_ChatManager.MessageType = function(name, prefix, sendFunc) {
   this.name = name;
   this.prefix = prefix;
   this.sendFunc = sendFunc;
 };
 
-ChatManager.Message = function(type, message, sender, senderObject) {
+_ChatManager.Message = function(type, message, sender, senderObject) {
   this.type = type;
   this.message = message;
 
@@ -55,7 +55,7 @@ ChatManager.Message = function(type, message, sender, senderObject) {
   }
 };
 
-ChatManager.prototype.say = function(message) {
+_ChatManager.prototype.say = function(message) {
   if (!message) {
     return false;
   }
@@ -64,7 +64,7 @@ ChatManager.prototype.say = function(message) {
   return true;
 };
 
-ChatManager.prototype.shout = function(message) {
+_ChatManager.prototype.shout = function(message) {
   if (!message) {
     return false;
   }
@@ -73,7 +73,7 @@ ChatManager.prototype.shout = function(message) {
   return true;
 };
 
-ChatManager.prototype.whisper = function(message) {
+_ChatManager.prototype.whisper = function(message) {
   var match = message.match(/([^ ]*) (.*)/);
   if (!match) {
     return false;
@@ -84,7 +84,7 @@ ChatManager.prototype.whisper = function(message) {
   return true;
 };
 
-ChatManager.prototype.party = function(message) {
+_ChatManager.prototype.party = function(message) {
   if (!message) {
     return false;
   }
@@ -93,7 +93,7 @@ ChatManager.prototype.party = function(message) {
   return true;
 };
 
-ChatManager.prototype.trade = function(message) {
+_ChatManager.prototype.trade = function(message) {
   if (!message) {
     return false;
   }
@@ -102,7 +102,7 @@ ChatManager.prototype.trade = function(message) {
   return true;
 };
 
-ChatManager.prototype.clan = function(message) {
+_ChatManager.prototype.clan = function(message) {
   if (!message) {
     return false;
   }
@@ -111,7 +111,7 @@ ChatManager.prototype.clan = function(message) {
   return true;
 };
 
-ChatManager.prototype.ally = function(message) {
+_ChatManager.prototype.ally = function(message) {
   if (!message) {
     return false;
   }
@@ -120,39 +120,40 @@ ChatManager.prototype.ally = function(message) {
   return true;
 };
 
-ChatManager.prototype.system = function(message) {
+_ChatManager.prototype.system = function(message) {
   this.addSystemMessage(MSG_TYPE.SYSTEM, message);
   return true;
 };
 
-ChatManager.prototype.notice = function(message) {
+_ChatManager.prototype.notice = function(message) {
   this.addSystemMessage(MSG_TYPE.NOTICE, message);
   return true;
 };
 
-ChatManager.prototype.error = function(message) {
+_ChatManager.prototype.error = function(message) {
   this.addSystemMessage(MSG_TYPE.ERROR, message);
   return true;
 };
 
-ChatManager.prototype.quest = function(message) {
+_ChatManager.prototype.quest = function(message) {
   this.addSystemMessage(MSG_TYPE.QUEST, message);
   return true;
 };
 
-ChatManager.prototype.questReward = function(message) {
+_ChatManager.prototype.questReward = function(message) {
   this.addSystemMessage(MSG_TYPE.QUEST_REWARD, message);
   return true;
 };
 
-ChatManager.prototype.addGameMessage = function(type, message, sender, senderObject) {
-  var message = new ChatManager.Message(type, message, sender, senderObject);
+_ChatManager.prototype.addGameMessage = function(type, message, sender, senderObject) {
+  var message = new _ChatManager.Message(type, message, sender, senderObject);
   this.emit('game_message', message);
 };
 
-ChatManager.prototype.addSystemMessage = function(type, message) {
-  var message = new ChatManager.Message(type, message);
+_ChatManager.prototype.addSystemMessage = function(type, message) {
+  var message = new _ChatManager.Message(type, message);
   this.emit('system_message', message);
 };
 
-var GCM = new ChatManager();
+var GCM = new _ChatManager();
+module.exports = GCM;

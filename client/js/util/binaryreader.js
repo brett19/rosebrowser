@@ -225,3 +225,5 @@ BinaryReader.prototype.readQuatwxyz = function() {
   var z = this.readFloat();
   return new THREE.Quaternion(x, y, z, w);
 };
+
+module.exports = BinaryReader;

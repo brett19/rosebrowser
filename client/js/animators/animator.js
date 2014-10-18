@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * An Animator class for animating objects based on an AnimationData.
  *
@@ -211,3 +209,5 @@ Animator.prototype.update = function (delta) {
 
   return 0.0;
 };
+
+module.exports = Animator;

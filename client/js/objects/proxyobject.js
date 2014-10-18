@@ -1,4 +1,4 @@
-'use strict';
+var GameObject = require('./gameobject');
 
 /**
  * A class used as a placeholder for objects which are not actually visible
@@ -12,3 +12,5 @@ function ProxyObject(world) {
   GameObject.call(this, 'proxy', null);
 }
 ProxyObject.prototype = new GameObject();
+
+module.exports = ProxyObject;

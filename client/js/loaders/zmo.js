@@ -1,3 +1,5 @@
+var ROSELoader = require('./rose');
+
 /**
  * @constructor
  * @property {Number} fps
@@ -159,3 +161,5 @@ AnimationData.load = function(path, callback) {
     callback(data);
   });
 };
+
+module.exports = AnimationData;

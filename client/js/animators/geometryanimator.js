@@ -1,4 +1,4 @@
-'use strict';
+var Animator = require('./animator');
 
 /**
  * An Animator class for animating a BufferGeometry based on an AnimationData.
@@ -65,3 +65,5 @@ GeometryAnimator.prototype._applyChannel = function(index, type, value) {
     attrib.needsUpdate = true;
   }
 };
+
+module.exports = GeometryAnimator;

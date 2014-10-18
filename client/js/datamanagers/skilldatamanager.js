@@ -1,6 +1,4 @@
-'use strict';
-
-var SKILL = {
+global.SKILL = {
   TAB_TYPE: 4,
   TYPE: 5,
   BASIC_COMMAND: 6,
@@ -18,7 +16,7 @@ var SKILL = {
   SLOT_NUM: 111
 };
 
-var SKILL_ACTION_TYPE = {
+global.SKILL_ACTION_TYPE = {
   BASE_ACTION: 1,
   CREATE_WINDOW: 2,
   ACTION_IMMEDIATE: 3,
@@ -41,7 +39,7 @@ var SKILL_ACTION_TYPE = {
   ACTION_RESURRECTION: 20
 };
 
-var BASIC_COMMAND = {
+global.BASIC_COMMAND = {
   SIT: 1,
   PICK_ITEM: 2,
   JUMP: 3,
@@ -101,3 +99,5 @@ SkillDataManager.load = function(path, callback) {
     callback(mgr);
   });
 };
+
+module.exports = SkillDataManager;

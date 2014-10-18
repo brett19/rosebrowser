@@ -1,4 +1,4 @@
-'use strict';
+var State = require('./state');
 
 /**
  * A class for managing game states and the transitions between them.
@@ -125,3 +125,4 @@ _StateManager.prototype.update = function(delta) {
  * @type {_StateManager}
  */
 var StateManager = new _StateManager();
+module.exports = StateManager;

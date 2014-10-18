@@ -1,19 +1,5 @@
-'use strict';
-
-var NETLOGINREPLY = {
-  OK: 0,
-  Failed: 1,
-  InvalidUsername: 2,
-  InvalidPassword: 3,
-  AlreadyLoggedIn: 4,
-  RefusedAccount: 5,
-  NeedCharge: 6,
-  NoRights: 7,
-  Overloaded: 8,
-  NoRealName: 9,
-  BadVersion: 10,
-  OutOfIp: 11
-};
+var RoseSocket = require('./rosesocket');
+var RosePacket = require('./rosepacket');
 
 /**
  * @constructor
@@ -135,4 +121,4 @@ LoginClient.prototype.selectServer = function(serverId, channelId, callback) {
   });
 };
 
-var netLogin = null;
+module.exports = LoginClient;

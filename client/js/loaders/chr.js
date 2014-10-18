@@ -1,3 +1,5 @@
+var ROSELoader = require('./rose');
+
 /**
  * @constructor
  * @param {String[]}                  skeletons
@@ -99,3 +101,5 @@ CharacterList.load = function(path, callback) {
     callback(data);
   });
 };
+
+module.exports = CharacterList;

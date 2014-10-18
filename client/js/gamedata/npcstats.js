@@ -1,6 +1,4 @@
-'use strict';
-
-var NPC_DATA = {
+global.NPC_DATA = {
   ATK_SPEED: 14,
   ATK_DISTANCE: 26
 };
@@ -19,3 +17,5 @@ NpcStats.prototype.getAttackSpeed = function() {
 NpcStats.prototype.getAttackDistance = function() {
   return this.data[NPC_DATA.ATK_DISTANCE] / 100;
 };
+
+module.exports = NpcStats;

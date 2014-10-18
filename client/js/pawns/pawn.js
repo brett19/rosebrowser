@@ -1,5 +1,3 @@
-'use strict';
-
 function Pawn() {
   this.rootObj = new THREE.Object3D();
   this.rootObj.owner = this;
@@ -28,3 +26,5 @@ Pawn.prototype.update = function(delta) {
     this.rootObj.rotation.z = this.direction;
   }
 };
+
+module.exports = Pawn;

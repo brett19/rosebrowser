@@ -1,12 +1,10 @@
-'use strict';
-
 function _DamageRender() {
   this.sprites = [];
   this.isPlaying = false;
 }
 
 _DamageRender.prototype.add = function(amount, pos) {
-  var texture = createTEXTure(Font.FONT.OUTLINE_BOLD_24, amount.toString());
+  var texture = Font.createTEXTure(Font.FONT.OUTLINE_BOLD_24, amount.toString());
 
   // Recreate the sprite with new texture
   var material = new THREE.SpriteMaterial({ map: texture, color: 0xffffff });
@@ -57,3 +55,4 @@ _DamageRender.prototype.update = function(delta) {
 };
 
 var DamageRender = new _DamageRender();
+module.exports = DamageRender;

@@ -26,200 +26,40 @@
 
 <!-- Various needed utilities -->
 <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/md5.js"></script>
-<script src="js/lua+parser.min.js"></script>
-
-<!-- jQuery for everything -->
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-
-<!-- Dat.GUI for Debug GUI -->
-<script src="js/dat.gui.js"></script>
-
-<!-- ThreeJS for Rendering -->
-<script src="js/stats.min.js"></script>
+<script src="js/lua+parser.min.js"></script>
 <script src="js/three.js"></script>
-
-<!-- Custom Core Type -->
-<script src="js/types/int64.js"></script>
-<script src="js/types/color4.js"></script>
-
-<!-- Utilities! -->
-<script src="js/util/logging.js"></script>
-<script src="js/util/binaryreader.js"></script>
-<script src="js/util/eventemitter.js"></script>
-<script src="js/util/generic.js"></script>
-<script src="js/util/hash.js"></script>
-<script src="js/util/font.js"></script>
-
-<!-- Game Networking -->
+<script src="js/stats.min.js"></script>
+<script src="js/dat.gui.js"></script>
 <script src="socket.io/socket.io.js"></script>
-<script src="js/net/socket.js"></script>
-<script src="js/net/rosepacket.js"></script>
-<script src="js/net/rosesocket.js"></script>
-<script src="js/net/loginclient.js"></script>
-<script src="js/net/worldclient.js"></script>
-<script src="js/net/gameclient.js"></script>
-
-<!-- Game Loaders -->
-<script src="js/loaders/chr.js"></script>
-<script src="js/loaders/dds.js"></script>
-<script src="js/loaders/eft.js"></script>
-<script src="js/loaders/him.js"></script>
-<script src="js/loaders/ifo.js"></script>
-<script src="js/loaders/lit.js"></script>
-<script src="js/loaders/ptl.js"></script>
-<script src="js/loaders/rose.js"></script>
-<script src="js/loaders/til.js"></script>
-<script src="js/loaders/stb.js"></script>
-<script src="js/loaders/stl.js"></script>
-<script src="js/loaders/zmd.js"></script>
-<script src="js/loaders/zmo.js"></script>
-<script src="js/loaders/zms.js"></script>
-<script src="js/loaders/zon.js"></script>
-<script src="js/loaders/zsc.js"></script>
-<script src="js/loaders/zca.js"></script>
-<script src="js/loaders/cxe.js"></script>
-<script src="js/loaders/qsd.js"></script>
-
-<!-- Game Types -->
-<script src="js/gamedata/chartypes.js"></script>
-<script src="js/gamedata/inventorydata.js"></script>
-<script src="js/gamedata/questdata.js"></script>
-<script src="js/gamedata/npcstats.js"></script>
-<script src="js/gamedata/charstats.js"></script>
-<script src="js/gamedata/mcstats.js"></script>
-<script src="js/gamedata/hoticons.js"></script>
-<script src="js/gamedata/skilldata.js"></script>
-<script src="js/gamedata/partydata.js"></script>
-<script src="js/gamedata/ingstatus.js"></script>
-
-<!-- Animators -->
-<script src="js/animators/animator.js"></script>
-<script src="js/animators/cameraanimator.js"></script>
-<script src="js/animators/geometryanimator.js"></script>
-<script src="js/animators/skeletonanimator.js"></script>
-<script src="js/animators/objectanimator.js"></script>
-
-<!-- Effects -->
-<script src="js/effects/particleemitter.js"></script>
-<script src="js/effects/effect.js"></script>
-<script src="js/effects/effectmanager.js"></script>
-
-<!-- Controller Helpers -->
-<script src="js/controls/inputmanager.js"></script>
-<script src="js/controls/orbit.js"></script>
-<script src="js/controls/fly.js"></script>
-<script src="js/controls/freefly.js"></script>
-
-<!-- Map Stuff -->
-<script src="js/maps/mapbounds.js"></script>
-<script src="js/maps/mapmanager.js"></script>
-
-<!-- Game Helpers -->
-<script src="js/helpers/orthosprite.js"></script>
-<script src="js/helpers/loadscreen.js"></script>
-<script src="js/helpers/debughelper.js"></script>
-<script src="js/helpers/indexedcache.js"></script>
-<script src="js/helpers/datamanager.js"></script>
-<script src="js/helpers/netmanager.js"></script>
-<script src="js/helpers/damagerender.js"></script>
-<script src="js/helpers/gamecontrol.js"></script>
-<script src="js/helpers/chatmanager.js"></script>
-<script src="js/helpers/iconmanager.js"></script>
-<script src="js/helpers/tooltipmanager.js"></script>
-
-<!-- Event / Quest Related -->
-<script src="js/events/luafuncs.js"></script>
-<script src="js/events/luagamefuncs.js"></script>
-<script src="js/events/luaquestfuncs.js"></script>
-<script src="js/events/questscriptmanager.js"></script>
-<script src="js/events/conversation.js"></script>
-
-<!-- Data Managers -->
-<script src="js/datamanagers/shadermanager.js"></script>
-<script src="js/datamanagers/texturemanager.js"></script>
-<script src="js/datamanagers/modellistmanager.js"></script>
-<script src="js/datamanagers/lightmapmanager.js"></script>
-<script src="js/datamanagers/morphanimmanager.js"></script>
-<script src="js/datamanagers/itemdatamanager.js"></script>
-<script src="js/datamanagers/skilldatamanager.js"></script>
 
 <!-- GUI Stuff -->
 <link rel="stylesheet" href="gui/dialogs/templates/style.less">
-<script src="gui/ui.js"></script>
-<script src="gui/gameui.js"></script>
-<script src="gui/nameplate.js"></script>
 
-<!-- Widgets -->
-<script src="gui/widgets/widget.js"></script>
-<script src="gui/widgets/dialog.js"></script>
-<script src="gui/widgets/button.js"></script>
-<script src="gui/widgets/checkbox.js"></script>
-<script src="gui/widgets/iconslot.js"></script>
-<script src="gui/widgets/label.js"></script>
-<script src="gui/widgets/list.js"></script>
-<script src="gui/widgets/panel.js"></script>
-<script src="gui/widgets/progressbar.js"></script>
-<script src="gui/widgets/radiogroup.js"></script>
-<script src="gui/widgets/tabpanel.js"></script>
-<script src="gui/widgets/textbox.js"></script>
-<script src="gui/widgets/titlebar.js"></script>
+<script type="text/javascript">
+    // Build a list of parameters passed
+    var clientParams = [];
+    if (window.location.hash.length > 1) {
+        clientParams = window.location.hash.substr(1).split(',');
+    }
+    // Generate option changes based on this.
+    for (var i = 0; i < clientParams.length; ++i) {
+        var param = clientParams[i];
+        var paramEqIdx = param.indexOf('=');
+        if (paramEqIdx === -1) {
+            config[param] = true;
+        } else {
+            var paramName = param.substr(0, paramEqIdx);
+            var paramVal = param.substr(paramEqIdx+1);
+            config[paramName] = paramVal;
+        }
+    }
 
-<!-- Dialogs -->
-<script src="gui/dialogs/charactercreate.js"></script>
-<script src="gui/dialogs/characterselect.js"></script>
-<script src="gui/dialogs/characterstatus.js"></script>
-<script src="gui/dialogs/chatbox.js"></script>
-<script src="gui/dialogs/character.js"></script>
-<script src="gui/dialogs/inventory.js"></script>
-<script src="gui/dialogs/login.js"></script>
-<script src="gui/dialogs/menu.js"></script>
-<script src="gui/dialogs/messagebox.js"></script>
-<script src="gui/dialogs/npcchat.js"></script>
-<script src="gui/dialogs/party.js"></script>
-<script src="gui/dialogs/questlist.js"></script>
-<script src="gui/dialogs/serverselect.js"></script>
-<script src="gui/dialogs/skills.js"></script>
-<script src="gui/dialogs/status.js"></script>
-<script src="gui/dialogs/quickbar.js"></script>
+    var global = window;
+</script>
 
-<!-- Game Pawns -->
-<script src="js/pawns/pawn.js"></script>
-<script src="js/pawns/skelanimpawn.js"></script>
-<script src="js/pawns/itempawn.js"></script>
-<script src="js/pawns/npcpawn.js"></script>
-<script src="js/pawns/charpawn.js"></script>
-
-<!-- Game Objects -->
-<script src="js/objects/gameobjectmanager.js"></script>
-<script src="js/objects/zonemanager.js"></script>
-<script src="js/objects/goref.js"></script>
-<script src="js/objects/gameobject.js"></script>
-<script src="js/objects/proxyobject.js"></script>
-<script src="js/objects/itemobject.js"></script>
-<script src="js/objects/actorobject.js"></script>
-<script src="js/objects/mobobject.js"></script>
-<script src="js/objects/npcobject.js"></script>
-<script src="js/objects/charobject.js"></script>
-<script src="js/objects/mycharacter.js"></script>
-<script src="js/objects/commands/command.js"></script>
-<script src="js/objects/commands/stop.js"></script>
-<script src="js/objects/commands/sit.js"></script>
-<script src="js/objects/commands/movetopos.js"></script>
-<script src="js/objects/commands/movetoobj.js"></script>
-<script src="js/objects/commands/attack.js"></script>
-<script src="js/objects/commands/skilltoobj.js"></script>
-
-<!-- Game States -->
-<script src="js/states/statemanager.js"></script>
-<script src="js/states/state.js"></script>
-<script src="js/states/teststate.js"></script>
-<script src="js/states/loginstate.js"></script>
-<script src="js/states/gameteststate.js"></script>
-<script src="js/states/pregamestate.js"></script>
-<script src="js/states/gamestate.js"></script>
-<script src="js/states/particleteststate.js"></script>
-<script src="js/states/movgenstate.js"></script>
-<script src="js/states/emptystate.js"></script>
+<!-- Game Script Bundle -->
+<script src="bundle.js"></script>
 
 <!-- Game Core -->
 <script src="js/core.js"></script>

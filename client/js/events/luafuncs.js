@@ -1,17 +1,18 @@
-'use strict';
+var GF = require('./luagamefuncs');
+var QF = require('./luaquestfuncs');
 
-var LuaFunctions = function() {
+var _LuaFunctions = function() {
 };
 
-LuaFunctions.prototype._lua = null;
+_LuaFunctions.prototype._lua = null;
 
-LuaFunctions.prototype.init = function(lua) {
+_LuaFunctions.prototype.init = function(lua) {
   this._lua = lua;
   this.GF_Init();
   this.QF_Init();
 }
 
-LuaFunctions.prototype.setFunc = function(name, func) {
+_LuaFunctions.prototype.setFunc = function(name, func) {
   if (!func) {
     func = function() {
       console.error('LUA called unimplemented function `' + name + '`.');
@@ -22,7 +23,7 @@ LuaFunctions.prototype.setFunc = function(name, func) {
   lua_tableset(this._lua, name, func);
 };
 
-LuaFunctions.prototype.GF_Init = function() {
+_LuaFunctions.prototype.GF_Init = function() {
   this.setFunc('GF_ChangeState');
   this.setFunc('GF_DeleteEffectFromObject');
   this.setFunc('GF_EffectOnObject');
@@ -45,11 +46,11 @@ LuaFunctions.prototype.GF_Init = function() {
   this.setFunc('GF_getGameVersion');
   this.setFunc('GF_getIDXOfInvItem');
   this.setFunc('GF_getItemRate');
-  this.setFunc('GF_getName', GF_getName);
-  this.setFunc('GF_getReviveZoneName', GF_getReviveZoneName);
+  this.setFunc('GF_getName', GF.getName);
+  this.setFunc('GF_getReviveZoneName', GF.getReviveZoneName);
   this.setFunc('GF_getTownRate');
   this.setFunc('GF_getTownVar');
-  this.setFunc('GF_getVariable', GF_getVariable);
+  this.setFunc('GF_getVariable', GF.getVariable);
   this.setFunc('GF_getWorldRate');
   this.setFunc('GF_getZone');
   this.setFunc('GF_giveEquipItemIntoInv');
@@ -71,7 +72,7 @@ LuaFunctions.prototype.GF_Init = function() {
   this.setFunc('GF_repair');
   this.setFunc('GF_rotateCamera');
   this.setFunc('GF_setEquipedItem');
-  this.setFunc('GF_setRevivePosition', GF_setRevivePosition);
+  this.setFunc('GF_setRevivePosition', GF.setRevivePosition);
   this.setFunc('GF_setTownRate');
   this.setFunc('GF_setVariable');
   this.setFunc('GF_setWorldRate');
@@ -83,7 +84,7 @@ LuaFunctions.prototype.GF_Init = function() {
   this.setFunc('GF_zoomCamera');
 }
 
-LuaFunctions.prototype.QF_Init = function() {
+_LuaFunctions.prototype.QF_Init = function() {
   this.setFunc('QF_CameraworkingNpc');
   this.setFunc('QF_CameraworkingPoint');
   this.setFunc('QF_CameraworkingSelf');
@@ -99,27 +100,28 @@ LuaFunctions.prototype.QF_Init = function() {
   this.setFunc('QF_NpcView');
   this.setFunc('QF_appendQuest');
   this.setFunc('QF_beginCon');
-  this.setFunc('QF_checkQuestCondition', QF_checkQuestCondition);
+  this.setFunc('QF_checkQuestCondition', QF.checkQuestCondition);
   this.setFunc('QF_closeCon');
   this.setFunc('QF_deleteQuest');
-  this.setFunc('QF_doQuestTrigger', QF_doQuestTrigger);
+  this.setFunc('QF_doQuestTrigger', QF.doQuestTrigger);
   this.setFunc('QF_getClanVAR');
-  this.setFunc('QF_getEpisodeVAR', QF_getEpisodeVAR);
-  this.setFunc('QF_getJobVAR', QF_getJobVAR);
-  this.setFunc('QF_getPlanetVAR', QF_getPlanetVAR);
-  this.setFunc('QF_getUnionVAR', QF_getUnionVAR);
-  this.setFunc('QF_getUserSwitch', QF_getUserSwitch);
-  this.setFunc('QF_getQuestCount', QF_getQuestCount);
-  this.setFunc('QF_findQuest', QF_findQuest);
-  this.setFunc('QF_getQuestID', QF_getQuestID);
-  this.setFunc('QF_getQuestItemQuantity', QF_getQuestItemQuantity);
-  this.setFunc('QF_getQuestSwitch', QF_getQuestSwitch);
-  this.setFunc('QF_getQuestVar', QF_getQuestVar);
-  this.setFunc('QF_getEventOwner', QF_getEventOwner);
-  this.setFunc('QF_getNpcQuestZeroVal', QF_getNpcQuestZeroVal);
+  this.setFunc('QF_getEpisodeVAR', QF.getEpisodeVAR);
+  this.setFunc('QF_getJobVAR', QF.getJobVAR);
+  this.setFunc('QF_getPlanetVAR', QF.getPlanetVAR);
+  this.setFunc('QF_getUnionVAR', QF.getUnionVAR);
+  this.setFunc('QF_getUserSwitch', QF.getUserSwitch);
+  this.setFunc('QF_getQuestCount', QF.getQuestCount);
+  this.setFunc('QF_findQuest', QF.findQuest);
+  this.setFunc('QF_getQuestID', QF.getQuestID);
+  this.setFunc('QF_getQuestItemQuantity', QF.getQuestItemQuantity);
+  this.setFunc('QF_getQuestSwitch', QF.getQuestSwitch);
+  this.setFunc('QF_getQuestVar', QF.getQuestVar);
+  this.setFunc('QF_getEventOwner', QF.getEventOwner);
+  this.setFunc('QF_getNpcQuestZeroVal', QF.getNpcQuestZeroVal);
   this.setFunc('QF_getSkillLevel');
   this.setFunc('QF_givePoint');
   this.setFunc('QF_gotoCon');
 };
 
-var luaFunctions = new LuaFunctions();
+var LuaFunctions = new _LuaFunctions();
+module.exports = LuaFunctions;

@@ -1,4 +1,4 @@
-'use strict';
+var Pawn = require('./pawn');
 
 function SkelAnimPawn() {
   Pawn.call(this);
@@ -102,3 +102,5 @@ SkelAnimPawn.prototype.update = function(delta) {
 
   return Pawn.prototype.update.call(this, delta);
 };
+
+module.exports = SkelAnimPawn;

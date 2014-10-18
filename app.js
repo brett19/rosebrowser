@@ -77,13 +77,22 @@ var app = express();
 
 app.get('/bundle.js', function(req, resp, next) {
   var b = browserify({
-    insertGlobals: true,
     detectGlobals: false,
     debug: true,
     basedir: 'client/'
   });
-  b.add('./js/core.js');
-  b.bundle().pipe(resp);
+  b.on('error', function(e) {
+    console.log(e);
+  });
+  b.add('./js/app.js');
+  b.bundle(function(err, bundle) {
+    if (err) {
+      console.warn(err);
+      resp.status(500).end();
+      return;
+    }
+    resp.type('text/javascript').send(bundle);
+  });
 });
 
 app.get('/config', function(req, resp, next) {

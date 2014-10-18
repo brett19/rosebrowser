@@ -1,3 +1,5 @@
+var ROSELoader = require('./rose');
+
 /**
  * @constructor
  * @property {ZoneChunkData.Object[]} objects
@@ -360,3 +362,5 @@ ZoneChunkData.load = function(path, callback) {
     callback(data);
   });
 };
+
+module.exports = ZoneChunkData;

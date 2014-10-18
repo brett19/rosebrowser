@@ -1,5 +1,3 @@
-'use strict';
-
 var knownServerOnlyQsds = [
   '3DDATA/QUESTDATA/SERVER/SOLDIER.QSD',
   '3DDATA/QUESTDATA/SERVER/MUSE.QSD',
@@ -398,3 +396,5 @@ QuestScriptManager.load = function(path, callback) {
     callback(data);
   });
 };
+
+module.exports = QuestScriptManager;

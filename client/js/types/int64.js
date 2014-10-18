@@ -52,3 +52,5 @@ Int64.fromBit = function(bit) {
     return new Int64(0, 1 << (bit - 31));
   }
 };
+
+module.exports = Int64;

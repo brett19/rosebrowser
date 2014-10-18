@@ -1,4 +1,4 @@
-'use strict';
+var EventEmitter = require('../../util/eventemitter');
 
 function MoCommand(object) {
   EventEmitter.call(this);
@@ -24,3 +24,5 @@ MoCommand.prototype.enter = function() {
 
 MoCommand.prototype.leave = function() {
 };
+
+module.exports = MoCommand;

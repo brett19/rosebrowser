@@ -1,4 +1,7 @@
-'use strict';
+var GORef = require('./goref');
+var ActorObject = require('./actorobject');
+var SitCmd = require('./commands/sit');
+var SkillToObjCmd = require('./commands/skilltoobj');
 
 var DEFAULT_ATTACK_DISTANCE = 0.7;
 
@@ -85,3 +88,5 @@ CharObject.prototype.debugValidate = function() {
     this.stats.debugValidate();
   }
 };
+
+module.exports = CharObject;

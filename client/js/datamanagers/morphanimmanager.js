@@ -1,5 +1,3 @@
-'use strict';
-
 /*
   Note that pretty much everything in this file is purpose built for doing
   world morph animations such that all animations instantiated are always
@@ -118,3 +116,5 @@ MorphAnimManager.load = function(path, callback) {
     callback(data);
   });
 };
+
+module.exports = MorphAnimManager;

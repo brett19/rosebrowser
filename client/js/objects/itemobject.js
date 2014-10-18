@@ -1,4 +1,4 @@
-'use strict';
+var GameObject = require('./gameobject');
 
 /**
  * @constructor
@@ -24,3 +24,5 @@ ItemObject.prototype.setItem = function(item) {
   this.item = item;
   this.pawn.setModel(modelIdx);
 };
+
+module.exports = ItemObject;

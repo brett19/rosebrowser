@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * A manager for handling the textures for various parts as defined
  * by the managed lightmap data.
@@ -82,3 +80,5 @@ LightmapManager.prototype._getTexture = function(textureIdx) {
   this.textures[textureIdx] = newTexture;
   return newTexture;
 };
+
+module.exports = LightmapManager;

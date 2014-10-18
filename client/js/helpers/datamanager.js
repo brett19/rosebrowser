@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @typedef Object Loader
  */
@@ -133,10 +131,4 @@ DataManager.prototype.get = function() {
   });
 };
 
-/**
- * The DataManager responsible for application-wide resources.
- *
- * @global
- * @type {DataManager}
- */
-var GDM = new DataManager();
+module.exports = DataManager;

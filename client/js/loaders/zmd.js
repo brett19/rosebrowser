@@ -1,3 +1,5 @@
+var ROSELoader = require('./rose');
+
 /**
  * @constructor
  * @property {SkeletonData.Bone[]} bones
@@ -137,3 +139,5 @@ SkeletonData.load = function(path, callback) {
     callback(data);
   });
 };
+
+module.exports = SkeletonData;

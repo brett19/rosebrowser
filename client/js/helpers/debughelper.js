@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * A class used to provide various functionalities globally accross the
  * entire application, regardless of current state.
@@ -51,3 +49,4 @@ _DebugHelper.prototype.logScene = function() {
  * @type {_DebugHelper}
  */
 var DebugHelper = new _DebugHelper();
+module.exports = DebugHelper;

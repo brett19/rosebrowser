@@ -1,10 +1,8 @@
-'use strict';
-
-var STATUS = {
+global.STATUS = {
   EFFECT: 10
 };
 
-var ING = {
+global.ING = {
   NULL: 0,
   PROC: 1,
   INC_HP: 1,
@@ -82,7 +80,7 @@ var ING = {
   MAX: 66
 };
 
-var FLAG_ING = {
+global.FLAG_ING = {
   INC_HP: Int64.fromBit(0),
   INC_MP: Int64.fromBit(1),
   POISONED: Int64.fromBit(2),
@@ -143,14 +141,14 @@ var FLAG_ING = {
   ATK_ATTRIBUTE: Int64.fromBit(50)
 };
 
-var FLAG_ING_SUB = {
+global.FLAG_ING_SUB = {
   HIDE:       Int64.fromBit(1),
   STORE:      Int64.fromBit(2),
   CHAT:       Int64.fromBit(4),
   ARUA_FAIRY: Int64.fromBit(30)
 };
 
-var FLAG_ING_TO_ING = {};
+global.FLAG_ING_TO_ING = {};
 FLAG_ING_TO_ING[FLAG_ING.INC_HP] = ING.INC_HP;
 FLAG_ING_TO_ING[FLAG_ING.INC_MP] = ING.INC_MP;
 FLAG_ING_TO_ING[FLAG_ING.POISONED] = ING.POISONED;
@@ -210,7 +208,7 @@ FLAG_ING_TO_ING[FLAG_ING.BASE_ATTRIBUTE] = ING.BASE_ATTRIBUTE;
 FLAG_ING_TO_ING[FLAG_ING.DEF_ATTRIBUTE] = ING.DEF_ATTRIBUTE;
 FLAG_ING_TO_ING[FLAG_ING.ATK_ATTRIBUTE] = ING.ATK_ATTRIBUTE;
 
-var ING_TO_STB = {};
+global.ING_TO_STB = {};
 ING_TO_STB[ING.INC_HP] = 1;
 ING_TO_STB[ING.INC_MP] = 4;
 ING_TO_STB[ING.POISONED] = 7;
@@ -336,3 +334,5 @@ IngStatus.prototype.onStatusChange = function() {
 IngStatus.prototype.update = function(delta) {
   // Do something!
 };
+
+module.exports = IngStatus;

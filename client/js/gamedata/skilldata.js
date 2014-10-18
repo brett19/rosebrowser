@@ -1,4 +1,4 @@
-'use strict';
+var EventEmitter = require('../util/eventemitter');
 
 var SkillData = function() {
   EventEmitter.call(this);
@@ -77,3 +77,5 @@ SkillData.prototype.findBySlot = function(slotNo) {
 
   return null;
 };
+
+module.exports = SkillData;

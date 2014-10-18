@@ -1,3 +1,5 @@
+var ROSELoader = require('./rose');
+
 // TODO: More efficient uncompressed loading
 // TODO: Test RGB, RBA, Alpha, Luminance, LuminanceAlpha
 // TODO: Test Cubemap
@@ -495,3 +497,5 @@ DDS.load = function(path, callback) {
 
   return texture;
 };
+
+module.exports = DDS;

@@ -1,3 +1,5 @@
+var ROSELoader = require('./rose');
+
 /**
  * @constructor
  * @property {ParticleSystemData.Emitter[]} emitters
@@ -481,3 +483,5 @@ ParticleSystemData.load = function(path, callback) {
     callback(data);
   });
 };
+
+module.exports = ParticleSystemData;

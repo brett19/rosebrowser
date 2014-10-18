@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @constructor
  */
@@ -244,3 +242,5 @@ ModelListManager.prototype.createForStatic = function(modelIdx, lightmap, lmIdx,
 
   return modelObj;
 };
+
+module.exports = ModelListManager;

@@ -1,5 +1,3 @@
-'use strict';
-
 var ui = { };
 
 ui.uniqueID = 1;
@@ -139,3 +137,42 @@ ui.KEY_CODES = {
   INSERT: 45,
   DELETE: 46
 };
+
+global.ui = ui;
+
+// Stuff...  Everything extends `ui`.
+require('./gameui.js');
+require('./nameplate.js');
+
+// Widgets
+require('./widgets/widget.js');
+require('./widgets/dialog.js');
+require('./widgets/button.js');
+require('./widgets/checkbox.js');
+require('./widgets/iconslot.js');
+require('./widgets/label.js');
+require('./widgets/list.js');
+require('./widgets/panel.js');
+require('./widgets/progressbar.js');
+require('./widgets/radiogroup.js');
+require('./widgets/tabpanel.js');
+require('./widgets/textbox.js');
+require('./widgets/titlebar.js');
+
+// Dialogs
+require('./dialogs/charactercreate.js');
+require('./dialogs/characterselect.js');
+require('./dialogs/characterstatus.js');
+require('./dialogs/chatbox.js');
+require('./dialogs/character.js');
+require('./dialogs/inventory.js');
+require('./dialogs/login.js');
+require('./dialogs/menu.js');
+require('./dialogs/messagebox.js');
+require('./dialogs/npcchat.js');
+require('./dialogs/party.js');
+require('./dialogs/questlist.js');
+require('./dialogs/serverselect.js');
+require('./dialogs/skills.js');
+require('./dialogs/status.js');
+require('./dialogs/quickbar.js');

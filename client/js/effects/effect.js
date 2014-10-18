@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @constructor
  */
@@ -201,3 +199,5 @@ Effect.Animation.prototype.update = function(delta) {
     }
   }
 };
+
+module.exports = Effect;

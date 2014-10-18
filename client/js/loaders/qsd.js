@@ -1,4 +1,4 @@
-'use strict';
+var ROSELoader = require('./rose');
 
 function QuestLogicData() {
 
@@ -289,3 +289,5 @@ QuestLogicData.load = function(path, callback) {
     callback(data);
   });
 };
+
+module.exports = QuestLogicData;

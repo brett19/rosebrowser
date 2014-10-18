@@ -1,3 +1,5 @@
+var ROSELoader = require('./rose');
+
 /**
  * @constructor
  * @property {Object.<number,LightmapData.Object>} objects
@@ -78,3 +80,5 @@ LightmapData.load = function(path, callback) {
     callback(data);
   });
 };
+
+module.exports = LightmapData;

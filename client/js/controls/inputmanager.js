@@ -45,3 +45,4 @@ _InputManager.prototype._handleEvent = function(name, e) {
 };
 
 var InputManager = new _InputManager();
+module.exports = InputManager;

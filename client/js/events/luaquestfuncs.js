@@ -1,73 +1,73 @@
-'use strict';
+var QF = {};
 
-function QF_checkQuestCondition(triggerName) {
+QF.checkQuestCondition = function(triggerName) {
   var questScripts = GDM.getNow('quest_scripts');
   luaConsole.debug('QF_checkQuestCondition(', triggerName, ')');
   var res = questScripts.checkOnly(triggerName);
   luaConsole.debug('QF_checkQuestCondition Result:', res);
   return [ res ? 1 : 0 ];
-}
+};
 
-function QF_doQuestTrigger(triggerName) {
+QF.doQuestTrigger = function(triggerName) {
   if (QF_checkQuestCondition(triggerName)[0] <= 0) {
     return [ 0 ];
   }
 
   netGame.questRequest(TYPE_QUEST_REQ_DO_TRIGGER, 0, 0, triggerName);
   return [ 1 ];
-}
+};
 
-function QF_getEpisodeVAR(varNo) {
+QF.getEpisodeVAR = function(varNo) {
   return [ MC.quests.getEpisodeVar(varNo) ];
-}
+};
 
-function QF_getJobVAR(varNo) {
+QF.getJobVAR = function(varNo) {
   return [ MC.quests.getJobVar(varNo) ];
-}
+};
 
-function QF_getPlanetVAR(varNo) {
+QF.getPlanetVAR = function(varNo) {
   return [ MC.quests.getPlanetVar(varNo) ];
-}
+};
 
-function QF_getUnionVAR(varNo) {
+QF.getUnionVAR = function(varNo) {
   return [ MC.quests.getUnionVar(varNo) ];
-}
+};
 
-function QF_getUserSwitch(switchId) {
+QF.getUserSwitch = function(switchId) {
   return [ MC.quests.getSwitch(switchId) ];
-}
+};
 
-function QF_getQuestCount() {
+QF.getQuestCount = function() {
   return [ MC.quests.getQuestCount() ];
-}
+};
 
-function QF_findQuest(id) {
+QF.findQuest = function(id) {
   return [ MC.quests.findQuestByID(id) ];
-}
+};
 
-function QF_getQuestID(questNo) {
+QF.getQuestID = function(questNo) {
   return [ MC.quests.getQuestId(questNo) ];
-}
+};
 
-function QF_getQuestItemQuantity(questID, itemSn) {
+QF.getQuestItemQuantity = function(questID, itemSn) {
   var itemType = Math.floor(itemSn / 1000);
   var itemNo = itemSn % 1000;
   return [ MC.quests.getQuestItemQuantity(questID, itemType, itemNo) ];
-}
+};
 
-function QF_getQuestSwitch(questNo, id) {
+QF.getQuestSwitch = function(questNo, id) {
   return [ MC.quests.getQuestSwitch(questNo, id) ];
-}
+};
 
-function QF_getQuestVar(questNo, id) {
+QF.getQuestVar = function(questNo, id) {
   return [ MC.quests.getQuestVar(questNo, id) ];
-}
+};
 
-function QF_getEventOwner(event) {
+QF.getEventOwner = function(event) {
   return [ event.npc.serverObjectIdx ];
-}
+};
 
-function QF_getNpcQuestZeroVal(objectIdx) {
+QF.getNpcQuestZeroVal = function(objectIdx) {
   var obj = GZM.findByServerObjectIdx(objectIdx);
 
   if (obj instanceof NpcObject) {
@@ -75,4 +75,6 @@ function QF_getNpcQuestZeroVal(objectIdx) {
   } else {
     return [ 0 ];
   }
-}
+};
+
+module.exports = QF;

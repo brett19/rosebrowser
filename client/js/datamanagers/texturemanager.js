@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @namespace
  */
@@ -45,3 +43,5 @@ TextureManager.load = function(path, callback) {
   TextureManager._cachedTextures[normPath] = newTex;
   return newTex;
 };
+
+module.exports = TextureManager;

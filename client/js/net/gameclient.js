@@ -1,4 +1,5 @@
-'use strict';
+var RoseSocket = require('./rosesocket');
+var RosePacket = require('./rosepacket');
 
 /**
  * @constructor
@@ -117,10 +118,6 @@ GameClient.prototype.moveTo = function(x, y, z, targetObjectIdx) {
 GameClient.prototype.setRevivePosition = function() {
   this.socket.sendPacket(new RosePacket(0x756));
 };
-
-var TYPE_QUEST_REQ_ADD = 0x01;
-var TYPE_QUEST_REQ_DEL = 0x02;
-var TYPE_QUEST_REQ_DO_TRIGGER = 0x03;
 
 GameClient.prototype.questRequest = function(type, slot, id, trigger)
 {
@@ -436,17 +433,6 @@ GameClient._registerHandler(0x79e, function(pak, data) {
   this._emitPE('level_up', data);
 });
 
-var RESULT_QUEST_REPLY_ADD_SUCCESS = 0x01;
-var RESULT_QUEST_REPLY_ADD_FAILED = 0x02;
-var RESULT_QUEST_REPLY_DEL_SUCCESS = 0x03;
-var RESULT_QUEST_REPLY_DEL_FAILED = 0x04;
-var RESULT_QUEST_REPLY_TRIGGER_SUCCESS = 0x05;
-var RESULT_QUEST_REPLY_TRIGGER_FAILED = 0x06;
-var RESULT_QUEST_REPLY_UPDATE = 0x07;
-var RESULT_QUEST_REPLY_COMPLETE = 0x08;
-var RESULT_QUEST_REPLY_RESET = 0x09;
-var RESULT_QUEST_REPLY_DAILY_RESET = 0x0a;
-
 GameClient._registerHandler(0x730, function(pak, data) {
   data.result = pak.readUint8();
   data.questSlot = pak.readUint8();
@@ -486,9 +472,6 @@ GameClient._registerHandler(0x723, function(pak, data) {
   this._emitPE('questitem_list', data);
 });
 
-var RESULT_QUEST_REWARD_ADD_ITEM = 0x01;
-var RESULT_QUEST_REWARD_REMOVE_ITEM = 0x02;
-
 GameClient._registerHandler(0x7f9, function(pak, data) {
   data.questItem = new QuestData.Item();
   data.result = pak.readUint8();
@@ -497,9 +480,6 @@ GameClient._registerHandler(0x7f9, function(pak, data) {
   data.questItem.item = pak.readItem();
   this._emitPE('questitem_reward', data);
 });
-
-var RESULT_QUEST_DATA_QUESTVAR = 0x00;
-var RESULT_QUEST_DATA_QUESTLOG = 0x01;
 
 GameClient._registerHandler(0x71b, function(pak, data) {
   var i, j;
@@ -828,35 +808,12 @@ GameClient._registerHandler(0x7d0, function(pak, data) {
   this._emitPE('party_req', data);
 });
 
-var	PARTY_REQ_MAKE = 0x00;
-var	PARTY_REQ_JOIN = 0x01;
-var	PARTY_REQ_LEFT = 0x02;
-var	PARTY_REQ_CHANGE_OWNER = 0x03;
-var	PARTY_REQ_BAN = 0x81;
-
 GameClient._registerHandler(0x7d1, function(pak, data) {
   data.reply = pak.readUint8();
   data.objectIdx = pak.readUint32();
   data.objectTag = data.objectIdx;
   this._emitPE('party_reply', data);
 });
-
-var PARTY_REPLY_NOT_FOUND = 0x00;
-var PARTY_REPLY_BUSY = 0x01;
-var PARTY_REPLY_ACCEPT_MAKE = 0x02;
-var PARTY_REPLY_ACCEPT_JOIN = 0x03;
-var PARTY_REPLY_REJECT_JOIN = 0x04;
-var PARTY_REPLY_DESTROY = 0x05;
-var PARTY_REPLY_FULL_MEMBERS = 0x06;
-var PARTY_REPLY_INVALID_LEVEL = 0x07;
-var PARTY_REPLY_CHANGE_OWNER = 0x08;
-var PARTY_REPLY_CHANGE_OWNERnDISCONN = 0x09;
-var PAATY_REPLY_NO_CHARGE_TARGET = 0x0a;
-var PARTY_REPLY_SHARE_ENABLED = 0x0b;
-var PARTY_REPLY_SHARE_DISABLED = 0x0c;
-var PARTY_REPLY_BAN = 0x80;
-var PARTY_REPLY_DISCONNECT = 0x81;
-var PARTY_REPLY_REJOIN = 0x82;
 
 function handlePartyMember(pak, noReadName) {
   var member = new PartyData.Member();
@@ -894,11 +851,6 @@ GameClient._registerHandler(0x7d2, function(pak, data) {
 
   this._emitPE('party_member', data);
 });
-
-var	PARTY_RULE_EXP_PER_PLAYER = 0x001;
-var	PARTY_RULE_ITEM_TO_ORDER = 0x080;
-
-var PARTY_MEMBER_SUB = 0xff;
 
 GameClient._registerHandler(0x7d3, function(pak, data) {
   data.objectIdx = pak.readUint16();
@@ -981,11 +933,6 @@ GameClient._registerHandler(0x7a7, function(pak, data) {
   this._emitPE('pickup_item', data);
 });
 
-var REPLY_GET_FIELDITEM_REPLY_OK = 0x00;
-var REPLY_GET_FIELDITEM_REPLY_NONE = 0x01;
-var REPLY_GET_FIELDITEM_REPLY_NO_RIGHT = 0x02;
-var REPLY_GET_FIELDITEM_REPLY_TOO_MANY = 0x03;
-
 GameClient._registerHandler(0x7b9, function(pak, data) {
   data.objectIdx = pak.readUint16();
   data.skillIdx = pak.readInt16();
@@ -1010,4 +957,4 @@ GameClient._registerHandler(0x782, function(pak, data) {
   }
 });
 
-var netGame = null;
+module.exports = GameClient;

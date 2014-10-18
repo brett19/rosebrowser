@@ -1,4 +1,5 @@
-'use strict';
+var EventEmitter = require('../util/eventemitter');
+var GORef = require('./goref');
 
 /**
  * @constructor
@@ -33,3 +34,5 @@ GameObject.prototype.update = function(delta) {
     this.pawn.update(delta);
   }
 };
+
+module.exports = GameObject;

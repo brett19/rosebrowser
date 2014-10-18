@@ -1,5 +1,3 @@
-'use strict';
-
 function _measureText(font, text) {
   var div = document.createElement("div");
   div.innerHTML = '';

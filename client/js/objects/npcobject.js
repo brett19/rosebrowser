@@ -1,4 +1,4 @@
-'use strict';
+var MobObject = require('./mobobject');
 
 /**
  * @constructor
@@ -13,3 +13,5 @@ NpcObject.prototype = Object.create( MobObject.prototype );
 NpcObject.prototype.setEventVar = function(id, value) {
   this.eventVar[id] = value;
 };
+
+module.exports = NpcObject;

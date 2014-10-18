@@ -1,3 +1,5 @@
+var ROSELoader = require('./rose');
+
 /**
  * @constructor
  * @property {String} name
@@ -171,3 +173,5 @@ EffectData.load = function(path, callback) {
     callback(data);
   });
 };
+
+module.exports = EffectData;

@@ -1,3 +1,5 @@
+var ROSELoader = require('./rose');
+
 /**
  * @constructor
  */
@@ -140,3 +142,5 @@ StringTable.load = function(path, callback) {
     callback(data);
   });
 };
+
+module.exports = StringTable;

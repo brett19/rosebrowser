@@ -1,4 +1,6 @@
-'use strict';
+var EventEmitter = require('../util/eventemitter');
+var QF = require('./luaquestfuncs');
+var ConversationState = require('./conversationstate');
 
 var Conversation = function(npcObj, spec, lang) {
   EventEmitter.call(this);
@@ -91,11 +93,11 @@ Conversation.prototype._go = function() {
       lua_tablegetcall(this._luaState, this._state.condParam, [this]);
       break;
     case CXECURREQ.QSDCONDITION:
-      var result = QF_checkQuestCondition(this._state.condParam);
+      var result = QF.checkQuestCondition(this._state.condParam);
       this._state.condValue = result[0];
       break;
     case CXECURREQ.QSDACTION:
-      QF_doQuestTrigger(this._state.condParam);
+      QF.doQuestTrigger(this._state.condParam);
       break;
     default:
       console.warn('Received unknown request from ConversationState.');
@@ -103,3 +105,5 @@ Conversation.prototype._go = function() {
     }
   }
 };
+
+module.exports = Conversation;

@@ -1,3 +1,5 @@
+var ROSELoader = require('./rose');
+
 /**
  * @constructor
  * @property {Number}   width
@@ -36,3 +38,5 @@ HeightmapData.load = function(path, callback) {
     callback(data);
   });
 };
+
+module.exports = HeightmapData;

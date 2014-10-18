@@ -1,5 +1,3 @@
-'use strict';
-
 var IDM_STBS = {};
 IDM_STBS[ITEMTYPE.FACE_ITEM] = '3DDATA/STB/LIST_FACEITEM.STB';
 IDM_STBS[ITEMTYPE.HELMET] = '3DDATA/STB/LIST_CAP.STB';
@@ -86,3 +84,5 @@ ItemDataManager.load = function(path, callback) {
     callback(mgr);
   });
 };
+
+module.exports = ItemDataManager;

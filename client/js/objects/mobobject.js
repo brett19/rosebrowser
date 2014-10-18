@@ -1,4 +1,4 @@
-'use strict';
+var ActorObject = require('./actorobject');
 
 /**
  * @constructor
@@ -29,3 +29,5 @@ MobObject.prototype.setChar = function(charIdx) {
     self.emit('name_changed');
   });
 };
+
+module.exports = MobObject;

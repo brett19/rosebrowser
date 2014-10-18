@@ -1,4 +1,4 @@
-'use strict';
+var EventEmitter = require('../util/eventemitter');
 
 var PartyData = function() {
   EventEmitter.call(this);
@@ -191,3 +191,5 @@ PartyData.prototype.findMemberByTag = function(serverTag) {
 
   return null;
 };
+
+module.exports = PartyData;

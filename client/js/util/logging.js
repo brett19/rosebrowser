@@ -1,5 +1,3 @@
-'use strict';
-
 function DebugLogger(name, enabled) {
   this.name = name;
   this.enabled = enabled;
@@ -49,7 +47,4 @@ DebugLogger.prototype.error = function() {
   }
 };
 
-var netConsole = new DebugLogger('net', !config.disableNetLog);
-var gomConsole = new DebugLogger('lua', !config.disableGomLog);
-var luaConsole = new DebugLogger('lua', !config.disableLuaLog);
-var qsdConsole = new DebugLogger('qsd', !config.disableQsdLog);
+module.exports = DebugLogger;

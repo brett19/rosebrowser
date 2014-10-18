@@ -1,5 +1,3 @@
-'use strict';
-
 function _ppBuffer(buf, buflen) {
   var out = '';
   for (var i = 0; i < buflen; ++i) {
@@ -11,12 +9,6 @@ function _ppBuffer(buf, buflen) {
     out += byte;
   }
   return out;
-}
-function ppPak(pak) {
-  var out = '<Packet ';
-  out += pak.cmd.toString(16) + ' - ';
-  out += _ppBuffer(pak.data, pak.dataLength);
-  return out + '>';
 }
 
 /**
@@ -237,3 +229,9 @@ RosePacket.prototype.toBuffer = function() {
   }
   return outBuf;
 };
+
+RosePacket.prototype.toString = function(maxLen) {
+  return _ppBuffer(this.data, maxLen);
+};
+
+module.exports = RosePacket;

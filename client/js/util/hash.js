@@ -41,3 +41,5 @@ function StrToHashKey(str)
 
   return seed1;
 }
+
+module.exports = StrToHashKey;

@@ -1,5 +1,3 @@
-'use strict';
-
 ui.GameUI = function(character) {
   this.dialogs    = [];
   this.menu       = ui.menuDialog();

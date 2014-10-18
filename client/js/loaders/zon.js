@@ -1,3 +1,5 @@
+var ROSELoader = require('./rose');
+
 /**
  * @constructor
  * @property {String} name
@@ -149,3 +151,5 @@ ZoneData.load = function(path, callback) {
     callback(data);
   });
 };
+
+module.exports = ZoneData;

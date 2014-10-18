@@ -1,6 +1,4 @@
-'use strict';
-
-var OBJECT_COMMAND = {
+global.OBJECT_COMMAND = {
     STOP: 0,
     ATTACK: 1,
     SIT: 2,
@@ -592,3 +590,4 @@ _NetManager.prototype.watch = function(wn, gn) {
  * @type {_NetManager}
  */
 var NetManager = new _NetManager();
+module.exports = NetManager;

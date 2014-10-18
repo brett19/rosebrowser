@@ -1,7 +1,4 @@
-'use strict';
-
 function _GameControl() {
-
 }
 
 _GameControl.prototype.moveTo = function(x, y, z) {
@@ -34,3 +31,4 @@ _GameControl.prototype.attackObj = function(gameObject) {
 };
 
 var GC = new _GameControl();
+module.exports = GC;

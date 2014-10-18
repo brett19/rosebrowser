@@ -1,11 +1,9 @@
-'use strict';
-
-var IconManager = function() {
+var _IconManager = function() {
   this.sheetWidth = 13;
   this.sheetHeight = 13;
 };
 
-IconManager.prototype.getItemIcon = function(item) {
+_IconManager.prototype.getItemIcon = function(item) {
   var itemData = GDM.getNow('item_data');
   var data = itemData.getData(item.itemType, item.itemNo);
   var iconId = data[9];
@@ -29,10 +27,10 @@ IconManager.prototype.getItemIcon = function(item) {
   return $(html);
 };
 
-IconManager.prototype.getCommandIcon = function(command) {
+_IconManager.prototype.getCommandIcon = function(command) {
 };
 
-IconManager.prototype.getSkillIcon = function(skill) {
+_IconManager.prototype.getSkillIcon = function(skill) {
   var skillData = GDM.getNow('skill_data');
   var data = skillData.getData(skill.skillIdx);
   var iconId = data[51];
@@ -49,13 +47,14 @@ IconManager.prototype.getSkillIcon = function(skill) {
   return $(html);
 };
 
-IconManager.prototype.getEmoteIcon = function(emote) {
+_IconManager.prototype.getEmoteIcon = function(emote) {
 };
 
-IconManager.prototype.getDialogIcon = function(dialog) {
+_IconManager.prototype.getDialogIcon = function(dialog) {
 };
 
-IconManager.prototype.getClanSkillIcon = function(skill) {
+_IconManager.prototype.getClanSkillIcon = function(skill) {
 };
 
-var iconManager = new IconManager();
+var IconManager = new _IconManager();
+module.exports = IconManager;

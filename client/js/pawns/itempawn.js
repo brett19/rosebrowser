@@ -1,4 +1,4 @@
-'use strict';
+var Pawn = require('./pawn');
 
 function ItemPawn(go) {
   Pawn.call(this);
@@ -31,3 +31,5 @@ ItemPawn.prototype.setModel = function(modelIdx, callback) {
     }
   });
 };
+
+module.exports = ItemPawn;

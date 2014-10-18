@@ -1,4 +1,5 @@
-'use strict';
+var ParticleEmitter = require('./particleemitter');
+var Effect = require('./effect');
 
 /**
  * @constructor
@@ -319,3 +320,4 @@ _EffectManager.loadEffect = function(path, callback, effect) {
 
 // TODO: Make this newed so everything is consistent
 var EffectManager = _EffectManager;
+module.exports = EffectManager;

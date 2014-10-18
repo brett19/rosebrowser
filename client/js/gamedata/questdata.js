@@ -1,3 +1,5 @@
+var EventEmitter = require('../util/eventemitter');
+
 var QuestData = function() {
   EventEmitter.call(this);
 
@@ -229,3 +231,5 @@ QuestData.prototype.getQuestTimer = function(questNo) {
   console.log('QuestData.getQuestTimer(' + questNo + ') = ' + this.quests[questNo].expiryTime);
   return this.quests[questNo].expiryTime;
 };
+
+module.exports = QuestData;

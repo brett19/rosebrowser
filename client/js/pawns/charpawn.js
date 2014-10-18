@@ -1,72 +1,8 @@
-'use strict';
+var SkelAnimPawn = require('./skelanimpawn');
 
 var GENDERSKELNAMES = {
   0: 'male_skel',
   1: 'female_skel'
-};
-
-var MOTION_TABLE = {
-  MALE_MOTION: 0, // STR
-  FEMALE_MOTION: 1, // STR
-  MOTION_TYPE: 2, // INT
-  DESCRIPTION: 3 // STR
-};
-
-var AVTANI = {
-  STOP1: 0,
-  STOP2: 1,
-  WALK: 2,
-  RUN: 3,
-  SITTING: 4,
-  SIT: 5,
-  STANDUP: 6,
-  STOP3: 7,
-  ATTACK: 8,
-  ATTACK2: 9,
-  ATTACK3: 10,
-  HIT: 11,
-  FALL: 12,
-  DIE: 13,
-  RAISE: 14,
-  JUMP1: 15,
-  JUMP2: 16,
-  PICKITEM: 17
-};
-
-var AVTBODYPART = {
-  Face: 0,
-  Hair: 1,
-  Cap: 2,
-  Body: 3,
-  Arms: 4,
-  Foot: 5,
-  FaceItem: 6,
-  Back: 7,
-  Weapon: 8,
-  SubWeapon: 9,
-  Max: 10
-};
-
-var AVTRIDEPART = {
-  Max: 5
-};
-
-var AVTSHOTTYPE = {
-  Max: 3
-};
-
-var BoneIndex = {
-  Pelvis: 0,
-  Head: 4
-};
-var DummyIndex = {
-  RightHand: 0,
-  LeftHand: 1,
-  LeftHandShield: 2,
-  Back: 3,
-  Mouse: 4,
-  Eyes: 5,
-  Cap: 6
 };
 
 var MAVTPARTTYPES = [
@@ -327,3 +263,5 @@ CharPawn.prototype.newDamage = function(amount) {
   DamageRender.add(amount,
       this.rootObj.localToWorld(new THREE.Vector3(0, 0, 2.4)));
 };
+
+module.exports = CharPawn;

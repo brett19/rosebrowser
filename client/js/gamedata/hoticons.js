@@ -1,6 +1,6 @@
-'use strict';
+var EventEmitter = require('../util/eventemitter');
 
-var HOT_ICON_TYPE = {
+global.HOT_ICON_TYPE = {
   EMPTY: 0,
   ITEM: 1,
   COMMAND: 2,
@@ -33,3 +33,5 @@ HotIcons.prototype.setIcons = function(icons) {
   this.icons = icons;
   this.emit('changed');
 };
+
+module.exports = HotIcons;

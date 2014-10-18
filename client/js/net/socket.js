@@ -1,4 +1,4 @@
-'use strict';
+var EventEmitter = require('../util/eventemitter');
 
 var iop = io();
 var socketList = [];
@@ -13,7 +13,7 @@ function RSocket() {
   socketList.push(this);
   this.eventHandlers = {};
 }
-RSocket.prototype = new EventEmitter();
+RSocket.prototype = Object.create(EventEmitter.prototype);
 
 RSocket.prototype.connect = function(host, port) {
   iop.emit('tc', this.index, host, port);
@@ -36,3 +36,5 @@ iop.on('tp', function(sockIdx, data) {
 iop.on('tx', function(sockIdx) {
   socketList[sockIdx].emit('end');
 });
+
+module.exports = RSocket;

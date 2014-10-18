@@ -1,10 +1,9 @@
-'use strict';
+// TODO: Fix these
+global.ROSE_DATA_PATH = config.dataPath ? config.dataPath : '/data/';
 
-var ROSE_DATA_PATH = config.dataPath ? config.dataPath : '/data/';
-
-var ZZ_SCALE_IN = 0.01;
-var ZZ_SCALE_OUT = 100;
-var ZZ_TICK_PER_SEC = 4800;
+global.ZZ_SCALE_IN = 0.01;
+global.ZZ_SCALE_OUT = 100;
+global.ZZ_TICK_PER_SEC = 4800;
 
 var ROSELoader = {};
 
@@ -45,7 +44,7 @@ if (EXPERIMENTAL_WS_LOAD) {
 
 }
 
-var ZZ_BLEND = {
+global.ZZ_BLEND = {
   ZERO: 1,
   ONE: 2,
   SRC_COLOR: 3,
@@ -63,7 +62,7 @@ var ZZ_BLEND = {
   INV_BLEND_FACTOR: 15
 };
 
-function convertZnzinBlendType(znzin) {
+global.convertZnzinBlendType = function(znzin) {
   switch(znzin) {
     case ZZ_BLEND.ZERO:
       return THREE.ZeroFactor;
@@ -91,9 +90,9 @@ function convertZnzinBlendType(znzin) {
 
   console.warn('Encountered unknown d3d blending type:', znzin);
   return THREE.OneFactor;
-}
+};
 
-var ZZ_BLEND_OP = {
+global.ZZ_BLEND_OP = {
   ADD: 1,
   SUBTRACT: 2,
   REV_SUBTRACT: 3,
@@ -101,7 +100,7 @@ var ZZ_BLEND_OP = {
   MAX: 5
 };
 
-function convertZnzinBlendOp(znzin) {
+global.convertZnzinBlendOp = function(znzin) {
   switch(znzin) {
     case ZZ_BLEND_OP.ADD:
       return THREE.AddEquation;
@@ -125,4 +124,6 @@ function convertZnzinBlendOp(znzin) {
 
   console.warn('Encountered unknown d3d blending op:', znzin);
   return THREE.AddEquation;
-}
+};
+
+module.exports = ROSELoader;

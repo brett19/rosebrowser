@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * The base class for all states within the application.
  * @constructor
@@ -40,3 +38,5 @@ State.prototype.leave = function() {
  */
 State.prototype.update = function(delta) {
 };
+
+module.exports = State;

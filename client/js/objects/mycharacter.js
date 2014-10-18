@@ -1,4 +1,4 @@
-'use strict';
+var CharObject = require('./charobject');
 
 /**
  * @constructor
@@ -51,8 +51,4 @@ MyCharacter.prototype.debugValidate = function() {
   CharObject.prototype.debugValidate.call(this);
 };
 
-/**
- * @name MC
- * @type {MyCharacter}
- */
-var MC = null;
+module.exports = MyCharacter;

@@ -1,4 +1,4 @@
-'use strict';
+var Animator = require('./animator');
 
 /**
  * An Animator class for animating Object3D's based on an AnimationData.
@@ -13,3 +13,5 @@ function ObjectAnimator(object, animationData) {
   Animator.call(this, [object], animationData);
 }
 ObjectAnimator.prototype = Object.create(Animator.prototype);
+
+module.exports = ObjectAnimator;

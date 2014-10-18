@@ -1,5 +1,3 @@
-'use strict';
-
 function GORef(obj) {
   this._object = obj;
 }
@@ -18,3 +16,5 @@ GORef.prototype = {
     return this._object.serverObjectIdx;
   }
 };
+
+module.exports = GORef;

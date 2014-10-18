@@ -1,6 +1,4 @@
-'use strict';
-
-var TooltipManager = function() {
+var _TooltipManager = function() {
   this.itemData = null;
   this.skillData = null;
   this._tooltipElement = null;
@@ -11,7 +9,7 @@ var TooltipManager = function() {
   $(document).on('mouseup', this._onGlobalMouseUp.bind(this));
 };
 
-TooltipManager.prototype._onGlobalMouseDown = function(downEvent) {
+_TooltipManager.prototype._onGlobalMouseDown = function(downEvent) {
   if (downEvent.which === 1) {
     this._disableTooltips = true;
 
@@ -23,7 +21,7 @@ TooltipManager.prototype._onGlobalMouseDown = function(downEvent) {
   }
 };
 
-TooltipManager.prototype._onGlobalMouseUp = function(upEvent) {
+_TooltipManager.prototype._onGlobalMouseUp = function(upEvent) {
   if (upEvent.which === 1) {
     this._disableTooltips = false;
 
@@ -35,7 +33,7 @@ TooltipManager.prototype._onGlobalMouseUp = function(upEvent) {
   }
 };
 
-TooltipManager.prototype.showTooltip = function(tooltip, x, y) {
+_TooltipManager.prototype.showTooltip = function(tooltip, x, y) {
   if (!this._tooltipElement) {
     this._tooltipElement = $('<div class="tooltip" />');
     $('.ui').append(this._tooltipElement);
@@ -48,7 +46,7 @@ TooltipManager.prototype.showTooltip = function(tooltip, x, y) {
   }
 };
 
-TooltipManager.prototype.moveTooltip = function(x, y) {
+_TooltipManager.prototype.moveTooltip = function(x, y) {
   var width = this._tooltipElement.outerWidth();
   var height = this._tooltipElement.outerHeight();
   x = Math.max(0, Math.min(x, window.innerWidth - width));
@@ -56,11 +54,11 @@ TooltipManager.prototype.moveTooltip = function(x, y) {
   this._tooltipElement.offset({ left: x, top: y });
 };
 
-TooltipManager.prototype.hideTooltip = function() {
+_TooltipManager.prototype.hideTooltip = function() {
   this._tooltipElement.hide();
 };
 
-TooltipManager.prototype.addItemName = function(item, html) {
+_TooltipManager.prototype.addItemName = function(item, html) {
   var name = this.itemData.getName(item.itemType, item.itemNo);
   html += '<div class="item name">'
   html += name;
@@ -68,7 +66,7 @@ TooltipManager.prototype.addItemName = function(item, html) {
   return html;
 };
 
-TooltipManager.prototype.addItemDescription = function(item, html) {
+_TooltipManager.prototype.addItemDescription = function(item, html) {
   var desc = this.itemData.getDescription(item.itemType, item.itemNo);
   html += '<div class="item description">'
   html += desc;
@@ -76,7 +74,7 @@ TooltipManager.prototype.addItemDescription = function(item, html) {
   return html;
 };
 
-TooltipManager.prototype.getItemTooltip = function(item) {
+_TooltipManager.prototype.getItemTooltip = function(item) {
   if (!this.itemData) {
     this.itemData = GDM.getNow('item_data');
   }
@@ -88,10 +86,10 @@ TooltipManager.prototype.getItemTooltip = function(item) {
   return $(html);
 };
 
-TooltipManager.prototype.getCommandTooltip = function(command) {
+_TooltipManager.prototype.getCommandTooltip = function(command) {
 };
 
-TooltipManager.prototype.addSkillName = function(skill, html) {
+_TooltipManager.prototype.addSkillName = function(skill, html) {
   var name = this.skillData.getName(skill.skillIdx);
   html += '<div class="skill name">'
   html += name;
@@ -99,7 +97,7 @@ TooltipManager.prototype.addSkillName = function(skill, html) {
   return html;
 };
 
-TooltipManager.prototype.addSkillDescription = function(skill, html) {
+_TooltipManager.prototype.addSkillDescription = function(skill, html) {
   var desc = this.skillData.getDescription(skill.skillIdx);
   html += '<div class="skill description">'
   html += desc;
@@ -107,7 +105,7 @@ TooltipManager.prototype.addSkillDescription = function(skill, html) {
   return html;
 };
 
-TooltipManager.prototype.getSkillTooltip = function(skill) {
+_TooltipManager.prototype.getSkillTooltip = function(skill) {
   if (!this.skillData) {
     this.skillData = GDM.getNow('skill_data');
   }
@@ -119,13 +117,14 @@ TooltipManager.prototype.getSkillTooltip = function(skill) {
   return $(html);
 };
 
-TooltipManager.prototype.getEmoteTooltip = function(emote) {
+_TooltipManager.prototype.getEmoteTooltip = function(emote) {
 };
 
-TooltipManager.prototype.getDialogTooltip = function(dialog) {
+_TooltipManager.prototype.getDialogTooltip = function(dialog) {
 };
 
-TooltipManager.prototype.getClanSkillTooltip = function(skill) {
+_TooltipManager.prototype.getClanSkillTooltip = function(skill) {
 };
 
-var tooltipManager = new TooltipManager();
+var TooltipManager = new _TooltipManager();
+module.exports = TooltipManager;

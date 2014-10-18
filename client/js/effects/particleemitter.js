@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @constructor
  */
@@ -413,3 +411,5 @@ ParticleEmitter.prototype.applyEvents = function(particle)
     }
   }
 };
+
+module.exports = ParticleEmitter;

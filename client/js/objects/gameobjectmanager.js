@@ -1,4 +1,4 @@
-'use strict';
+var EventEmitter = require('../util/eventemitter');
 
 /**
  * @constructor
@@ -89,3 +89,5 @@ GameObjectManager.prototype.update = function(delta) {
     this.objects[i].update(delta);
   }
 };
+
+module.exports = GameObjectManager;

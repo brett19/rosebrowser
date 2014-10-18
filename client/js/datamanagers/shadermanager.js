@@ -1,5 +1,3 @@
-'use strict';
-
 var SHADER_DATA_PATH = 'shaders/';
 
 /**
@@ -85,3 +83,4 @@ _ShaderManager.prototype.get = function(name) {
  * @type {_ShaderManager}
  */
 var ShaderManager = new _ShaderManager();
+module.exports = ShaderManager;

@@ -1,4 +1,4 @@
-'use strict';
+var MAP_BOUNDS = require('./mapbounds');
 
 // TODO: Do something with ZONE_TABLE, maybe even $.extend(DataTable)
 var ZONE_TABLE = {
@@ -766,3 +766,5 @@ WorldChunk.prototype.markNotNeeded = function() {
 
   // TODO: Implement unloading
 };
+
+module.exports = MapManager;

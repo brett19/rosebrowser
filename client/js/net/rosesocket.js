@@ -1,17 +1,18 @@
-'use strict';
+var RSocket = require('./socket');
+var RosePacket = require('./rosepacket');
 
 function logPacket(text, pak) {
   if (!config.fullPacketData) {
     var pakDataStr = '';
     if (pak.dataLength > 32) {
-      pakDataStr = _ppBuffer(pak.data, 32) + ' ...';
+      pakDataStr = pak.toString(32) + ' ...';
     } else {
-      pakDataStr = _ppBuffer(pak.data, pak.dataLength);
+      pakDataStr = pak.toString(pak.dataLength);
     }
     netConsole.debug(text + ' <Packet ' + pak.cmd.toString(16) + ' ' + pakDataStr + '>');
   } else {
     netConsole.groupCollapsed(text + ' <Packet ' + pak.cmd.toString(16) + '>');
-    netConsole.debug(_ppBuffer(pak.data, pak.dataLength));
+    netConsole.debug(pak.toString(pak.dataLength));
     netConsole.groupEnd();
   }
 }
@@ -76,7 +77,8 @@ function RoseSocket() {
     }
   });
 }
-RoseSocket.prototype = new RSocket();
+RoseSocket.prototype = Object.create(RSocket.prototype);
+
 RoseSocket.prototype.sendPacket = function(pak) {
   if (this.logIgnoreCmds.indexOf(pak.cmd) === -1) {
     logPacket('net:send<' + this.name + '>', pak);
@@ -87,3 +89,5 @@ RoseSocket.prototype.sendPacket = function(pak) {
   }
   this.send(buf.buffer);
 };
+
+module.exports = RoseSocket;

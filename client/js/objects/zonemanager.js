@@ -1,6 +1,7 @@
-'use strict';
+var MapManager = require('../maps/mapmanager');
+var GameObjectManager = require('./gameobjectmanager');
 
-function ZoneManager() {
+function _ZoneManager() {
   this.map = null;
   this.objects = null;
   this.centerObj = null;
@@ -9,7 +10,7 @@ function ZoneManager() {
   this.inScene = false;
 }
 
-ZoneManager.prototype.prepare = function(mapIdx, startPos, callback) {
+_ZoneManager.prototype.prepare = function(mapIdx, startPos, callback) {
   this.map = new MapManager();
   this.objects = new GameObjectManager();
   this.pawns = [];
@@ -27,11 +28,11 @@ ZoneManager.prototype.prepare = function(mapIdx, startPos, callback) {
   }.bind(this));
 };
 
-ZoneManager.prototype.setCenterObject = function(object) {
+_ZoneManager.prototype.setCenterObject = function(object) {
   this.centerObj = object;
 };
 
-ZoneManager.prototype.addToScene = function() {
+_ZoneManager.prototype.addToScene = function() {
   this.inScene = true;
   this.map.addToScene();
   for (var i = 0; i < this.pawns.length; ++i) {
@@ -39,7 +40,7 @@ ZoneManager.prototype.addToScene = function() {
   }
 };
 
-ZoneManager.prototype.removeFromScene = function() {
+_ZoneManager.prototype.removeFromScene = function() {
   this.inScene = false;
   this.map.removeFromScene();
   for (var i = 0; i < this.pawns.length; ++i) {
@@ -47,7 +48,7 @@ ZoneManager.prototype.removeFromScene = function() {
   }
 };
 
-ZoneManager.prototype.addObject = function(obj) {
+_ZoneManager.prototype.addObject = function(obj) {
   if (obj.world && obj.world !== this.map) {
     console.warn('Object added to ZoneManager that is assigned to another zone');
   }
@@ -64,7 +65,7 @@ ZoneManager.prototype.addObject = function(obj) {
   obj.dropFromSky();
 };
 
-ZoneManager.prototype.removeObject = function(obj) {
+_ZoneManager.prototype.removeObject = function(obj) {
   if (!(obj instanceof ProxyObject)) {
     var colObjIdx = this.colObjects.indexOf(obj.pawn.rootObj);
     var pawnIdx = this.pawns.indexOf(obj.pawn);
@@ -85,15 +86,15 @@ ZoneManager.prototype.removeObject = function(obj) {
   this.objects.removeObject(obj);
 };
 
-ZoneManager.prototype.findByServerObjectIdx = function(objectIdx) {
+_ZoneManager.prototype.findByServerObjectIdx = function(objectIdx) {
   return this.objects.findByServerObjectIdx(objectIdx);
 };
 
-ZoneManager.prototype.getRefByServerObjectIdx = function(objectIdx, objectPos) {
+_ZoneManager.prototype.getRefByServerObjectIdx = function(objectIdx, objectPos) {
   return this.objects.getRefByServerObjectIdx(objectIdx, objectPos);
 };
 
-ZoneManager.prototype.update = function(delta) {
+_ZoneManager.prototype.update = function(delta) {
   if (this.objects) {
     this.objects.update(delta);
   }
@@ -106,7 +107,7 @@ ZoneManager.prototype.update = function(delta) {
   }
 };
 
-ZoneManager.prototype._meshToObject = function(mesh) {
+_ZoneManager.prototype._meshToObject = function(mesh) {
   var parent = mesh;
 
   do {
@@ -122,7 +123,7 @@ ZoneManager.prototype._meshToObject = function(mesh) {
   return null;
 };
 
-ZoneManager.prototype._rayPickObjects = function(rayCaster) {
+_ZoneManager.prototype._rayPickObjects = function(rayCaster) {
   var inters = rayCaster.intersectObjects( this.colObjects, true );
   if (inters.length > 0) {
     return inters[0];
@@ -130,7 +131,7 @@ ZoneManager.prototype._rayPickObjects = function(rayCaster) {
   return null;
 };
 
-ZoneManager.prototype.objectRayPick = function(rayCaster) {
+_ZoneManager.prototype.objectRayPick = function(rayCaster) {
   var objPickInfo = this._rayPickObjects(rayCaster);
   if (objPickInfo) {
     return this._meshToObject(objPickInfo.object);
@@ -138,7 +139,7 @@ ZoneManager.prototype.objectRayPick = function(rayCaster) {
   return null;
 };
 
-ZoneManager.prototype.rayPick = function(rayCaster) {
+_ZoneManager.prototype.rayPick = function(rayCaster) {
   var objPickInfo = this._rayPickObjects(rayCaster);
   var mapPickInfo = this.map.rayPick(rayCaster);
   if (mapPickInfo && objPickInfo) {
@@ -166,4 +167,5 @@ ZoneManager.prototype.rayPick = function(rayCaster) {
   }
 };
 
-var GZM = new ZoneManager();
+var GZM = new _ZoneManager();
+module.exports = GZM;

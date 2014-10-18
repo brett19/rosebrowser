@@ -1,5 +1,3 @@
-'use strict';
-
 var OrthoSprite = function (material, offset) {
 
   THREE.Object3D.call( this );
@@ -26,3 +24,5 @@ OrthoSprite.prototype.clone = function ( object ) {
   return object;
 
 };
+
+module.exports = OrthoSprite;

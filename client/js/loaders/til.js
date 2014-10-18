@@ -1,3 +1,5 @@
+var ROSELoader = require('./rose');
+
 /**
  * @constructor
  * @property {Number} width
@@ -47,3 +49,5 @@ TilemapData.load = function(path, callback) {
     callback(data);
   });
 };
+
+module.exports = TilemapData;

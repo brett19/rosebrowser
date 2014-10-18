@@ -1,4 +1,4 @@
-'use strict';
+var SkelAnimPawn = require('./skelanimpawn');
 
 var NPCANI = {
   STOP: 0,
@@ -90,7 +90,7 @@ NpcPawn.prototype._addEffectToBone = function(boneIdx, effectPath, callback) {
     return;
   }
 
-  _EffectManager.loadEffect(effectPath, function(effect) {
+  EffectManager.loadEffect(effectPath, function(effect) {
     if (effect) {
       this.skel.dummies[boneIdx].add(effect.rootObj);
       effect.play();
@@ -162,3 +162,5 @@ NpcPawn.prototype.setScale = function(scale) {
   scale = scale * ZZ_SCALE_IN;
   this.rootObj.scale.set(scale, scale, scale);
 };
+
+module.exports = NpcPawn;

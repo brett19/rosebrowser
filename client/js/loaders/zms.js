@@ -1,3 +1,5 @@
+var ROSELoader = require('./rose');
+
 /**
  * @constructor
  * @property {{min: Vector3, max: Vector3}} bounds
@@ -316,3 +318,5 @@ Mesh.load = function(path, callback) {
     callback(geometry);
   });
 };
+
+module.exports = Mesh;
