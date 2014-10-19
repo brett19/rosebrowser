@@ -51,7 +51,7 @@ _TooltipManager.prototype.moveTooltip = function(x, y) {
   var height = this._tooltipElement.outerHeight();
   x = Math.max(0, Math.min(x, window.innerWidth - width));
   y = Math.max(0, Math.min(y, window.innerHeight - height));
-  this._tooltipElement.offset({ left: x, top: y });
+  this._tooltipElement.offset({ left: x + 1, top: y + 1 });
 };
 
 _TooltipManager.prototype.hideTooltip = function() {
