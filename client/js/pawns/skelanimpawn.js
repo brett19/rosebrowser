@@ -71,6 +71,7 @@ SkelAnimPawn.prototype.playMotion = function(motionIdx, timeScale, loop, callbac
 
     this.activeMotions.unshift(anim);
 
+    anim.clearEventListeners();
     if (callback) {
       callback(anim);
     }
@@ -84,6 +85,9 @@ SkelAnimPawn.prototype.update = function(delta) {
     var activeMotion = this.activeMotions[0];
     if (activeMotion.weight < 1) {
       activeMotion.weight += blendWeightDelta;
+      if (activeMotion.weight > 1) {
+        activeMotion.weight = 1;
+      }
     }
 
     for (var i = 1; i < this.activeMotions.length; ++i) {

@@ -5,6 +5,10 @@ function EventEmitter() {
   this.eventHandlers = {};
 }
 
+EventEmitter.prototype.clearEventListeners = function() {
+  this.eventHandlers = {};
+};
+
 EventEmitter.prototype.emit = function(event) {
   if (!this.eventHandlers[event]) {
     return;
