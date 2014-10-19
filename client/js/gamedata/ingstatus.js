@@ -264,7 +264,7 @@ ING_TO_STB[ING.MAGIC_SHIELD] = 128;
 var IngStatus = function(rootObj, flags, timers, values) {
   this.rootObj = rootObj;
   this.properties = {};
-  this.flags = flags || 0;
+  this.flags = flags || new Int64();
   this.timers = timers || [];
   this.values = values || {};
   this.onStatusChange();
@@ -276,6 +276,10 @@ IngStatus.Property = function() {
   this.effect = null;
 };
 
+IngStatus.prototype.setRootObj = function(rootObj) {
+  this.rootObj = rootObj;
+};
+
 IngStatus.prototype.setFlag = function(flag) {
   this.flags.lo |= flag.lo;
   this.flags.hi |= flag.hi;
@@ -283,6 +287,31 @@ IngStatus.prototype.setFlag = function(flag) {
 
 IngStatus.prototype.hasFlag = function(flag) {
   return (this.flags.lo & flag.lo) | (this.flags.hi & flag.hi);
+};
+
+IngStatus.prototype.applySkill = function(skillIdx, successBits, primaryStat, secondaryStat) {
+  var statusData = GDM.getNow('list_status');
+  var skillData = GDM.getNow('skill_data');
+  var skill = skillData.getData(skillIdx);
+
+  for (var i = 0; i < 3; ++i) {
+    if (!(successBits & (1 << i))) {
+      continue;
+    }
+
+    var idx = 90 + i * 4;
+    var state = skill[idx];
+    var ability = skill[idx + 1];
+    var abilityValue = skill[idx + 2];
+    var changeRate = skill[idx + 3];
+
+    if (state !== 0) {
+      var data = statusData.row(state);
+      this.setFlag(Int64.fromBit(data[1]));
+    }
+  }
+
+  this.onStatusChange();
 };
 
 IngStatus.prototype.onStatusChange = function() {

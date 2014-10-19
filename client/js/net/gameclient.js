@@ -920,10 +920,17 @@ function handleEffectOfSkill(pak, data) {
   data.secondaryStat = pak.readUint16();
   data.successBits = pak.readUint8();
 }
+
+GameClient._registerHandler(0x7b5, function(pak, data) {
+  handleEffectOfSkill(pak, data);
+  this._emitPE('skill_effect', data);
+});
+
 GameClient._registerHandler(0x7b6, function(pak, data) {
   handleEffectOfSkill(pak, data);
   data.amount = pak.readUint32();
   data.flags = pak.readUint32();
+  this._emitPE('skill_effect', data);
   this._emitPE('skill_damage', data);
 
   while(!pak.isReadEof()) {

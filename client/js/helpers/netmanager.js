@@ -363,6 +363,13 @@ _NetManager.prototype.watch = function(wn, gn) {
     }
   });
 
+  gn.on('skill_effect', function(data) {
+    var defenderObj = GZM.findByServerObjectIdx(data.destObjectIdx);
+    if (defenderObj && !(defenderObj instanceof ProxyObject)) {
+      defenderObj.ingStatus.applySkill(data.skillIdx, data.successBits, data.primaryStat, data.secondaryStat);
+    }
+  });
+
   gn.on('char_hpmp_info', function(data) {
     MC.hp = data.curHp;
     MC.mp = data.curMp;
