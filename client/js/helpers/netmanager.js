@@ -199,6 +199,7 @@ _NetManager.prototype.watch = function(wn, gn) {
     mob.setPosition(data.position.x, data.position.y, 10);
     mob.pawn = new NpcPawn(mob);
     mob.setChar(Math.abs(data.charIdx));
+    mob.ingStatus = new IngStatus(mob.pawn.rootObj, data.statusFlags, data.statusTimers);
     if (data.charIdx < 0) {
       mob.setVisible(false);
     }
