@@ -886,7 +886,7 @@ GameClient._registerHandler(0x7b2, function(pak, data) {
   data.sourceObjectIdx = pak.readUint16();
   data.skillIdx = pak.readInt16();
   if (!pak.isReadEof()) {
-    data.npcSkillMotion = pak.readString();
+    data.npcSkillMotion = pak.readUint8();
   }
   this._emitPE('self_skill', data);
 });
@@ -898,7 +898,7 @@ GameClient._registerHandler(0x7b3, function(pak, data) {
   data.serverDist = pak.readUint16();
   data.posTo = pak.readVector2().divideScalar(100);
   if (!pak.isReadEof()) {
-    data.npcSkillMotion = pak.readString();
+    data.npcSkillMotion = pak.readUint8();
   }
   this._emitPE('target_skill', data);
 });
