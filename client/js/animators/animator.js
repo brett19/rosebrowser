@@ -23,13 +23,16 @@ function Animator(object, animationData) {
 Animator.prototype = Object.create(EventEmitter.prototype);
 
 Animator.prototype.play = function (startTime, weight) {
+  if (this.isPlaying) {
+    this.stop();
+  }
+
   this.currentTime = startTime !== undefined ? startTime : 0;
   this.weight = weight !== undefined ? weight : 1;
 
   this.reset();
 
   this.isPlaying = true;
-  this.isPaused = false;
 
   THREE.AnimationHandler.play(this);
 };
