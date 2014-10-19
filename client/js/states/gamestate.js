@@ -127,6 +127,7 @@ GameState.prototype.enter = function() {
     MC.mp = data.curMp;
     MC.serverObjectIdx = data.objectIdx;
     MC.pawn = new CharPawn(MC);
+    MC.ingStatus.setRootObj(MC.pawn.rootObj);
     MC.debugValidate();
     GZM.addObject(MC);
     GZM.setCenterObject(MC);

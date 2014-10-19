@@ -21,6 +21,7 @@ PreGameState.prototype.enter = function() {
     MC.hotIcons = new HotIcons();
     MC.skills = new SkillData();
     MC.party = new PartyData();
+    MC.ingStatus = new IngStatus();
 
     MC.name = charData.name;
     MC.uniqueTag = charData.uniqueTag;
