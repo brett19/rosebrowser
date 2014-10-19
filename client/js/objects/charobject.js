@@ -2,6 +2,7 @@ var GORef = require('./goref');
 var ActorObject = require('./actorobject');
 var SitCmd = require('./commands/sit');
 var SkillToObjCmd = require('./commands/skilltoobj');
+var SkillToSelfCmd = require('./commands/skilltoself');
 
 var DEFAULT_ATTACK_DISTANCE = 0.7;
 
@@ -49,6 +50,13 @@ CharObject.prototype._skillToObj = function(objectRef, skillIdx) {
   var skill = skillData.getData(skillIdx);
 
   return this._setNextCmd(new SkillToObjCmd(this, objectRef, skill));
+};
+
+CharObject.prototype._skillToSelf = function(skillIdx) {
+  var skillData = GDM.getNow('skill_data');
+  var skill = skillData.getData(skillIdx);
+
+  return this._setNextCmd(new SkillToSelfCmd(this, skill));
 };
 
 CharObject.prototype._setMotion = function(motionIdx) {
