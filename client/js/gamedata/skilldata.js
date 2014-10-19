@@ -21,11 +21,23 @@ SkillData.prototype.useSkill = function(skill) {
     var motion = parseInt(data[SKILL.ANI_ACTION_TYPE]);
     netGame.setMotion(motion, 1);
     break;
+  case SKILL_ACTION_TYPE.ACTION_TARGET_BOUND:
+  case SKILL_ACTION_TYPE.ACTION_TARGET_BOUND_DURATION:
+  case SKILL_ACTION_TYPE.ACTION_TARGET_STATE_DURATION:
+  case SKILL_ACTION_TYPE.ACTION_SELF_AND_TARGET:
+  case SKILL_ACTION_TYPE.ACTION_RESURRECTION:
   case SKILL_ACTION_TYPE.ACTION_IMMEDIATE:
     if (MC.target && MC.target.object) {
       var targetObj = MC.target.object;
       netGame.useSkillOnTarget(skill.slot, targetObj.serverObjectIdx);
     }
+    break;
+  case SKILL_ACTION_TYPE.ACTION_SELF_BOUND:
+  case SKILL_ACTION_TYPE.ACTION_SELF_DAMAGE:
+  case SKILL_ACTION_TYPE.ACTION_SELF_BOUND_DURATION:
+  case SKILL_ACTION_TYPE.ACTION_SELF_STATE_DURATION:
+  case SKILL_ACTION_TYPE.ACTION_SUMMON_PET:
+    netGame.useSkillOnSelf(skill.slot);
     break;
   default:
     console.warn('TODO: Unimplemented useSkill', skill);

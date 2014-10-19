@@ -298,14 +298,30 @@ _NetManager.prototype.watch = function(wn, gn) {
     }
   });
 
+  gn.on('self_skill', function(data) {
+    var obj = GZM.findByServerObjectIdx(data.sourceObjectIdx);
+    if (obj && !(obj instanceof ProxyObject)) {
+      if (obj instanceof CharObject) {
+        obj._skillToSelf(data.skillIdx);
+        console.log('obj_self_skill', data);
+      } else {
+        console.log('obj_self_skill by non CharObject', data);
+      }
+    }
+  });
+
   gn.on('target_skill', function(data) {
     var attackerObj = GZM.findByServerObjectIdx(data.sourceObjectIdx);
     if (attackerObj && !(attackerObj instanceof ProxyObject)) {
-      var defenderObj = GZM.getRefByServerObjectIdx(
-          data.destObjectIdx,
-          new THREE.Vector3(data.posTo.x, data.posTo.y, 0));
-      attackerObj._skillToObj(defenderObj, data.skillIdx);
-      console.log('obj_target_skill', data);
+      if (attackerObj instanceof CharObject) {
+        var defenderObj = GZM.getRefByServerObjectIdx(
+            data.destObjectIdx,
+            new THREE.Vector3(data.posTo.x, data.posTo.y, 0));
+        attackerObj._skillToObj(defenderObj, data.skillIdx);
+        console.log('obj_target_skill', data);
+      } else {
+        console.log('obj_target_skill by non CharObject', data);
+      }
     }
   });
 

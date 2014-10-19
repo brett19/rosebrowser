@@ -204,6 +204,12 @@ GameClient.prototype.useItemOnPosition = function(itemKey, x, y) {
   this.socket.sendPacket(opak);
 };
 
+GameClient.prototype.useSkillOnSelf = function(skillSlotNo) {
+  var opak = new RosePacket(0x7b2);
+  opak.addUint16(skillSlotNo);
+  this.socket.sendPacket(opak);
+};
+
 GameClient.prototype.useSkillOnTarget = function(skillSlotNo, targetIdx) {
   var opak = new RosePacket(0x7b3);
   opak.addUint16(targetIdx);
@@ -876,6 +882,15 @@ GameClient._registerHandler(0x7d7, function(pak, data) {
   this._emitPE('party_rule', data);
 });
 
+GameClient._registerHandler(0x7b2, function(pak, data) {
+  data.sourceObjectIdx = pak.readUint16();
+  data.skillIdx = pak.readInt16();
+  if (!pak.isReadEof()) {
+    data.npcSkillMotion = pak.readString();
+  }
+  this._emitPE('self_skill', data);
+});
+
 GameClient._registerHandler(0x7b3, function(pak, data) {
   data.sourceObjectIdx = pak.readUint16();
   data.destObjectIdx = pak.readUint16();
@@ -898,8 +913,8 @@ GameClient._registerHandler(0x865, function(pak, data) {
 });
 
 function handleEffectOfSkill(pak, data) {
-  data.sourceObjectIdx = pak.readUint16();
   data.destObjectIdx = pak.readUint16();
+  data.sourceObjectIdx = pak.readUint16();
   data.skillIdx = pak.readUint16();
   data.primaryStat = pak.readUint16();
   data.secondaryStat = pak.readUint16();
