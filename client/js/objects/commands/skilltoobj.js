@@ -1,5 +1,6 @@
 var MoCommand = require('./command');
 var MoveToObjCmd = require('./movetoobj');
+var AttackCmd = require('./attack');
 
 function _SkillToObjCmd(object, targetObjRef, skillData) {
   MoCommand.call(this, object);
@@ -110,7 +111,7 @@ SkillToObjCmd.prototype._goOnce = function() {
 };
 
 SkillToObjCmd.prototype.update = function(delta) {
-  if (this.wantInterrupt && !(this.activeCmd instanceof _AttackCmd)) {
+  if (this.wantInterrupt && !(this.activeCmd instanceof AttackCmd)) {
     this.isComplete = true;
     return delta;
   }
