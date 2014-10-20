@@ -1,6 +1,6 @@
 function Pawn() {
   this.rootObj = new THREE.Object3D();
-  this.rootObj.owner = this;
+  this.rootObj.userData.owner = this;
   this.direction = 0;
   this.boundingBox = new THREE.Box3();
   this.boundingOffset = new THREE.Vector3();

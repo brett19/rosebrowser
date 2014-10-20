@@ -111,7 +111,7 @@ _ZoneManager.prototype._meshToObject = function(mesh) {
   var parent = mesh;
 
   do {
-    var pawn = parent.owner;
+    var pawn = parent.userData.owner;
 
     if (pawn) {
       return pawn.owner;
