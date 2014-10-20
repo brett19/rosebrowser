@@ -165,6 +165,7 @@ CharPawn.prototype._setModelPart = function(modelList, partIdx, modelIdx, bindBo
           mesh = new THREE.SkinnedMesh(geometry, material);
           mesh.bind(self.skel);
           self.rootObj.add(mesh);
+          self._addBoundsGeometry(mesh);
         } else {
           mesh = new THREE.Mesh(geometry, material);
 

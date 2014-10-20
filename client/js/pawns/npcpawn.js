@@ -129,6 +129,7 @@ NpcPawn.prototype._setModel = function(charData, modelMgr, charIdx) {
             var charPartMesh = new THREE.SkinnedMesh(geometry, material);
             charPartMesh.bind(charSkel);
             self.rootObj.add(charPartMesh);
+            self._addBoundsGeometry(charPartMesh);
           });
         })(model.parts[j]);
       }

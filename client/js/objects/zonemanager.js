@@ -54,7 +54,7 @@ _ZoneManager.prototype.addObject = function(obj) {
   }
 
   this.pawns.push(obj.pawn);
-  this.colObjects.push(obj.pawn.rootObj);
+  this.colObjects.push(obj.pawn.boundingBoxObj);
   if (this.inScene) {
     scene.add(obj.pawn.rootObj);
   }
@@ -124,7 +124,7 @@ _ZoneManager.prototype._meshToObject = function(mesh) {
 };
 
 _ZoneManager.prototype._rayPickObjects = function(rayCaster) {
-  var inters = rayCaster.intersectObjects( this.colObjects, true );
+  var inters = rayCaster.intersectObjects(this.colObjects, true);
   if (inters.length > 0) {
     return inters[0];
   }
