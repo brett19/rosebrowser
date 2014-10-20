@@ -9,18 +9,41 @@ function ParticleTestState() {
 
   this.DM = new DataManager();
   this.world = null;
+  this.objects = [];
 }
 ParticleTestState.prototype = new State();
 
 ParticleTestState.prototype.prepare = function(callback) {
-  callback();
+  GDM.get('npc_chars', function() {
+    callback();
+  });
 };
 
 ParticleTestState.prototype.spawnBonfire = function() {
   var bonfire = new NpcPawn();
   bonfire.setModel(801);
-  bonfire.rootObj.position.set(5200 + (Math.random() * 20) - 10, 5280 + (Math.random() * 20) - 10, -5);
+  bonfire.rootObj.position.set(5200, 5280, -5);
+  bonfire.playIdleMotion();
+  this.objects.push(bonfire);
   scene.add(bonfire.rootObj);
+};
+
+ParticleTestState.prototype.spawnRandom = function() {
+  for (var i = 0; i < 100; ++i) {
+    var charList = GDM.getNow('npc_chars');
+    var charIdx;
+
+    do {
+      charIdx = Math.floor(Math.random() * 1000);
+    } while(!charList.characters[charIdx]);
+
+    var npc = new NpcPawn();
+    npc.setModel(charIdx);
+    npc.rootObj.position.set(5200 + (Math.random() * 90) - 45, 5280 + (Math.random() * 90) - 45, -5);
+    npc.playIdleMotion();
+    this.objects.push(npc);
+    scene.add(npc.rootObj);
+  }
 };
 
 ParticleTestState.prototype.fuckingMeteors = function() {
@@ -124,6 +147,10 @@ ParticleTestState.prototype.update = function(delta) {
   if (this.world && this.world.isLoaded) {
     this.world.setViewerInfo(camera.position);
     this.world.update(delta);
+  }
+
+  for(var i = 0; i < this.objects.length; ++i) {
+    this.objects[i].update(delta);
   }
 };
 
