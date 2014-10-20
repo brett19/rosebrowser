@@ -9,7 +9,7 @@ QF.checkQuestCondition = function(triggerName) {
 };
 
 QF.doQuestTrigger = function(triggerName) {
-  if (QF_checkQuestCondition(triggerName)[0] <= 0) {
+  if (QF.checkQuestCondition(triggerName)[0] <= 0) {
     return [ 0 ];
   }
 
