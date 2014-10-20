@@ -31,8 +31,6 @@ function NpcPawn(go) {
     go.on('damage', function(amount) {
       self.newDamage(amount);
     });
-
-    this.createNamePlate();
   }
 }
 NpcPawn.prototype = Object.create(SkelAnimPawn.prototype);
@@ -40,13 +38,20 @@ NpcPawn.prototype = Object.create(SkelAnimPawn.prototype);
 NpcPawn.prototype.createNamePlate = function() {
   var texture = ui.createNamePlate(this.owner);
 
+  // Use STB height if available
+  var npcHeight = this.owner.stats.getHeight();
+
+  if (npcHeight === 0) {
+    npcHeight = this.boundingBox.max.z - this.boundingBox.min.z;
+  }
+
   // Recreate the sprite with new texture
   var material = new THREE.SpriteMaterial({ map: texture, color: 0xffffff });
   material.depthWrite = false;
   var sprite = new OrthoSprite(material);
-  sprite.position.set(0, 0, 2.0);
+  sprite.position.set(0, 0, npcHeight);
   sprite.scale.set(texture.image.width, texture.image.height, 1);
-  sprite.offset.set(0, -24, 0);
+  sprite.offset.set(0, -48, 0);
 
   this.rootObj.add(sprite);
   this.nameTag = sprite;
@@ -108,6 +113,8 @@ NpcPawn.prototype._setModel = function(charData, modelMgr, charIdx) {
   }
 
   var skelPath = charData.skeletons[char.skeletonIdx];
+  var waitAll = new MultiWait();
+  var waitSkeleton = waitAll.one();
 
   SkeletonData.load(skelPath, function(zmdData) {
     self._setSkeleton(zmdData);
@@ -118,7 +125,7 @@ NpcPawn.prototype._setModel = function(charData, modelMgr, charIdx) {
       var model = modelMgr.data.models[charModels[i]];
 
       for (var j = 0; j < model.parts.length; ++j) {
-        (function(part) {
+        (function(part, waitPart) {
           if (part.position || part.rotation || part.scale || part.axisRotation) {
             console.warn('NPC Character part has invalid transform data.');
           }
@@ -130,8 +137,9 @@ NpcPawn.prototype._setModel = function(charData, modelMgr, charIdx) {
             charPartMesh.bind(charSkel);
             self.rootObj.add(charPartMesh);
             self._addBoundsGeometry(charPartMesh);
+            waitPart();
           });
-        })(model.parts[j]);
+        })(model.parts[j], waitAll.one());
       }
     }
 
@@ -140,6 +148,12 @@ NpcPawn.prototype._setModel = function(charData, modelMgr, charIdx) {
       var boneIdx = char.effects[e].boneIdx;
       self._addEffectToBone(boneIdx, effectPath);
     }
+
+    waitSkeleton();
+  });
+
+  waitAll.wait(function(){
+    self.createNamePlate();
   });
 };
 
