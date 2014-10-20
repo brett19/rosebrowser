@@ -11,8 +11,9 @@ function _DebugHelper() {
  * Initializes the helper and registeres all the functions.
  */
 _DebugHelper.prototype.init = function() {
-  debugGui.add(this, 'logCamera');
-  debugGui.add(this, 'logScene');
+  debugGui.addButton('Debug Camera', this.toggleDebugCamera.bind(this));
+  debugGui.addButton('Log Camera', this.logCamera.bind(this));
+  debugGui.addButton('Log Scene', this.logScene.bind(this));
 };
 
 /**
@@ -40,6 +41,22 @@ _DebugHelper.prototype.logScene = function() {
     console.groupEnd();
   }
   _printThis(scene);
+};
+
+_DebugHelper.prototype.toggleDebugCamera = function() {
+  if (!debugCamera) {
+    debugCamera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
+    debugCamera.position.setFromMatrixPosition(camera.matrixWorld);
+    debugCamera.quaternion.setFromRotationMatrix(camera.matrixWorld);
+    debugControls = new THREE.FreeFlyControls(debugCamera, debugInput);
+    debugControls.movementSpeed = 100;
+    debugCamFrust.camera = camera;
+    scene.add(debugCamFrust);
+  } else {
+    debugCamera = null;
+    debugControls = null;
+    scene.remove(debugCamFrust);
+  }
 };
 
 /**

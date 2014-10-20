@@ -165,6 +165,7 @@ require('./dialogs/characterselect.js');
 require('./dialogs/characterstatus.js');
 require('./dialogs/chatbox.js');
 require('./dialogs/character.js');
+require('./dialogs/debug.js');
 require('./dialogs/inventory.js');
 require('./dialogs/login.js');
 require('./dialogs/menu.js');

@@ -163,6 +163,39 @@ body {
     }
   }
 
+  .button.grey {
+    background: linear-gradient(to bottom, rgb(150, 150, 150) 0%, rgb(140, 140, 140) 49%, rgb(130, 130, 130) 51%, rgb(110, 110, 110) 100%);
+
+    &:hover {
+      background: linear-gradient(to bottom, rgb(160, 160, 160) 0%, rgb(150, 150, 150) 49%, rgb(140, 140, 140) 51%, rgb(120, 120, 120) 100%);
+      box-shadow: inset 0px 0px 5px rgb(210, 210, 210), 0px 0px 3px rgb(190, 190, 190);
+      border: 1px solid rgb(190, 190, 190);
+    }
+
+    &:active, &.active {
+      background: linear-gradient(to bottom, rgb(120, 120, 120) 0%, rgb(130, 130, 130) 49%, rgb(102, 102, 102) 51%, rgb(140, 140, 140) 100%);
+      box-shadow: inset 0px 0px 5px rgb(190, 190, 190), 0px 0px 3px rgb(170, 170, 170);
+      border: 1px solid rgb(190, 190, 190);
+    }
+  }
+
+  .button.black {
+    background: linear-gradient(to bottom, rgb(60, 60, 60) 0%, rgb(35, 35, 35) 49%, rgb(25, 25, 25) 51%, rgb(15, 15, 15) 100%);
+    box-shadow: inset 0px 0px 3px #808080;
+
+    &:hover {
+      background: linear-gradient(to bottom, rgb(110, 110, 110) 0%, rgb(85, 85, 85) 49%, rgb(75, 75, 75) 51%, rgb(65, 65, 65) 100%);
+      box-shadow: inset 0px 0px 5px rgb(130, 130, 130), 0px 0px 3px rgb(110, 110, 110);
+      border: 1px solid rgb(70, 70, 70);
+    }
+
+    &:active, &.active {
+      background: linear-gradient(to bottom, rgb(30, 30, 30) 0%, rgb(25, 25, 25) 49%, rgb(15, 15, 15) 51%, rgb(15, 15, 15) 100%);
+      box-shadow: inset 0px 0px 9px rgb(140, 140, 140), 0px 0px 3px rgb(120, 120, 120);
+      border: 1px solid rgb(80, 80, 80);
+    }
+  }
+
   /* Tabs Element */
   .tabpanel.horizontal {
     .flex-vertical;
@@ -760,6 +793,48 @@ body {
       width: 50px;
       height: inherit;
       margin-left: 5px;
+    }
+  }
+
+  .dialog.debug {
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    top: -2px;
+    right: 10px;
+    min-width: 200px;
+
+    .panel.controls {
+      box-shadow: inset 0px 0px 3px #ffffff;
+      background-color: rgba(50, 50, 50, 0.7);
+      border: 1px solid #000;
+      border-radius: 0;
+
+      .button {
+        border-radius: 0;
+        margin-top: -1px;
+        height: 24px;
+        text-align: left;
+        padding-left: 5px;
+      }
+
+      *:first-child {
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+        margin-top: 0px;
+      }
+
+      *:last-child {
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
+      }
+    }
+
+    .button.toggle-controls {
+      margin-top: -1px;
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
     }
   }
 }

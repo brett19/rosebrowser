@@ -66,41 +66,18 @@ function onWindowResize() {
 var defaultMat = new THREE.MeshPhongMaterial({ambient: 0x030303, color: 0xdddddd, specular: 0x009900, shininess: 30, shading: THREE.FlatShading});
 
 
-// Create a debug GUI manager.
-var debugGui = new dat.GUI();
-DebugHelper.init();
-
 // Set up the debugging camera
+var debugGui = null;
 var debugCamera = null;
 var debugInput = new EventEmitter();
 var debugControls = null;
 var debugCamFrust = new THREE.CameraHelper(camera);
 
-function initDebugCamera() {
-  debugCamera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
-  debugCamera.position.setFromMatrixPosition(camera.matrixWorld);
-  debugCamera.quaternion.setFromRotationMatrix(camera.matrixWorld);
-  debugControls = new THREE.FreeFlyControls(debugCamera, debugInput);
-  debugControls.movementSpeed = 100;
-  debugCamFrust.camera = camera;
-  scene.add(debugCamFrust);
-}
-
-function destroyDebugCamera() {
-  debugCamera = null;
-  debugControls = null;
-  scene.remove(debugCamFrust);
-}
-
 var debugTriggerKeyCodes = [ 192, 223 ];
 var inputMgrEventHandler = InputManager._handleEvent;
 InputManager._handleEvent = function(name, e) {
   if (name === 'keydown' && debugTriggerKeyCodes.indexOf(e.keyCode) !== -1) {
-    if (!debugCamera) {
-      initDebugCamera();
-    } else {
-      destroyDebugCamera();
-    }
+    DebugHelper.toggleDebugCamera();
     e.preventDefault();
     return;
   }
@@ -230,6 +207,9 @@ ShaderManager.init(function() {
   // Needed for game states that alter UI.
   $(function() {
     ui.loadTemplates('/gui/dialogs/templates', function() {
+      // Create the debug UI
+      debugGui = ui.debugDialog();
+      DebugHelper.init();
       StateManager.prepareAndSwitch(launchStateName);
     });
   });

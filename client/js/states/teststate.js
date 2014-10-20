@@ -58,8 +58,8 @@ TestState.prototype.goInGame = function() {
 TestState.prototype.enter = function() {
   var self = this;
 
-  debugGui.add(this, 'goInSelect');
-  debugGui.add(this, 'goInGame');
+  debugGui.addButton('Go In Select', this.goInSelect.bind(this));
+  debugGui.addButton('Go In Game', this.goInGame.bind(this));
 
   var wm = new MapManager();
   wm.rootObj.position.set(5200, 5200, 0);

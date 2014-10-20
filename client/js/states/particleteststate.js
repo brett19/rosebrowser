@@ -56,9 +56,10 @@ ParticleTestState.prototype.fuckingPointer = function() {
 ParticleTestState.prototype.enter = function() {
   var self = this;
 
-  debugGui.add(this, 'spawnBonfire');
-  debugGui.add(this, 'fuckingMeteors');
-  debugGui.add(this, 'fuckingPointer');
+  debugGui.addButton('Spawn Random NPCs', this.spawnRandom.bind(this));
+  debugGui.addButton('Spawn Bonfire', this.spawnBonfire.bind(this));
+  debugGui.addButton('Test Meteors', this.fuckingMeteors.bind(this));
+  debugGui.addButton('Test Pointer', this.fuckingPointer.bind(this));
 
   var container = document.createElement( 'div' );
   document.body.appendChild( container );

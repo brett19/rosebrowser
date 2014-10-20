@@ -72,12 +72,7 @@ MovGenState.prototype.genMovData = function() {
   console.log('Generated move data.');
 };
 
-MovGenState.prototype.logCam = function() {
-  console.log(camera);
-};
-
 MovGenState.prototype.enter = function() {
-  debugGui.add(this, 'logCam');
   var self = this;
 
   var wm = new MapManager();
