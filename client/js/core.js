@@ -66,12 +66,13 @@ function onWindowResize() {
 var defaultMat = new THREE.MeshPhongMaterial({ambient: 0x030303, color: 0xdddddd, specular: 0x009900, shininess: 30, shading: THREE.FlatShading});
 
 
-// Set up the debugging camera
+// Set up the debugging stuff
 var debugGui = null;
 var debugCamera = null;
 var debugInput = new EventEmitter();
 var debugControls = null;
 var debugCamFrust = new THREE.CameraHelper(camera);
+var debugBoundingBoxes = false;
 
 var debugTriggerKeyCodes = [ 192, 223 ];
 var inputMgrEventHandler = InputManager._handleEvent;

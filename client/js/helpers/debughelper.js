@@ -14,6 +14,7 @@ _DebugHelper.prototype.init = function() {
   debugGui.addButton('Debug Camera', this.toggleDebugCamera.bind(this));
   debugGui.addButton('Log Camera', this.logCamera.bind(this));
   debugGui.addButton('Log Scene', this.logScene.bind(this));
+  debugGui.addButton('Bounding Boxes', this.toggleBoundingBoxes.bind(this));
 };
 
 /**
@@ -56,6 +57,14 @@ _DebugHelper.prototype.toggleDebugCamera = function() {
     debugCamera = null;
     debugControls = null;
     scene.remove(debugCamFrust);
+  }
+};
+
+_DebugHelper.prototype.toggleBoundingBoxes = function() {
+  debugBoundingBoxes = !debugBoundingBoxes;
+
+  for (var i = 0; i < GZM.colObjects.length; ++i) {
+    GZM.colObjects[i].visible = debugBoundingBoxes;
   }
 };
 

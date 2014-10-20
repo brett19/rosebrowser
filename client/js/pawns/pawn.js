@@ -5,7 +5,7 @@ function Pawn() {
   this.boundingBox = new THREE.Box3();
   this.boundingOffset = new THREE.Vector3();
   this.boundingBoxObj = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial( { color: 0x00ff00, wireframe: true } ));
-  this.boundingBoxObj.visible = false;
+  this.boundingBoxObj.visible = debugBoundingBoxes;
   this.rootObj.add(this.boundingBoxObj);
 }
 
