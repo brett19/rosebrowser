@@ -90,12 +90,12 @@ function _checkJobMatch(classIdx, jobIdx) {
   var jobData = GDM.getNow('list_class');
   var jobRow = jobData.row(jobIdx);
 
-  if (jobRow[2] === 0) {
+  if (parseInt(jobRow[1]) === 0) {
     return true;
   }
 
-  for (var i = 2; i < 10; ++i) {
-    if (jobRow[i] === classIdx) {
+  for (var i = 1; i <= 12; ++i) {
+    if (parseInt(jobRow[i]) === classIdx) {
       return true;
     }
   }
