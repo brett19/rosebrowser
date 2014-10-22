@@ -63,6 +63,7 @@ ModelListManager.prototype._createMaterialLMOnly = function(materialIdx, lmData)
   if (zscMat.twoSided) {
     newMaterial.side = THREE.DoubleSide;
   }
+
   newMaterial.opacity = zscMat.alpha;
   newMaterial.depthTest = zscMat.depthTestEnabled;
   newMaterial.depthWrite = zscMat.depthWriteEnabled;
@@ -90,14 +91,15 @@ ModelListManager.prototype._createMaterialWithLightmap = function(materialIdx, l
   if (zscMat.twoSided) {
     newMaterial.side = THREE.DoubleSide;
   }
+
   if (zscMat.alphaEnabled) {
     newMaterial.transparent = true;
+
+    if (zscMat.alphaTestEnabled) {
+      newMaterial.alphaTest = zscMat.alphaRef / 256;
+    }
   }
-  if (zscMat.alphaTestEnabled) {
-    newMaterial.alphaTest = zscMat.alphaRef / 256;
-  } else {
-    newMaterial.alphaTest = 0;
-  }
+
   newMaterial.opacity = zscMat.alpha;
   newMaterial.depthTest = zscMat.depthTestEnabled;
   newMaterial.depthWrite = zscMat.depthWriteEnabled;
@@ -117,19 +119,16 @@ ModelListManager.prototype._createMaterial = function(materialIdx) {
 
   var newMaterial = new THREE.MeshLambertMaterial({color: 0xffffff, map: texture});
   newMaterial.skinning = zscMat.forSkinning;
+
   if (zscMat.twoSided) {
     newMaterial.side = THREE.DoubleSide;
   }
 
-  // TEMPORARY HACK
-  if (!zscMat.useSpecular) {
-    if (zscMat.alphaEnabled) {
-      newMaterial.transparent = true;
-    }
+  if (zscMat.alphaEnabled) {
+    newMaterial.transparent = true;
+
     if (zscMat.alphaTestEnabled) {
       newMaterial.alphaTest = zscMat.alphaRef / 255;
-    } else {
-      newMaterial.alphaTest = 0;
     }
   }
 
